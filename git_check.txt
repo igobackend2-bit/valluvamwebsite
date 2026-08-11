@@ -1,0 +1,13 @@
+=== git version === 
+git version 2.54.0.windows.1
+=== git global config === 
+user.email=igobackend2@gmail.com
+user.name=Your Name
+http.version=HTTP/1.1
+credential.helper=manager
+=== repo status in htdocs\valluvam === 
+fatal: not a git repository (or any of the parent directories): .git
+=== remotes === 
+fatal: not a git repository (or any of the parent directories): .git
+=== repo status in this project folder === 
+fatal: not a git repository (or any of the parent directories): .git
