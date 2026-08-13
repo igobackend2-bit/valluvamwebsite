@@ -9,6 +9,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 ?>
 <script>
   const userStatus = <?php echo $status; ?>;
+  const currentPage = "<?php echo basename($_SERVER['PHP_SELF']); ?>";
 </script>
 
 
@@ -18,7 +19,6 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="google-site-verification" content="wQaWf_nXr3O561T4MZpaWR1Q02jZtWeVYvKuTQpPnXU" />
 
   <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
@@ -237,6 +237,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
           <li class="nav-item"><a href="about.php" class="nav-link">About</a></li>
           <li class="nav-item"><a href="blog.php" class="nav-link">Blog</a></li>
+          <li class="nav-item"><a href="b2b-wholesale.php" class="nav-link">B2B / Wholesale</a></li>
           <li class="nav-item"><a href="contact.php" class="nav-link">Contact</a></li>
           <li class="nav-item cta cta-colored">
             <a href="cart.php" class="nav-link">
@@ -338,9 +339,6 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KZKSFQWNM4"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-KZKSFQWNM4'); </script>
-
-
 
 </body>
 
