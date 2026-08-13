@@ -1,8 +1,4 @@
 images.zip
 vendor/
 .env
-config.php
-load_env.php
-load-env.php
-assets/db_query/config.php
-assets/db_query/load_env.php
+
