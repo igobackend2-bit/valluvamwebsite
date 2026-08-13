@@ -1,3 +1,12 @@
+function slugify(text) {
+	return String(text || '')
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9\s-]/g, '')
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-');
+}
+
 AOS.init({
 	duration: 800,
 	easing: 'slide'

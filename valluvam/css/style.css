@@ -12053,7 +12053,7 @@ h5,
 }
 
 .owl-carousel.home-slider .slider-item {
-  background-size: 100% 100%;
+  background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
   height: 650px;

@@ -1,0 +1,13 @@
+Full Name: IGO GROUPS
+Business Name: test
+Business Type: Retailer
+City: Chennai
+State: tamilnadu
+Phone: 9876543210
+Email: igobackend4@gmail.com
+GST: 
+Products: Dry Fruits
+Monthly Requirement: 50kg
+Pack Size: Retail
+Message: test
+Submitted At: 2026-08-08 07:32:31

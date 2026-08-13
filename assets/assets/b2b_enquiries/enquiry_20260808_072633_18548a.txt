@@ -1,0 +1,13 @@
+Full Name: TEST - Claude Verification
+Business Name: Test
+Business Type: Retailer
+City: Chennai
+State: Tamil Nadu
+Phone: 9999999999
+Email: test@example.com
+GST: 
+Products: Nuts
+Monthly Requirement: test
+Pack Size: Retail
+Message: This is an automated test to verify the live B2B form mailer is working. Please ignore/delete.
+Submitted At: 2026-08-08 07:26:33

@@ -139,7 +139,7 @@
 
 <body>
 	<div class="icon-bar">
-		<a href="https://api.whatsapp.com/send?phone=8925830492" class="whatsapp-float" target="_blank">
+		<a href="https://api.whatsapp.com/send?phone=918925969888" class="whatsapp-float" target="_blank">
 			<ion-icon name="logo-whatsapp"></ion-icon>
 		</a>
 	</div>

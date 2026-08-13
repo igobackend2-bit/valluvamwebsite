@@ -1,6 +1,8 @@
   <?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
     include "header.php";
-    $product_id = $_GET['product']; ?>
+    // URL is the product name slug, e.g. "honey". Old numeric/id-slug links ("213" or "213-honey") still resolve via their leading id.
+    $product_param = $_GET['product'] ?? '';
+    $product_id = preg_match('/^\d+/', $product_param, $m) ? $m[0] : $product_param; ?>
 
   <body class="goto-here">
       <div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
