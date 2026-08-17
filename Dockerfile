@@ -9,6 +9,10 @@ RUN docker-php-ext-install mysqli pdo pdo_mysql
 COPY . /app
 COPY --from=composer_stage /app/vendor /app/vendor
 
+RUN mkdir -p /app/assets/b2b_enquiries \
+    && chown -R www-data:www-data /app \
+    && chmod -R 775 /app/assets/b2b_enquiries
+
 RUN a2enmod rewrite
 ENV APACHE_DOCUMENT_ROOT=/app
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
