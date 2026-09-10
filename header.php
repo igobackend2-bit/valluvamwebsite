@@ -162,6 +162,109 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <!-- sweetheart -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
+
+  <!-- ===== Header alignment fix (scoped to #ftco-navbar, desktop only) ===== -->
+  <style>
+    @media (min-width: 992px) {
+
+      /* one flex row, everything vertically centred */
+      #ftco-navbar>.container {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+      }
+
+      /* logo: smaller, tightens the whole bar */
+      #ftco-navbar .navbar-brand {
+        padding: 0;
+        margin: 0 20px 0 0;
+        flex: 0 0 auto;
+      }
+
+      #ftco-navbar .navbar-brand img {
+        max-height: 72px !important;
+        width: auto;
+        display: block;
+      }
+
+      /* search: vertically centred, allowed to shrink */
+      #ftco-navbar #searchForm {
+        flex: 0 1 280px;
+        min-width: 0;
+        margin: 0 20px 0 0;
+      }
+
+      #ftco-navbar .search {
+        --padding: 9px;
+        width: 100%;
+        margin-top: 0;
+      }
+
+      #ftco-navbar .search-input {
+        width: 100%;
+        font-size: 15px;
+      }
+
+      #ftco-navbar #product-results {
+        flex: 0 0 auto;
+      }
+
+      /* nav: cancel main.css offsets, keep on one line */
+      #ftco-navbar .navbar-collapse {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      #ftco-navbar #ftco-nav {
+        margin-left: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      #ftco-navbar .navbar-nav {
+        flex-wrap: nowrap;
+        align-items: center;
+      }
+
+      #ftco-navbar .navbar-nav>.nav-item>.nav-link {
+        padding: 14px 9px;
+        letter-spacing: .5px;
+        white-space: nowrap;
+      }
+
+      /* cart icon and count side by side */
+      #ftco-navbar .navbar-nav>.nav-item.cta>.nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      #ftco-navbar .navbar-nav .login-nav {
+        display: inline-flex;
+        align-items: center;
+        width: auto;
+      }
+    }
+
+    /* narrow desktops: tighten so the menu never overflows */
+    @media (min-width: 992px) and (max-width: 1199.98px) {
+      #ftco-navbar .navbar-brand {
+        margin-right: 12px;
+      }
+
+      #ftco-navbar #searchForm {
+        flex: 0 1 190px;
+        margin-right: 12px;
+      }
+
+      #ftco-navbar .navbar-nav>.nav-item>.nav-link {
+        padding-left: 7px;
+        padding-right: 7px;
+        letter-spacing: .3px;
+      }
+    }
+  </style>
 </head>
 
 <body>
