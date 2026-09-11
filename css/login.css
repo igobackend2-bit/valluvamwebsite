@@ -169,6 +169,7 @@
     min-height: 100%;
     width: 100%;
     align-items: center;
+    justify-content: center;
 }
 
 .auth-visual {
@@ -188,11 +189,13 @@
 }
 
 .auth-panel {
-    flex: 1 1 auto;
+    flex: 0 1 620px;
+    width: 620px;
+    max-width: 620px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 56px 8vw;
+    padding: 56px 64px;
     background: rgba(255, 255, 255, 0.55);
     -webkit-backdrop-filter: blur(28px) saturate(180%);
     backdrop-filter: blur(28px) saturate(180%);
@@ -202,13 +205,14 @@
     margin: 40px 40px 40px -64px;
     position: relative;
     z-index: 2;
+    box-sizing: border-box;
 }
 
 /* Login / Sign Up switch — small pill control top-right of the panel */
 .form-toggle {
     position: absolute;
     top: 32px;
-    right: 8vw;
+    right: 32px;
     display: inline-flex;
     background: rgba(255, 255, 255, 0.45);
     -webkit-backdrop-filter: blur(10px);
@@ -372,12 +376,28 @@
 
 /* Responsive: no room for a side image on tablets/phones — form takes over
    full width, matching the site's existing mobile-first patterns. */
+@media (min-width: 901px) and (max-width: 1180px) {
+    .auth-panel {
+        flex: 0 1 460px;
+        width: 460px;
+        max-width: 460px;
+        padding: 48px 40px;
+        margin: 40px 40px 40px -48px;
+    }
+
+    .form-toggle {
+        right: 24px;
+    }
+}
+
 @media (max-width: 900px) {
     .auth-visual {
         display: none;
     }
 
     .auth-panel {
+        width: 100%;
+        max-width: 100%;
         padding: 90px 7vw 48px;
         margin: 0;
         border-radius: 0;
