@@ -1,5 +1,4 @@
 RewriteEngine On
-RewriteBase /
 
 # Force HTTPS
 RewriteCond %{HTTPS} !=on
@@ -9,7 +8,6 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 RewriteCond %{HTTP_HOST} !^www\. [NC]
 RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# --- DIAGNOSTIC TEST: serve /shop internally as shop.php (no redirects, no link changes) ---
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^shop$ shop.php [L]
+# --- DIAGNOSTIC TEST 3: unconditional internal rewrite, brand-new test path ---
+# If this works, /testroute123 will show the About page content.
+RewriteRule ^testroute123$ about.php [L]
