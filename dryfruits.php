@@ -84,22 +84,6 @@ include 'header.php' ?>
 			<div class="row" id="products-dryfruits">
 				<!-- dryfruits products here -->
 			</div>
-			<div class="row mt-5">
-				<div class="col text-center">
-					<div class="block-27">
-						<ul>
-							<li><a href="shop.php">&lt;</a></li>
-							<li><a href="shop.php"><span>1</span></a></li>
-							<li class="active"><a href="dryfruits.php"><span>2</span></a></li>
-							<li><a href="nuts.php">3</a></li>
-							<li><a href="spices.php">4</a></li>
-							<li><a href="oils.php">5</a></li>
-							<li><a href="millets.php">6</a></li>
-							<li><a href="nuts.php">&gt;</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
 		</div>
 	</section>
 

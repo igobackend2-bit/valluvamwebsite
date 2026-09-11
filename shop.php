@@ -76,7 +76,6 @@ include "header.php" ?>
 						<li><a href="oils.php">Oils</a></li>
 						<li><a href="millets.php">Millets</a></li>
 						<li><a href="rice.php">Rice</a></li>
-						<li><a href="dryfruits.php">&gt;</a></li>
 
 					</ul>
 				</div>
@@ -255,22 +254,6 @@ include "header.php" ?>
     					</div>
     				</div>
     			</div> -->
-		</div>
-		<div class="row mt-5">
-			<div class="col text-center">
-				<div class="block-27">
-					<ul>
-						<li><a href="#">&lt;</a></li>
-						<li class="active"><span>1</span></li>
-						<li><a href="dryfruits.php">2</a></li>
-						<li><a href="nuts.php">3</a></li>
-						<li><a href="spices.php">4</a></li>
-						<li><a href="oils.php">5</a></li>
-						<li><a href="millets.php">6</a></li>
-						<li><a href="dryfruits.php">&gt;</a></li>
-					</ul>
-				</div>
-			</div>
 		</div>
 		</div>
 	</section>

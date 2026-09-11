@@ -63,7 +63,7 @@ $(document).ready(function () {
         let html = "";
 
         products.forEach(function (product) {
-            let image = product.image ? "assets/uploads/" + product.image : "images/default.jpg";
+            let image = product.image ? "assets/uploads/" + product.image : "images/logo.png";
 
             let discount = "";
             if (product.dis_price && product.price) {
@@ -97,6 +97,20 @@ $(document).ready(function () {
                       </p>
                     </div>
                   </div>
+
+                  <div class="bottom-area d-flex px-3">
+                    <div class="m-auto d-flex">
+                      <a href="productdetail.php?product=${slugify(product.product_name)}" class="add-to-cart d-flex justify-content-center align-items-center text-center product-detail-btn" data-id="${product.id}">
+                        <span><ion-icon name="menu"></ion-icon></span>
+                      </a>
+                      <a href="#" class="buy now d-flex justify-content-center align-items-center btn btn-primary add-to-cart" id="add-to-cart" data-id="${product.id}">
+                        <span><ion-icon name="cart"></ion-icon></span>
+                      </a>
+                      <a href="#" class="heart d-flex justify-content-center align-items-center wishlist-btn" data-product-id="${product.id}">
+                        <span><ion-icon name="heart"></ion-icon></span>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -118,7 +132,7 @@ function fetchShopProducts() {
                 let html = '';
                 res.data.forEach(function (product) {
                     let slug = product.product_name.toLowerCase().replace(/\s+/g, '-');
-                    let image = product.image ? 'assets/uploads/' + product.image : 'images/default.jpg';
+                    let image = product.image ? 'assets/uploads/' + product.image : 'images/logo.png';
                     let discount = '';
 
                     if (product.dis_price && product.price) {
@@ -157,8 +171,8 @@ function fetchShopProducts() {
                                         data-id="${product.id}">
                                             <span><ion-icon name="menu"></ion-icon></span>
                                         </a>
-                                        <a href="#" class="buy now d-flex justify-content-center align-items-center btn btn-primary add-to-cart" id="add-to-cart" data-id="${product.id}"
-                                            <span><ion-icon name="cart"></ion-icon></a></span>
+                                        <a href="#" class="buy now d-flex justify-content-center align-items-center btn btn-primary add-to-cart" id="add-to-cart" data-id="${product.id}">
+                                            <span><ion-icon name="cart"></ion-icon></span>
                                         </a>
                                         <a href="#" class="heart d-flex justify-content-center align-items-center wishlist-btn" 
                                           data-product-id="${product.id}">

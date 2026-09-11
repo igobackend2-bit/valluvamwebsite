@@ -11,7 +11,7 @@ function fetchComboProducts() {
             if (res.status === 'success') {
                 let html = '';
                 res.data.forEach(function (product) {
-                    let image = product.image ? 'assets/uploads/' + product.image : 'images/default.jpg';
+                    let image = product.image ? 'assets/uploads/' + product.image : 'images/logo.png';
 
                     let discount = '';
                     if (product.dis_price && product.price) {

@@ -454,6 +454,32 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     .ftco-section:not(.ftco-footer) h3 {
       margin-bottom: 12px;
     }
+
+    /* 7. Header action icons (wishlist / cart / account) were rendering at
+       a tiny, default inherited size next to the nav text -- bump them up
+       and give them room so they read as clear icon buttons. */
+    #ftco-navbar .navbar-nav .nav-item.cta .nav-link .ion-ios-heart,
+    #ftco-navbar .navbar-nav .nav-item.cta .nav-link .icon-shopping_cart {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    #ftco-navbar .navbar-nav .nav-item.cta .nav-link #cartCount {
+      font-size: 15px;
+      font-weight: 600;
+      margin-left: 2px;
+    }
+
+    #ftco-navbar .navbar-nav .login-nav .ri-account-circle-fill {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    #ftco-navbar .navbar-nav .nav-item.cta > .nav-link,
+    #ftco-navbar .navbar-nav .login-nav {
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
   </style>
 
   <!-- ===== Header bar: logo presence, gap balance, topbar alignment ===== -->

@@ -84,23 +84,6 @@ include 'header.php' ?>
       <div class="row" id="products-rice">
         <!-- All rice products here -->
       </div>
-      <div class="row mt-5">
-        <div class="col text-center">
-          <div class="block-27">
-            <ul>
-              <li><a href="millets.php">&lt;</a></li>
-              <li><a href="shop.php"><span>1</span></a></li>
-              <li><a href="dryfruits.php"><span>2</span></a></li>
-              <li><a href="nuts.php"><span>3</span></a></li>
-              <li><a href="spices.php"><span>4</span></a></li>
-              <li><a href="oils.php">5</a></li>
-              <li><a href="millets.php">6</a></li>
-              <li class="active"><a href="rice.php">7</a></li>
-              <li><a href="shop.php">&gt;</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
