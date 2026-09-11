@@ -25,7 +25,7 @@ function loadCart() {
                 cartHTML += `
                 <tr data-id="${item.cart_id}">
                   <td><button type="button" class="btn btn-sm remove-item">X</button></td>
-                  <td><img src="assets/uploads/${item.image}" style="width:60px;height:60px;"></td>
+                  <td><img src="assets/uploads/${item.image}" style="width:60px;height:60px;" alt="${item.product_name}"></td>
                   <td>${item.product_name}</td>
                   <td>₹${item.dis_price}</td>
                   <td>${item.quantity}</td>

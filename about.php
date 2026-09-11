@@ -9,13 +9,13 @@
     <title>About Valluvam — Our Story</title>
     <meta name="description" content="Learn about Valluvam, an Indian brand bringing premium nuts, dry fruits, cold-pressed oils, spices and millets to homes and businesses.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/about.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/about.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="About Valluvam — Our Story">
     <meta property="og:description" content="Learn about Valluvam, an Indian brand bringing premium nuts, dry fruits, cold-pressed oils, spices and millets to homes and businesses.">
-    <meta property="og:url" content="https://valluvamproducts.com/about.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/about.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -140,7 +140,7 @@
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <img src="images/blog-oil.jpg" alt="about-left" class="img-fluid" width="80%">
+            <img src="images/blog-oil.jpg" alt="about-left" class="img-fluid" width="80%" loading="lazy">
           </div>
           <div class="col-lg-6">
             <h3 class="head1">Our Story</h3>
@@ -202,7 +202,7 @@
 
           </div>
           <div class="col-lg-6">
-            <img src="images/about2.jpeg" alt="about">
+            <img src="images/about2.jpeg" alt="about" loading="lazy">
           </div>
         </div>
         <div class="row">

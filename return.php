@@ -9,13 +9,13 @@
     <title>Returns and Exchange Policy | Valluvam</title>
     <meta name="description" content="Read Valluvam's returns and exchange policy for damaged or incorrect orders.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/return.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/return.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Returns and Exchange Policy | Valluvam">
     <meta property="og:description" content="Read Valluvam's returns and exchange policy for damaged or incorrect orders.">
-    <meta property="og:url" content="https://valluvamproducts.com/return.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/return.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">

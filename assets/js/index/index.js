@@ -125,7 +125,7 @@ function category_slider() {
                     <div class="slide">
                         <div class="slide-content">
                             <a href="${cat.link}" target="_blank">
-                                <img src="assets/thumbnail/${cat.thumbnali}" loading="lazy" />
+                                <img src="assets/thumbnail/${cat.thumbnali}" loading="lazy" alt="Valluvam product category" />
                                 <div class="button-container">
                                     <span class="button">View More</span>
                                 </div>

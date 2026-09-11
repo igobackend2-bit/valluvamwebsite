@@ -45,9 +45,8 @@
 								<ion-icon name="globe"></ion-icon> </span>
 							<h3 class="title">Online Ordering Platform</h3>
 							<p class="description">Our online ordering platform is fast, simple, and secure.
-								Customers can place orders easily from any device. Real-time tracking keeps
-								them updated. Multiple payment options ensure smooth transactions.
-								Quick responses, easy returns, and customer-friendly service.</p>
+								Customers can place orders easily from any device, with a smooth checkout
+								and clear order history.</p>
 						</div>
 						<span class="circle-before"></span>
 					</div>
@@ -95,8 +94,8 @@
 								<ion-icon name="call"></ion-icon> </span>
 							<h3 class="title">Customer Support</h3>
 							<p class="description">Our customer support team is here to assist you 24/7.
-								Get quick solutions through chat, email, or phone. We ensure fast and reliable issue resolution.
-								Friendly and knowledgeable support for all your needs. and Friendly and knowledgeable support team.
+								Reach us by chat, email, or phone for quick, friendly assistance with
+								your orders.
 							</p>
 						</div>
 						<span class="circle-before"></span>
@@ -108,13 +107,11 @@
 					<div class="single-service">
 						<div class="content">
 							<span class="icon">
-								<span class="material-symbols-outlined">
-									delivery_truck_speed
-								</span> </span>
-							<h3 class="title">Flexible Delivery Options</h3>
-							<p class="description">We offer flexible delivery options to suit your needs, ensuring fast and reliable service.
-								Choose from standard, express, or scheduled delivery for maximum convenience. Real-time tracking keeps
-								you updated every step of the way.Fast and reliable delivery services.
+								<ion-icon name="navigate-outline"></ion-icon> </span>
+							<h3 class="title">Order Tracking</h3>
+							<p class="description">Every order moves through clear status updates —
+								from ordered to delivered — so you always know exactly where things
+								stand. Check your order status anytime from your account.
 							</p>
 						</div>
 						<span class="circle-before"></span>

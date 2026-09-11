@@ -9,13 +9,13 @@ include 'header.php' ?>
     <title>My Wishlist | Valluvam</title>
     <meta name="description" content="View and manage the Valluvam products you've saved to your wishlist.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/wishlist.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/wishlist.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="My Wishlist | Valluvam">
     <meta property="og:description" content="View and manage the Valluvam products you've saved to your wishlist.">
-    <meta property="og:url" content="https://valluvamproducts.com/wishlist.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/wishlist.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">

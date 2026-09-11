@@ -9,13 +9,13 @@ include 'header.php'?>
     <title>Buy Cold-Pressed Oils Online | Valluvam</title>
     <meta name="description" content="Shop cold-pressed oils from Valluvam: naturally extracted, unrefined and delivered fresh to your doorstep across India.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/oils.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/oils.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Buy Cold-Pressed Oils Online | Valluvam">
     <meta property="og:description" content="Shop cold-pressed oils from Valluvam: naturally extracted, unrefined and delivered fresh to your doorstep across India.">
-    <meta property="og:url" content="https://valluvamproducts.com/oils.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/oils.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">

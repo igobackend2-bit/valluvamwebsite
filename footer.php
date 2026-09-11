@@ -234,13 +234,12 @@
 				<div class="col-md">
 					<div class="ftco-footer-widget mb-4">
 						<h2 class="ftco-heading-2" style="color: #fff;">Valluvam</h2>
-						<p>"Discover purity and tradition with Valuvam – your trusted source for cold-pressed oils, premium spices, dry fruits, nuts, and wholesome millets.
+						<p>"Discover purity and tradition with Valluvam – your trusted source for cold-pressed oils, premium spices, dry fruits, nuts, and wholesome millets.
 							Naturally sourced, carefully packed, and delivered fresh to your doorstep."</p>
 						<div class="footer-col">
 							<h4 style="color:#fff">follow us</h4>
 							<div class="social-links">
 								<a href="https://www.facebook.com/valluvamproducts/"><ion-icon name="logo-facebook"></ion-icon></a>
-								<a href="#"><ion-icon name="logo-twitter"></ion-icon></a>
 								<a href="https://www.instagram.com/valluvam_agro_products/"><ion-icon name="logo-instagram"></ion-icon></a>
 							</div>
 						</div>
@@ -263,10 +262,10 @@
 						<h2 class="ftco-heading-2" style="color:#fff">Customer Support</h2>
 						<div class="d-flex" style="color:#fff">
 							<ul class="list-unstyled mr-l-5 pr-l-3 mr-4" style="color:#fff">
-								<li><a href="#">Shipping Information</a></li>
+								<li><a href="index.php#homeFaqHeading3">Shipping Information</a></li>
 								<li><a href="return.php">Returns and Exchange</a></li>
-								<li><a href="checkout.php">order status</a></li>
-								<li><a href="#">payment options</a></li>
+								<li><a href="order_tracking.php">Order Status</a></li>
+								<li><a href="index.php#homeFaqHeading5">Payment Options</a></li>
 								<li><a href="term.php">Term & Conditions</a></li>
 								<li><a href="privacy.php">Privacy Policy</a></li>
 							</ul>
@@ -292,8 +291,8 @@
 								<li><span class="icon icon-map-marker"></span><span class="text">No 17 , Kovalan street, 2nd main road, Uthandi kanathur, Chennai 600119.
 
 									</span></li>
-								<li><a href="#"><span class="icon icon-phone"></span><span class="text">+918925969888</span></a></li>
-								<li><a href="#"><span class="icon icon-envelope"></span><span class="text"> info.thefarmersfactory@<br>gmail.com
+								<li><a href="tel:+918925969888"><span class="icon icon-phone"></span><span class="text">+918925969888</span></a></li>
+								<li><a href="mailto:info.thefarmersfactory@gmail.com"><span class="icon icon-envelope"></span><span class="text"> info.thefarmersfactory@<br>gmail.com
 										</span></a></li>
 							</ul>
 						</div>

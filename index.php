@@ -308,7 +308,7 @@ include "header.php"
     <meta property="og:type" content="website">
     <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
     <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
-    <meta property="og:url" content="https://valluvamproducts.com/">
+    <meta property="og:url" content="https://www.valluvamproducts.com/">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -317,7 +317,7 @@ include "header.php"
     <meta name="twitter:image" content="/images/logo.png">
     <link rel="icon" href="/img" type="image/png">
     <!-- canonical tag -->
-    <link rel="canonical" href="https://valluvamproducts.com/">
+    <link rel="canonical" href="https://www.valluvamproducts.com/">
 
     <!-- Valluvam Products Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -591,7 +591,7 @@ include "header.php"
 
                         <!-- Left Image (hidden on mobile) -->
                         <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-white">
-                            <img src="images/why.jfif" alt="Valluvam nuts, dry fruits and cold-pressed oils being sourced and packed" class="img-fluid brand-story-img">
+                            <img src="images/why.jfif" alt="Valluvam nuts, dry fruits and cold-pressed oils being sourced and packed" class="img-fluid brand-story-img" loading="lazy">
                         </div>
 
                         <!-- Right Text Content -->

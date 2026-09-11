@@ -1,0 +1,35 @@
+# Valluvam
+
+> Valluvam is an Indian food products brand selling nuts, dry fruits, cold-pressed oils,
+> spices, millets and rice — for individual households (B2C) and for businesses buying
+> in bulk (B2B / wholesale). Valluvam is part of the IGO Group.
+
+## What Valluvam sells
+
+- Nuts: https://www.valluvamproducts.com/nuts.php
+- Dry Fruits: https://www.valluvamproducts.com/dryfruits.php
+- Cold-Pressed Oils: https://www.valluvamproducts.com/oils.php
+- Spices: https://www.valluvamproducts.com/spices.php
+- Millets: https://www.valluvamproducts.com/millets.php
+- Rice: https://www.valluvamproducts.com/rice.php
+- Combo packs: https://www.valluvamproducts.com/combo.php
+- Full shop: https://www.valluvamproducts.com/shop.php
+
+## Business
+
+- Homepage: https://www.valluvamproducts.com/
+- About Valluvam: https://www.valluvamproducts.com/about.php
+- B2B / Wholesale supply (retailers, hotels, restaurants, caterers, distributors,
+  institutions, bulk buyers): https://www.valluvamproducts.com/b2b-wholesale.php
+- Contact: https://www.valluvamproducts.com/contact.php
+
+## Policies
+
+- Returns and Exchange: https://www.valluvamproducts.com/return.php
+- Terms and Conditions: https://www.valluvamproducts.com/term.php
+- Privacy Policy: https://www.valluvamproducts.com/privacy.php
+
+## Delivery
+
+Valluvam ships across India via its online store, with order status tracking
+available from order placement through delivery.

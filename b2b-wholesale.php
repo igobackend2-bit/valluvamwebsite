@@ -9,12 +9,12 @@ include "header.php" ?>
     <title>B2B / Wholesale Supply – Valluvam Organic Nuts, Dry Fruits, Oils, Spices & Millets</title>
     <meta name="description" content="Partner with Valluvam for wholesale & institutional supply of premium organic nuts, dry fruits, cold-pressed oils, spices and millets. Bulk pricing, private label & fast dispatch.">
     <meta name="keywords" content="valluvam wholesale, b2b nuts supplier, bulk dry fruits supplier, cold pressed oil wholesale, spices bulk supply, millets wholesale, private label nuts">
-    <link rel="canonical" href="https://valluvamproducts.com/b2b-wholesale.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/b2b-wholesale.php">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="B2B / Wholesale Supply – Valluvam">
     <meta property="og:description" content="Wholesale & institutional supply of premium organic nuts, dry fruits, cold-pressed oils, spices and millets from Valluvam.">
-    <meta property="og:url" content="https://valluvamproducts.com/b2b-wholesale.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/b2b-wholesale.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -551,7 +551,7 @@ include "header.php" ?>
                 <div class="col-md-4 mb-4">
                     <div class="oil-card">
                         <div class="oil-img-wrap">
-                            <img src="images/ground-1L.jpg" alt="Valluvam Cold-Pressed Groundnut Oil" class="img-fluid">
+                            <img src="images/ground-1L.jpg" alt="Valluvam Cold-Pressed Groundnut Oil" class="img-fluid" loading="lazy">
                         </div>
                         <div class="oil-card-body">
                             <h4>Groundnut Oil</h4>
@@ -562,7 +562,7 @@ include "header.php" ?>
                 <div class="col-md-4 mb-4">
                     <div class="oil-card">
                         <div class="oil-img-wrap">
-                            <img src="images/sesame-1L.jpg" alt="Valluvam Cold-Pressed Sesame Oil" class="img-fluid">
+                            <img src="images/sesame-1L.jpg" alt="Valluvam Cold-Pressed Sesame Oil" class="img-fluid" loading="lazy">
                         </div>
                         <div class="oil-card-body">
                             <h4>Sesame (Gingelly) Oil</h4>
@@ -573,7 +573,7 @@ include "header.php" ?>
                 <div class="col-md-4 mb-4">
                     <div class="oil-card">
                         <div class="oil-img-wrap">
-                            <img src="images/coconut-1L.jpg" alt="Valluvam Cold-Pressed Coconut Oil" class="img-fluid">
+                            <img src="images/coconut-1L.jpg" alt="Valluvam Cold-Pressed Coconut Oil" class="img-fluid" loading="lazy">
                         </div>
                         <div class="oil-card-body">
                             <h4>Coconut Oil</h4>
@@ -674,7 +674,7 @@ include "header.php" ?>
                         <a href="https://api.whatsapp.com/send?phone=918925969888&text=Hi%2C%20I%20am%20interested%20in%20Valluvam%27s%20Private%20Label%20program." target="_blank" class="btn-b2b btn-b2b-primary mt-2">Start Private Label Inquiry</a>
                     </div>
                     <div class="col-lg-5 d-none d-lg-block text-center">
-                        <img src="images/private-label-oils.jpeg" alt="Valluvam Private Label Oils" class="private-label-img">
+                        <img src="images/private-label-oils.jpeg" alt="Valluvam Private Label Oils" class="private-label-img" loading="lazy">
                     </div>
                 </div>
             </div>

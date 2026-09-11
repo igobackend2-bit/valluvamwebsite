@@ -54,13 +54,13 @@ if ($subtotal == 0) {
 	<title>Checkout | Valluvam</title>
 	<meta name="description" content="Securely complete your Valluvam order — nuts, dry fruits, cold-pressed oils, spices and millets delivered to your door.">
 	<meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-	<link rel="canonical" href="https://valluvamproducts.com/checkout.php">
+	<link rel="canonical" href="https://www.valluvamproducts.com/checkout.php">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="index, follow">
 	<meta property="og:type" content="website">
 	<meta property="og:title" content="Checkout | Valluvam">
 	<meta property="og:description" content="Securely complete your Valluvam order — nuts, dry fruits, cold-pressed oils, spices and millets delivered to your door.">
-	<meta property="og:url" content="https://valluvamproducts.com/checkout.php">
+	<meta property="og:url" content="https://www.valluvamproducts.com/checkout.php">
 	<meta property="og:image" content="/images/logo.png">
 	<meta property="og:site_name" content="Valluvam">
 	<meta name="twitter:card" content="summary_large_image">

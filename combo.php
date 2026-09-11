@@ -9,13 +9,13 @@ include 'header.php' ?>
     <title>Combo Packs — Nuts, Dry Fruits, Oils & Spices | Valluvam</title>
     <meta name="description" content="Shop Valluvam combo packs bringing together nuts, dry fruits, cold-pressed oils and spices in one convenient order.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/combo.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/combo.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Combo Packs — Nuts, Dry Fruits, Oils & Spices | Valluvam">
     <meta property="og:description" content="Shop Valluvam combo packs bringing together nuts, dry fruits, cold-pressed oils and spices in one convenient order.">
-    <meta property="og:url" content="https://valluvamproducts.com/combo.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/combo.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
