@@ -8,14 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | Valluvam</title>
     <meta name="description" content="Read Valluvam's privacy policy to understand how your information is collected, used and protected.">
-    <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://www.valluvamproducts.com/privacy.php">
+    <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
+    <link rel="canonical" href="https://valluvamproducts.com/privacy.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Privacy Policy | Valluvam">
     <meta property="og:description" content="Read Valluvam's privacy policy to understand how your information is collected, used and protected.">
-    <meta property="og:url" content="https://www.valluvamproducts.com/privacy.php">
+    <meta property="og:url" content="https://valluvamproducts.com/privacy.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -27,9 +27,9 @@
             "@context": "https://schema.org",
             "@type": "Store",
             "name": "Valluvam",
-            "description": "Organic nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
-            "url": "https://valluvamproducts.com/",
-            "logo": "https://valluvamproducts.com/assets/images/logo.png",
+            "description": "Nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
+            "url": "https://www.valluvamproducts.com/",
+            "logo": "https://www.valluvamproducts.com/assets/images/logo.png",
             "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "No 17, Kovalan street, 2nd main road, Uthandi Kanathur",

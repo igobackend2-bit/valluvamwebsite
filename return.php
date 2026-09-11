@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Returns and Exchange Policy | Valluvam</title>
     <meta name="description" content="Read Valluvam's returns and exchange policy for damaged or incorrect orders.">
-    <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
+    <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <link rel="canonical" href="https://www.valluvamproducts.com/return.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
@@ -27,9 +27,9 @@
             "@context": "https://schema.org",
             "@type": "Store",
             "name": "Valluvam",
-            "description": "Organic nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
-            "url": "https://valluvamproducts.com/",
-            "logo": "https://valluvamproducts.com/assets/images/logo.png",
+            "description": "Nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
+            "url": "https://www.valluvamproducts.com/",
+            "logo": "https://www.valluvamproducts.com/assets/images/logo.png",
             "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "No 17, Kovalan street, 2nd main road, Uthandi Kanathur",

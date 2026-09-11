@@ -6,20 +6,20 @@ include "header.php" ?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2B / Wholesale Supply – Valluvam Organic Nuts, Dry Fruits, Oils, Spices & Millets</title>
-    <meta name="description" content="Partner with Valluvam for wholesale & institutional supply of premium organic nuts, dry fruits, cold-pressed oils, spices and millets. Bulk pricing, private label & fast dispatch.">
+    <title>B2B / Wholesale Supply – Valluvam Nuts, Dry Fruits, Oils, Spices & Millets</title>
+    <meta name="description" content="Partner with Valluvam for wholesale & institutional supply of premium nuts, dry fruits, cold-pressed oils, spices and millets. Bulk pricing, private label & fast dispatch.">
     <meta name="keywords" content="valluvam wholesale, b2b nuts supplier, bulk dry fruits supplier, cold pressed oil wholesale, spices bulk supply, millets wholesale, private label nuts">
     <link rel="canonical" href="https://www.valluvamproducts.com/b2b-wholesale.php">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="B2B / Wholesale Supply – Valluvam">
-    <meta property="og:description" content="Wholesale & institutional supply of premium organic nuts, dry fruits, cold-pressed oils, spices and millets from Valluvam.">
+    <meta property="og:description" content="Wholesale & institutional supply of premium nuts, dry fruits, cold-pressed oils, spices and millets from Valluvam.">
     <meta property="og:url" content="https://www.valluvamproducts.com/b2b-wholesale.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="B2B / Wholesale Supply – Valluvam">
-    <meta name="twitter:description" content="Wholesale & institutional supply of premium organic nuts, dry fruits, cold-pressed oils, spices and millets from Valluvam.">
+    <meta name="twitter:description" content="Wholesale & institutional supply of premium nuts, dry fruits, cold-pressed oils, spices and millets from Valluvam.">
     <meta name="twitter:image" content="/images/logo.png">
     <!-- Valluvam Products Favicon -->
     <link rel="icon" type="image/png" href="images/favicon/favicon-96x96.png" sizes="96x96" />
@@ -33,9 +33,9 @@ include "header.php" ?>
             "@context": "https://schema.org",
             "@type": "Store",
             "name": "Valluvam",
-            "description": "Wholesale & institutional supply of organic nuts, dry fruits, cold-pressed oils, spices & millets.",
-            "url": "https://valluvamproducts.com/b2b-wholesale.php",
-            "logo": "https://valluvamproducts.com/assets/images/logo.png",
+            "description": "Wholesale & institutional supply of nuts, dry fruits, cold-pressed oils, spices & millets.",
+            "url": "https://www.valluvamproducts.com/b2b-wholesale.php",
+            "logo": "https://www.valluvamproducts.com/assets/images/logo.png",
             "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "No 17, Kovalan street, 2nd main road, Uthandi Kanathur",
@@ -600,7 +600,7 @@ include "header.php" ?>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Organic Nuts <br><small class="text-muted">(Almonds, Cashews, Pistachios, Walnuts)</small></td>
+                            <td>Nuts <br><small class="text-muted">(Almonds, Cashews, Pistachios, Walnuts)</small></td>
                             <td>Premium quality, strong repeat purchase across retail &amp; gifting segments.</td>
                         </tr>
                         <tr>

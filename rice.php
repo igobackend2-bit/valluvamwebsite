@@ -27,9 +27,9 @@ include 'header.php' ?>
       "@context": "https://schema.org",
       "@type": "Store",
       "name": "Valluvam",
-      "description": "Organic nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
-      "url": "https://valluvamproducts.com/",
-      "logo": "https://valluvamproducts.com/assets/images/logo.png",
+      "description": "Nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
+      "url": "https://www.valluvamproducts.com/",
+      "logo": "https://www.valluvamproducts.com/assets/images/logo.png",
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "No 17, Kovalan street, 2nd main road, Uthandi Kanathur",

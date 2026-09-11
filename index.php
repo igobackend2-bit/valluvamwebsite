@@ -300,20 +300,20 @@ include "header.php"
     <!-- meta tag -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Valluvam brings you organic nuts, dry fruits, cold-pressed oils, spices, and millets delivered fresh to your doorstep. Farm-fresh, pure, and nutritious.">
-    <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
+    <meta name="description" content="Valluvam brings you nuts, dry fruits, cold-pressed oils, spices, and millets delivered fresh to your doorstep. Farm-fresh, pure, and nutritious.">
+    <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <!-- meta property -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
+    <meta property="og:title" content="Valluvam – Nuts & More Delivered Fresh">
+    <meta property="og:description" content="Discover nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
     <meta property="og:url" content="https://www.valluvamproducts.com/">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta name="twitter:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
+    <meta name="twitter:title" content="Valluvam – Nuts & More Delivered Fresh">
+    <meta name="twitter:description" content="Discover nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
     <meta name="twitter:image" content="/images/logo.png">
     <link rel="icon" href="/img" type="image/png">
     <!-- canonical tag -->
@@ -339,8 +339,8 @@ include "header.php"
         "@context": "https://schema.org",
         "@type": "Store",
         "name": "Valluvam",
-        "url": "https://valluvamproducts.com/",
-        "logo": "https://valluvamproducts.com/images/logo.png",
+        "url": "https://www.valluvamproducts.com/",
+        "logo": "https://www.valluvamproducts.com/images/logo.png",
         "image": "https://valluvamproducts.com/images/logo.png",
         "telephone": "+91-8925969888",
         "address": {

@@ -8,7 +8,7 @@ include 'header.php'?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buy Cold-Pressed Oils Online | Valluvam</title>
     <meta name="description" content="Shop cold-pressed oils from Valluvam: naturally extracted, unrefined and delivered fresh to your doorstep across India.">
-    <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
+    <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <link rel="canonical" href="https://www.valluvamproducts.com/oils.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
@@ -27,9 +27,9 @@ include 'header.php'?>
             "@context": "https://schema.org",
             "@type": "Store",
             "name": "Valluvam",
-            "description": "Organic nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
-            "url": "https://valluvamproducts.com/",
-            "logo": "https://valluvamproducts.com/assets/images/logo.png",
+            "description": "Nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
+            "url": "https://www.valluvamproducts.com/",
+            "logo": "https://www.valluvamproducts.com/assets/images/logo.png",
             "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "No 17, Kovalan street, 2nd main road, Uthandi Kanathur",
