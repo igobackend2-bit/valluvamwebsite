@@ -154,7 +154,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/productdet.css">
   <link rel="stylesheet" href="css/products.css?v=3">
-  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/login.css?v=20260911">
   <!-- bootstrap-4 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -779,7 +779,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   </div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="assets/js/utils/swal-helper.js"></script>
-  <script src="assets/js/login/login.js"></script>
+  <script src="assets/js/login/login.js?v=20260911"></script>
   <script src="assets/js/header/header.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
