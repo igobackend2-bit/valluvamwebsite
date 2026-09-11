@@ -606,6 +606,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
               <a class="dropdown-item" href="oils.php">Oils</a>
               <a class="dropdown-item" href="spices.php">Spices</a>
               <a class="dropdown-item" href="millets.php">Millets</a>
+              <a class="dropdown-item" href="rice.php">Rice</a>
               <a class="dropdown-item" href="combo.php">Combo</a>
               <a class="dropdown-item" href="wishlist.php">Wishlist</a>
               <!-- <a class="dropdown-item" href="cart.php">Cart</a> -->

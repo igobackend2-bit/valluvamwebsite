@@ -6,10 +6,10 @@ include 'header.php' ?>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Valluvam – Organic Nuts, Dry Fruits, Oils, Spices & Millets Delivered Fresh</title>
-  <meta name="description" content="Valluvam brings you organic nuts, dry fruits, cold-pressed oils, spices, and millets delivered fresh to your doorstep. Farm-fresh, pure, and nutritious.">
-  <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-  <link rel="canonical" href="https://valluvamproducts.com/">
+  <title>Buy Rice Online - 1kg, 5kg, 10kg &amp; 20kg Packs | Valluvam</title>
+  <meta name="description" content="Buy quality rice online from Valluvam in 1kg, 5kg, 10kg and 20kg packs. Farm-sourced, cleanly packed and delivered fresh to your door.">
+  <meta name="keywords" content="buy rice online, rice 1kg, rice 5kg, rice 10kg, rice 20kg, bulk rice, Valluvam rice">
+  <link rel="canonical" href="https://www.valluvamproducts.com/rice.php">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow">
   <meta property="og:type" content="website">
@@ -74,27 +74,28 @@ include 'header.php' ?>
             <li><a href="nuts.php">Nuts</a></li>
             <li><a href="spices.php">Spices</a></li>
             <li><a href="oils.php">Oils</a></li>
-            <li><a href="millets.php" class="active">Millets</a></li>
-						<li><a href="rice.php">Rice</a></li>
+            <li><a href="millets.php">Millets</a></li>
+            <li><a href="rice.php" class="active">Rice</a></li>
 
 
           </ul>
         </div>
       </div>
-      <div class="row" id="products-millets">
-        <!-- All millets products here -->
+      <div class="row" id="products-rice">
+        <!-- All rice products here -->
       </div>
       <div class="row mt-5">
         <div class="col text-center">
           <div class="block-27">
             <ul>
-              <li><a href="oils.php">&lt;</a></li>
+              <li><a href="millets.php">&lt;</a></li>
               <li><a href="shop.php"><span>1</span></a></li>
               <li><a href="dryfruits.php"><span>2</span></a></li>
               <li><a href="nuts.php"><span>3</span></a></li>
               <li><a href="spices.php"><span>4</span></a></li>
               <li><a href="oils.php">5</a></li>
-              <li class="active"><a href="millets.php">6</a></li>
+              <li><a href="millets.php">6</a></li>
+              <li class="active"><a href="rice.php">7</a></li>
               <li><a href="shop.php">&gt;</a></li>
             </ul>
           </div>
@@ -148,7 +149,7 @@ include 'header.php' ?>
   <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
   <script src="js/google-map.js"></script> -->
   <script src="js/main.js"></script>
-  <script src="assets/js/millets/millets.js"></script>
+  <script src="assets/js/rice/rice.js"></script>
 
 </body>
 

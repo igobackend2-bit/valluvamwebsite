@@ -76,6 +76,7 @@ include 'header.php' ?>
 						<li><a href="spices.php">Spices</a></li>
 						<li><a href="oils.php">Oils</a></li>
 						<li><a href="millets.php">Millets</a></li>
+						<li><a href="rice.php">Rice</a></li>
 
 					</ul>
 				</div>
