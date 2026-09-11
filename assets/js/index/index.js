@@ -32,7 +32,7 @@ $(document).ready(function () {
                           <div class="product">
                         
                             <!-- IMAGE -->
-                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod">
+                            <a href="productdetail?product=${slugify(product.product_name)}" class="img-prod">
                               <img class="img-fluid" src="${image}" alt="${product.product_name}">
                               ${discount}
                               <div class="overlay"></div>
@@ -42,7 +42,7 @@ $(document).ready(function () {
                         
                               <!-- PRODUCT NAME -->
                               <h3>
-                                <a href="productdetail.php?product=${slugify(product.product_name)}">
+                                <a href="productdetail?product=${slugify(product.product_name)}">
                                   ${product.product_name} (${product.quantity})
                                 </a>
                               </h3>
@@ -64,7 +64,7 @@ $(document).ready(function () {
                               <div class="bottom-area d-flex px-3">
                                 <div class="m-auto d-flex">
                         
-                                  <a href="productdetail.php?product=${slugify(product.product_name)}"
+                                  <a href="productdetail?product=${slugify(product.product_name)}"
                                      class="add-to-cart d-flex justify-content-center align-items-center text-center"
                                      title="View Details">
                                     <span><ion-icon name="menu"></ion-icon></span>
@@ -125,7 +125,7 @@ function category_slider() {
                     <div class="slide">
                         <div class="slide-content">
                             <a href="${cat.link}" target="_blank">
-                                <img src="assets/thumbnail/${cat.thumbnali}" loading="lazy" />
+                                <img src="assets/thumbnail/${cat.thumbnali}" alt="Valluvam product category" loading="lazy" />
                                 <div class="button-container">
                                     <span class="button">View More</span>
                                 </div>
@@ -168,14 +168,14 @@ function product_catelog() {
                     html += `
                     <div class="col-md-6 col-lg-3 mb-3">
                         <div class="product">
-                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod" onclick="showproduct('product-${slug}')">
+                            <a href="productdetail?product=${slugify(product.product_name)}" class="img-prod" onclick="showproduct('product-${slug}')">
                                 <img class="img-fluid" src="${image}" alt="${product.product_name}">
                                 ${discount}
                                 <div class="overlay"></div>
                             </a>
                             <div class="text py-3 pb-4 px-3 text-center">
                                 <h3>
-                                    <a href="productdetail.php?product=${slug}" onclick="showproduct('product-${slug}')">
+                                    <a href="productdetail?product=${slug}" onclick="showproduct('product-${slug}')">
                                         ${product.product_name} (${product.quantity})
                                     </a>
                                 </h3>
@@ -196,7 +196,7 @@ function product_catelog() {
                               
                                 <div class="bottom-area d-flex px-3">
                                     <div class="m-auto d-flex">
-                                        <a href="productdetail.php?product=${slugify(product.product_name)}" 
+                                        <a href="productdetail?product=${slugify(product.product_name)}" 
                                         class="add-to-cart d-flex justify-content-center align-items-center text-center product-detail-btn" 
                                         data-id="${product.id}">
                                             <span><ion-icon name="menu"></ion-icon></span>

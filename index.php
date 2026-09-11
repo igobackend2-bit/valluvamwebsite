@@ -308,7 +308,7 @@ include "header.php"
     <meta property="og:type" content="website">
     <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
     <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
-    <meta property="og:url" content="https://valluvamproducts.com/">
+    <meta property="og:url" content="https://www.valluvamproducts.com/">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -317,7 +317,7 @@ include "header.php"
     <meta name="twitter:image" content="/images/logo.png">
     <link rel="icon" href="/img" type="image/png">
     <!-- canonical tag -->
-    <link rel="canonical" href="https://valluvamproducts.com/">
+    <link rel="canonical" href="https://www.valluvamproducts.com/">
 
     <!-- Valluvam Products Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -375,7 +375,7 @@ include "header.php"
                             <h1 class="mb-3">Premium Dry Fruits, Nuts, Spices,<br class="d-none d-md-block"> Cold-Pressed Oils &amp; Millets</h1>
                             <p class="mb-4">Naturally sourced, carefully packed and delivered fresh to your doorstep — for your home and your business.</p>
                             <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Now</a>
+                                <a href="shop" class="btn btn-primary">Shop Now</a>
                                 <a href="#our-products" class="btn btn-primary btn-outline-primary">Explore Products</a>
                             </p>
                         </div>
@@ -393,7 +393,7 @@ include "header.php"
                             <span class="subheading mb-2">Valluvam</span>
                             <p class="mb-4" style="font-size: 22px; color: #fff;">Wholesome millets and cold-pressed oils, packed with natural goodness.</p>
                             <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Now</a>
+                                <a href="shop" class="btn btn-primary">Shop Now</a>
                                 <a href="#our-products" class="btn btn-primary btn-outline-primary">Explore Products</a>
                             </p>
                         </div>
@@ -410,7 +410,7 @@ include "header.php"
                             <span class="subheading mb-2">Valluvam</span>
                             <p class="mb-4" style="font-size: 22px; color: #fff;">A perfect blend of crunchy nuts and sweet dry fruits, packed with nutrition and flavor.</p>
                             <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Now</a>
+                                <a href="shop" class="btn btn-primary">Shop Now</a>
                                 <a href="#our-products" class="btn btn-primary btn-outline-primary">Explore Products</a>
                             </p>
                         </div>
@@ -496,7 +496,7 @@ include "header.php"
                 <!-- Products will be loaded here -->
             </div>
             <div class="products-view-all">
-                <a href="shop.php" class="btn btn-primary btn-outline-primary">View All Products</a>
+                <a href="shop" class="btn btn-primary btn-outline-primary">View All Products</a>
             </div>
         </div>
     </section>
@@ -591,19 +591,19 @@ include "header.php"
 
                         <!-- Left Image (hidden on mobile) -->
                         <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-white">
-                            <img src="images/why.jfif" alt="Valluvam nuts, dry fruits and cold-pressed oils being sourced and packed" class="img-fluid brand-story-img">
+                            <img src="images/why.jfif" alt="Valluvam nuts, dry fruits and cold-pressed oils being sourced and packed" class="img-fluid brand-story-img" loading="lazy">
                         </div>
 
                         <!-- Right Text Content -->
                         <div class="col-12 col-lg-6 text-white p-4 d-flex flex-column justify-content-center" style="background: rgba(0, 0, 0, 0.5);">
                             <div>
-                                <h3><a href="about.php" class="text-white text-decoration-none" style="justify-content: center;">OUR STORY</a></h3>
+                                <h3><a href="about" class="text-white text-decoration-none" style="justify-content: center;">OUR STORY</a></h3>
                                 <h2 class="mb-3" style="color: green;">Valluvam</h2>
                                 <p><strong>Purity You Can Trust:</strong> Every product is carefully selected, processed, and packaged to maintain the highest standards of quality and freshness.</p>
                                 <p><strong>Sustainable Practices:</strong> We work closely with local farmers and follow eco-friendly processes to support sustainability and ensure minimal impact on the environment.</p>
                                 <p><strong>Convenience at Your Fingertips:</strong> With round-the-clock delivery, we bring premium products straight to your doorstep, making healthy living easier than ever.</p>
                                 <p>At Valluvam, we blend the essence of tradition with modern convenience to create a brand you can rely on. Our goal is simple: to help you embrace a healthier lifestyle with pure and natural products delivered with care.</p>
-                                <p><a href="about.php" class="btn btn-primary btn-outline-primary" style="border-color:#fff;color:#fff;">About Valluvam</a></p>
+                                <p><a href="about" class="btn btn-primary btn-outline-primary" style="border-color:#fff;color:#fff;">About Valluvam</a></p>
                             </div>
                         </div>
 
@@ -636,7 +636,7 @@ include "header.php"
                 <li><ion-icon name="cart-outline"></ion-icon> Resellers / Online Sellers</li>
             </ul>
             <div class="text-center">
-                <a href="b2b-wholesale.php" class="btn btn-primary">Bulk Enquiry</a>
+                <a href="b2b-wholesale" class="btn btn-primary">Bulk Enquiry</a>
             </div>
         </div>
     </section>
@@ -670,7 +670,7 @@ include "header.php"
                                 </button>
                             </div>
                             <div id="homeFaqCollapse1" class="collapse show" aria-labelledby="homeFaqHeading1" data-parent="#homeFaqAccordion">
-                                <div class="card-body">Nuts, dry fruits, cold-pressed oils, spices, millets, rice and combo packs — browse the full range on our <a href="shop.php">Shop</a> page.</div>
+                                <div class="card-body">Nuts, dry fruits, cold-pressed oils, spices, millets, rice and combo packs — browse the full range on our <a href="shop">Shop</a> page.</div>
                             </div>
                         </div>
                         <div class="faq-card">
@@ -680,7 +680,7 @@ include "header.php"
                                 </button>
                             </div>
                             <div id="homeFaqCollapse2" class="collapse" aria-labelledby="homeFaqHeading2" data-parent="#homeFaqAccordion">
-                                <div class="card-body">Yes. We supply retailers, restaurants, hotels, distributors and other businesses — see <a href="b2b-wholesale.php">B2B / Wholesale</a> for details.</div>
+                                <div class="card-body">Yes. We supply retailers, restaurants, hotels, distributors and other businesses — see <a href="b2b-wholesale">B2B / Wholesale</a> for details.</div>
                             </div>
                         </div>
                         <div class="faq-card">
@@ -700,7 +700,7 @@ include "header.php"
                                 </button>
                             </div>
                             <div id="homeFaqCollapse4" class="collapse" aria-labelledby="homeFaqHeading4" data-parent="#homeFaqAccordion">
-                                <div class="card-body">Submit the enquiry form on the <a href="b2b-wholesale.php">B2B / Wholesale</a> page with your requirement and our team will get back to you.</div>
+                                <div class="card-body">Submit the enquiry form on the <a href="b2b-wholesale">B2B / Wholesale</a> page with your requirement and our team will get back to you.</div>
                             </div>
                         </div>
                         <div class="faq-card">
@@ -720,7 +720,7 @@ include "header.php"
                                 </button>
                             </div>
                             <div id="homeFaqCollapse6" class="collapse" aria-labelledby="homeFaqHeading6" data-parent="#homeFaqAccordion">
-                                <div class="card-body">Call or WhatsApp +91 89259 69888, or use our <a href="contact.php">Contact</a> page.</div>
+                                <div class="card-body">Call or WhatsApp +91 89259 69888, or use our <a href="contact">Contact</a> page.</div>
                             </div>
                         </div>
                         <div class="faq-card">
@@ -730,7 +730,7 @@ include "header.php"
                                 </button>
                             </div>
                             <div id="homeFaqCollapse7" class="collapse" aria-labelledby="homeFaqHeading7" data-parent="#homeFaqAccordion">
-                                <div class="card-body">Returns are accepted if a product arrives damaged — share photos/video within 24 hours of delivery. See our full <a href="return.php">Returns and Exchange Policy</a>.</div>
+                                <div class="card-body">Returns are accepted if a product arrives damaged — share photos/video within 24 hours of delivery. See our full <a href="return">Returns and Exchange Policy</a>.</div>
                             </div>
                         </div>
                     </div>

@@ -576,7 +576,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   </div>
   <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="index.php">
+      <a class="navbar-brand d-flex align-items-center" href="/">
         <img src="images/logo.jpeg" alt="Valluva" class="img-fluid" style="max-height:100px;">
       </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
@@ -608,31 +608,31 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
       <div class="collapse navbar-collapse" id="ftco-nav">
         <ul class="navbar-nav ml-auto" style="gap: 2px;">
-          <li class="nav-item"><a href="index.php" class="nav-link">Home</a></li>
+          <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
             <div class="dropdown-menu" aria-labelledby="dropdown04">
-              <a class="dropdown-item" href="nuts.php">Nuts</a>
-              <a class="dropdown-item" href="dryfruits.php">Dryfruits</a>
-              <a class="dropdown-item" href="oils.php">Oils</a>
-              <a class="dropdown-item" href="spices.php">Spices</a>
-              <a class="dropdown-item" href="millets.php">Millets</a>
-              <a class="dropdown-item" href="rice.php">Rice</a>
-              <a class="dropdown-item" href="combo.php">Combo</a>
+              <a class="dropdown-item" href="nuts">Nuts</a>
+              <a class="dropdown-item" href="dryfruits">Dryfruits</a>
+              <a class="dropdown-item" href="oils">Oils</a>
+              <a class="dropdown-item" href="spices">Spices</a>
+              <a class="dropdown-item" href="millets">Millets</a>
+              <a class="dropdown-item" href="rice">Rice</a>
+              <a class="dropdown-item" href="combo">Combo</a>
             </div>
           </li>
 
-          <li class="nav-item"><a href="about.php" class="nav-link">About</a></li>
-          <li class="nav-item"><a href="blog.php" class="nav-link">Blog</a></li>
-          <li class="nav-item"><a href="b2b-wholesale.php" class="nav-link">B2B / Wholesale</a></li>
-          <li class="nav-item"><a href="contact.php" class="nav-link">Contact</a></li>
+          <li class="nav-item"><a href="about" class="nav-link">About</a></li>
+          <li class="nav-item"><a href="blog" class="nav-link">Blog</a></li>
+          <li class="nav-item"><a href="b2b-wholesale" class="nav-link">B2B / Wholesale</a></li>
+          <li class="nav-item"><a href="contact" class="nav-link">Contact</a></li>
           <li class="nav-item cta">
-            <a href="wishlist.php" class="nav-link" aria-label="Wishlist">
+            <a href="wishlist" class="nav-link" aria-label="Wishlist">
               <span class="ion-ios-heart"></span>
             </a>
           </li>
           <li class="nav-item cta cta-colored">
-            <a href="cart.php" class="nav-link">
+            <a href="cart" class="nav-link">
               <span class="icon-shopping_cart"></span>
               <span id="cartCount">[0]</span>
             </a>
@@ -660,9 +660,9 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
             <?php if ($status == 1): ?>
               <div class="dropdown-menu" aria-labelledby="userIcon">
-                <a class="dropdown-item" href="order_tracking.php"><i class="fa fa-shopping-bag mr-2"></i>My Orders</a>
+                <a class="dropdown-item" href="order_tracking"><i class="fa fa-shopping-bag mr-2"></i>My Orders</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="logout.php"><i class="fa fa-sign-out mr-2"></i>Logout</a>
+                <a class="dropdown-item" href="logout"><i class="fa fa-sign-out mr-2"></i>Logout</a>
               </div>
             <?php endif; ?>
           </li>

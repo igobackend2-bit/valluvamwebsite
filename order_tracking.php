@@ -21,6 +21,18 @@ include 'header.php';
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Order Tracking - Valluvam</title>
 	<meta name="description" content="Track your orders with Valluvam - See order status from ordered to delivered">
+	<link rel="canonical" href="https://www.valluvamproducts.com/order_tracking.php">
+	<meta name="robots" content="noindex, follow">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="Order Tracking - Valluvam">
+	<meta property="og:description" content="Track your orders with Valluvam - See order status from ordered to delivered">
+	<meta property="og:url" content="https://www.valluvamproducts.com/order_tracking">
+	<meta property="og:image" content="/images/logo.png">
+	<meta property="og:site_name" content="Valluvam">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="Order Tracking - Valluvam">
+	<meta name="twitter:description" content="Track your orders with Valluvam - See order status from ordered to delivered">
+	<meta name="twitter:image" content="/images/logo.png">
 	<link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -29,7 +41,7 @@ include 'header.php';
 		<div class="container">
 			<div class="row no-gutters slider-text align-items-center justify-content-center">
 				<div class="col-md-9 ftco-animate text-center">
-					<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Order Tracking</span></p>
+					<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Order Tracking</span></p>
 					<h1 class="mb-0 bread">My Orders</h1>
 				</div>
 			</div>

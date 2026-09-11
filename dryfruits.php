@@ -9,13 +9,13 @@ include 'header.php' ?>
     <title>Buy Premium Dry Fruits Online | Valluvam</title>
     <meta name="description" content="Shop premium dry fruits from Valluvam, carefully sourced, freshly packed and delivered to your doorstep across India.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/dryfruits.php">
+    <link rel="canonical" href="https://www.valluvamproducts.com/dryfruits.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Buy Premium Dry Fruits Online | Valluvam">
     <meta property="og:description" content="Shop premium dry fruits from Valluvam, carefully sourced, freshly packed and delivered to your doorstep across India.">
-    <meta property="og:url" content="https://valluvamproducts.com/dryfruits.php">
+    <meta property="og:url" content="https://www.valluvamproducts.com/dryfruits">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -57,7 +57,7 @@ include 'header.php' ?>
 		<div class="container">
 			<div class="row no-gutters slider-text align-items-center justify-content-center">
 				<div class="col-md-9 ftco-animate text-center">
-					<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Dry Fruits</span></p>
+					<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Dry Fruits</span></p>
 					<h1 class="mb-0 bread">Dry Fruits</h1>
 				</div>
 			</div>
@@ -70,13 +70,13 @@ include 'header.php' ?>
 			<div class="row justify-content-center">
 				<div class="col-md-10 mb-5 text-center">
 					<ul class="product-category">
-						<li><a href="shop.php">All</a></li>
-						<li><a href="dryfruits.php" class="active">Dryfruits</a></li>
-						<li><a href="nuts.php">Nuts</a></li>
-						<li><a href="spices.php">Spices</a></li>
-						<li><a href="oils.php">Oils</a></li>
-						<li><a href="millets.php">Millets</a></li>
-						<li><a href="rice.php">Rice</a></li>
+						<li><a href="shop">All</a></li>
+						<li><a href="dryfruits" class="active">Dryfruits</a></li>
+						<li><a href="nuts">Nuts</a></li>
+						<li><a href="spices">Spices</a></li>
+						<li><a href="oils">Oils</a></li>
+						<li><a href="millets">Millets</a></li>
+						<li><a href="rice">Rice</a></li>
 
 					</ul>
 				</div>
@@ -88,14 +88,14 @@ include 'header.php' ?>
 				<div class="col text-center">
 					<div class="block-27">
 						<ul>
-							<li><a href="shop.php">&lt;</a></li>
-							<li><a href="shop.php"><span>1</span></a></li>
-							<li class="active"><a href="dryfruits.php"><span>2</span></a></li>
-							<li><a href="nuts.php">3</a></li>
-							<li><a href="spices.php">4</a></li>
-							<li><a href="oils.php">5</a></li>
-							<li><a href="millets.php">6</a></li>
-							<li><a href="nuts.php">&gt;</a></li>
+							<li><a href="shop">&lt;</a></li>
+							<li><a href="shop"><span>1</span></a></li>
+							<li class="active"><a href="dryfruits"><span>2</span></a></li>
+							<li><a href="nuts">3</a></li>
+							<li><a href="spices">4</a></li>
+							<li><a href="oils">5</a></li>
+							<li><a href="millets">6</a></li>
+							<li><a href="nuts">&gt;</a></li>
 						</ul>
 					</div>
 				</div>

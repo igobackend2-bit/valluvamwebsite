@@ -39,7 +39,7 @@
           <div class="container">
               <div class="row no-gutters slider-text align-items-center justify-content-center">
                   <div class="col-md-9 ftco-animate text-center">
-                      <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span class="mr-2"><a href="shop.php">Products</a></span> <span><?php echo $product_display_name !== '' ? htmlspecialchars($product_display_name) : 'Details'; ?></span></p>
+                      <p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span class="mr-2"><a href="shop">Products</a></span> <span><?php echo $product_display_name !== '' ? htmlspecialchars($product_display_name) : 'Details'; ?></span></p>
                       <h1 class="mb-0 bread"><b><?php echo $product_display_name !== '' ? htmlspecialchars($product_display_name) : 'Our Products'; ?></b></h1>
                   </div>
               </div>

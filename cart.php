@@ -9,13 +9,13 @@ include 'header.php' ?>
 	<title>Your Cart | Valluvam</title>
 	<meta name="description" content="Review the items in your Valluvam cart before checkout.">
 	<meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-	<link rel="canonical" href="https://valluvamproducts.com/cart.php">
+	<link rel="canonical" href="https://www.valluvamproducts.com/cart.php">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="index, follow">
 	<meta property="og:type" content="website">
 	<meta property="og:title" content="Your Cart | Valluvam">
 	<meta property="og:description" content="Review the items in your Valluvam cart before checkout.">
-	<meta property="og:url" content="https://valluvamproducts.com/cart.php">
+	<meta property="og:url" content="https://www.valluvamproducts.com/cart">
 	<meta property="og:image" content="/images/logo.png">
 	<meta property="og:site_name" content="Valluvam">
 	<meta name="twitter:card" content="summary_large_image">
@@ -58,7 +58,7 @@ include 'header.php' ?>
 		<div class="container">
 			<div class="row no-gutters slider-text align-items-center justify-content-center">
 				<div class="col-md-9 ftco-animate text-center">
-					<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Cart</span></p>
+					<p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Cart</span></p>
 					<h1 class="mb-0 bread">Cart</h1>
 				</div>
 			</div>
@@ -100,7 +100,7 @@ include 'header.php' ?>
 						</div>
 					</form>
 				</div>
-				<p><a href="checkout.php" class="btn btn-primary py-3 px-4">Apply Coupon</a></p>
+				<p><a href="checkout" class="btn btn-primary py-3 px-4">Apply Coupon</a></p>
 			</div>
 
 			<div class="col-lg-4 mt-5 cart-wrap ftco-animate">

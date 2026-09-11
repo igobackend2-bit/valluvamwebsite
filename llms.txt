@@ -1,0 +1,29 @@
+# Valluvam
+
+> Valluvam is an Indian brand selling premium, naturally sourced nuts, dry fruits, cold-pressed oils, spices, millets and rice online, for both individual customers and business buyers.
+
+Valluvam sells packaged food products directly to consumers across India via its online store, and also supplies businesses (retailers, supermarkets, hotels, restaurants, caterers, distributors, stockists, institutions and resellers) through its B2B / wholesale program.
+
+## Product categories
+
+- [Nuts](https://www.valluvamproducts.com/nuts.php): Premium nuts, naturally sourced and freshly packed.
+- [Dry Fruits](https://www.valluvamproducts.com/dryfruits.php): Premium dry fruits, carefully sourced and freshly packed.
+- [Cold-Pressed Oils](https://www.valluvamproducts.com/oils.php): Naturally extracted, unrefined cold-pressed oils.
+- [Spices](https://www.valluvamproducts.com/spices.php): Premium, freshly packed spices.
+- [Millets](https://www.valluvamproducts.com/millets.php): Wholesome, naturally sourced millets.
+- [Rice](https://www.valluvamproducts.com/rice.php): Rice available in 1kg, 5kg, 10kg and 20kg packs.
+- [Combo Packs](https://www.valluvamproducts.com/combo.php): Combo packs bringing together nuts, dry fruits, cold-pressed oils and spices.
+- [Shop All](https://www.valluvamproducts.com/shop.php): The full Valluvam product range in one place.
+
+## Business
+
+- [About Valluvam](https://www.valluvamproducts.com/about.php): Company background and story.
+- [B2B / Wholesale](https://www.valluvamproducts.com/b2b-wholesale.php): Bulk ordering and wholesale supply for businesses.
+- [Contact](https://www.valluvamproducts.com/contact.php): How to reach Valluvam for orders, wholesale enquiries or support.
+
+## Policies
+
+- [Shipping / Order Tracking](https://www.valluvamproducts.com/order_tracking.php)
+- [Returns & Exchange](https://www.valluvamproducts.com/return.php)
+- [Terms & Conditions](https://www.valluvamproducts.com/term.php)
+- [Privacy Policy](https://www.valluvamproducts.com/privacy.php)

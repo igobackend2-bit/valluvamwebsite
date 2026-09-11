@@ -250,11 +250,11 @@
 					<div class="ftco-footer-widget mb-4 ml-md-5" style="color:#fff">
 						<h2 class="ftco-heading-2" style="color: #fff;">Shop</h2>
 						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="index.php">Home</a></li>
-							<li><a href="shop.php">Shop</a></li>
-							<li><a href="about.php">About</a></li>
-							<li><a href="blog.php">Blog</a></li>
-							<li><a href="contact.php">Contact</a></li>
+							<li><a href="/">Home</a></li>
+							<li><a href="shop">Shop</a></li>
+							<li><a href="about">About</a></li>
+							<li><a href="blog">Blog</a></li>
+							<li><a href="contact">Contact</a></li>
 						</ul>
 					</div>
 				</div>
@@ -264,11 +264,11 @@
 						<div class="d-flex" style="color:#fff">
 							<ul class="list-unstyled mr-l-5 pr-l-3 mr-4" style="color:#fff">
 								<li><a href="#">Shipping Information</a></li>
-								<li><a href="return.php">Returns and Exchange</a></li>
-								<li><a href="checkout.php">order status</a></li>
+								<li><a href="return">Returns and Exchange</a></li>
+								<li><a href="checkout">order status</a></li>
 								<li><a href="#">payment options</a></li>
-								<li><a href="term.php">Term & Conditions</a></li>
-								<li><a href="privacy.php">Privacy Policy</a></li>
+								<li><a href="term">Term & Conditions</a></li>
+								<li><a href="privacy">Privacy Policy</a></li>
 							</ul>
 						</div>
 					</div>
@@ -277,10 +277,10 @@
 					<div class="ftco-footer-widget mb-4" style="color:#fff">
 						<h2 class="ftco-heading-2" style="color:#fff">Business / Wholesale</h2>
 						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="b2b-wholesale.php">B2B / Wholesale Supply</a></li>
-							<li><a href="b2b-wholesale.php">Bulk Enquiry</a></li>
-							<li><a href="order_tracking.php">Track Your Order</a></li>
-							<li><a href="contact.php">Contact Sales</a></li>
+							<li><a href="b2b-wholesale">B2B / Wholesale Supply</a></li>
+							<li><a href="b2b-wholesale">Bulk Enquiry</a></li>
+							<li><a href="order_tracking">Track Your Order</a></li>
+							<li><a href="contact">Contact Sales</a></li>
 						</ul>
 					</div>
 				</div>

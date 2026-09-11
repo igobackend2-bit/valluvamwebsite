@@ -22,14 +22,14 @@ function fetchComboProducts() {
                     html += `
                     <div class="col-md-6 col-lg-3 mb-5">
                         <div class="product">
-                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod">
+                            <a href="productdetail?product=${slugify(product.product_name)}" class="img-prod">
                                 <img class="img-fluid" src="${image}" alt="${product.product_name}">
                                 ${discount}
                                 <div class="overlay"></div>
                             </a>
                             <div class="text py-3 pb-4 px-3 text-center">
                                 <h3>
-                                    <a href="productdetail.php?product=${slugify(product.product_name)}">
+                                    <a href="productdetail?product=${slugify(product.product_name)}">
                                         ${product.product_name} (${product.quantity})
                                     </a>
                                 </h3>
@@ -47,7 +47,7 @@ function fetchComboProducts() {
                                 </div>
                                 <div class="bottom-area d-flex px-3">
                                     <div class="m-auto d-flex">
-                                        <a href="productdetail.php?product=${slugify(product.product_name)}" 
+                                        <a href="productdetail?product=${slugify(product.product_name)}" 
                                            class="product-detail-btn d-flex justify-content-center align-items-center text-center" 
                                            data-id="${product.id}">
                                             <span><ion-icon name="menu"></ion-icon></span>
