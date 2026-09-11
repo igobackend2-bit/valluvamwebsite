@@ -30,7 +30,7 @@ function displayOrders(orders) {
                 <i class="fa fa-shopping-bag" style="font-size: 64px; color: #ccc;"></i>
                 <h3 class="mt-3">No Orders Yet</h3>
                 <p class="text-muted">You haven't placed any orders yet.</p>
-                <a href="shop" class="btn btn-primary mt-3">Start Shopping</a>
+                <a href="shop.php" class="btn btn-primary mt-3">Start Shopping</a>
             </div>
         `);
         return;

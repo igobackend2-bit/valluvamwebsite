@@ -44,7 +44,7 @@ $(document).ready(function () {
 </div>
                             <div class="buttons"> 
                                 <button class="btn btn-outline-warning btn-long cart" id="add-to-cart" data-id="${p.id}">Add to Cart</button> 
-                                <a href="cart" class="btn btn-warning btn-long buy" data-id="${p.id}">Buy it Now</a> 
+                                <a href="cart.php" class="btn btn-warning btn-long buy" data-id="${p.id}">Buy it Now</a> 
                                 <button class="btn btn-light wishlist wishlist-btn"  data-product-id="${productId}"> <ion-icon name="heart"></ion-icon> </button> 
                             </div>
                             <hr>
@@ -68,7 +68,7 @@ $(document).ready(function () {
                             <div class="similar-products mt-2 d-flex flex-row flex-wrap">
                                 ${similar.map(s => `
                                     <div class="card border p-1 m-1" style="width: 9rem;">
-                                        <a href="productdetail?product=${slugify(s.product_name)}">
+                                        <a href="productdetail.php?product=${slugify(s.product_name)}">
                                             <img src="assets/uploads/${s.image}" class="card-img-top" alt="${s.product_name}">
                                         </a>
                                         <div class="card-body text-center">
@@ -95,7 +95,7 @@ $(document).on("click", ".buy", function (e) {
     var $btn = $(this);
     // Use attr so we get the value from DOM (avoids .data() cache); product id from template data-id="${p.id}"
     var productId = $btn.attr("data-id");
-    var cartUrl = $btn.attr("href") || "cart";
+    var cartUrl = $btn.attr("href") || "cart.php";
     if (productId !== undefined && productId !== null) productId = String(productId).trim();
 
     if (!productId || isNaN(parseInt(productId, 10))) {

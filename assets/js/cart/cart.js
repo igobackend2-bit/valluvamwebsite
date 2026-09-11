@@ -25,7 +25,7 @@ function loadCart() {
                 cartHTML += `
                 <tr data-id="${item.cart_id}">
                   <td><button type="button" class="btn btn-sm remove-item">X</button></td>
-                  <td><img src="assets/uploads/${item.image}" alt="${item.product_name}" style="width:60px;height:60px;"></td>
+                  <td><img src="assets/uploads/${item.image}" style="width:60px;height:60px;"></td>
                   <td>${item.product_name}</td>
                   <td>₹${item.dis_price}</td>
                   <td>${item.quantity}</td>
@@ -220,12 +220,12 @@ function proceedtoCheckout() {
                         },
                         success: function (sessionRes) {
                             SwalHelper.loading('Preparing checkout...');
-                            window.location.href = "checkout";
+                            window.location.href = "checkout.php";
                         },
                         error: function () {
                             // Even if session save fails, proceed with sessionStorage
                             SwalHelper.loading('Preparing checkout...');
-                            window.location.href = "checkout";
+                            window.location.href = "checkout.php";
                         }
                     });
                 } else {

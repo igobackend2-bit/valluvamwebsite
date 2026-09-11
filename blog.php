@@ -9,13 +9,13 @@ include "header.php" ?>
     <title>Blog — Nuts, Oils, Spices & Millets | Valluvam</title>
     <meta name="description" content="Articles from Valluvam on cold-pressed oils, dry fruits, nuts, spices and millets, and how to choose and use them well.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://www.valluvamproducts.com/blog.php">
+    <link rel="canonical" href="https://valluvamproducts.com/blog.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Blog — Nuts, Oils, Spices & Millets | Valluvam">
     <meta property="og:description" content="Articles from Valluvam on cold-pressed oils, dry fruits, nuts, spices and millets, and how to choose and use them well.">
-    <meta property="og:url" content="https://www.valluvamproducts.com/blog">
+    <meta property="og:url" content="https://valluvamproducts.com/blog.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
@@ -59,7 +59,7 @@ include "header.php" ?>
         <div class="container">
             <div class="row no-gutters slider-text align-items-center justify-content-center">
                 <div class="col-md-9 ftco-animate text-center">
-                    <p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>Blog</span></p>
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Blog</span></p>
                     <h1 class="mb-0 bread">Blog</h1>
                 </div>
             </div>
@@ -73,7 +73,7 @@ include "header.php" ?>
                     <div class="row">
                         <div class="col-md-12 d-flex ftco-animate">
                             <div class="blog-entry align-self-stretch d-md-flex">
-                                <a href="blog" class="block-20" style="background-image: url('images/blog-oil.jpg')" ;>
+                                <a href="blog.php" class="block-20" style="background-image: url('images/blog-oil.jpg')" ;>
                                 </a>
                                 <div class="text d-block pl-md-4">
                                     <div class="meta mb-3">
@@ -90,7 +90,7 @@ include "header.php" ?>
                         </div>
                         <div class="col-md-12 d-flex ftco-animate">
                             <div class="blog-entry align-self-stretch d-md-flex">
-                                <a href="blog" class="block-20" style="background-image: url('images/blog-nut.jpg');">
+                                <a href="blog.php" class="block-20" style="background-image: url('images/blog-nut.jpg');">
                                 </a>
                                 <div class="text d-block pl-md-4">
                                     <div class="meta mb-3">
@@ -107,7 +107,7 @@ include "header.php" ?>
                         </div>
                         <div class="col-md-12 d-flex ftco-animate">
                             <div class="blog-entry align-self-stretch d-md-flex">
-                                <a href="blog" class="block-20" style="background-image: url('images/blog-spices.jpg');">
+                                <a href="blog.php" class="block-20" style="background-image: url('images/blog-spices.jpg');">
                                 </a>
                                 <div class="text d-block pl-md-4">
                                     <div class="meta mb-3">
@@ -127,7 +127,7 @@ include "header.php" ?>
                         </div>
                         <div class="col-md-12 d-flex ftco-animate">
                             <div class="blog-entry align-self-stretch d-md-flex">
-                                <a href="blog" class="block-20" style="background-image: url('images/blog-millet.jpg');">
+                                <a href="blog.php" class="block-20" style="background-image: url('images/blog-millet.jpg');">
                                 </a>
                                 <div class="text d-block pl-md-4">
                                     <div class="meta mb-3">
@@ -159,11 +159,11 @@ include "header.php" ?>
                     <div class="sidebar-box ftco-animate">
                         <h3 class="heading">Categories</h3>
                         <ul class="categories">
-                            <li><a href="oils">Oils</a></li>
-                            <li><a href="nuts">Nuts</a></li>
-                            <li><a href="dryfruits">Dryfruits</a></li>
-                            <li><a href="spices">Spices</a></li>
-                            <li><a href="millets">Millets</a></li>
+                            <li><a href="oils.php">Oils</a></li>
+                            <li><a href="nuts.php">Nuts</a></li>
+                            <li><a href="dryfruits.php">Dryfruits</a></li>
+                            <li><a href="spices.php">Spices</a></li>
+                            <li><a href="millets.php">Millets</a></li>
 
                         </ul>
                     </div>
@@ -211,11 +211,11 @@ include "header.php" ?>
                     <div class="sidebar-box ftco-animate">
                         <h3 class="heading">Tag Cloud</h3>
                         <div class="tagcloud">
-                            <a href="oils" class="tag-cloud-link">Oil</a>
-                            <a href="dryfruits" class="tag-cloud-link">Dryfruits</a>
-                            <a href="nuts" class="tag-cloud-link">Nuts</a>
-                            <a href="spices" class="tag-cloud-link">Spices</a>
-                            <a href="millets" class="tag-cloud-link">Millets</a>
+                            <a href="oils.php" class="tag-cloud-link">Oil</a>
+                            <a href="dryfruits.php" class="tag-cloud-link">Dryfruits</a>
+                            <a href="nuts.php" class="tag-cloud-link">Nuts</a>
+                            <a href="spices.php" class="tag-cloud-link">Spices</a>
+                            <a href="millets.php" class="tag-cloud-link">Millets</a>
                         </div>
                     </div>
 
