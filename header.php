@@ -701,31 +701,80 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <div class="form-modal" id="popupForm" style="display:none;">
     <div class="form-close" onclick="closeForm()">×</div>
 
-    <div class="form-toggle">
-      <button id="login-toggle" onclick="toggleLogin()">log in</button>
-      <button id="signup-toggle" onclick="toggleSignup()">sign up</button>
-    </div>
+    <div class="auth-modal">
+      <div class="auth-visual">
+        <img src="images/login-panel.jpg" class="auth-visual-img"
+          alt="Welcome back to Valluvam. Bowls of almonds, cashews, raisins and cardamom on a wooden table, highlighting Premium Quality, Secure Shopping, Reliable Delivery and Dedicated Support.">
+      </div>
 
-    <div id="login-form">
-      <form id="loginForm">
-        <input type="text" name="identifier" placeholder="Enter email or username" required />
-        <input type="password" name="password" placeholder="Enter password" required />
-        <button type="submit" class="btn login">login</button>
-        <!-- <p><a href="#" onclick="retryLogin()">Forgotten account?</a></p> -->
-        <hr />
-      </form>
-    </div>
+      <div class="auth-panel">
+        <div class="form-toggle">
+          <button id="login-toggle" onclick="toggleLogin()">Log In</button>
+          <button id="signup-toggle" onclick="toggleSignup()">Sign Up</button>
+        </div>
 
-    <div id="signup-form" style="display:none;">
-      <form id="signupForm">
-        <input type="email" name="email" placeholder="Enter your email" required />
-        <input type="text" name="phone" placeholder="Enter your contact number" required />
-        <input type="text" name="username" placeholder="Choose username" required />
-        <input type="password" name="password" placeholder="Create password" required />
-        <button type="submit" class="btn signup">create account</button>
-        <p>Clicking <strong>create account</strong> means you agree to our <a href="#">terms of services</a>.</p>
-        <hr />
-      </form>
+        <div id="login-form">
+          <h1 class="auth-heading">Login to Your Account</h1>
+          <p class="auth-subheading">Access your orders, track deliveries and enjoy a seamless shopping experience.</p>
+          <form id="loginForm">
+            <label class="auth-label" for="loginIdentifier">Email or Username</label>
+            <div class="auth-input-wrap">
+              <ion-icon name="mail-outline" class="auth-input-icon"></ion-icon>
+              <input type="text" id="loginIdentifier" name="identifier" placeholder="Enter email or username" required />
+            </div>
+
+            <label class="auth-label" for="loginPassword">Password</label>
+            <div class="auth-input-wrap">
+              <ion-icon name="lock-closed-outline" class="auth-input-icon"></ion-icon>
+              <input type="password" id="loginPassword" name="password" placeholder="Enter password" required />
+              <button type="button" class="auth-pw-toggle" aria-label="Show password" data-target="loginPassword">
+                <ion-icon name="eye-outline"></ion-icon>
+              </button>
+            </div>
+
+            <button type="submit" class="btn login">Login <ion-icon name="arrow-forward-outline"></ion-icon></button>
+            <!-- <p><a href="#" onclick="retryLogin()">Forgotten account?</a></p> -->
+            <hr />
+          </form>
+        </div>
+
+        <div id="signup-form" style="display:none;">
+          <h1 class="auth-heading">Create Your Account</h1>
+          <p class="auth-subheading">Join Valluvam for faster checkout and easy order tracking.</p>
+          <form id="signupForm">
+            <label class="auth-label" for="signupEmail">Email Address</label>
+            <div class="auth-input-wrap">
+              <ion-icon name="mail-outline" class="auth-input-icon"></ion-icon>
+              <input type="email" id="signupEmail" name="email" placeholder="Enter your email" required />
+            </div>
+
+            <label class="auth-label" for="signupPhone">Contact Number</label>
+            <div class="auth-input-wrap">
+              <ion-icon name="call-outline" class="auth-input-icon"></ion-icon>
+              <input type="text" id="signupPhone" name="phone" placeholder="Enter your contact number" required />
+            </div>
+
+            <label class="auth-label" for="signupUsername">Username</label>
+            <div class="auth-input-wrap">
+              <ion-icon name="person-outline" class="auth-input-icon"></ion-icon>
+              <input type="text" id="signupUsername" name="username" placeholder="Choose username" required />
+            </div>
+
+            <label class="auth-label" for="signupPassword">Password</label>
+            <div class="auth-input-wrap">
+              <ion-icon name="lock-closed-outline" class="auth-input-icon"></ion-icon>
+              <input type="password" id="signupPassword" name="password" placeholder="Create password" required />
+              <button type="button" class="auth-pw-toggle" aria-label="Show password" data-target="signupPassword">
+                <ion-icon name="eye-outline"></ion-icon>
+              </button>
+            </div>
+
+            <button type="submit" class="btn signup">Create Account <ion-icon name="arrow-forward-outline"></ion-icon></button>
+            <p>Clicking <strong>create account</strong> means you agree to our <a href="#">terms of services</a>.</p>
+            <hr />
+          </form>
+        </div>
+      </div>
     </div>
   </div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

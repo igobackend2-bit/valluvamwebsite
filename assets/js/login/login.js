@@ -199,3 +199,18 @@ function closeForm() {
     document.getElementById("popupForm").style.display = "none";
     sessionStorage.setItem('login_popup_shown', 'true');
 }
+
+// Password visibility toggle (presentation only -- does not affect
+// authentication; only switches an input's type between password/text).
+$(document).on('click', '.auth-pw-toggle', function () {
+    var targetId = $(this).data('target');
+    var $input = $('#' + targetId);
+    var $icon = $(this).find('ion-icon');
+    if ($input.attr('type') === 'password') {
+        $input.attr('type', 'text');
+        $icon.attr('name', 'eye-off-outline');
+    } else {
+        $input.attr('type', 'password');
+        $icon.attr('name', 'eye-outline');
+    }
+});
