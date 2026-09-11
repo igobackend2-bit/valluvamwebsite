@@ -104,9 +104,9 @@
 	}
 
 	.slider6-items img {
-		width: 180px;
-		height: 110px;
-		margin: 0 22px;
+		width: 280px;
+		height: 170px;
+		margin: 0 30px;
 		object-fit: contain;
 		opacity: 0.85;
 		transition: opacity 0.2s ease;
@@ -130,17 +130,17 @@
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
 		.slider6-items img {
-			width: 120px;
-			height: 74px;
-			margin: 0 14px;
+			width: 170px;
+			height: 104px;
+			margin: 0 18px;
 		}
 	}
 
 	@media (max-width: 480px) {
 		.slider6-items img {
-			width: 92px;
-			height: 56px;
-			margin: 0 10px;
+			width: 130px;
+			height: 80px;
+			margin: 0 12px;
 		}
 	}
 </style>
