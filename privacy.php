@@ -1,4 +1,4 @@
-  <?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
+<?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
   include "header.php" ?>
 <!DOCTYPE html>
 <html lang="en">

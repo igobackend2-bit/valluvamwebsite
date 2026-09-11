@@ -1,4 +1,4 @@
-  <?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
+<?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
     include "header.php";
     // URL is the product name slug, e.g. "honey". Old numeric/id-slug links ("213" or "213-honey") still resolve via their leading id.
     $product_param = $_GET['product'] ?? '';
