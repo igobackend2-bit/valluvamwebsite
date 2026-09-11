@@ -455,6 +455,91 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       margin-bottom: 12px;
     }
   </style>
+
+  <!-- ===== Header bar: logo presence, gap balance, topbar alignment ===== -->
+  <style>
+    @media (min-width: 992px) {
+
+      /* 7a. The logo mark fills only ~50% of images/logo.jpeg - the file
+         carries 21-27% white padding on every side, so at a 72px box the
+         visible mark rendered at roughly 35px. Scaling inside a clipped
+         box crops that dead padding without changing any layout height.
+         The proper fix is re-exporting the logo cropped and transparent;
+         this makes it read correctly until then. */
+      #ftco-navbar .navbar-brand {
+        width: 72px;
+        height: 72px;
+        overflow: hidden;
+        flex: 0 0 auto;
+      }
+
+      #ftco-navbar .navbar-brand img {
+        transform: scale(1.4);
+      }
+
+      /* 7b. Gap balance: the logo sat 20px from the search box, then a
+         162px void before the menu. Redistributed so the left cluster
+         breathes and the void closes to about 95px. */
+      #ftco-navbar .navbar-brand {
+        margin-right: 36px;
+      }
+
+      #ftco-navbar #searchForm {
+        flex: 0 1 330px;
+        margin-right: 0;
+      }
+
+      /* 7c. The green bar's e-mail sat mid-row, aligned to nothing. Right
+         aligning it squares it with the menu's right edge below.
+         .pr-4 is a Bootstrap utility, so this outranks it on specificity
+         rather than with !important. */
+      .bg-primary .row .topper:last-child {
+        justify-content: flex-end;
+      }
+
+      .bg-primary .row .topper.pr-4:last-child {
+        padding-right: 0;
+      }
+
+      /* .topper .text is width:calc(100% - 30px), which held the e-mail
+         short of the edge even once it was right-aligned. */
+      .bg-primary .row .topper:last-child .text {
+        width: auto;
+        flex: 0 0 auto;
+      }
+    }
+  </style>
+
+  <!-- ===== Homepage category strip ===== -->
+  <style>
+    /* 8a. The cards are fixed 250x140 boxes, but products.css styles the
+       thumbnails with a bare `img { width:100% }` and no height, so each
+       one kept its own aspect ratio inside that box: images ran 130px to
+       321px tall. Short ones left the grey background showing, tall ones
+       were cropped to whatever their top 44% happened to be. Filling the
+       box makes every card frame its subject the same way. */
+    .slid-er .slide .slide-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* 8b. .slide is 258px while .slide-content measures 266px with its
+       8px margins, so each card ate 8px of the next one's gutter and the
+       spacing came out at 8px instead of the intended 16px. */
+    .slid-er .slide {
+      width: 266px;
+      flex: 0 0 266px;
+    }
+
+    /* 8c. The grey placeholder only ever showed through as a gap; with the
+       images filling their boxes a neutral tone is a calmer fallback for a
+       thumbnail that fails to load. */
+    .slid-er .slide .slide-content {
+      background-color: #eceae3;
+    }
+  </style>
 </head>
 
 <body>
