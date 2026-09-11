@@ -2,16 +2,59 @@
 <section id="brand-slider">
 	<div class="slider6">
 		<div class="slider6-items">
-			<img src="images/brand-1.jpg" alt="brand">
-			<img src="images/brand-2.jpg" alt="brand">
-			<img src="images/brand-3.jpg" alt="brand">
-			<img src="images/brand-4.jpg" alt="brand">
-			<img src="images/brand-5.jpg" alt="brand">
-			<img src="images/brand-6.jpg" alt="brand">
-			<!-- Duplicate images for infinite loop -->
-			<img src="images/brand-1.jpg" alt="brand">
-			<img src="images/brand-2.jpg" alt="brand">
-			<img src="images/brand-3.jpg" alt="brand">
+			<img src="images/brands/igo-group.webp" alt="IGO Group" width="150" height="90" loading="lazy">
+			<img src="images/brands/farm-automation.webp" alt="Farm Automation" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-agri-estates.webp" alt="IGO Agri Estates" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-cosmetics.webp" alt="IGO Cosmetics" width="150" height="90" loading="lazy">
+			<img src="images/brands/billionism-monk.webp" alt="Billionism Monk" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-agrimart.webp" alt="IGO Agrimart" width="150" height="90" loading="lazy">
+			<img src="images/brands/valluvam.webp" alt="Valluvam" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-agri-techfarms.webp" alt="IGO Agri Techfarms" width="150" height="90" loading="lazy">
+			<img src="images/brands/tech-farming-expert.webp" alt="Tech Farming Expert" width="150" height="90" loading="lazy">
+			<img src="images/brands/protein-cuts.webp" alt="Protein Cuts" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-exports-imports.webp" alt="IGO Exports and Imports" width="150" height="90" loading="lazy">
+			<img src="images/brands/palmcafe.webp" alt="Palmcafe" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-academy.webp" alt="IGO Academy" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-nursery.webp" alt="IGO Nursery" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-mart.webp" alt="IGO Mart" width="150" height="90" loading="lazy">
+			<img src="images/brands/farm-loans-subsidy.webp" alt="Farm Loans and Subsidy" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-financial-services.webp" alt="IGO Financial Services" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-franchise.webp" alt="IGO Franchise" width="150" height="90" loading="lazy">
+			<img src="images/brands/farm-factories.webp" alt="Farm Factories" width="150" height="90" loading="lazy">
+			<img src="images/brands/farmers-factory.webp" alt="Farmers Factory" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-crop-care.webp" alt="IGO Crop Care" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-pharma.webp" alt="IGO Pharma" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-techfarming-scientist.webp" alt="IGO Techfarming Scientist" width="150" height="90" loading="lazy">
+			<img src="images/brands/farmgate-mandi.webp" alt="Farmgate Mandi" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-wealth-management.webp" alt="IGO Wealth Management" width="150" height="90" loading="lazy">
+			<img src="images/brands/igo-foundation.webp" alt="IGO Foundation" width="150" height="90" loading="lazy">
+			<!-- Second identical run: the marquee translates -50%, so the track must be exactly doubled for a seamless loop -->
+			<img src="images/brands/igo-group.webp" alt="IGO Group" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/farm-automation.webp" alt="Farm Automation" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-agri-estates.webp" alt="IGO Agri Estates" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-cosmetics.webp" alt="IGO Cosmetics" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/billionism-monk.webp" alt="Billionism Monk" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-agrimart.webp" alt="IGO Agrimart" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/valluvam.webp" alt="Valluvam" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-agri-techfarms.webp" alt="IGO Agri Techfarms" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/tech-farming-expert.webp" alt="Tech Farming Expert" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/protein-cuts.webp" alt="Protein Cuts" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-exports-imports.webp" alt="IGO Exports and Imports" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/palmcafe.webp" alt="Palmcafe" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-academy.webp" alt="IGO Academy" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-nursery.webp" alt="IGO Nursery" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-mart.webp" alt="IGO Mart" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/farm-loans-subsidy.webp" alt="Farm Loans and Subsidy" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-financial-services.webp" alt="IGO Financial Services" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-franchise.webp" alt="IGO Franchise" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/farm-factories.webp" alt="Farm Factories" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/farmers-factory.webp" alt="Farmers Factory" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-crop-care.webp" alt="IGO Crop Care" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-pharma.webp" alt="IGO Pharma" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-techfarming-scientist.webp" alt="IGO Techfarming Scientist" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/farmgate-mandi.webp" alt="Farmgate Mandi" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-wealth-management.webp" alt="IGO Wealth Management" width="150" height="90" loading="lazy" aria-hidden="true">
+			<img src="images/brands/igo-foundation.webp" alt="IGO Foundation" width="150" height="90" loading="lazy" aria-hidden="true">
 		</div>
 	</div>
 </section>
@@ -32,12 +75,12 @@
 	.slider6-items {
 		display: flex;
 		width: max-content;
-		animation: slide 20s linear infinite;
+		animation: slide 100s linear infinite;
 	}
 
 	.slider6-items img {
 		width: 150px;
-		height: auto;
+		height: 90px;
 		margin: 0 15px;
 		object-fit: contain;
 	}
@@ -57,6 +100,7 @@
 	@media (max-width: 768px) {
 		.slider6-items img {
 			width: 100px;
+			height: 62px;
 			margin: 0 10px;
 		}
 	}
@@ -64,6 +108,7 @@
 	@media (max-width: 480px) {
 		.slider6-items img {
 			width: 80px;
+			height: 50px;
 			margin: 0 5px;
 		}
 	}
