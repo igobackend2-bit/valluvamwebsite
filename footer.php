@@ -1,4 +1,4 @@
-<div class="brand-affiliation-head">
+<?php if (basename($_SERVER['PHP_SELF']) === 'index.php') : ?><div class="brand-affiliation-head">
 	<h3>Part of the IGO Group</h3>
 	<p>Valluvam is proudly part of the IGO Group family of agri-businesses.</p>
 </div>
@@ -60,7 +60,7 @@
 			<img src="images/brands/igo-foundation.webp" alt="IGO Foundation" width="150" height="90" loading="lazy" aria-hidden="true">
 		</div>
 	</div>
-</section>
+</section><?php endif; ?>
 
 <style>
 	.brand-affiliation-head {
