@@ -527,10 +527,22 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
     /* 8b. .slide is 258px while .slide-content measures 266px with its
        8px margins, so each card ate 8px of the next one's gutter and the
-       spacing came out at 8px instead of the intended 16px. */
+       spacing came out at 8px instead of the intended 16px. Widened again
+       to 278px so the cards sit 28px apart and read as separate tiles. */
     .slid-er .slide {
-      width: 266px;
-      flex: 0 0 266px;
+      width: 278px;
+      flex: 0 0 278px;
+    }
+
+    .slid-er .slide .slide-content {
+      margin: 8px 14px;
+    }
+
+    /* 8d. The strip butted straight against the hero banner with no gap at
+       all, and left only 12px before the "OUR PRODUCTS" heading below. */
+    .ftco-section-category {
+      padding-top: 44px;
+      padding-bottom: 44px;
     }
 
     /* 8c. The grey placeholder only ever showed through as a gap; with the
