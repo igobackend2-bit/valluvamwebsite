@@ -265,6 +265,196 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       }
     }
   </style>
+
+  <!-- ===== Site-wide alignment & readability (additive only) ===== -->
+  <style>
+    /* 1. Orphan rows: on shop.php and cart.php a Bootstrap .row sits directly
+       inside <section> with no .container, so its -15px gutters escape and
+       scroll the whole page sideways. Give those rows container behaviour so
+       they line up with every other section instead of running full-bleed. */
+    section.ftco-section>.row {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 1110px;
+    }
+
+    @media (max-width: 1199.98px) {
+      section.ftco-section>.row {
+        max-width: 930px;
+      }
+    }
+
+    @media (max-width: 991.98px) {
+      section.ftco-section>.row {
+        max-width: 690px;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      section.ftco-section>.row {
+        max-width: 510px;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      section.ftco-section>.row {
+        max-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+      }
+    }
+
+    /* 2. Body copy contrast: #808080 measures 3.5:1 on white, below the
+       WCAG AA minimum of 4.5:1. #666 measures 5.7:1. */
+    body.goto-here {
+      color: #666;
+    }
+
+    /* 3. Reading measure: prose ran 148 characters per line (readable is
+       45-75). The footer also carries .ftco-section, so it is excluded. */
+    .ftco-section:not(.ftco-footer) .heading.text-center>p,
+    .ftco-section:not(.ftco-footer) .col-lg-12>p,
+    .ftco-section:not(.ftco-footer) .col-md-12>p,
+    .ftco-section:not(.ftco-footer) .col-12-lg p {
+      max-width: 72ch;
+    }
+
+    .ftco-section:not(.ftco-footer) .heading.text-center>p {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* 4. Heading hierarchy: the page title rendered at 30px while section
+       headings below it were 40px. Restores the page title to the top rank. */
+    @media (min-width: 768px) {
+
+      .hero-wrap.hero-bread h1.bread,
+      .hero-wrap.hero-bread .wholesale-hero-title {
+        font-size: 46px;
+        line-height: 1.15;
+      }
+    }
+
+    /* 5. Symmetrical vertical rhythm (was 115px top / 120px bottom). */
+    .section-services {
+      padding-top: 115px;
+      padding-bottom: 115px;
+    }
+
+    /* ---------------------------------------------------------------
+       6. Spacing system. The site used 6 different section paddings,
+       5 button treatments and 5 text-input treatments with no rule
+       behind them. These put every repeated element on one scale.
+       --------------------------------------------------------------- */
+
+    /* 6a. Section rhythm: main content sections sat at 30px while the
+       newer B2B pages used 70px, so most of the site read as cramped.
+       .ftco-no-pt / .ftco-no-pb keep their meaning. */
+    .ftco-section:not(.ftco-footer) {
+      padding-top: 52px;
+      padding-bottom: 52px;
+    }
+
+    .ftco-section.ftco-no-pt {
+      padding-top: 0;
+    }
+
+    .ftco-section.ftco-no-pb {
+      padding-bottom: 0;
+    }
+
+    /* 6a-ii. The remaining bands onto the same two-tier scale
+       (was 70px on B2B, 60px on the CTA band, 115px on services).
+       b2b-wholesale.php declares .b2b-section in its own inline <style>,
+       which lands after this file's <head>, so these are qualified with
+       `body` to win on specificity rather than with !important. */
+    body .b2b-section,
+    body .bg-cta {
+      padding-top: 52px;
+      padding-bottom: 52px;
+    }
+
+    /* The newsletter Subscribe button was square with 12px type while
+       every other button on the site is a 14px pill. */
+    body .subscribe-form .form-group .submit {
+      border-radius: 30px;
+      font-size: 14px;
+      border-left: 0;
+    }
+
+    .section-services {
+      padding-top: 72px;
+      padding-bottom: 72px;
+    }
+
+    /* 6b. Buttons: heights ran 33/52/53/54/58px, radius 0 and 30px,
+       type 12-16px. Accordion toggles and carousel arrows keep theirs.
+       contact.php's "Send Now" is a bare <button> with no styling at
+       all, so it rendered as a 33px default browser control. */
+    .btn:not(.btn-link):not(.owl-prev):not(.owl-next),
+    input[type="submit"].submit,
+    input[type="submit"],
+    button[type="submit"]:not(.btn):not(.navbar-toggler),
+    .btn-submit-enquiry {
+      min-height: 48px;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: .3px;
+      line-height: 1.2;
+      border-radius: 30px;
+    }
+
+    .btn:not(.btn-link):not(.owl-prev):not(.owl-next),
+    button[type="submit"]:not(.btn):not(.navbar-toggler) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* The unstyled contact-form button needs a surface of its own. */
+    button[type="submit"]:not(.btn):not(.navbar-toggler) {
+      background: #82ae46;
+      color: #fff;
+      border: 0;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:not(.btn):not(.navbar-toggler):hover {
+      background: #6e9a34;
+      color: #fff;
+    }
+
+    /* 6c. Text inputs: five different heights and four radii.
+       The navbar search pill and choice controls are left as they are. */
+    .form-control:not(textarea):not(.search-input),
+    input[type="text"]:not(.search-input),
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="password"],
+    select.form-control {
+      height: 48px;
+      padding: 0 16px;
+      font-size: 15px;
+      border-radius: 6px;
+    }
+
+    textarea.form-control {
+      padding: 12px 16px;
+      font-size: 15px;
+      border-radius: 6px;
+    }
+
+    /* 6d. Heading spacing: h2 carried 8 different margin pairs, h3 six. */
+    .ftco-section:not(.ftco-footer) h2 {
+      margin-bottom: 16px;
+    }
+
+    .ftco-section:not(.ftco-footer) h3 {
+      margin-bottom: 12px;
+    }
+  </style>
 </head>
 
 <body>
