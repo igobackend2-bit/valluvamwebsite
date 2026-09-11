@@ -128,7 +128,7 @@
     padding: 20px 15px 0;
 }
 
-/* ===== Login / Signup modal — full-screen split panel ===== */
+/* ===== Login / Signup modal -- full-screen split panel, dark theme ===== */
 
 .form-modal {
     display: none;
@@ -138,7 +138,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #f4f2ea 0%, #eef2e7 55%, #e6ede2 100%);
+    background: linear-gradient(135deg, #1c1c1a 0%, #141412 100%);
     z-index: 9999;
     overflow-y: auto;
 }
@@ -147,7 +147,7 @@
     position: fixed;
     top: 18px;
     right: 18px;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(255, 255, 255, 0.14);
     color: #fff;
     border-radius: 50%;
     width: 36px;
@@ -161,7 +161,7 @@
 }
 
 .form-close:hover {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .auth-modal {
@@ -173,8 +173,8 @@
 }
 
 .auth-visual {
-    flex: 0 0 46%;
-    max-width: 680px;
+    flex: 0 0 48%;
+    max-width: 760px;
     min-height: 100%;
     align-self: stretch;
     position: relative;
@@ -185,7 +185,19 @@
     height: 100%;
     min-height: 100%;
     object-fit: cover;
+    object-position: top center;
     display: block;
+    filter: brightness(0.82);
+}
+
+/* Darkens the right-hand edge of the photo so it blends into the glass
+   card instead of the card looking like a separate box next to it. */
+.auth-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10, 10, 8, 0) 55%, rgba(10, 10, 8, 0.55) 100%);
+    pointer-events: none;
 }
 
 .auth-panel {
@@ -196,16 +208,31 @@
     flex-direction: column;
     justify-content: center;
     padding: 56px 64px;
-    background: rgba(255, 255, 255, 0.55);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(18, 18, 16, 0.72);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 28px;
-    box-shadow: 0 24px 60px rgba(20, 40, 25, 0.18), 0 2px 10px rgba(20, 40, 25, 0.08);
-    margin: 40px 40px 40px -64px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 2px 10px rgba(0, 0, 0, 0.3);
+    margin: 40px 40px 40px -170px;
     position: relative;
     z-index: 2;
     box-sizing: border-box;
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.auth-brand-logo {
+    height: 38px;
+    width: auto;
+    display: block;
+    background: #fff;
+    border-radius: 10px;
+    padding: 6px 12px;
 }
 
 /* Login / Sign Up switch — small pill control top-right of the panel */
@@ -214,10 +241,10 @@
     top: 32px;
     right: 32px;
     display: inline-flex;
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.08);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 999px;
     padding: 4px;
 }
@@ -233,28 +260,29 @@
     text-transform: capitalize;
     transition: 0.2s;
     background: transparent;
+    color: rgba(255, 255, 255, 0.55);
 }
 
 #login-toggle {
-    background: #1b3c2b;
+    background: rgba(255, 255, 255, 0.16);
     color: #fff;
 }
 
 #signup-toggle {
     background: transparent;
-    color: #222;
+    color: rgba(255, 255, 255, 0.55);
 }
 
 .auth-heading {
     font-family: 'Lora', serif;
     font-weight: 700;
-    color: #1b3c2b;
+    color: #fff;
     font-size: 2.1em;
     margin-bottom: 10px;
 }
 
 .auth-subheading {
-    color: #5f6a63;
+    color: rgba(255, 255, 255, 0.6);
     font-size: 1em;
     line-height: 1.5;
     margin-bottom: 30px;
@@ -264,9 +292,11 @@
 .auth-label {
     display: block;
     font-weight: 600;
-    font-size: 0.9em;
-    color: #2b2b2b;
-    margin-bottom: 6px;
+    font-size: 0.78em;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 8px;
     margin-top: 18px;
 }
 
@@ -280,7 +310,7 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #8a9188;
+    color: rgba(255, 255, 255, 0.4);
     font-size: 1.15em;
     pointer-events: none;
 }
@@ -289,21 +319,24 @@
     width: 100%;
     font-size: 1em;
     font-weight: 400;
+    color: #fff;
     padding: 0.9em 1em 0.9em 2.8em;
     margin: 0;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    background: rgba(255, 255, 255, 0.55);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
     outline: none;
     transition: border-color 0.2s, background 0.2s;
     box-sizing: border-box;
 }
 
+.form-modal .auth-input-wrap input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
 .form-modal .auth-input-wrap input:focus {
     border-color: #82AE46;
-    background: rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.1);
     transform: none;
 }
 
@@ -315,7 +348,7 @@
     background: none;
     border: none;
     padding: 4px;
-    color: #8a9188;
+    color: rgba(255, 255, 255, 0.4);
     font-size: 1.15em;
     cursor: pointer;
     line-height: 1;
@@ -339,39 +372,54 @@
 
 .form-modal .login,
 .form-modal .signup {
-    background: #1b3c2b;
-    color: #fff;
+    background: #82AE46;
+    color: #14260c;
 }
 
 .form-modal .login:hover,
 .form-modal .signup:hover {
-    background: #275038;
-    color: #fff;
+    background: #93c052;
+    color: #14260c;
     border: none;
 }
 
 .auth-panel hr {
     max-width: 460px;
     margin: 1.8em 0 0.5em;
-    border-top: 1px solid #eceae2;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .form-modal p {
     font-size: 0.85em;
     font-weight: 400;
-    color: #6b736c;
+    color: rgba(255, 255, 255, 0.5);
     max-width: 460px;
 }
 
 .form-modal p a {
-    color: #1b3c2b;
+    color: #a7d17e;
     font-weight: 600;
     text-decoration: none;
     transition: 0.2s;
 }
 
 .form-modal p a:hover {
-    color: #82AE46;
+    color: #fff;
+}
+
+.auth-back-link {
+    display: block;
+    text-align: center;
+    margin-top: 22px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.85em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.auth-back-link:hover {
+    color: #fff;
 }
 
 /* Responsive: no room for a side image on tablets/phones — form takes over
@@ -382,7 +430,7 @@
         width: 460px;
         max-width: 460px;
         padding: 48px 40px;
-        margin: 40px 40px 40px -48px;
+        margin: 40px 40px 40px -90px;
     }
 
     .form-toggle {
@@ -404,7 +452,7 @@
         box-shadow: none;
         border: none;
         min-height: 100%;
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(18, 18, 16, 0.92);
     }
 
     .form-toggle {

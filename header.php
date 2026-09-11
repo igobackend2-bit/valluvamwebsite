@@ -154,7 +154,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/productdet.css">
   <link rel="stylesheet" href="css/products.css?v=3">
-  <link rel="stylesheet" href="css/login.css?v=20260911">
+  <link rel="stylesheet" href="css/login.css?v=20260911b">
   <!-- bootstrap-4 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -708,6 +708,10 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       </div>
 
       <div class="auth-panel">
+        <div class="auth-brand">
+          <img src="images/logo.png" class="auth-brand-logo" alt="Valluvam">
+        </div>
+
         <div class="form-toggle">
           <button id="login-toggle" onclick="toggleLogin()">Log In</button>
           <button id="signup-toggle" onclick="toggleSignup()">Sign Up</button>
@@ -774,6 +778,8 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
             <hr />
           </form>
         </div>
+
+        <a href="javascript:void(0)" class="auth-back-link" onclick="closeForm()">&larr; Back to Store</a>
       </div>
     </div>
   </div>
