@@ -26,12 +26,11 @@
 					<div class="single-service">
 						<div class="content">
 							<span class="icon">
-								<ion-icon name="logo-apple"></ion-icon> </span>
-							<h3 class="title">Fresh Produce Delivery</h3>
-							<p class="description">At Valluvam, we bring farm-fresh fruits and vegetables
-								straight to your doorstep. Enjoy farm-fresh fruits and vegetables delivered
-								right to your home, saving you time and effort. Choose from our weekly,
-								bi-weekly, or one-time delivery options to fit your lifestyle and needs.
+								<ion-icon name="location-outline"></ion-icon> </span>
+							<h3 class="title">Pan-India Doorstep Delivery</h3>
+							<p class="description">Nuts, dry fruits, cold-pressed oils, spices and millets
+								packed and shipped straight to your doorstep across India, with tracking
+								on every order from dispatch to delivery.
 							</p>
 						</div>
 						<span class="circle-before"></span>
@@ -77,11 +76,12 @@
 					<div class="single-service">
 						<div class="content">
 							<span class="icon">
-								<ion-icon name="create"></ion-icon> </span>
+								<ion-icon name="lock-closed-outline"></ion-icon> </span>
 
-							<h3 class="title">Live Farming Updates</h3>
-							<p class="description">Get real-time farming updates for better decision-making. Track crop growth, weather conditions, and soil health. Access live data for smarter farm management.
-								Improve efficiency with instant alerts and insights. Stay connected with your farm anytime, anywhere!</p>
+							<h3 class="title">Secure Online Payments</h3>
+							<p class="description">Checkout with confidence using Razorpay-powered payments.
+								Cards, UPI, net banking and wallets are all supported, with every
+								transaction encrypted end to end.</p>
 						</div>
 						<span class="circle-before"></span>
 					</div>

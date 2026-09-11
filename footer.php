@@ -217,10 +217,10 @@
 				</div>
 				<div class="col-md" style="color:#fff">
 					<div class="ftco-footer-widget mb-4 ml-md-5" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color: #fff;">Menu</h2>
+						<h2 class="ftco-heading-2" style="color: #fff;">Shop</h2>
 						<ul class="list-unstyled" style="color:#fff">
 							<li><a href="index.php">Home</a></li>
-							<li><a href="shop.php">shop</a></li>
+							<li><a href="shop.php">Shop</a></li>
 							<li><a href="about.php">About</a></li>
 							<li><a href="blog.php">Blog</a></li>
 							<li><a href="contact.php">Contact</a></li>
@@ -229,7 +229,7 @@
 				</div>
 				<div class="col-md-4" style="color:#fff">
 					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:#fff">Help</h2>
+						<h2 class="ftco-heading-2" style="color:#fff">Customer Support</h2>
 						<div class="d-flex" style="color:#fff">
 							<ul class="list-unstyled mr-l-5 pr-l-3 mr-4" style="color:#fff">
 								<li><a href="#">Shipping Information</a></li>
@@ -242,20 +242,17 @@
 						</div>
 					</div>
 				</div>
-				<!-- <div class="col-md-4" style="color:#fff">
+				<div class="col-md" style="color:#fff">
 					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:greem">Our Brands</h2>
-						<div class="d-flex" style="color:#fff">
-							<ul class="list-unstyled mr-l-5 pr-l-3 mr-4" style="color:#fff">
-								<li><img src="" alt="brand1" width="60px"  height="60px"></li>
-								<li><img src="" alt="brand2" width="60px"  height="60px"></li>
-								<li><img src="" alt="brand3" width="60px"  height="60px"></li>
-								<li><img src="" alt="brand4" width="60px"  height="60px"></li>
-								<li><img src="" alt="brand5"width="60px"  height="60px"></li>
-							</ul>
-						</div>
+						<h2 class="ftco-heading-2" style="color:#fff">Business / Wholesale</h2>
+						<ul class="list-unstyled" style="color:#fff">
+							<li><a href="b2b-wholesale.php">B2B / Wholesale Supply</a></li>
+							<li><a href="b2b-wholesale.php">Bulk Enquiry</a></li>
+							<li><a href="order_tracking.php">Track Your Order</a></li>
+							<li><a href="contact.php">Contact Sales</a></li>
+						</ul>
 					</div>
-				</div> -->
+				</div>
 				<div class="col-md">
 					<div class="ftco-footer-widget mb-4" style="color:#fff">
 						<h2 class="ftco-heading-2" style="color:#fff">Have a Questions?</h2>
