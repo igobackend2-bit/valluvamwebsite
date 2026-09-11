@@ -2,16 +2,45 @@
     include "header.php";
     // URL is the product name slug, e.g. "honey". Old numeric/id-slug links ("213" or "213-honey") still resolve via their leading id.
     $product_param = $_GET['product'] ?? '';
-    $product_id = preg_match('/^\d+/', $product_param, $m) ? $m[0] : $product_param; ?>
+    $product_id = preg_match('/^\d+/', $product_param, $m) ? $m[0] : $product_param;
+
+    // Build a human-readable product name from the URL slug alone (no DB lookup) for the page title/meta.
+    $product_display_raw = preg_replace('/^\d+-?/', '', $product_param);
+    $product_display_name = trim(preg_replace('/[-_]+/', ' ', $product_display_raw));
+    $product_display_name = $product_display_name !== '' ? ucwords($product_display_name) : '';
+    $product_page_title = $product_display_name !== '' ? htmlspecialchars($product_display_name) . ' | Valluvam' : 'Product Details | Valluvam';
+    $product_page_desc = $product_display_name !== ''
+      ? 'Buy ' . htmlspecialchars($product_display_name) . ' online from Valluvam — farm-fresh, naturally processed and delivered to your door.'
+      : "Explore product details, pricing and specifications for Valluvam's natural, farm-fresh products.";
+    $product_canonical = 'https://www.valluvamproducts.com/productdetail.php' . ($product_param !== '' ? '?product=' . urlencode($product_param) : '');
+    ?>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $product_page_title; ?></title>
+    <meta name="description" content="<?php echo $product_page_desc; ?>">
+    <link rel="canonical" href="<?php echo $product_canonical; ?>">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="<?php echo $product_page_title; ?>">
+    <meta property="og:description" content="<?php echo $product_page_desc; ?>">
+    <meta property="og:url" content="<?php echo $product_canonical; ?>">
+    <meta property="og:image" content="/images/logo.png">
+    <meta property="og:site_name" content="Valluvam">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo $product_page_title; ?>">
+    <meta name="twitter:description" content="<?php echo $product_page_desc; ?>">
+    <meta name="twitter:image" content="/images/logo.png">
+  </head>
 
   <body class="goto-here">
       <div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
           <div class="container">
               <div class="row no-gutters slider-text align-items-center justify-content-center">
                   <div class="col-md-9 ftco-animate text-center">
-                      <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Products
-                          </span></p>
-                      <h1 class="mb-0 bread"><b>Our Products</b></h1>
+                      <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span class="mr-2"><a href="shop.php">Products</a></span> <span><?php echo $product_display_name !== '' ? htmlspecialchars($product_display_name) : 'Details'; ?></span></p>
+                      <h1 class="mb-0 bread"><b><?php echo $product_display_name !== '' ? htmlspecialchars($product_display_name) : 'Our Products'; ?></b></h1>
                   </div>
               </div>
           </div>

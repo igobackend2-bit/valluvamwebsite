@@ -13,14 +13,14 @@ include 'header.php' ?>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index, follow">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-  <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
-  <meta property="og:url" content="https://valluvamproducts.com/">
+  <meta property="og:title" content="Buy Rice Online - 1kg, 5kg, 10kg &amp; 20kg Packs | Valluvam">
+  <meta property="og:description" content="Buy quality rice online from Valluvam in 1kg, 5kg, 10kg and 20kg packs. Farm-sourced, cleanly packed and delivered fresh to your door.">
+  <meta property="og:url" content="https://www.valluvamproducts.com/rice.php">
   <meta property="og:image" content="/images/logo.png">
   <meta property="og:site_name" content="Valluvam">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-  <meta name="twitter:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
+  <meta name="twitter:title" content="Buy Rice Online - 1kg, 5kg, 10kg &amp; 20kg Packs | Valluvam">
+  <meta name="twitter:description" content="Buy quality rice online from Valluvam in 1kg, 5kg, 10kg and 20kg packs. Farm-sourced, cleanly packed and delivered fresh to your door.">
   <meta name="twitter:image" content="/images/logo.png">
   <script type="application/ld+json">
     {
@@ -57,8 +57,8 @@ include 'header.php' ?>
     <div class="container">
       <div class="row no-gutters slider-text align-items-center justify-content-center">
         <div class="col-md-9 ftco-animate text-center">
-          <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Products</span></p>
-          <h1 class="mb-0 bread">Products</h1>
+          <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Rice</span></p>
+          <h1 class="mb-0 bread">Rice</h1>
         </div>
       </div>
     </div>

@@ -6,21 +6,21 @@ include "header.php" ?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valluvam – Organic Nuts, Dry Fruits, Oils, Spices & Millets Delivered Fresh</title>
-    <meta name="description" content="Valluvam brings you organic nuts, dry fruits, cold-pressed oils, spices, and millets delivered fresh to your doorstep. Farm-fresh, pure, and nutritious.">
+    <title>Blog — Nuts, Oils, Spices & Millets | Valluvam</title>
+    <meta name="description" content="Articles from Valluvam on cold-pressed oils, dry fruits, nuts, spices and millets, and how to choose and use them well.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/">
+    <link rel="canonical" href="https://valluvamproducts.com/blog.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
-    <meta property="og:url" content="https://valluvamproducts.com/">
+    <meta property="og:title" content="Blog — Nuts, Oils, Spices & Millets | Valluvam">
+    <meta property="og:description" content="Articles from Valluvam on cold-pressed oils, dry fruits, nuts, spices and millets, and how to choose and use them well.">
+    <meta property="og:url" content="https://valluvamproducts.com/blog.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta name="twitter:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
+    <meta name="twitter:title" content="Blog — Nuts, Oils, Spices & Millets | Valluvam">
+    <meta name="twitter:description" content="Articles from Valluvam on cold-pressed oils, dry fruits, nuts, spices and millets, and how to choose and use them well.">
     <meta name="twitter:image" content="/images/logo.png">
     <script type="application/ld+json">
         {
@@ -145,38 +145,6 @@ include "header.php" ?>
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="col-md-12 d-flex ftco-animate">
-                            <div class="blog-entry align-self-stretch d-md-flex">
-                                <a href="blog-single.html" class="block-20" style="background-image: url('images/image_5.jpg');">
-                                </a>
-                                <div class="text d-block pl-md-4">
-                                    <div class="meta mb-3">
-                                        <div><a href="#">July 20, 2019</a></div>
-                                        <div><a href="#">Admin</a></div>
-                                        <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div>
-                                    </div>
-                                    <h3 class="heading"><a href="#">Even the all-powerful Pointing has no control about the blind texts</a></h3>
-                                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                                    <p><a href="blog-single.html" class="btn btn-primary py-2 px-3">Read more</a></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 d-flex ftco-animate">
-                            <div class="blog-entry align-self-stretch d-md-flex">
-                                <a href="blog-single.html" class="block-20" style="background-image: url('images/image_6.jpg');">
-                                </a>
-                                <div class="text d-block pl-md-4">
-                                    <div class="meta mb-3">
-                                        <div><a href="#">July 20, 2019</a></div>
-                                        <div><a href="#">Admin</a></div>
-                                        <div><a href="#" class="meta-chat"><span class="icon-chat"></span> 3</a></div>
-                                    </div>
-                                    <h3 class="heading"><a href="#">Even the all-powerful Pointing has no control about the blind texts</a></h3>
-                                    <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-                                    <p><a href="blog-single.html" class="btn btn-primary py-2 px-3">Read more</a></p>
-                                </div>
-                            </div>
-                        </div> -->
                     </div>
                 </div> <!-- .col-md-8 -->
                 <div class="col-lg-4 sidebar ftco-animate">
@@ -191,11 +159,11 @@ include "header.php" ?>
                     <div class="sidebar-box ftco-animate">
                         <h3 class="heading">Categories</h3>
                         <ul class="categories">
-                            <li><a href="#">Oils <span>(8)</span></a></li>
-                            <li><a href="#">Nuts <span>(22)</span></a></li>
-                            <li><a href="#">Dryfruits <span>(37)</span></a></li>
-                            <li><a href="#">Spices <span>(42)</span></a></li>
-                            <li><a href="#">Milets <span>(5)</span></a></li>
+                            <li><a href="oils.php">Oils</a></li>
+                            <li><a href="nuts.php">Nuts</a></li>
+                            <li><a href="dryfruits.php">Dryfruits</a></li>
+                            <li><a href="spices.php">Spices</a></li>
+                            <li><a href="millets.php">Millets</a></li>
 
                         </ul>
                     </div>
@@ -229,9 +197,10 @@ include "header.php" ?>
                         <div class="block-21 mb-4 d-flex">
                             <a class="blog-img mr-4" style="background-image: url(images/blog-millet.jpg);"></a>
                             <div class="text">
-                                <h3 class="heading-1"><a href="#">Even the all-powerful Pointing has no control about the blind texts</a></h3>
+                                <h3 class="heading-1"><a href="https://medium.com/@valluvamproduct/discover-the-power-of-millets-with-valluvam-products-f28f400860ff">Discover the Power of Millets with Valluvam Products
+                                    </a></h3>
                                 <div class="meta">
-                                    <div><a href="#"><span class="icon-calendar"></span> April 09, 2019</a></div>
+                                    <div><a href="#"><span class="icon-calendar"></span> July 31, 2025</a></div>
                                     <div><a href="#"><span class="icon-person"></span> Admin</a></div>
                                     <div><a href="#"><span class="icon-chat"></span> 19</a></div>
                                 </div>
@@ -246,7 +215,7 @@ include "header.php" ?>
                             <a href="dryfruits.php" class="tag-cloud-link">Dryfruits</a>
                             <a href="nuts.php" class="tag-cloud-link">Nuts</a>
                             <a href="spices.php" class="tag-cloud-link">Spices</a>
-                            <a href="millets.php" class="tag-cloud-link">Milets</a>
+                            <a href="millets.php" class="tag-cloud-link">Millets</a>
                         </div>
                     </div>
 

@@ -6,21 +6,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valluvam – Organic Nuts, Dry Fruits, Oils, Spices & Millets Delivered Fresh</title>
-    <meta name="description" content="Valluvam brings you organic nuts, dry fruits, cold-pressed oils, spices, and millets delivered fresh to your doorstep. Farm-fresh, pure, and nutritious.">
+    <title>Privacy Policy | Valluvam</title>
+    <meta name="description" content="Read Valluvam's privacy policy to understand how your information is collected, used and protected.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/">
+    <link rel="canonical" href="https://valluvamproducts.com/privacy.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
-    <meta property="og:url" content="https://valluvamproducts.com/">
+    <meta property="og:title" content="Privacy Policy | Valluvam">
+    <meta property="og:description" content="Read Valluvam's privacy policy to understand how your information is collected, used and protected.">
+    <meta property="og:url" content="https://valluvamproducts.com/privacy.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta name="twitter:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
+    <meta name="twitter:title" content="Privacy Policy | Valluvam">
+    <meta name="twitter:description" content="Read Valluvam's privacy policy to understand how your information is collected, used and protected.">
     <meta name="twitter:image" content="/images/logo.png">
     <script type="application/ld+json">
         {

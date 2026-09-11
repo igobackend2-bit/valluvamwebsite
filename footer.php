@@ -1,4 +1,7 @@
-<h3>OUR BRANDS</h3>
+<div class="brand-affiliation-head">
+	<h3>Part of the IGO Group</h3>
+	<p>Valluvam is proudly part of the IGO Group family of agri-businesses.</p>
+</div>
 <section id="brand-slider">
 	<div class="slider6">
 		<div class="slider6-items">
@@ -60,10 +63,31 @@
 </section>
 
 <style>
+	.brand-affiliation-head {
+		text-align: center;
+		background: #fff;
+		padding: 18px 15px 0;
+	}
+
+	.brand-affiliation-head h3 {
+		font-size: 14px;
+		font-weight: 700;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		color: #82ae46;
+		margin-bottom: 4px;
+	}
+
+	.brand-affiliation-head p {
+		font-size: 13px;
+		color: #8a8a8a;
+		margin-bottom: 0;
+	}
+
 	#brand-slider {
 		overflow: hidden;
 		background: #fff;
-		padding: 20px 0;
+		padding: 14px 0 22px;
 	}
 
 	.slider6 {
@@ -74,15 +98,22 @@
 
 	.slider6-items {
 		display: flex;
+		align-items: center;
 		width: max-content;
 		animation: slide 100s linear infinite;
 	}
 
 	.slider6-items img {
-		width: 150px;
-		height: 90px;
-		margin: 0 15px;
+		width: 100px;
+		height: 60px;
+		margin: 0 12px;
 		object-fit: contain;
+		opacity: 0.85;
+		transition: opacity 0.2s ease;
+	}
+
+	.slider6-items img:hover {
+		opacity: 1;
 	}
 
 	/* Animation */
@@ -99,16 +130,16 @@
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
 		.slider6-items img {
-			width: 100px;
-			height: 62px;
-			margin: 0 10px;
+			width: 78px;
+			height: 48px;
+			margin: 0 8px;
 		}
 	}
 
 	@media (max-width: 480px) {
 		.slider6-items img {
-			width: 80px;
-			height: 50px;
+			width: 64px;
+			height: 40px;
 			margin: 0 5px;
 		}
 	}

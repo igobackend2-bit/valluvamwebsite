@@ -6,21 +6,21 @@ include "header.php" ?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valluvam – Organic Nuts, Dry Fruits, Oils, Spices & Millets Delivered Fresh</title>
-    <meta name="description" content="Valluvam brings you organic nuts, dry fruits, cold-pressed oils, spices, and millets delivered fresh to your doorstep. Farm-fresh, pure, and nutritious.">
+    <title>Shop All Products — Nuts, Dry Fruits, Oils, Spices, Millets & Rice | Valluvam</title>
+    <meta name="description" content="Browse the full Valluvam range: nuts, dry fruits, cold-pressed oils, spices, millets, rice and combo packs. Naturally sourced and delivered fresh to your door.">
     <meta name="keywords" content="organic nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/">
+    <link rel="canonical" href="https://valluvamproducts.com/shop.php">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta property="og:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
-    <meta property="og:url" content="https://valluvamproducts.com/">
+    <meta property="og:title" content="Shop All Products — Nuts, Dry Fruits, Oils, Spices, Millets & Rice | Valluvam">
+    <meta property="og:description" content="Browse the full Valluvam range: nuts, dry fruits, cold-pressed oils, spices, millets, rice and combo packs. Naturally sourced and delivered fresh to your door.">
+    <meta property="og:url" content="https://valluvamproducts.com/shop.php">
     <meta property="og:image" content="/images/logo.png">
     <meta property="og:site_name" content="Valluvam">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Valluvam – Organic Nuts & More Delivered Fresh">
-    <meta name="twitter:description" content="Discover organic nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
+    <meta name="twitter:title" content="Shop All Products — Nuts, Dry Fruits, Oils, Spices, Millets & Rice | Valluvam">
+    <meta name="twitter:description" content="Browse the full Valluvam range: nuts, dry fruits, cold-pressed oils, spices, millets, rice and combo packs. Naturally sourced and delivered fresh to your door.">
     <meta name="twitter:image" content="/images/logo.png">
     <script type="application/ld+json">
         {
@@ -57,8 +57,8 @@ include "header.php" ?>
 		<div class="container">
 			<div class="row no-gutters slider-text align-items-center justify-content-center">
 				<div class="col-md-9 ftco-animate text-center">
-					<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Products</span></p>
-					<h1 class="mb-0 bread">Products</h1>
+					<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Shop</span></p>
+					<h1 class="mb-0 bread">Shop</h1>
 				</div>
 			</div>
 		</div>
