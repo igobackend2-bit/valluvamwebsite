@@ -612,7 +612,6 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
             <div class="dropdown-menu" aria-labelledby="dropdown04">
-              <a class="dropdown-item" href="shop.php">Shop</a>
               <a class="dropdown-item" href="nuts.php">Nuts</a>
               <a class="dropdown-item" href="dryfruits.php">Dryfruits</a>
               <a class="dropdown-item" href="oils.php">Oils</a>
@@ -620,9 +619,6 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
               <a class="dropdown-item" href="millets.php">Millets</a>
               <a class="dropdown-item" href="rice.php">Rice</a>
               <a class="dropdown-item" href="combo.php">Combo</a>
-              <a class="dropdown-item" href="wishlist.php">Wishlist</a>
-              <!-- <a class="dropdown-item" href="cart.php">Cart</a> -->
-              <a class="dropdown-item" href="checkout.php">Checkout</a>
             </div>
           </li>
 
@@ -630,6 +626,11 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
           <li class="nav-item"><a href="blog.php" class="nav-link">Blog</a></li>
           <li class="nav-item"><a href="b2b-wholesale.php" class="nav-link">B2B / Wholesale</a></li>
           <li class="nav-item"><a href="contact.php" class="nav-link">Contact</a></li>
+          <li class="nav-item cta">
+            <a href="wishlist.php" class="nav-link" aria-label="Wishlist">
+              <span class="ion-ios-heart"></span>
+            </a>
+          </li>
           <li class="nav-item cta cta-colored">
             <a href="cart.php" class="nav-link">
               <span class="icon-shopping_cart"></span>
