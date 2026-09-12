@@ -747,8 +747,9 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
             <button type="submit" class="btn login">Login <ion-icon name="arrow-forward-outline"></ion-icon></button>
             <!-- <p><a href="#" onclick="retryLogin()">Forgotten account?</a></p> -->
-            <hr />
           </form>
+          <div class="auth-divider"><span>Or login with</span></div>
+          <p class="auth-switch">Don't have an account? <a href="javascript:void(0)" onclick="toggleSignup()">Create an account <ion-icon name="arrow-forward-outline"></ion-icon></a></p>
         </div>
 
         <div id="signup-form" style="display:none;">
@@ -784,8 +785,9 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
             <button type="submit" class="btn signup">Create Account <ion-icon name="arrow-forward-outline"></ion-icon></button>
             <p>Clicking <strong>create account</strong> means you agree to our <a href="#">terms of services</a>.</p>
-            <hr />
           </form>
+          <div class="auth-divider"><span>Or sign up with</span></div>
+          <p class="auth-switch">Already have an account? <a href="javascript:void(0)" onclick="toggleLogin()">Log in <ion-icon name="arrow-forward-outline"></ion-icon></a></p>
         </div>
 
         <a href="javascript:void(0)" class="auth-back-link" onclick="closeForm()">&larr; Back to Store</a>

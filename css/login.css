@@ -301,13 +301,16 @@
     padding: 0;
 }
 
-/* Login / Sign Up switch — small pill control top-right of the panel */
+/* Login / Sign Up switch — small pill control top-right of the panel.
+   Hidden: the reference design switches via the topbar link and the
+   bottom "Don't have an account?" / "Already have an account?" links
+   instead, so this in-card control is not shown. */
 .form-toggle {
+    display: none;
     position: absolute;
     top: 32px;
     right: 32px;
     z-index: 3;
-    display: inline-flex;
     background: rgba(20, 60, 45, 0.06);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
@@ -528,6 +531,31 @@
     max-width: 460px;
     margin: 1.8em 0 0.5em;
     border-top: 1px solid rgba(20, 60, 45, 0.14);
+}
+
+/* "Or login with" / "Or sign up with" labeled divider under the button */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 460px;
+    margin: 1.6em 0 1em;
+    color: #9aa6a0;
+    font-size: 0.85em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(20, 60, 45, 0.14);
+}
+
+/* "Don't have an account? Create an account" / "Already have an account? Log in" */
+.auth-switch {
+    text-align: center;
+    margin-top: 0;
 }
 
 .form-modal p {
