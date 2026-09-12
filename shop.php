@@ -10,6 +10,7 @@ include "header.php" ?>
     <meta name="description" content="Browse the full Valluvam range: nuts, dry fruits, cold-pressed oils, spices, millets, rice and combo packs. Naturally sourced and delivered fresh to your door.">
     <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <link rel="canonical" href="https://www.valluvamproducts.com/shop.php">
+    <link rel="stylesheet" href="css/shop-redesign.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">

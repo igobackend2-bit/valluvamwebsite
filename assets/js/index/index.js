@@ -127,7 +127,7 @@ function category_slider() {
                             <a href="${cat.link}" target="_blank">
                                 <img src="assets/thumbnail/${cat.thumbnali}" loading="lazy" alt="Valluvam product category" />
                                 <div class="button-container">
-                                    <span class="button">View More</span>
+                                    <span class="button">Explore Category</span>
                                 </div>
                             </a>
                         </div>
@@ -196,9 +196,9 @@ function product_catelog() {
                               
                                 <div class="bottom-area d-flex px-3">
                                     <div class="m-auto d-flex">
-                                        <a href="productdetail.php?product=${slugify(product.product_name)}" 
-                                        class="add-to-cart d-flex justify-content-center align-items-center text-center product-detail-btn" 
-                                        data-id="${product.id}">
+                                        <a href="productdetail.php?product=${slugify(product.product_name)}"
+                                        class="add-to-cart d-flex justify-content-center align-items-center text-center product-detail-btn"
+                                        data-id="${product.id}" title="View Product">
                                             <span><ion-icon name="menu"></ion-icon></span>
                                         </a>
                                         <a href="#" class="buy now d-flex justify-content-center align-items-center btn btn-primary add-to-cart" id="add-to-cart" data-id="${product.id}"

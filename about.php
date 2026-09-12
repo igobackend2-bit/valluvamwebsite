@@ -28,6 +28,7 @@
     <link rel="shortcut icon" href="images/favicon/favicon.ico" type="image/ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="images/favicon/site.webmanifest" />
+    <link rel="stylesheet" href="css/supporting-pages.css">
 
     <script type="application/ld+json">
       {
@@ -61,17 +62,18 @@
 
 
   <body class="goto-here">
-    <div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
+    <div class="hero-wrap hero-bread v-page-hero" style="background-image: url('images/bg-main.jpg');">
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
           <div class="col-md-9 ftco-animate text-center">
             <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>About</span></p>
             <h1 class="mb-0 bread">About Us</h1>
+            <p class="v-page-desc">Valluvam is a proudly Indian brand built on the foundation of purity, health, and heritage — bringing premium nuts, dry fruits, cold-pressed oils, spices and millets to homes and businesses.</p>
           </div>
         </div>
       </div>
     </div>
-    <section class="ftco-section bg-light" style="margin-bottom: 0px;">
+    <section class="ftco-section bg-light v-content-section" style="margin-bottom: 0px;">
       <div class="container">
         <div class="row no-gutters ftco-services" style="padding-left: 50px;">
           <div class="col-lg-3 text-center d-flex align-self-stretch ftco-animate">
@@ -121,10 +123,10 @@
         </div>
       </div>
     </section>
-    <section class="ftco-section ftco-no-pb ftco-no-pt bg-light">
+    <section class="ftco-section ftco-no-pb ftco-no-pt bg-light v-content-section">
       <div class="container">
-        <div class="heading text-center">
-          <h2 class="head">About <span style="color: #252525;">Us</span></h2>
+        <div class="heading text-center v-section-heading">
+          <h2 class="head">About <span style="color: #1c5034;">Us</span></h2>
           <h3 class="head1">Valluvam</h3>
           <p>Valluvam is a proudly Indian brand built on the foundation of purity, health, and
             heritage. We bring to you nature’s best—premium-quality nuts, spices, dry fruits,
@@ -143,33 +145,25 @@
             <img src="images/blog-oil.jpg" alt="about-left" class="img-fluid" width="80%" loading="lazy">
           </div>
           <div class="col-lg-6">
-            <h3 class="head1">Our Story</h3>
-            <i class="fa-solid fa-hand-point-right" style="color: #82ae46;"></i>
-            <span class="icon">The idea of Valluvam was born out of a deep respect for India’s
+            <h3 class="v-subheading">Our Story</h3>
+            <p><ion-icon name="arrow-forward-circle-outline" style="color:#1c5034;vertical-align:-3px;"></ion-icon>
+              The idea of Valluvam was born out of a deep respect for India’s
               rich agricultural legacy and an understanding of the need for high-quality,
               chemical-free food products in both homes and the marketplace. As people become
               more health-conscious and businesses demand reliable, natural supplies, Valluvam steps
               in as a trusted brand that serves both ends of the spectrum.
-            </span><br><br>
+            </p>
             <p>From carefully sourced farm produce to meticulous packaging and delivery, our process reflects our
               promise: Delivering pure, honest products the way nature intended.
-
             </p>
-            <h3 class="head1">Our Promise</h3>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon"> 100% Natural and Authentic</span><br><br>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">Sourced Directly from Trusted Farmers and Co-operatives</span><br><br>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">Cold-Pressed Oils – No Chemicals, No Heat Extraction</span><br><br>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">Freshness Sealed Packaging</span><br><br>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">Transparent and Ethical Business Practices</span><br><br>
-
-
-
-
+            <h3 class="v-subheading">Our Promise</h3>
+            <ul class="v-bullet-list">
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> 100% Natural and Authentic</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Sourced Directly from Trusted Farmers and Co-operatives</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Cold-Pressed Oils – No Chemicals, No Heat Extraction</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Freshness Sealed Packaging</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Transparent and Ethical Business Practices</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -179,27 +173,19 @@
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <h3 class="head1">B2C – <span style="color:#252525;"> Households with Love</span></h3>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">Easy online shopping</span><br><br>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">High-quality packaging to retain freshness</span><br><br>
-            <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-            <span class="icon">Affordable pricing</p>
-              <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-              <span class="icon">Doorstep delivery
-                We believe good food leads to good health, and every household
-                deserves access to pure, nutrient-rich products.</span>
-              <h3 class="head1">Valluvam Journey</h3>
-              <p>Whether you're a health-conscious individual or a business looking for a reliable supply of high-quality ingredients, Valluvam is your go-to source. We don’t just sell products—we deliver a legacy of trust, tradition, and taste.
-
-                Experience the essence of India’s rich culinary heritage through Valluvam—where every product tells a story of purity, quality, and care.
-
-                Valluvam – Pure Taste. Honest Tradition.
-
-              </p>
-
-
+            <h3 class="v-subheading">B2C – Households with Love</h3>
+            <ul class="v-bullet-list">
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Easy online shopping</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> High-quality packaging to retain freshness</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Affordable pricing</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Doorstep delivery</li>
+            </ul>
+            <p>We believe good food leads to good health, and every household
+              deserves access to pure, nutrient-rich products.</p>
+            <h3 class="v-subheading">Valluvam Journey</h3>
+            <p>Whether you're a health-conscious individual or a business looking for a reliable supply of high-quality ingredients, Valluvam is your go-to source. We don’t just sell products—we deliver a legacy of trust, tradition, and taste.</p>
+            <p>Experience the essence of India’s rich culinary heritage through Valluvam—where every product tells a story of purity, quality, and care.</p>
+            <p><strong>Valluvam – Pure Taste. Honest Tradition.</strong></p>
           </div>
           <div class="col-lg-6">
             <img src="images/about2.jpeg" alt="about" loading="lazy">
@@ -213,22 +199,16 @@
 
           <!-- Content second: RIGHT SIDE -->
           <div class="col-lg-6">
-            <h3 class="head1">B2B – <span style="color: #252525;">Empowering Businesses with Quality</span></h3>
+            <h3 class="v-subheading">B2B – Empowering Businesses with Quality</h3>
             <p>We understand the unique needs of wholesalers, retailers, hotels, restaurants,
               supermarkets, and food manufacturers. Valluvam supports B2B clients with:</p>
-
-            <p>
-              <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-              <span class="icon">Bulk supply with competitive pricing</span><br><br>
-
-              <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-              <span class="icon">Custom packaging and labeling (white label options available)</span><br><br>
-
-              <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-              <span class="icon">Scheduled and prompt delivery</span><br><br>
-
-              <i class="fa-solid fa-arrows-to-dot" style="color:#82ae46"></i>
-              <span class="icon">Dedicated account support</span><br><br>
+            <ul class="v-bullet-list">
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Bulk supply with competitive pricing</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Custom packaging and labeling (white label options available)</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Scheduled and prompt delivery</li>
+              <li><ion-icon name="checkmark-circle-outline"></ion-icon> Dedicated account support</li>
+            </ul>
+            <a href="b2b-wholesale.php" style="display:inline-block;color:#1c5034;font-weight:700;margin-top:6px;">See full wholesale details &rarr;</a>
           </div>
         </div>
         <div>

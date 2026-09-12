@@ -13,39 +13,38 @@ $(document).ready(function () {
                 let p = res.data.product;
                 let similar = res.data.similar;
 
+                let hasDiscount = p.dis_price && p.price && parseFloat(p.dis_price) < parseFloat(p.price);
+                let discountPercent = hasDiscount ? Math.round((1 - p.dis_price / p.price) * 100) : 0;
+                let discountBadge = hasDiscount ? `<span class="pd-discount-badge">${discountPercent}% OFF</span>` : '';
+                let ratingBlock = p.rating ? `<div class="pd-rating">${'<ion-icon name="star"></ion-icon>'.repeat(Math.round(p.rating))}<span>${p.rating}.0</span></div>` : '';
+                let benefitsList = (p.benefits || '').split(',').map(b => b.trim()).filter(Boolean);
+
                 // Build main product HTML
                 let html = `
                 <div class="pd-wrap">
                     <div class="pd-gallery">
                         <div class="pd-image-frame">
                             <img src="assets/uploads/${p.image}" class="pd-image" alt="${p.product_name}" />
+                            <span class="pd-zoom-hint"><ion-icon name="search-outline"></ion-icon> Hover to zoom</span>
                         </div>
                     </div>
                     <div class="pd-info">
                         <span class="pd-category">${p.category ? p.category : 'Valluvam'}</span>
                         <h1 class="pd-title">${p.product_name}</h1>
-                        <div class="pd-rating">${'<ion-icon name="star"></ion-icon>'.repeat(p.rating)}<span>${p.rating}.0</span></div>
+                        ${ratingBlock}
                         <div class="pd-price-row">
-                            <span class="pd-price-old">&#8377;${p.price}</span>
+                            ${hasDiscount ? `<span class="pd-price-old">&#8377;${p.price}</span>` : ''}
                             <span class="pd-price-new">&#8377;${p.dis_price}</span>
                             ${p.quantity ? `<span class="pd-price-unit">/ ${p.quantity}</span>` : ''}
+                            ${discountBadge}
                         </div>
-                        <div class="pd-stock"><ion-icon name="checkmark-circle"></ion-icon> In Stock</div>
-                        <p class="pd-desc">${p.description}</p>
-                        <div class="pd-bullets">
-                            ${p.benefits.split(',').map(b => `
-                                <div class="d-flex align-items-center">
-                                    <span class="dot"></span>
-                                    <span class="bullet-text">${b.trim()}</span>
-                                </div>
-                            `).join('')}
-                        </div>
+                        <p class="pd-price-hint">Inclusive of all taxes</p>
                         <div class="pd-qty-row">
                             <label>Quantity</label>
                             <div class="pd-stepper">
-                                <button type="button" class="pd-qty-minus">&minus;</button>
+                                <button type="button" class="pd-qty-minus" aria-label="Decrease quantity">&minus;</button>
                                 <span class="pd-qty-value" data-unit-price="${p.dis_price}">1</span>
-                                <button type="button" class="pd-qty-plus">+</button>
+                                <button type="button" class="pd-qty-plus" aria-label="Increase quantity">+</button>
                             </div>
                         </div>
                         <div class="pd-total-row">
@@ -53,24 +52,59 @@ $(document).ready(function () {
                             <span class="pd-total-value">&#8377;${p.dis_price}</span>
                         </div>
                         <div class="pd-actions">
-                            <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}"><ion-icon name="cart-outline"></ion-icon> Add to Cart</button>
-                            <a href="cart.php" class="pd-btn pd-btn-buy buy" data-id="${p.id}"><ion-icon name="arrow-forward-outline"></ion-icon> Buy it Now</a>
-                            <button class="pd-btn-wishlist wishlist wishlist-btn" data-product-id="${productId}"><ion-icon name="heart-outline"></ion-icon></button>
+                            <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}" aria-label="Add ${p.product_name} to cart"><ion-icon name="cart-outline"></ion-icon> Add to Cart</button>
+                            <a href="cart.php" class="pd-btn pd-btn-buy buy" data-id="${p.id}" aria-label="Buy ${p.product_name} now"><ion-icon name="flash-outline"></ion-icon> Buy it Now</a>
+                            <button class="pd-btn-wishlist wishlist wishlist-btn" data-product-id="${productId}" aria-label="Add ${p.product_name} to wishlist" title="Add to wishlist"><ion-icon name="heart-outline"></ion-icon></button>
                         </div>
-                        <div class="pd-badges">
-                            <span class="pd-badge">&#127807; 100% Natural</span>
-                            <span class="pd-badge">&#128666; Farm Direct</span>
-                            <span class="pd-badge">&#128230; Trusted Sourcing</span>
-                            <span class="pd-badge">&#128666; Pan India Delivery</span>
+                        <div class="pd-trust">
+                            <div class="pd-trust-item"><ion-icon name="ribbon-outline"></ion-icon> Quality Products</div>
+                            <div class="pd-trust-item"><ion-icon name="lock-closed-outline"></ion-icon> Secure Payment</div>
+                            <div class="pd-trust-item"><ion-icon name="rocket-outline"></ion-icon> Pan-India Delivery</div>
+                            <div class="pd-trust-item"><ion-icon name="call-outline"></ion-icon> Customer Support</div>
                         </div>
                     </div>
                 </div>
+
+                <div class="pd-details-section">
+                    <div class="pd-details-card">
+                        <div class="pd-details-desc">
+                            <h2>Product Information</h2>
+                            <p>${p.description}</p>
+                        </div>
+                        <div>
+                            <div class="pd-specs">
+                                <div class="pd-specs-row">
+                                    <span class="pd-specs-label">Category</span>
+                                    <span class="pd-specs-value">${p.category ? p.category : '-'}</span>
+                                </div>
+                                <div class="pd-specs-row">
+                                    <span class="pd-specs-label">Pack Size</span>
+                                    <span class="pd-specs-value">${p.quantity ? p.quantity : '-'}</span>
+                                </div>
+                            </div>
+                            ${benefitsList.length ? `
+                            <div class="pd-highlights">
+                                <h3>Highlights</h3>
+                                ${benefitsList.map(b => `
+                                    <div class="d-flex align-items-center">
+                                        <span class="dot"></span>
+                                        <span class="bullet-text">${b}</span>
+                                    </div>
+                                `).join('')}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="pd-similar">
-                    <h3>Similar items</h3>
+                    <h3>You may also like</h3>
                     <div class="pd-similar-grid">
                         ${similar.map(s => `
                             <a href="productdetail.php?product=${slugify(s.product_name)}" class="pd-similar-card">
-                                <img src="assets/uploads/${s.image}" alt="${s.product_name}">
+                                <div class="pd-similar-img-frame">
+                                    <img src="assets/uploads/${s.image}" alt="${s.product_name}">
+                                </div>
+                                <div class="pd-similar-name">${s.product_name}</div>
                                 <div class="pd-similar-price">&#8377;${s.dis_price}</div>
                             </a>
                         `).join('')}
@@ -184,4 +218,8 @@ $(document).on("click", ".pd-qty-minus, .pd-qty-plus", function () {
     $wrap.closest(".pd-info").find(".pd-total-value").text("₹" + (unitPrice * qty).toFixed(2).replace(/\.00$/, ""));
 });
 
-
+// Click-to-zoom toggle for touch/click devices (hover already zooms on
+// desktop via CSS). Frontend-only, single existing product image.
+$(document).on("click", ".pd-image-frame", function () {
+    $(this).toggleClass("pd-zoomed");
+});

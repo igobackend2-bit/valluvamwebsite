@@ -101,23 +101,23 @@ include "header.php" ?>
         }
 
         .btn-b2b-primary {
-            background-color: #82ae46;
+            background-color: #1c5034;
             color: #fff !important;
         }
 
         .btn-b2b-primary:hover {
-            background-color: #6c9438;
+            background-color: #123626;
             color: #fff !important;
         }
 
         .btn-b2b-outline {
-            border: 2px solid #82ae46;
-            color: #82ae46 !important;
+            border: 2px solid #1c5034;
+            color: #1c5034 !important;
             background: transparent;
         }
 
         .btn-b2b-outline:hover {
-            background-color: #82ae46;
+            background-color: #1c5034;
             color: #fff !important;
         }
 
@@ -138,7 +138,7 @@ include "header.php" ?>
 
         .supply-card ion-icon {
             font-size: 40px;
-            color: #82ae46;
+            color: #1c5034;
             margin-bottom: 14px;
         }
 
@@ -169,7 +169,7 @@ include "header.php" ?>
         }
 
         .oil-card .oil-img-wrap {
-            background-color: #f6f8f1;
+            background-color: #faf6ee;
             padding: 20px;
             text-align: center;
         }
@@ -209,7 +209,7 @@ include "header.php" ?>
         }
 
         .b2b-table th {
-            background-color: #82ae46;
+            background-color: #1c5034;
             color: #fff;
             vertical-align: middle;
         }
@@ -237,7 +237,7 @@ include "header.php" ?>
         }
 
         .private-label-box ion-icon {
-            color: #82ae46;
+            color: #1c5034;
             margin-right: 10px;
             vertical-align: middle;
         }
@@ -249,7 +249,7 @@ include "header.php" ?>
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background-color: #82ae46;
+            background-color: #1c5034;
             color: #fff;
             font-weight: 700;
         }
@@ -262,7 +262,7 @@ include "header.php" ?>
         }
 
         .faq-card .card-header {
-            background-color: #f6f8f1;
+            background-color: #faf6ee;
             padding: 0;
             border: none;
         }
@@ -282,7 +282,7 @@ include "header.php" ?>
         }
 
         .bg-cta {
-            background-color: #82ae46;
+            background-color: #1c5034;
             padding: 60px 0;
             text-align: center;
         }
@@ -311,7 +311,7 @@ include "header.php" ?>
 
         .bg-cta .btn-b2b-outline:hover {
             background-color: #fff;
-            color: #82ae46 !important;
+            color: #1c5034 !important;
         }
 
         .enquiry-box {
@@ -349,7 +349,7 @@ include "header.php" ?>
         .enquiry-box input:focus,
         .enquiry-box textarea:focus {
             outline: none;
-            border-color: #82ae46;
+            border-color: #1c5034;
         }
 
         .enquiry-box textarea {
@@ -388,7 +388,7 @@ include "header.php" ?>
         }
 
         .enquiry-box .btn-submit-enquiry:hover {
-            background-color: #82ae46;
+            background-color: #1c5034;
         }
 
         .enquiry-box .consent-text {
@@ -398,6 +398,7 @@ include "header.php" ?>
             text-align: center;
         }
     </style>
+    <link rel="stylesheet" href="css/b2b-redesign.css">
 </head>
 
 <body class="goto-here">
@@ -473,7 +474,7 @@ include "header.php" ?>
             <div class="row justify-content-center text-center">
                 <div class="col-md-10 col-lg-8">
                     <div class="header-section">
-                        <h2 class="title">Why Partner With <span style="color: #82ae46;">Valluvam</span></h2>
+                        <h2 class="title">Why Partner With <span style="color: #1c5034;">Valluvam</span></h2>
                     </div>
                 </div>
             </div>
@@ -545,7 +546,7 @@ include "header.php" ?>
     <!-- Our Oils Showcase -->
     <section class="b2b-section">
         <div class="container">
-            <h2 class="head">Our <span style="color:#82ae46;">Cold-Pressed Oils</span></h2>
+            <h2 class="head">Our <span style="color:#1c5034;">Cold-Pressed Oils</span></h2>
             <p class="head-sub">Vaagu wood cold-pressed, unrefined and packed fresh – the range that drives repeat purchase for our wholesale partners.</p>
             <div class="row">
                 <div class="col-md-4 mb-4">
@@ -725,12 +726,12 @@ include "header.php" ?>
                 <div id="b2bEnquiryMsg"></div>
                 <form id="b2bEnquiryForm">
                     <div class="form-group">
-                        <label class="field-label">Full Name</label>
-                        <input type="text" name="full_name" placeholder="Full Name" required>
+                        <label class="field-label" for="b2b-full-name">Full Name</label>
+                        <input type="text" id="b2b-full-name" name="full_name" placeholder="Full Name" required>
                     </div>
                     <div class="form-group">
-                        <label class="field-label">Business Name</label>
-                        <input type="text" name="business_name" placeholder="Business Name">
+                        <label class="field-label" for="b2b-business-name">Business Name</label>
+                        <input type="text" id="b2b-business-name" name="business_name" placeholder="Business Name">
                     </div>
                     <div class="form-group">
                         <label class="field-label">Business Type</label>
@@ -743,27 +744,27 @@ include "header.php" ?>
                     </div>
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label class="field-label">City</label>
-                            <input type="text" name="city" placeholder="City">
+                            <label class="field-label" for="b2b-city">City</label>
+                            <input type="text" id="b2b-city" name="city" placeholder="City">
                         </div>
                         <div class="col-md-6 form-group">
-                            <label class="field-label">State</label>
-                            <input type="text" name="state" placeholder="State">
+                            <label class="field-label" for="b2b-state">State</label>
+                            <input type="text" id="b2b-state" name="state" placeholder="State">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label class="field-label">Phone / WhatsApp</label>
-                            <input type="tel" name="phone" placeholder="+91 98765 43210" required>
+                            <label class="field-label" for="b2b-phone">Phone / WhatsApp</label>
+                            <input type="tel" id="b2b-phone" name="phone" placeholder="+91 98765 43210" required>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label class="field-label">Email</label>
-                            <input type="email" name="email" placeholder="you@business.com">
+                            <label class="field-label" for="b2b-email">Email</label>
+                            <input type="email" id="b2b-email" name="email" placeholder="you@business.com">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="field-label">GST Number (optional)</label>
-                        <input type="text" name="gst" placeholder="GST Number">
+                        <label class="field-label" for="b2b-gst">GST Number (optional)</label>
+                        <input type="text" id="b2b-gst" name="gst" placeholder="GST Number">
                     </div>
                     <div class="form-group">
                         <label class="field-label">Products Interested In</label>
@@ -778,8 +779,8 @@ include "header.php" ?>
                     </div>
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label class="field-label">Approx Monthly Requirement</label>
-                            <input type="text" name="monthly_requirement" placeholder="e.g. 50 kg / 100 L">
+                            <label class="field-label" for="b2b-monthly-requirement">Approx Monthly Requirement</label>
+                            <input type="text" id="b2b-monthly-requirement" name="monthly_requirement" placeholder="e.g. 50 kg / 100 L">
                         </div>
                         <div class="col-md-6 form-group">
                             <label class="field-label">Pack Size Needed</label>
@@ -790,8 +791,8 @@ include "header.php" ?>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="field-label">Message / Notes</label>
-                        <textarea name="message" placeholder="Anything else we should know?"></textarea>
+                        <label class="field-label" for="b2b-message">Message / Notes</label>
+                        <textarea id="b2b-message" name="message" placeholder="Anything else we should know?"></textarea>
                     </div>
                     <button type="submit" class="btn-submit-enquiry">Submit</button>
                     <p class="consent-text">By submitting this form, you agree to be contacted by our team regarding your enquiry.</p>

@@ -1,0 +1,523 @@
+/* =========================================================================
+   Valluvam — Homepage Premium Redesign (Phase 1, frontend only)
+   Linked ONLY from index.php's own <head>, so every rule here affects the
+   homepage alone — other pages that reuse header.php/footer.php are not
+   loading this file and render exactly as before. No selectors here touch
+   product data, cart/wishlist/checkout logic, or any backend code; only
+   visual presentation of existing markup and existing dynamic containers
+   (#slides, #product-container) is changed.
+   ========================================================================= */
+
+:root {
+    --v-green: #1c5034;
+    --v-green-dark: #123626;
+    --v-green-soft: #82ae46;
+    --v-cream: #f7f6f0;
+    --v-ink: #24312b;
+    --v-muted: #6b7972;
+    --v-radius: 16px;
+    --v-radius-sm: 10px;
+    --v-shadow: 0 10px 30px rgba(18, 54, 38, 0.08);
+    --v-shadow-hover: 0 18px 40px rgba(18, 54, 38, 0.14);
+}
+
+/* ---------- Header polish (homepage only, via stylesheet scoping) ---------- */
+#ftco-navbar {
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.18);
+}
+
+#ftco-navbar .navbar-brand img {
+    transition: transform 0.2s ease;
+}
+
+#ftco-navbar .navbar-brand:hover img {
+    transform: scale(1.03);
+}
+
+#ftco-navbar .navbar-nav > .nav-item > .nav-link {
+    border-radius: 999px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+#ftco-navbar .navbar-nav > .nav-item:not(.cta):not(.login-nav) > .nav-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#ftco-navbar .navbar-nav .nav-item.cta > .nav-link,
+#ftco-navbar .navbar-nav .login-nav {
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+
+#ftco-navbar .navbar-nav .nav-item.cta > .nav-link:hover,
+#ftco-navbar .navbar-nav .login-nav:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+/* ---------- Hero ---------- */
+#home-section .slider-item {
+    position: relative;
+}
+
+#home-section .overlay {
+    background: linear-gradient(180deg, rgba(10, 30, 20, 0.35) 0%, rgba(10, 30, 20, 0.55) 100%);
+}
+
+.home-slider .subheading {
+    display: inline-block;
+    color: #d9ecc4;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    margin-bottom: 14px;
+}
+
+.home-slider .slider-text h1,
+.home-slider .slider-text p {
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+.home-slider .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.home-slider .hero-cta .btn {
+    margin: 0;
+    border-radius: 999px;
+    padding: 0.9em 1.8em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-slider .hero-cta .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+/* ---------- Trust strip (new section) ---------- */
+.v-trust-strip {
+    background: var(--v-green-dark);
+    padding: 22px 0;
+}
+
+.v-trust-strip ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 28px 44px;
+}
+
+.v-trust-strip li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #eef6e7;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.v-trust-strip li ion-icon {
+    font-size: 1.4em;
+    color: #b7e08a;
+    flex-shrink: 0;
+}
+
+/* ---------- Section headings (shared visual rhythm) ---------- */
+#shop-by-category .heading-section .subheading,
+#our-products .heading-section .subheading,
+.section-services .header-section .title,
+#faq .heading-section .subheading {
+    color: var(--v-green-soft);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+#shop-by-category .heading-section h2,
+#our-products .heading-section h2,
+#faq .heading-section h2 {
+    font-family: 'Lora', serif;
+    color: var(--v-green-dark);
+    font-weight: 700;
+}
+
+/* ---------- Shop by Category cards ---------- */
+#shop-by-category .slides .slide-content {
+    border-radius: var(--v-radius);
+    overflow: hidden;
+    box-shadow: var(--v-shadow);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    background: #fff;
+}
+
+#shop-by-category .slides .slide-content:hover {
+    box-shadow: var(--v-shadow-hover);
+    transform: translateY(-4px);
+}
+
+#shop-by-category .slides .slide-content img {
+    border-radius: var(--v-radius) var(--v-radius) 0 0;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    width: 100%;
+}
+
+#shop-by-category .slides .button-container {
+    padding: 10px;
+    text-align: center;
+    background: #fff;
+}
+
+#shop-by-category .slides .button {
+    display: inline-block;
+    background: var(--v-green);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 20px;
+    font-weight: 700;
+    font-size: 0.85em;
+    transition: background 0.2s ease;
+}
+
+#shop-by-category .slides .slide-content:hover .button {
+    background: var(--v-green-dark);
+}
+
+/* ---------- Featured product cards (#product-container only — shop.php's
+   own catalog uses a different container and is untouched) ---------- */
+#our-products + .ftco-section #product-container .product,
+#product-container .product {
+    background: #fff;
+    border-radius: var(--v-radius);
+    overflow: hidden;
+    box-shadow: var(--v-shadow);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    height: 100%;
+}
+
+#product-container .product:hover {
+    box-shadow: var(--v-shadow-hover);
+    transform: translateY(-4px);
+}
+
+#product-container .img-prod {
+    display: block;
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: var(--v-cream);
+}
+
+#product-container .img-prod img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+#product-container .product:hover .img-prod img {
+    transform: scale(1.05);
+}
+
+#product-container .status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--v-green);
+    color: #fff;
+    font-size: 0.75em;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    z-index: 2;
+}
+
+#product-container .text h3 {
+    font-size: 0.98em;
+    margin-bottom: 8px;
+}
+
+#product-container .text h3 a {
+    color: var(--v-ink);
+    font-weight: 600;
+}
+
+#product-container .price-dc {
+    color: #a8b3ac;
+    text-decoration: line-through;
+    font-size: 0.9em;
+}
+
+#product-container .price-sale,
+#product-container .price > span:only-child {
+    color: var(--v-green);
+    font-weight: 800;
+    font-size: 1.05em;
+}
+
+#product-container .bottom-area .add-to-cart,
+#product-container .bottom-area .heart {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--v-cream);
+    color: var(--v-green-dark);
+    margin: 0 4px;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+#product-container .bottom-area a.btn.add-to-cart {
+    background: var(--v-green);
+    color: #fff;
+}
+
+#product-container .bottom-area a:hover {
+    background: var(--v-green-dark);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.products-view-all .btn {
+    border-radius: 999px;
+    padding: 0.8em 2em;
+    font-weight: 700;
+}
+
+/* ---------- Why Choose Valluvam ---------- */
+.section-services .single-service {
+    background: #fff;
+    border-radius: var(--v-radius);
+    box-shadow: var(--v-shadow);
+    padding: 34px 26px;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    height: 100%;
+}
+
+.section-services .single-service:hover {
+    box-shadow: var(--v-shadow-hover);
+    transform: translateY(-4px);
+}
+
+.section-services .single-service .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(28, 80, 52, 0.08);
+    color: var(--v-green);
+    font-size: 1.6em;
+    margin-bottom: 16px;
+}
+
+.section-services .single-service .title {
+    color: var(--v-green-dark);
+    font-weight: 700;
+}
+
+.section-services .single-service .description {
+    color: var(--v-muted);
+}
+
+/* ---------- How Valluvam Works (new Phase 2 section) ---------- */
+.v-how-it-works {
+    padding: 64px 0;
+    background: #fff;
+}
+
+.v-how-it-works .v-step {
+    text-align: center;
+    padding: 10px 12px;
+    position: relative;
+}
+
+.v-how-it-works .v-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--v-green-dark);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85em;
+    margin-bottom: 10px;
+}
+
+.v-how-it-works .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: rgba(28, 80, 52, 0.08);
+    color: var(--v-green);
+    font-size: 1.8em;
+}
+
+.v-how-it-works .title {
+    color: var(--v-green-dark);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.v-how-it-works .description {
+    color: var(--v-muted);
+    font-size: 0.92em;
+}
+
+.v-how-it-works .description a {
+    color: var(--v-green);
+    font-weight: 600;
+}
+
+/* Connecting line between steps on wider screens, purely decorative */
+@media (min-width: 992px) {
+    .v-how-it-works .col-lg-3:not(:last-child) .v-step::after {
+        content: '';
+        position: absolute;
+        top: 24px;
+        right: -14px;
+        width: 28px;
+        height: 2px;
+        background: repeating-linear-gradient(90deg, rgba(28, 80, 52, 0.25) 0 6px, transparent 6px 12px);
+    }
+}
+
+/* ---------- Section rhythm: gentle alternating backgrounds so the long
+   homepage reads as one guided flow instead of disjointed blocks ---------- */
+#shop-by-category,
+.section-services,
+#faq {
+    background: #fff;
+}
+
+#our-products,
+#our-products + .ftco-section {
+    background: var(--v-cream);
+}
+
+/* ---------- Wholesale & Bulk teaser ---------- */
+.b2b-teaser-audience li {
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.b2b-teaser-audience li:hover {
+    background: #eaf1de;
+    transform: translateY(-2px);
+}
+
+/* ---------- FAQ polish (adds to the existing .faq-card rules already
+   defined inline in index.php's own <head>; same specificity, appears
+   later in the cascade so it layers on top rather than fighting them) ---------- */
+.faq-card {
+    box-shadow: 0 4px 14px rgba(18, 54, 38, 0.05);
+    transition: box-shadow 0.2s ease;
+}
+
+.faq-card:hover {
+    box-shadow: 0 8px 22px rgba(18, 54, 38, 0.1);
+}
+
+/* ---------- Newsletter ---------- */
+.subscribe-form .form-control {
+    border-radius: 999px 0 0 999px;
+    border: 1px solid rgba(18, 54, 38, 0.16);
+}
+
+.subscribe-form .submit {
+    border-radius: 0 999px 999px 0;
+    background: var(--v-green);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+}
+
+/* ---------- Footer polish (homepage only, via stylesheet scoping) ---------- */
+.ftco-footer .ftco-heading-2 {
+    letter-spacing: 0.5px;
+}
+
+.ftco-footer .social-links a {
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.ftco-footer .social-links a:hover {
+    transform: translateY(-2px);
+}
+
+/* ---------- Responsive pass ---------- */
+@media (max-width: 1024px) {
+    .v-trust-strip ul {
+        gap: 20px 28px;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-slider .hero-cta .btn {
+        padding: 0.8em 1.4em;
+        font-size: 0.92em;
+    }
+
+    .v-trust-strip li {
+        font-size: 0.88em;
+    }
+
+    .section-services .single-service {
+        padding: 26px 20px;
+    }
+}
+
+@media (max-width: 414px) {
+    .v-trust-strip ul {
+        gap: 16px 20px;
+        justify-content: flex-start;
+    }
+
+    #shop-by-category .slides .slide-content img {
+        aspect-ratio: 1 / 1;
+    }
+
+    .home-slider .hero-cta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .home-slider .hero-cta .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 390px), (max-width: 360px) {
+    #product-container .bottom-area .add-to-cart,
+    #product-container .bottom-area .heart {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* Guard against any accidental horizontal overflow from the sections above */
+#home-section,
+#shop-by-category,
+#our-products,
+.section-services,
+#faq {
+    overflow-x: hidden;
+}

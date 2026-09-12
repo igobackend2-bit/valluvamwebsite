@@ -1,0 +1,122 @@
+/* ===== Site footer — Phase 6 design-system consistency =====
+   Loaded from within footer.php's own <head> block (footer.php is
+   included at the end of every page's <body>, and already loads its own
+   css/style.css from that same block — this follows the exact same,
+   already-working pattern, just adding one more stylesheet). Because
+   footer.php renders on every single page, this is the one file that
+   makes the footer look identical and premium everywhere at once. No
+   markup, links, or text were changed — colors, spacing and typography
+   only. */
+
+:root {
+    --v-footer-green: #1c5034;
+    --v-footer-green-dark: #123626;
+}
+
+#footer.ftco-footer {
+    background-color: #14201a;
+    padding-top: 64px;
+    padding-bottom: 28px;
+}
+
+#footer .ftco-heading-2 {
+    font-family: 'Lora', serif;
+    font-size: 1.15rem !important;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 18px !important;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+#footer .ftco-heading-2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 36px;
+    height: 2px;
+    background: #4a8f6a;
+}
+
+#footer p {
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.7;
+    font-size: 0.92rem;
+}
+
+#footer .list-unstyled li {
+    margin-bottom: 9px;
+}
+
+#footer .list-unstyled li a {
+    color: rgba(255, 255, 255, 0.78) !important;
+    font-size: 0.92rem;
+    transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+#footer .list-unstyled li a:hover {
+    color: #7fd8ab !important;
+    text-decoration: none;
+    padding-left: 3px;
+}
+
+#footer .block-23 ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+#footer .block-23 ul li .icon {
+    color: #7fd8ab;
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
+
+#footer .block-23 ul li a,
+#footer .block-23 ul li .text {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+#footer .block-23 ul li a:hover {
+    color: #7fd8ab;
+}
+
+.footer-col .social-links a {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    transition: all 0.25s ease;
+}
+
+.footer-col .social-links a:hover {
+    background-color: var(--v-footer-green);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+#footer .mouse-icon {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.whatsapp-float {
+    background-color: #22c55e !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+.whatsapp-float:hover {
+    color: #fff !important;
+    background-color: #1ba750 !important;
+}
+
+@media (max-width: 767px) {
+    #footer.ftco-footer {
+        padding-top: 44px;
+    }
+
+    #footer .ftco-footer-widget {
+        margin-bottom: 30px !important;
+    }
+}

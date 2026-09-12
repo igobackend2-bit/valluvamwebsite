@@ -1,0 +1,61 @@
+/* ===== B2B / Wholesale page — Phase 6 design-system harmonization =====
+   b2b-wholesale.php already has a complete, well-structured layout with
+   its own inline <style> block (hero, supply-card, oil-card, tables,
+   private-label, FAQ, enquiry form). Its old accent color (#82ae46) and
+   related shades were already swapped for the new sitewide green palette
+   directly in that inline block and inline style="" attributes (external
+   CSS cannot override inline style="" colors). This file only adds the
+   typography/spacing polish that direct color swaps couldn't cover — no
+   markup, form fields, or functionality are touched. */
+
+.b2b-section h2.head,
+.private-label-box h2,
+.bg-cta h2,
+.wholesale-hero-title {
+    font-family: 'Lora', serif;
+}
+
+.supply-card,
+.oil-card {
+    border-radius: 14px;
+}
+
+.supply-card:hover,
+.oil-card:hover {
+    border-color: #cfe0d5;
+}
+
+.faq-card {
+    border: 1px solid #e7e1d4;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(20, 30, 20, 0.04);
+    overflow: hidden;
+}
+
+.faq-card .card-header button:hover {
+    color: #1c5034;
+    text-decoration: none;
+}
+
+.enquiry-box {
+    border-radius: 16px;
+}
+
+.enquiry-box input,
+.enquiry-box textarea {
+    border-radius: 10px !important;
+}
+
+.private-label-box {
+    border-radius: 16px;
+}
+
+@media (max-width: 767px) {
+    .wholesale-hero-title {
+        font-size: 26px;
+    }
+
+    .enquiry-box {
+        padding: 26px !important;
+    }
+}

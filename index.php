@@ -194,7 +194,7 @@ include "header.php"
 
         .home-slider .btn-primary.btn-outline-primary:hover {
             background: #fff;
-            color: #82ae46;
+            color: #1c5034;
             border-color: #fff;
         }
 
@@ -244,7 +244,7 @@ include "header.php"
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #f6f8f1;
+            background: #faf6ee;
             border: 1px solid #e3e9d8;
             border-radius: 30px;
             padding: 10px 18px;
@@ -254,7 +254,7 @@ include "header.php"
         }
 
         .b2b-teaser-audience li ion-icon {
-            color: #82ae46;
+            color: #1c5034;
             font-size: 18px;
         }
 
@@ -270,7 +270,7 @@ include "header.php"
         }
 
         .faq-card .card-header {
-            background-color: #f6f8f1;
+            background-color: #faf6ee;
             padding: 0;
             border: none;
         }
@@ -290,13 +290,12 @@ include "header.php"
         }
 
         .faq-card .card-body a {
-            color: #82ae46;
+            color: #1c5034;
             font-weight: 500;
         }
     </style>
     <!-- title tag -->
-    <title>Buy Premium Dry Fruits, Nuts, Spices & Cold Pressed Oils Online | Valluvam
-</title>
+    <title>Buy Premium Dry Fruits, Nuts, Spices & Cold Pressed Oils Online | Valluvam</title>
     <!-- meta tag -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -315,29 +314,34 @@ include "header.php"
     <meta name="twitter:title" content="Valluvam – Nuts & More Delivered Fresh">
     <meta name="twitter:description" content="Discover nuts, dry fruits, cold-pressed oils, spices & millets from Valluvam. Fresh to your home, pure by nature.">
     <meta name="twitter:image" content="/images/logo.png">
-    <link rel="icon" href="/img" type="image/png">
     <!-- canonical tag -->
     <link rel="canonical" href="https://www.valluvamproducts.com/">
+
+    <!-- Phase 1 homepage redesign: presentation only, additive stylesheet.
+         Linked here only, so it affects this page alone — header.php and
+         footer.php render unchanged on every other page. -->
+    <link rel="stylesheet" href="css/home-redesign.css">
 
     <!-- Valluvam Products Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <!-- Apple touch icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/valluvam/images/favicon/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
 
     <!-- Optional PNG icons -->
-    <link rel="icon" type="image/png" sizes="96x96" href="/valluvam/images/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="images/favicon/favicon-96x96.png">
 
     <!-- Web manifest -->
-    <link rel="manifest" href="/valluvam/images/favicon/site.webmanifest">
+    <link rel="manifest" href="images/favicon/site.webmanifest">
 
-    <!-- Organization structured data: same real business details already
-         marked up on contact.php (name, address, phone, social links),
-         extended to the homepage so search engines pick it up from / too. -->
+    <!-- Organization + WebSite structured data: same real business details
+         already marked up on contact.php (name, address, phone, social
+         links), extended to the homepage so search engines pick it up
+         from / too. -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "Store",
+        "@type": "Organization",
         "name": "Valluvam",
         "url": "https://www.valluvamproducts.com/",
         "logo": "https://www.valluvamproducts.com/images/logo.png",
@@ -353,6 +357,83 @@ include "header.php"
         "sameAs": [
             "https://www.facebook.com/valluvamproducts/",
             "https://www.instagram.com/valluvam_agro_products/"
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Valluvam",
+        "url": "https://www.valluvamproducts.com/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://www.valluvamproducts.com/shop.php?search={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What products does Valluvam offer?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Valluvam offers a wide range of premium nuts, dry fruits, cold-pressed oils, spices, millets and rice, sourced for purity and freshness."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Do you provide wholesale or bulk orders?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Valluvam supports wholesale and bulk ordering for businesses, retailers and institutions. Visit our Wholesale page to submit an enquiry."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Do you deliver across India?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Valluvam delivers products across India, bringing farm-fresh nuts, dry fruits, oils, spices and millets directly to your doorstep."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How can I place a bulk order?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can place a bulk order by browsing our Shop page and adding the required quantities to your cart, or by contacting us directly for wholesale enquiries."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What payment options are available?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Valluvam supports secure online payment options at checkout for a smooth and convenient shopping experience."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How can I contact Valluvam?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can reach Valluvam through our Contact page, by phone, or by email. Our team typically responds within 24 hours."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is your return/refund process?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Returns are accepted for products that are damaged at the time of delivery. Please refer to our Returns and Exchange Policy page for full details on eligibility and how to request a return."
+                }
+            }
         ]
     }
     </script>
@@ -375,8 +456,9 @@ include "header.php"
                             <h1 class="mb-3">Premium Dry Fruits, Nuts, Spices,<br class="d-none d-md-block"> Cold-Pressed Oils &amp; Millets</h1>
                             <p class="mb-4">Naturally sourced, carefully packed and delivered fresh to your doorstep — for your home and your business.</p>
                             <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Now</a>
-                                <a href="#our-products" class="btn btn-primary btn-outline-primary">Explore Products</a>
+                                <a href="shop.php" class="btn btn-primary">Shop Products</a>
+                                <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
+                                <a href="b2b-wholesale.php" class="btn btn-primary btn-outline-primary">Bulk / Wholesale</a>
                             </p>
                         </div>
 
@@ -393,8 +475,9 @@ include "header.php"
                             <span class="subheading mb-2">Valluvam</span>
                             <p class="mb-4" style="font-size: 22px; color: #fff;">Wholesome millets and cold-pressed oils, packed with natural goodness.</p>
                             <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Now</a>
-                                <a href="#our-products" class="btn btn-primary btn-outline-primary">Explore Products</a>
+                                <a href="shop.php" class="btn btn-primary">Shop Products</a>
+                                <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
+                                <a href="b2b-wholesale.php" class="btn btn-primary btn-outline-primary">Bulk / Wholesale</a>
                             </p>
                         </div>
 
@@ -410,8 +493,9 @@ include "header.php"
                             <span class="subheading mb-2">Valluvam</span>
                             <p class="mb-4" style="font-size: 22px; color: #fff;">A perfect blend of crunchy nuts and sweet dry fruits, packed with nutrition and flavor.</p>
                             <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Now</a>
-                                <a href="#our-products" class="btn btn-primary btn-outline-primary">Explore Products</a>
+                                <a href="shop.php" class="btn btn-primary">Shop Products</a>
+                                <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
+                                <a href="b2b-wholesale.php" class="btn btn-primary btn-outline-primary">Bulk / Wholesale</a>
                             </p>
                         </div>
 
@@ -453,6 +537,20 @@ include "header.php"
 
   </div>
 </section> -->
+
+    <!-- Trust strip: compact visual summary of existing, already-published
+         claims (see Why Choose Valluvam / footer / checkout for the same
+         copy) — nothing new is asserted here. -->
+    <section class="v-trust-strip">
+        <div class="container">
+            <ul>
+                <li><ion-icon name="ribbon-outline"></ion-icon> Quality Products</li>
+                <li><ion-icon name="cube-outline"></ion-icon> Fresh Packaging</li>
+                <li><ion-icon name="lock-closed-outline"></ion-icon> Secure Checkout</li>
+                <li><ion-icon name="rocket-outline"></ion-icon> Pan-India Delivery</li>
+            </ul>
+        </div>
+    </section>
 
     <!-- Shop by Category (categories are loaded dynamically into #slides by
          assets/js/index/index.js -> category_slider(); only the heading
@@ -509,7 +607,7 @@ include "header.php"
             <div class="row justify-content-center text-center">
                 <div class="col-md-10 col-lg-8">
                     <div class="header-section">
-                        <h2 class="title">Why Choose <span style="color: #82ae46;">Valluvam</span></h2>
+                        <h2 class="title">Why Choose <span style="color: #1c5034;">Valluvam</span></h2>
                         <p class="description">A few reasons customers and business partners keep coming back.</p>
                     </div>
                 </div>
@@ -579,34 +677,51 @@ include "header.php"
         </div>
     </section>
 
-    <!-- Valluvam Brand Story - previously written and ready in this file but
-         commented out; re-enabled here with its "WHY CHOOSE" link pointed at
-         the real about.php route (it was "#") and its image given a
-         descriptive alt and a fixed aspect ratio. Copy is unchanged. -->
-    <section class="ftco-section img" style="background-image: url('images/why.jfif'); background-size: cover; background-position: center; width: 99.94%">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="row no-gutters d-flex align-items-stretch shadow rounded overflow-hidden">
-
-                        <!-- Left Image (hidden on mobile) -->
-                        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-white">
-                            <img src="images/why.jfif" alt="Valluvam nuts, dry fruits and cold-pressed oils being sourced and packed" class="img-fluid brand-story-img" loading="lazy">
-                        </div>
-
-                        <!-- Right Text Content -->
-                        <div class="col-12 col-lg-6 text-white p-4 d-flex flex-column justify-content-center" style="background: rgba(0, 0, 0, 0.5);">
-                            <div>
-                                <h3><a href="about.php" class="text-white text-decoration-none" style="justify-content: center;">OUR STORY</a></h3>
-                                <h2 class="mb-3" style="color: green;">Valluvam</h2>
-                                <p><strong>Purity You Can Trust:</strong> Every product is carefully selected, processed, and packaged to maintain the highest standards of quality and freshness.</p>
-                                <p><strong>Sustainable Practices:</strong> We work closely with local farmers and follow eco-friendly processes to support sustainability and ensure minimal impact on the environment.</p>
-                                <p><strong>Convenience at Your Fingertips:</strong> With round-the-clock delivery, we bring premium products straight to your doorstep, making healthy living easier than ever.</p>
-                                <p>At Valluvam, we blend the essence of tradition with modern convenience to create a brand you can rely on. Our goal is simple: to help you embrace a healthier lifestyle with pure and natural products delivered with care.</p>
-                                <p><a href="about.php" class="btn btn-primary btn-outline-primary" style="border-color:#fff;color:#fff;">About Valluvam</a></p>
-                            </div>
-                        </div>
-
+    <!-- How Valluvam Works — new Phase 2 section. Each step names an existing,
+         real part of the site (shop.php browsing, the product detail page,
+         the existing cart/checkout flow, and pan-India delivery already
+         stated elsewhere) — no new functionality or claim is introduced. -->
+    <section class="v-how-it-works">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-3">
+                <div class="col-md-8">
+                    <div class="heading-section">
+                        <span class="subheading">Getting started</span>
+                        <h2>How Valluvam Works</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 col-lg-3">
+                    <div class="v-step">
+                        <span class="v-step-num">1</span>
+                        <span class="icon"><ion-icon name="search-outline"></ion-icon></span>
+                        <h3 class="title">Explore</h3>
+                        <p class="description">Browse nuts, dry fruits, oils, spices, millets, rice and combos in our <a href="shop.php">Shop</a>.</p>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="v-step">
+                        <span class="v-step-num">2</span>
+                        <span class="icon"><ion-icon name="checkmark-circle-outline"></ion-icon></span>
+                        <h3 class="title">Choose</h3>
+                        <p class="description">Pick the pack size you need and add it to your cart or wishlist.</p>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="v-step">
+                        <span class="v-step-num">3</span>
+                        <span class="icon"><ion-icon name="card-outline"></ion-icon></span>
+                        <h3 class="title">Order</h3>
+                        <p class="description">Check out securely with Razorpay — cards, UPI, net banking and wallets.</p>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="v-step">
+                        <span class="v-step-num">4</span>
+                        <span class="icon"><ion-icon name="cube-outline"></ion-icon></span>
+                        <h3 class="title">Receive</h3>
+                        <p class="description">Your order is packed and shipped pan-India, with tracking to your door.</p>
                     </div>
                 </div>
             </div>
@@ -636,7 +751,40 @@ include "header.php"
                 <li><ion-icon name="cart-outline"></ion-icon> Resellers / Online Sellers</li>
             </ul>
             <div class="text-center">
-                <a href="b2b-wholesale.php" class="btn btn-primary">Bulk Enquiry</a>
+                <a href="b2b-wholesale.php" class="btn btn-primary">Explore Wholesale</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Valluvam Brand Story / Quality & Sourcing - moved here (was above
+         Wholesale & Bulk) so the journey reads discovery → trust → wholesale
+         → sourcing story → reviews, per the Phase 2 flow. Copy unchanged. -->
+    <section class="ftco-section img" style="background-image: url('images/why.jfif'); background-size: cover; background-position: center; width: 99.94%">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="row no-gutters d-flex align-items-stretch shadow rounded overflow-hidden">
+
+                        <!-- Left Image (hidden on mobile) -->
+                        <div class="col-lg-6 d-none d-lg-flex align-items-center justify-content-center bg-white">
+                            <img src="images/why.jfif" alt="Valluvam nuts, dry fruits and cold-pressed oils being sourced and packed" class="img-fluid brand-story-img" loading="lazy">
+                        </div>
+
+                        <!-- Right Text Content -->
+                        <div class="col-12 col-lg-6 text-white p-4 d-flex flex-column justify-content-center" style="background: rgba(0, 0, 0, 0.5);">
+                            <div>
+                                <span class="subheading d-block mb-2"><a href="about.php" class="text-white text-decoration-none" style="justify-content: center;">OUR STORY</a></span>
+                                <h2 class="mb-3" style="color: #1c5034;">Valluvam</h2>
+                                <p><strong>Purity You Can Trust:</strong> Every product is carefully selected, processed, and packaged to maintain the highest standards of quality and freshness.</p>
+                                <p><strong>Sustainable Practices:</strong> We work closely with local farmers and follow eco-friendly processes to support sustainability and ensure minimal impact on the environment.</p>
+                                <p><strong>Convenience at Your Fingertips:</strong> With round-the-clock delivery, we bring premium products straight to your doorstep, making healthy living easier than ever.</p>
+                                <p>At Valluvam, we blend the essence of tradition with modern convenience to create a brand you can rely on. Our goal is simple: to help you embrace a healthier lifestyle with pure and natural products delivered with care.</p>
+                                <p><a href="about.php" class="btn btn-primary btn-outline-primary" style="border-color:#fff;color:#fff;">About Valluvam</a></p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -743,8 +891,8 @@ include "header.php"
         <div class="container py-4">
             <div class="row d-flex justify-content-center py-5">
                 <div class="col-md-6">
-                    <h2 style="font-size: 22px;" class="mb-0">Subcribe to our Newsletter</h2>
-                    <span>Get e-mail updates about our latest shops and special offers</span>
+                    <h2 style="font-size: 22px;" class="mb-0">Subscribe to our Newsletter</h2>
+                    <span>Get email updates about our latest products and special offers</span>
                 </div>
                 <div class="col-md-6 d-flex align-items-center">
                     <form action="#" class="subscribe-form">

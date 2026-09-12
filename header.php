@@ -603,7 +603,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center" href="index.php">
-        <img src="images/logo.jpeg" alt="Valluva" class="img-fluid" style="max-height:100px;">
+        <img src="images/logo.jpeg" alt="Valluvam - Premium Dry Fruits, Nuts, Spices &amp; Cold-Pressed Oils" class="img-fluid" style="max-height:100px;" width="100" height="100">
       </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="oi oi-menu"></span> Menu

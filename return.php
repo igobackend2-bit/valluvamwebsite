@@ -10,6 +10,7 @@
     <meta name="description" content="Read Valluvam's returns and exchange policy for damaged or incorrect orders.">
     <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <link rel="canonical" href="https://www.valluvamproducts.com/return.php">
+    <link rel="stylesheet" href="css/supporting-pages.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
@@ -54,71 +55,56 @@
 
 
   <body class="goto-here">
-    <div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
+    <div class="hero-wrap hero-bread v-page-hero" style="background-image: url('images/bg-main.jpg');">
       <div class="container">
         <div class="row no-gutters slider-text align-items-center justify-content-center">
           <div class="col-md-9 ftco-animate text-center">
             <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Returns and Exchange
               </span></p>
             <h1 class="mb-0 bread"><b>Returns and Exchange Policy</b></h1>
+            <p class="v-page-desc">At Valluvam, we are committed to delivering premium quality products to our customers. Your satisfaction is important to us.</p>
           </div>
         </div>
       </div>
     </div>
-    <section class="ftco-section ftco-no-pb ftco-no-pt bg-light">
+    <section class="ftco-section ftco-no-pb ftco-no-pt bg-light v-content-section">
       <div class="container">
-        <div class="heading text-center">
-          <h2 class="head"><b>Returns<span style="color: #252525;">and Exchange</span></b></h2>
+        <div class="heading text-center v-section-heading">
+          <h2 class="head"><b>Returns <span style="color: #1c5034;">and Exchange</span></b></h2>
           <h3 class="head1"><b>Valluvam</b></h3>
-          <p>At Valluvam, we are committed to delivering premium quality products to our customers.
-            Your satisfaction is important to us.
-          </p>
-        </div>
-        <h3><b>Return Eligibility:</b></h3>
-        <i class="fa-solid fa-arrows-to-dot" style="color:green"></i>
-        <span class="icon">Returns are accepted only if the product is damaged at the time of delivery.
-        </span><br>
-        <i class="fa-solid fa-arrows-to-dot" style="color:green"></i>
-        <span class="icon">The damage must be internal (e.g., leakage, spoilage, or contamination).
-        </span><br>
-        <i class="fa-solid fa-arrows-to-dot" style="color:green"></i>
-        <span class="icon">Physical damage to packaging (such as dents, scratches, or torn labels) will not be
-          considered for return unless it affects the product's quality or safety.
-        </span><br>
-        <h3><b>Proof Required:
-          </b></h3>
-        <p>Customers must share photos or videos of the damaged product within 24 hours
-          of receiving the order.</p>
-
-        <p>Please ensure the product is unused and in its original packaging.</p>
-        <div class="container">
-          <div class="heading text-center">
-            <!-- <h2 class="head"> <span style="color: #252525;"></span></h2> -->
-          </div>
-          <div class="row">
-            <div class="col-lg-12">
-              <h3><b>Non-Returnable Cases:</b></h3>
-              <i class="fa-solid fa-arrows-to-dot" style="color:green;margin-left: 70px;"></i>
-              <span class="icon">Change of mind or personal dislike of taste/texture.</span><br>
-              <i class="fa-solid fa-arrows-to-dot" style="color:green;margin-left: 70px;"></i>
-              <span class="icon">Damage due to improper storage after delivery.</span><br>
-              <i class="fa-solid fa-arrows-to-dot" style="color:green;margin-left: 70px;"></i>
-              <span class="icon">Physical damage that does not affect product usability.</span><br>
-              <h4><b>How to Request a Return:</b></h4>
-              <p>Email us or WhatsApp us with your order details and proof of damage.</p>
-
-              <p>Our team will review your request and respond within 2–3 business days.</p>
-
-              <p>If your return is approved, we will initiate a replacement or store credit/refund based
-                on your preference.</p>
-            </div>
-          </div>
-          <div>
-          </div>
-
         </div>
 
+        <div class="v-content-card mb-4">
+          <h3 class="v-subheading">Return Eligibility</h3>
+          <ul class="v-bullet-list">
+            <li><ion-icon name="checkmark-circle-outline"></ion-icon> Returns are accepted only if the product is damaged at the time of delivery.</li>
+            <li><ion-icon name="checkmark-circle-outline"></ion-icon> The damage must be internal (e.g., leakage, spoilage, or contamination).</li>
+            <li><ion-icon name="checkmark-circle-outline"></ion-icon> Physical damage to packaging (such as dents, scratches, or torn labels) will not be considered for return unless it affects the product's quality or safety.</li>
+          </ul>
 
+          <h3 class="v-subheading">Proof Required</h3>
+          <p>Customers must share photos or videos of the damaged product within 24 hours
+            of receiving the order.</p>
+          <p>Please ensure the product is unused and in its original packaging.</p>
+        </div>
+
+        <div class="v-content-card mb-4">
+          <h3 class="v-subheading">Non-Returnable Cases</h3>
+          <ul class="v-bullet-list">
+            <li><ion-icon name="close-circle-outline"></ion-icon> Change of mind or personal dislike of taste/texture.</li>
+            <li><ion-icon name="close-circle-outline"></ion-icon> Damage due to improper storage after delivery.</li>
+            <li><ion-icon name="close-circle-outline"></ion-icon> Physical damage that does not affect product usability.</li>
+          </ul>
+        </div>
+
+        <div class="v-content-card">
+          <h3 class="v-subheading">How to Request a Return</h3>
+          <p>Email us or WhatsApp us with your order details and proof of damage.</p>
+          <p>Our team will review your request and respond within 2–3 business days.</p>
+          <p>If your return is approved, we will initiate a replacement or store credit/refund based
+            on your preference.</p>
+        </div>
+    </div>
     </section>
 
 

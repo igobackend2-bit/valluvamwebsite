@@ -10,6 +10,7 @@ include "header.php" ?>
     <meta name="description" content="Get in touch with Valluvam for orders, wholesale enquiries or support.">
     <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <link rel="canonical" href="https://valluvamproducts.com/contact.php">
+    <link rel="stylesheet" href="css/supporting-pages.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
@@ -55,38 +56,47 @@ include "header.php" ?>
 
 <body class="goto-here">
     <!-- <link rel="stylesheet" href="css/login.css"> -->
-    <div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
+    <div class="hero-wrap hero-bread v-page-hero" style="background-image: url('images/bg-main.jpg');">
         <div class="container">
             <div class="row no-gutters slider-text align-items-center justify-content-center">
                 <div class="col-md-9 ftco-animate text-center">
                     <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Contact</span></p>
                     <h1 class="mb-0 bread">Contact Us</h1>
+                    <p class="v-page-desc">Have a question about an order, a wholesale enquiry, or just want to say hello? Reach out — our team typically responds within 24 hours.</p>
                 </div>
             </div>
         </div>
     </div>
-    <section class="ftco-section contact-section bg-light">
+    <section class="ftco-section contact-section bg-light v-content-section">
         <div class="container">
             <div class="row d-flex mb-5 contact-info">
                 <div class="w-100"></div>
                 <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4">
-                        <p><span>Address:</span> No 17, Kovalan street, 2nd main road, Uthandi Kanathur-600119 </p>
+                    <div class="v-info-card w-100">
+                        <ion-icon name="location-outline"></ion-icon>
+                        <span class="v-info-label">Address</span>
+                        <p>No 17, Kovalan street, 2nd main road, Uthandi Kanathur-600119</p>
                     </div>
                 </div>
                 <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4">
-                        <p><span>Phone:</span> <a href="tel://8925969888">+91-8925969888</a></p>
+                    <div class="v-info-card w-100">
+                        <ion-icon name="call-outline"></ion-icon>
+                        <span class="v-info-label">Phone</span>
+                        <a href="tel://8925969888">+91-8925969888</a>
                     </div>
                 </div>
                 <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4">
-                        <p><span>Email:</span> <a href="mailto:info.thefarmersfactory@gmail.com">info.thefarmersfactory<br>@gmail.com</a></p>
+                    <div class="v-info-card w-100">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <span class="v-info-label">Email</span>
+                        <a href="mailto:info.thefarmersfactory@gmail.com">info.thefarmersfactory@gmail.com</a>
                     </div>
                 </div>
                 <div class="col-md-3 d-flex">
-                    <div class="info bg-white p-4">
-                        <p><span>Website:</span> <a href="#">valluvamproducts.com</a></p>
+                    <div class="v-info-card w-100">
+                        <ion-icon name="globe-outline"></ion-icon>
+                        <span class="v-info-label">Website</span>
+                        <a href="https://valluvamproducts.com">valluvamproducts.com</a>
                     </div>
                 </div>
             </div>
@@ -100,31 +110,36 @@ include "header.php" ?>
                             <div class="row">
                                 <div class="col-md-6 col-sm-6">
                                     <div class="single-input-field">
-                                        <input type="text" placeholder="Your Name" name="name" required />
+                                        <label for="contact-name" class="sr-only">Your Name</label>
+                                        <input type="text" id="contact-name" placeholder="Your Name" name="name" required />
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-sm-6">
                                     <div class="single-input-field">
-                                        <input type="email" placeholder="E-mail" name="email" required />
+                                        <label for="contact-email" class="sr-only">E-mail</label>
+                                        <input type="email" id="contact-email" placeholder="E-mail" name="email" required />
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-sm-6">
                                     <div class="single-input-field">
-                                        <input type="text" placeholder="Phone Number" name="phone" />
+                                        <label for="contact-phone" class="sr-only">Phone Number</label>
+                                        <input type="text" id="contact-phone" placeholder="Phone Number" name="phone" />
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-sm-6">
                                     <div class="single-input-field">
-                                        <input type="text" placeholder="Subject" name="subject" />
+                                        <label for="contact-subject" class="sr-only">Subject</label>
+                                        <input type="text" id="contact-subject" placeholder="Subject" name="subject" />
                                     </div>
                                 </div>
                                 <div class="col-md-12 message-input">
                                     <div class="single-input-field">
-                                        <textarea placeholder="Write Your Message" name="message" required></textarea>
+                                        <label for="contact-message" class="sr-only">Write Your Message</label>
+                                        <textarea id="contact-message" placeholder="Write Your Message" name="message" required></textarea>
                                     </div>
                                 </div>
                                 <div class="single-input-fieldsbtn">
-                                    <button type="submit">Send Now</button>
+                                    <button type="submit" aria-label="Send message">Send Now</button>
                                 </div>
                             </div>
                         </form>
