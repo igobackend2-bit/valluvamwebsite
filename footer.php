@@ -240,7 +240,7 @@
 							<h4 style="color:#fff">follow us</h4>
 							<div class="social-links">
 								<a href="https://www.facebook.com/valluvamproducts/"><ion-icon name="logo-facebook"></ion-icon></a>
-								<a href="https://www.instagram.com/valluvam_agro_products/"><ion-icon name="logo-instagram"></ion-icon></a>
+								<a href="https://www.instagram.com/valluvamproducts/"><ion-icon name="logo-instagram"></ion-icon></a>
 							</div>
 						</div>
 					</div>
