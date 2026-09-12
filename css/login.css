@@ -395,12 +395,12 @@
     pointer-events: none;
 }
 
-.form-modal .auth-input-wrap input {
+.form-modal .auth-input-wrap input,
+#popupForm .auth-input-wrap input {
     width: 100%;
     font-size: 1em;
     font-weight: 400;
     color: #1f2a26;
-    padding: 0.9em 1em 0.9em 2.8em;
     margin: 0;
     border-radius: 10px;
     border: 1px solid rgba(20, 60, 45, 0.14);
@@ -410,12 +410,26 @@
     box-sizing: border-box;
 }
 
+/* Specificity note: a sitewide inline <style> block later in the page
+   resets padding on all text/email/password inputs (padding: 0px 16px)
+   with the same specificity as the plain .form-modal rule above, so on
+   source order alone it was winning and crushing the icon spacing here.
+   The #popupForm-scoped duplicates below out-specificity that rule
+   without touching it, since #popupForm is this modal's own id. */
+#popupForm .auth-input-wrap input {
+    padding: 0.9em 1em 0.9em 2.8em;
+}
+
 /* Pill-shaped inputs used on the login form (no labels, matches the
    rounder look of the latest design). */
-.form-modal .auth-input-wrap--pill input {
+.form-modal .auth-input-wrap--pill input,
+#popupForm .auth-input-wrap--pill input {
     border-radius: 999px;
-    padding: 1em 1.2em 1em 2.9em;
     background: rgba(255, 255, 255, 0.75);
+}
+
+#popupForm .auth-input-wrap--pill input {
+    padding: 1em 1.2em 1em 2.9em;
 }
 
 .auth-remember {
