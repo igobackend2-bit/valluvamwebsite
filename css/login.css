@@ -138,7 +138,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(28, 28, 26, 0.55) 0%, rgba(20, 20, 18, 0.65) 100%), url("../images/login-bg.jpg") center center / cover no-repeat;
+    background: linear-gradient(135deg, rgba(255, 253, 246, 0.35) 0%, rgba(255, 253, 246, 0.55) 100%), url("../images/login-bg.jpg") center center / cover no-repeat;
     z-index: 9999;
     overflow-y: auto;
 }
@@ -147,8 +147,8 @@
     position: fixed;
     top: 18px;
     right: 18px;
-    background: rgba(255, 255, 255, 0.14);
-    color: #fff;
+    background: rgba(20, 60, 45, 0.1);
+    color: #123626;
     border-radius: 50%;
     width: 36px;
     height: 36px;
@@ -161,7 +161,7 @@
 }
 
 .form-close:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(20, 60, 45, 0.2);
 }
 
 .auth-modal {
@@ -187,7 +187,7 @@
     object-fit: cover;
     object-position: top center;
     display: block;
-    filter: brightness(0.82);
+    filter: brightness(0.96);
 }
 
 /* Darkens the right-hand edge of the photo so it blends into the glass
@@ -196,7 +196,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(10, 10, 8, 0) 55%, rgba(10, 10, 8, 0.55) 100%);
+    background: linear-gradient(90deg, rgba(255, 253, 246, 0) 55%, rgba(255, 253, 246, 0.55) 100%);
     pointer-events: none;
 }
 
@@ -208,12 +208,12 @@
     flex-direction: column;
     justify-content: center;
     padding: 56px 64px;
-    background: rgba(18, 18, 16, 0.72);
+    background: rgba(255, 255, 255, 0.55);
     -webkit-backdrop-filter: blur(28px) saturate(140%);
     backdrop-filter: blur(28px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 28px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 24px 60px rgba(20, 40, 30, 0.18), 0 2px 10px rgba(20, 40, 30, 0.1);
     margin: 40px 40px 40px -170px;
     position: relative;
     z-index: 2;
@@ -241,10 +241,10 @@
     top: 32px;
     right: 32px;
     display: inline-flex;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(20, 60, 45, 0.06);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(20, 60, 45, 0.14);
     border-radius: 999px;
     padding: 4px;
 }
@@ -260,29 +260,29 @@
     text-transform: capitalize;
     transition: 0.2s;
     background: transparent;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(20, 50, 38, 0.55);
 }
 
 #login-toggle {
-    background: rgba(255, 255, 255, 0.16);
+    background: #17462f;
     color: #fff;
 }
 
 #signup-toggle {
     background: transparent;
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(20, 50, 38, 0.55);
 }
 
 .auth-heading {
     font-family: 'Lora', serif;
     font-weight: 700;
-    color: #fff;
+    color: #123626;
     font-size: 2.1em;
     margin-bottom: 10px;
 }
 
 .auth-subheading {
-    color: rgba(255, 255, 255, 0.6);
+    color: #55655e;
     font-size: 1em;
     line-height: 1.5;
     margin-bottom: 30px;
@@ -295,7 +295,7 @@
     font-size: 0.78em;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.55);
+    color: #2b3a34;
     margin-bottom: 8px;
     margin-top: 18px;
 }
@@ -310,7 +310,7 @@
     left: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.4);
+    color: #8a988f;
     font-size: 1.15em;
     pointer-events: none;
 }
@@ -319,24 +319,24 @@
     width: 100%;
     font-size: 1em;
     font-weight: 400;
-    color: #fff;
+    color: #1f2a26;
     padding: 0.9em 1em 0.9em 2.8em;
     margin: 0;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(20, 60, 45, 0.14);
+    background: rgba(255, 255, 255, 0.85);
     outline: none;
     transition: border-color 0.2s, background 0.2s;
     box-sizing: border-box;
 }
 
 .form-modal .auth-input-wrap input::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: #9aa6a0;
 }
 
 .form-modal .auth-input-wrap input:focus {
-    border-color: #82AE46;
-    background: rgba(255, 255, 255, 0.1);
+    border-color: #1c5034;
+    background: #fff;
     transform: none;
 }
 
@@ -348,7 +348,7 @@
     background: none;
     border: none;
     padding: 4px;
-    color: rgba(255, 255, 255, 0.4);
+    color: #8a988f;
     font-size: 1.15em;
     cursor: pointer;
     line-height: 1;
@@ -372,46 +372,46 @@
 
 .form-modal .login,
 .form-modal .signup {
-    background: #82AE46;
-    color: #14260c;
+    background: #1c5034;
+    color: #fff;
 }
 
 .form-modal .login:hover,
 .form-modal .signup:hover {
-    background: #93c052;
-    color: #14260c;
+    background: #163f29;
+    color: #fff;
     border: none;
 }
 
 .auth-panel hr {
     max-width: 460px;
     margin: 1.8em 0 0.5em;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 1px solid rgba(20, 60, 45, 0.14);
 }
 
 .form-modal p {
     font-size: 0.85em;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.5);
+    color: #6b7972;
     max-width: 460px;
 }
 
 .form-modal p a {
-    color: #a7d17e;
+    color: #1c5034;
     font-weight: 600;
     text-decoration: none;
     transition: 0.2s;
 }
 
 .form-modal p a:hover {
-    color: #fff;
+    color: #123626;
 }
 
 .auth-back-link {
     display: block;
     text-align: center;
     margin-top: 22px;
-    color: rgba(255, 255, 255, 0.45);
+    color: #6b7972;
     font-size: 0.85em;
     text-decoration: none;
     cursor: pointer;
@@ -419,7 +419,7 @@
 }
 
 .auth-back-link:hover {
-    color: #fff;
+    color: #123626;
 }
 
 /* Responsive: no room for a side image on tablets/phones — form takes over
@@ -452,7 +452,7 @@
         box-shadow: none;
         border: none;
         min-height: 100%;
-        background: rgba(18, 18, 16, 0.92);
+        background: rgba(255, 255, 255, 0.92);
     }
 
     .form-toggle {
