@@ -709,7 +709,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
       <div class="auth-panel">
         <div class="auth-brand">
-          <img src="images/logo.png" class="auth-brand-logo" alt="Valluvam">
+          <img src="images/auth-logo.png" class="auth-brand-logo" alt="Valluvam - Goodness from Nature">
         </div>
 
         <div class="form-toggle">
