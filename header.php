@@ -719,22 +719,25 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
         <div id="login-form">
           <h1 class="auth-heading">Welcome Back</h1>
-          <p class="auth-subheading">Login to your account to continue shopping and enjoy exclusive benefits.</p>
+          <p class="auth-subheading">Log in to your account to continue your natural shopping journey.</p>
           <form id="loginForm">
-            <label class="auth-label" for="loginIdentifier">Email Address / Mobile Number</label>
-            <div class="auth-input-wrap">
+            <div class="auth-input-wrap auth-input-wrap--pill">
               <ion-icon name="mail-outline" class="auth-input-icon"></ion-icon>
-              <input type="text" id="loginIdentifier" name="identifier" placeholder="Enter your email or mobile number" required />
+              <input type="text" id="loginIdentifier" name="identifier" placeholder="Email address or mobile number" required />
             </div>
 
-            <label class="auth-label" for="loginPassword">Password</label>
-            <div class="auth-input-wrap">
+            <div class="auth-input-wrap auth-input-wrap--pill">
               <ion-icon name="lock-closed-outline" class="auth-input-icon"></ion-icon>
-              <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required />
+              <input type="password" id="loginPassword" name="password" placeholder="Password" required />
               <button type="button" class="auth-pw-toggle" aria-label="Show password" data-target="loginPassword">
                 <ion-icon name="eye-outline"></ion-icon>
               </button>
             </div>
+
+            <label class="auth-remember">
+              <input type="checkbox" id="rememberMe" name="remember" checked />
+              <span>Remember me</span>
+            </label>
 
             <button type="submit" class="btn login">Login <ion-icon name="arrow-forward-outline"></ion-icon></button>
             <!-- <p><a href="#" onclick="retryLogin()">Forgotten account?</a></p> -->
