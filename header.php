@@ -700,6 +700,10 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <!-- Login/Signup Modal -->
   <div class="form-modal" id="popupForm" style="display:none;">
     <div class="form-close" onclick="closeForm()">×</div>
+    <div class="auth-topbar">
+      <span id="auth-topbar-question">New to Valluvam?</span>
+      <a href="javascript:void(0)" id="auth-topbar-link" onclick="toggleSignup()">Create an account <ion-icon name="arrow-forward-outline"></ion-icon></a>
+    </div>
 
     <div class="auth-modal">
       <div class="auth-visual">
@@ -708,6 +712,8 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       </div>
 
       <div class="auth-panel">
+        <img src="images/leaf-corner-tr.png" class="auth-corner-leaf auth-corner-leaf--tr" alt="">
+        <img src="images/leaf-corner-br.png" class="auth-corner-leaf auth-corner-leaf--br" alt="">
         <div class="auth-brand">
           <img src="images/auth-logo.png" class="auth-brand-logo" alt="Valluvam - Goodness from Nature">
         </div>

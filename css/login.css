@@ -164,6 +164,72 @@
     background: rgba(20, 60, 45, 0.2);
 }
 
+/* "New to Valluvam? Create an account" bar, top-right of the overlay,
+   to the left of the close (x) button. */
+.auth-topbar {
+    position: fixed;
+    top: 26px;
+    right: 68px;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.auth-topbar #auth-topbar-question {
+    color: #55655e;
+}
+
+.auth-topbar a {
+    color: #1c5034;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.auth-topbar a:hover {
+    color: #123626;
+}
+
+@media (max-width: 900px) {
+    .auth-topbar {
+        top: 20px;
+        right: 60px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 560px) {
+    .auth-topbar #auth-topbar-question {
+        display: none;
+    }
+}
+
+/* Small decorative leaf sprigs in the card's corners. */
+.auth-corner-leaf {
+    position: absolute;
+    width: 110px;
+    height: auto;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.auth-corner-leaf--tr {
+    top: 0;
+    right: 0;
+    border-top-right-radius: 28px;
+}
+
+.auth-corner-leaf--br {
+    bottom: 0;
+    right: 0;
+    transform: scaleY(-1);
+    border-bottom-right-radius: 28px;
+}
+
 .auth-modal {
     display: flex;
     min-height: 100%;
