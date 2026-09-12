@@ -32,6 +32,7 @@
     <meta name="twitter:title" content="<?php echo $product_page_title; ?>">
     <meta name="twitter:description" content="<?php echo $product_page_desc; ?>">
     <meta name="twitter:image" content="/images/logo.png">
+    <link rel="stylesheet" href="css/product-detail.css">
   </head>
 
   <body class="goto-here">
