@@ -704,7 +704,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     <div class="auth-modal">
       <div class="auth-visual">
         <img src="images/login-panel.jpg" class="auth-visual-img"
-          alt="Welcome back to Valluvam. Bowls of almonds, cashews, raisins and cardamom on a wooden table, highlighting Premium Quality, Secure Shopping, Reliable Delivery and Dedicated Support.">
+          alt="Pure Nature. Better Living. Bowls of almonds, cashews, raisins, cardamom and rice on a wooden table, highlighting Premium Quality, Trusted Sourcing, Reliable Delivery and Dedicated Support.">
       </div>
 
       <div class="auth-panel">
@@ -718,19 +718,19 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
         </div>
 
         <div id="login-form">
-          <h1 class="auth-heading">Login to Your Account</h1>
-          <p class="auth-subheading">Access your orders, track deliveries and enjoy a seamless shopping experience.</p>
+          <h1 class="auth-heading">Welcome Back</h1>
+          <p class="auth-subheading">Login to your account to continue shopping and enjoy exclusive benefits.</p>
           <form id="loginForm">
-            <label class="auth-label" for="loginIdentifier">Email or Username</label>
+            <label class="auth-label" for="loginIdentifier">Email Address / Mobile Number</label>
             <div class="auth-input-wrap">
               <ion-icon name="mail-outline" class="auth-input-icon"></ion-icon>
-              <input type="text" id="loginIdentifier" name="identifier" placeholder="Enter email or username" required />
+              <input type="text" id="loginIdentifier" name="identifier" placeholder="Enter your email or mobile number" required />
             </div>
 
             <label class="auth-label" for="loginPassword">Password</label>
             <div class="auth-input-wrap">
               <ion-icon name="lock-closed-outline" class="auth-input-icon"></ion-icon>
-              <input type="password" id="loginPassword" name="password" placeholder="Enter password" required />
+              <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required />
               <button type="button" class="auth-pw-toggle" aria-label="Show password" data-target="loginPassword">
                 <ion-icon name="eye-outline"></ion-icon>
               </button>
