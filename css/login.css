@@ -283,6 +283,7 @@
     position: relative;
     z-index: 2;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .auth-brand {
