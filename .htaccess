@@ -13,18 +13,26 @@ RewriteEngine On
 # redirects forever (ERR_TOO_MANY_REDIRECTS) now that .htaccess is actually
 # being read.
 
-# ---- Clean URLs: hide the .php extension ----
+# ---- Clean URLs: hide the .php extension (top-level pages only) ----
+# Only single-segment pages like shop.php / rice.php / about.php get the
+# clean-URL treatment. Anything with a "/" in the path (assets/db_query/...,
+# admin/..., api/...) is left completely alone, on purpose - those are
+# background AJAX/data endpoints the pages themselves call, not pages a
+# visitor opens, and redirecting them broke the product-loading requests.
 
 # /index or /index.php in the address bar -> redirect to the site root
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\s/+index(\.php)?[\s?] [NC]
 RewriteRule ^ / [R=301,L]
 
-# Anyone visiting or clicking a *.php link gets sent to the extension-less URL
-# (this is what makes the address bar show valluvamproducts.com/shop instead of shop.php)
-RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\s/+([^.\s]+)\.php[\s?] [NC]
+# A top-level *.php link (no further "/" in the path) redirects to the
+# extension-less URL (this is what makes the address bar show
+# valluvamproducts.com/shop instead of shop.php)
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\s/([^/.\s]+)\.php[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L,QSA]
 
-# Internally serve the matching .php file for the clean URL, without changing the address bar
+# Internally serve the matching top-level .php file for the clean URL,
+# without changing the address bar
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !/$
 RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php [L,QSA]
+RewriteRule ^([^/]+)$ $1.php [L,QSA]
