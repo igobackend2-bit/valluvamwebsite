@@ -1,11 +1,9 @@
-$(document).ready(function () {
-
-
+function loadProduct(idOrSlug, pushSlug) {
     $.ajax({
         url: 'assets/db_query/product_detail/product_detail_query.php',
         type: 'GET',
         data: {
-            id: productId
+            id: idOrSlug
         },
         dataType: 'json',
         success: function (res) {
@@ -13,6 +11,15 @@ $(document).ready(function () {
                 let p = res.data.product;
                 let similar = res.data.similar;
                 let variants = res.data.variants || [];
+
+                // Keep the page's global productId (used by the wishlist button and
+                // by header.js) pointed at whichever size is currently shown.
+                productId = String(p.id);
+                if (pushSlug) {
+                    try {
+                        history.pushState({}, '', 'productdetail.php?product=' + pushSlug);
+                    } catch (e) { /* pushState unsupported - address bar just won't update, page still works */ }
+                }
 
                 let hasDiscount = p.dis_price && p.price && parseFloat(p.dis_price) < parseFloat(p.price);
                 let discountPercent = hasDiscount ? Math.round((1 - p.dis_price / p.price) * 100) : 0;
@@ -22,8 +29,8 @@ $(document).ready(function () {
 
                 // Size selector: only shown when this product has sibling size variants
                 // (e.g. the same rice available as 1kg / 5kg / 10kg / 25kg). Each option
-                // links to that size's own existing product page - no cart/pricing logic
-                // is touched here.
+                // uses the exact price you set for that size in the admin panel - picking
+                // one swaps the price/details on this same page (no reload).
                 let sizeSelectorHtml = '';
                 if (variants.length > 1) {
                     sizeSelectorHtml = `
@@ -31,7 +38,7 @@ $(document).ready(function () {
                             <label>Size</label>
                             <div class="pd-size-options">
                                 ${variants.map(v => `
-                                    <a href="productdetail.php?product=${v.slug}" class="pd-size-btn${v.is_current ? ' active' : ''}">${v.quantity}</a>
+                                    <button type="button" class="pd-size-btn${v.is_current ? ' active' : ''}" data-id="${v.id}" data-slug="${v.slug}">${v.quantity}</button>
                                 `).join('')}
                             </div>
                         </div>`;
@@ -137,7 +144,20 @@ $(document).ready(function () {
             }
         }
     });
+}
+
+$(document).ready(function () {
+    loadProduct(productId, null);
 });
+
+// Size button: swap to that size's real price/details on this same page, no reload.
+$(document).on("click", ".pd-size-btn", function (e) {
+    e.preventDefault();
+    var $btn = $(this);
+    if ($btn.hasClass("active")) return;
+    loadProduct($btn.attr("data-id"), $btn.attr("data-slug"));
+});
+
 $(document).on("click", ".buy", function (e) {
     e.preventDefault();
     e.stopPropagation();
