@@ -1,3 +1,13 @@
+function parseGramsFromQuantity(q) {
+    q = String(q || '').trim().toLowerCase();
+    var m = q.match(/([\d.]+)\s*(kg|g|gm|gram|grams|ml|l)?/);
+    if (!m || !m[1]) return null;
+    var num = parseFloat(m[1]);
+    var unit = m[2] || 'g';
+    if (unit === 'kg' || unit === 'l') return num * 1000;
+    return num;
+}
+
 function loadProduct(idOrSlug, pushSlug) {
     $.ajax({
         url: 'assets/db_query/product_detail/product_detail_query.php',
@@ -28,9 +38,10 @@ function loadProduct(idOrSlug, pushSlug) {
                 let benefitsList = (p.benefits || '').split(',').map(b => b.trim()).filter(Boolean);
 
                 // Size selector: only shown when this product has sibling size variants
-                // (e.g. the same rice available as 1kg / 5kg / 10kg / 25kg). Each option
-                // uses the exact price you set for that size in the admin panel - picking
-                // one swaps the price/details on this same page (no reload).
+                // (e.g. the same rice available as 1kg / 5kg / 10kg / 25kg as separate,
+                // individually-priced products in the admin panel). Picking one swaps the
+                // price/details on this same page (no reload), using the exact price set
+                // for that size in admin.
                 let sizeSelectorHtml = '';
                 if (variants.length > 1) {
                     sizeSelectorHtml = `
@@ -40,6 +51,42 @@ function loadProduct(idOrSlug, pushSlug) {
                                 ${variants.map(v => `
                                     <button type="button" class="pd-size-btn${v.is_current ? ' active' : ''}" data-id="${v.id}" data-slug="${v.slug}">${v.quantity}</button>
                                 `).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                // Weight calculator: lets the shopper pick any of 1/2/5/10/25 kg and see
+                // an automatically-calculated price for that weight, based on this
+                // product's own price-per-kg. This replaces the plain 1/2/3 quantity
+                // counter. Note: this total is a display estimate only - Add to Cart /
+                // Buy it Now still add this exact listed product at its own listed
+                // price and pack size (same as the old quantity counter did).
+                let gramsForThisPack = parseGramsFromQuantity(p.quantity);
+                let ratePerKg = (gramsForThisPack && parseFloat(p.dis_price)) ? (parseFloat(p.dis_price) / (gramsForThisPack / 1000)) : null;
+                let weightPresets = [1, 2, 5, 10, 25];
+                let defaultWeightTotal = ratePerKg ? Math.round(ratePerKg * 1) : null;
+
+                let quantitySectionHtml;
+                if (ratePerKg) {
+                    quantitySectionHtml = `
+                        <div class="pd-weight-row">
+                            <label>Select Weight</label>
+                            <div class="pd-weight-options" data-rate-per-kg="${ratePerKg}">
+                                ${weightPresets.map(w => `
+                                    <button type="button" class="pd-weight-btn${w === 1 ? ' active' : ''}" data-kg="${w}">${w}kg</button>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                } else {
+                    // Fallback for a product whose quantity text we can't parse into a
+                    // weight (e.g. "1 pack") - keep the original plain counter.
+                    quantitySectionHtml = `
+                        <div class="pd-qty-row">
+                            <label>Quantity</label>
+                            <div class="pd-stepper">
+                                <button type="button" class="pd-qty-minus" aria-label="Decrease quantity">&minus;</button>
+                                <span class="pd-qty-value" data-unit-price="${p.dis_price}">1</span>
+                                <button type="button" class="pd-qty-plus" aria-label="Increase quantity">+</button>
                             </div>
                         </div>`;
                 }
@@ -65,17 +112,10 @@ function loadProduct(idOrSlug, pushSlug) {
                         </div>
                         <p class="pd-price-hint">Inclusive of all taxes</p>
                         ${sizeSelectorHtml}
-                        <div class="pd-qty-row">
-                            <label>Quantity</label>
-                            <div class="pd-stepper">
-                                <button type="button" class="pd-qty-minus" aria-label="Decrease quantity">&minus;</button>
-                                <span class="pd-qty-value" data-unit-price="${p.dis_price}">1</span>
-                                <button type="button" class="pd-qty-plus" aria-label="Increase quantity">+</button>
-                            </div>
-                        </div>
+                        ${quantitySectionHtml}
                         <div class="pd-total-row">
                             <span>Total:</span>
-                            <span class="pd-total-value">&#8377;${p.dis_price}</span>
+                            <span class="pd-total-value">&#8377;${defaultWeightTotal !== null ? defaultWeightTotal : p.dis_price}</span>
                         </div>
                         <div class="pd-actions">
                             <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}" aria-label="Add ${p.product_name} to cart"><ion-icon name="cart-outline"></ion-icon> Add to Cart</button>
@@ -158,6 +198,19 @@ $(document).on("click", ".pd-size-btn", function (e) {
     loadProduct($btn.attr("data-id"), $btn.attr("data-slug"));
 });
 
+// Weight button: customer picks 1/2/5/10/25 kg and the Total below is
+// automatically calculated from this product's own price-per-kg.
+$(document).on("click", ".pd-weight-btn", function () {
+    var $btn = $(this);
+    var $wrap = $btn.closest(".pd-weight-options");
+    $wrap.find(".pd-weight-btn").removeClass("active");
+    $btn.addClass("active");
+    var kg = parseFloat($btn.attr("data-kg")) || 1;
+    var rate = parseFloat($wrap.attr("data-rate-per-kg")) || 0;
+    var total = Math.round(rate * kg);
+    $btn.closest(".pd-info").find(".pd-total-value").text("₹" + total);
+});
+
 $(document).on("click", ".buy", function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -238,9 +291,8 @@ $(document).on("click", ".buy", function (e) {
 // Add-to-cart handler removed - now handled globally in header.js to prevent duplicate execution
 // Login check is handled in header.js via session check on server side
 
-// Quantity stepper on the product detail page (display-only: updates the
-// "Total" line shown to the shopper; Add to Cart / Buy it Now still add a
-// single unit via the existing global handlers in header.js, unchanged).
+// Plain quantity stepper - only present as a fallback when a product's pack
+// size text couldn't be parsed into a weight (see quantitySectionHtml above).
 $(document).on("click", ".pd-qty-minus, .pd-qty-plus", function () {
     var $wrap = $(this).closest(".pd-stepper");
     var $value = $wrap.find(".pd-qty-value");
