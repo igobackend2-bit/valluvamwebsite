@@ -82,7 +82,7 @@
       <script src='https://sachinchoolur.github.io/lightslider/dist/js/lightslider.js'></script>
       <!-- <script src="js/product.js"></script> -->
       <script type='text/javascript' src='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js'></script>
-      <script type='text/javascript' src='assets/js/product_detail/product_detail.js'></script>
+      <script type='text/javascript' src='assets/js/product_detail/product_detail.js?v=<?php echo @filemtime(__DIR__ . "/assets/js/product_detail/product_detail.js"); ?>'></script>
       <script type='text/javascript' src=''></script>
       <script type='text/Javascript'></script>
 
