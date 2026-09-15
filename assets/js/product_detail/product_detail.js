@@ -1,11 +1,20 @@
-function parseGramsFromQuantity(q) {
+function parseQuantityInfo(q) {
     q = String(q || '').trim().toLowerCase();
     var m = q.match(/([\d.]+)\s*(kg|g|gm|gram|grams|ml|l)?/);
     if (!m || !m[1]) return null;
     var num = parseFloat(m[1]);
     var unit = m[2] || 'g';
-    if (unit === 'kg' || unit === 'l') return num * 1000;
-    return num;
+    if (unit === 'kg') return { type: 'weight', kg: num };
+    if (unit === 'ml') return { type: 'volume', litres: num / 1000 };
+    if (unit === 'l') return { type: 'volume', litres: num };
+    // g / gm / gram / grams
+    return { type: 'weight', kg: num / 1000 };
+}
+
+function formatVolumeLabel(litres) {
+    if (litres < 1) return Math.round(litres * 1000) + 'ml';
+    var rounded = Math.round(litres * 100) / 100;
+    return rounded + 'L';
 }
 
 function loadProduct(idOrSlug, pushSlug) {
@@ -55,41 +64,50 @@ function loadProduct(idOrSlug, pushSlug) {
                         </div>`;
                 }
 
-                // Weight calculator: lets the shopper pick any of 1/2/5/10/25 kg and see
-                // an automatically-calculated price for that weight, based on this
-                // product's own price-per-kg. This replaces the plain 1/2/3 quantity
-                // counter. Note: this total is a display estimate only - Add to Cart /
-                // Buy it Now still add this exact listed product at its own listed
+                // Weight/volume calculator: lets the shopper pick a preset amount and see
+                // an automatically-calculated price for it, based on this product's own
+                // price-per-kg (for products sold by weight, like rice) or price-per-litre
+                // (for products sold by volume, like oils). Replaces the plain 1/2/3
+                // quantity counter. Note: this total is a display estimate only - Add to
+                // Cart / Buy it Now still add this exact listed product at its own listed
                 // price and pack size (same as the old quantity counter did).
-                let gramsForThisPack = parseGramsFromQuantity(p.quantity);
-                let ratePerKg = (gramsForThisPack && parseFloat(p.dis_price)) ? (parseFloat(p.dis_price) / (gramsForThisPack / 1000)) : null;
-                let weightPresets = [1, 2, 5, 10, 25];
-                // Default to whichever preset is closest to this product's own pack size,
-                // so the Total shown on load always matches the Price shown above it
-                // (e.g. a 10kg product defaults to the "10kg" button, not "1kg").
-                let ownKg = gramsForThisPack ? (gramsForThisPack / 1000) : null;
-                let defaultWeightPreset = weightPresets[0];
-                if (ownKg) {
-                    defaultWeightPreset = weightPresets.reduce(function (closest, w) {
-                        return Math.abs(w - ownKg) < Math.abs(closest - ownKg) ? w : closest;
-                    }, weightPresets[0]);
+                let qInfo = parseQuantityInfo(p.quantity);
+                let presets = null, defaultPreset = null, rate = null, labelFn = null, rowLabel = 'Select Weight';
+
+                if (qInfo && qInfo.type === 'weight' && parseFloat(p.dis_price)) {
+                    presets = [1, 2, 5, 10, 25];
+                    rate = parseFloat(p.dis_price) / qInfo.kg;
+                    labelFn = function (w) { return w + 'kg'; };
+                    rowLabel = 'Select Weight';
+                    defaultPreset = presets.reduce(function (closest, w) {
+                        return Math.abs(w - qInfo.kg) < Math.abs(closest - qInfo.kg) ? w : closest;
+                    }, presets[0]);
+                } else if (qInfo && qInfo.type === 'volume' && parseFloat(p.dis_price)) {
+                    presets = [0.25, 0.5, 1, 2, 5];
+                    rate = parseFloat(p.dis_price) / qInfo.litres;
+                    labelFn = formatVolumeLabel;
+                    rowLabel = 'Select Volume';
+                    defaultPreset = presets.reduce(function (closest, w) {
+                        return Math.abs(w - qInfo.litres) < Math.abs(closest - qInfo.litres) ? w : closest;
+                    }, presets[0]);
                 }
-                let defaultWeightTotal = ratePerKg ? Math.round(ratePerKg * defaultWeightPreset) : null;
+
+                let defaultCalcTotal = (rate !== null && defaultPreset !== null) ? Math.round(rate * defaultPreset) : null;
 
                 let quantitySectionHtml;
-                if (ratePerKg) {
+                if (presets) {
                     quantitySectionHtml = `
                         <div class="pd-weight-row">
-                            <label>Select Weight</label>
-                            <div class="pd-weight-options" data-rate-per-kg="${ratePerKg}">
-                                ${weightPresets.map(w => `
-                                    <button type="button" class="pd-weight-btn${w === defaultWeightPreset ? ' active' : ''}" data-kg="${w}">${w}kg</button>
+                            <label>${rowLabel}</label>
+                            <div class="pd-weight-options" data-rate="${rate}">
+                                ${presets.map(w => `
+                                    <button type="button" class="pd-weight-btn${w === defaultPreset ? ' active' : ''}" data-amount="${w}">${labelFn(w)}</button>
                                 `).join('')}
                             </div>
                         </div>`;
                 } else {
                     // Fallback for a product whose quantity text we can't parse into a
-                    // weight (e.g. "1 pack") - keep the original plain counter.
+                    // weight or volume (e.g. "1 pack") - keep the original plain counter.
                     quantitySectionHtml = `
                         <div class="pd-qty-row">
                             <label>Quantity</label>
@@ -125,7 +143,7 @@ function loadProduct(idOrSlug, pushSlug) {
                         ${quantitySectionHtml}
                         <div class="pd-total-row">
                             <span>Total:</span>
-                            <span class="pd-total-value">&#8377;${defaultWeightTotal !== null ? defaultWeightTotal : p.dis_price}</span>
+                            <span class="pd-total-value">&#8377;${defaultCalcTotal !== null ? defaultCalcTotal : p.dis_price}</span>
                         </div>
                         <div class="pd-actions">
                             <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}" aria-label="Add ${p.product_name} to cart"><ion-icon name="cart-outline"></ion-icon> Add to Cart</button>
@@ -208,16 +226,16 @@ $(document).on("click", ".pd-size-btn", function (e) {
     loadProduct($btn.attr("data-id"), $btn.attr("data-slug"));
 });
 
-// Weight button: customer picks 1/2/5/10/25 kg and the Total below is
-// automatically calculated from this product's own price-per-kg.
+// Weight/volume button: customer picks a preset amount and the Total below is
+// automatically calculated from this product's own price-per-kg or price-per-litre.
 $(document).on("click", ".pd-weight-btn", function () {
     var $btn = $(this);
     var $wrap = $btn.closest(".pd-weight-options");
     $wrap.find(".pd-weight-btn").removeClass("active");
     $btn.addClass("active");
-    var kg = parseFloat($btn.attr("data-kg")) || 1;
-    var rate = parseFloat($wrap.attr("data-rate-per-kg")) || 0;
-    var total = Math.round(rate * kg);
+    var amount = parseFloat($btn.attr("data-amount")) || 0;
+    var rate = parseFloat($wrap.attr("data-rate")) || 0;
+    var total = Math.round(rate * amount);
     $btn.closest(".pd-info").find(".pd-total-value").text("₹" + total);
 });
 
@@ -302,7 +320,7 @@ $(document).on("click", ".buy", function (e) {
 // Login check is handled in header.js via session check on server side
 
 // Plain quantity stepper - only present as a fallback when a product's pack
-// size text couldn't be parsed into a weight (see quantitySectionHtml above).
+// size text couldn't be parsed into a weight/volume (see quantitySectionHtml above).
 $(document).on("click", ".pd-qty-minus, .pd-qty-plus", function () {
     var $wrap = $(this).closest(".pd-stepper");
     var $value = $wrap.find(".pd-qty-value");
