@@ -64,7 +64,17 @@ function loadProduct(idOrSlug, pushSlug) {
                 let gramsForThisPack = parseGramsFromQuantity(p.quantity);
                 let ratePerKg = (gramsForThisPack && parseFloat(p.dis_price)) ? (parseFloat(p.dis_price) / (gramsForThisPack / 1000)) : null;
                 let weightPresets = [1, 2, 5, 10, 25];
-                let defaultWeightTotal = ratePerKg ? Math.round(ratePerKg * 1) : null;
+                // Default to whichever preset is closest to this product's own pack size,
+                // so the Total shown on load always matches the Price shown above it
+                // (e.g. a 10kg product defaults to the "10kg" button, not "1kg").
+                let ownKg = gramsForThisPack ? (gramsForThisPack / 1000) : null;
+                let defaultWeightPreset = weightPresets[0];
+                if (ownKg) {
+                    defaultWeightPreset = weightPresets.reduce(function (closest, w) {
+                        return Math.abs(w - ownKg) < Math.abs(closest - ownKg) ? w : closest;
+                    }, weightPresets[0]);
+                }
+                let defaultWeightTotal = ratePerKg ? Math.round(ratePerKg * defaultWeightPreset) : null;
 
                 let quantitySectionHtml;
                 if (ratePerKg) {
@@ -73,7 +83,7 @@ function loadProduct(idOrSlug, pushSlug) {
                             <label>Select Weight</label>
                             <div class="pd-weight-options" data-rate-per-kg="${ratePerKg}">
                                 ${weightPresets.map(w => `
-                                    <button type="button" class="pd-weight-btn${w === 1 ? ' active' : ''}" data-kg="${w}">${w}kg</button>
+                                    <button type="button" class="pd-weight-btn${w === defaultWeightPreset ? ' active' : ''}" data-kg="${w}">${w}kg</button>
                                 `).join('')}
                             </div>
                         </div>`;

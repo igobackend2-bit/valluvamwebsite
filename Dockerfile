@@ -14,6 +14,14 @@ RUN mkdir -p /app/assets/b2b_enquiries \
     && chmod -R 775 /app/assets/b2b_enquiries
 
 RUN a2enmod rewrite
+
+# Without this, Apache silently ignores everything in .htaccess (the upload
+# size limits at the top of the file, and the clean-URL rewrite rules) - this
+# is the actual root cause of both the "Failed to upload image" errors and
+# the URLs still showing .php.
+RUN printf '<Directory /app>\n    AllowOverride All\n</Directory>\n' > /etc/apache2/conf-available/zzz-allow-override.conf \
+    && a2enconf zzz-allow-override
+
 ENV APACHE_DOCUMENT_ROOT=/app
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
