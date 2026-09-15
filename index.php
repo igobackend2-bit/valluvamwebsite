@@ -452,9 +452,6 @@ include "header.php"
                     <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
                         <div class="col-md-12 ftco-animate text-center">
-                            <span class="subheading mb-2">Welcome to Valluvam</span>
-                            <h1 class="mb-3">Premium Dry Fruits, Nuts, Spices,<br class="d-none d-md-block"> Cold-Pressed Oils &amp; Millets</h1>
-                            <p class="mb-4">Naturally sourced, carefully packed and delivered fresh to your doorstep — for your home and your business.</p>
                             <p class="hero-cta">
                                 <a href="shop.php" class="btn btn-primary">Shop Products</a>
                                 <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
@@ -472,8 +469,6 @@ include "header.php"
                     <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
                         <div class="col-md-12 ftco-animate text-center">
-                            <span class="subheading mb-2">Valluvam</span>
-                            <p class="mb-4" style="font-size: 22px; color: #fff;">Wholesome millets and cold-pressed oils, packed with natural goodness.</p>
                             <p class="hero-cta">
                                 <a href="shop.php" class="btn btn-primary">Shop Products</a>
                                 <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
@@ -490,8 +485,6 @@ include "header.php"
                     <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
                         <div class="col-md-12 ftco-animate text-center">
-                            <span class="subheading mb-2">Valluvam</span>
-                            <p class="mb-4" style="font-size: 22px; color: #fff;">A perfect blend of crunchy nuts and sweet dry fruits, packed with nutrition and flavor.</p>
                             <p class="hero-cta">
                                 <a href="shop.php" class="btn btn-primary">Shop Products</a>
                                 <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
