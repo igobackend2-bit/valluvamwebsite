@@ -93,6 +93,7 @@ function loadProduct(idOrSlug, pushSlug) {
                 }
 
                 let defaultCalcTotal = (rate !== null && defaultPreset !== null) ? Math.round(rate * defaultPreset) : null;
+                let defaultPriceUnitLabel = (presets && labelFn && defaultPreset !== null) ? labelFn(defaultPreset) : p.quantity;
 
                 let quantitySectionHtml;
                 if (presets) {
@@ -101,7 +102,7 @@ function loadProduct(idOrSlug, pushSlug) {
                             <label>${rowLabel}</label>
                             <div class="pd-weight-options" data-rate="${rate}">
                                 ${presets.map(w => `
-                                    <button type="button" class="pd-weight-btn${w === defaultPreset ? ' active' : ''}" data-amount="${w}">${labelFn(w)}</button>
+                                    <button type="button" class="pd-weight-btn${w === defaultPreset ? ' active' : ''}" data-amount="${w}" data-label="${labelFn(w)}">${labelFn(w)}</button>
                                 `).join('')}
                             </div>
                         </div>`;
@@ -134,15 +135,11 @@ function loadProduct(idOrSlug, pushSlug) {
                         ${ratingBlock}
                         <div class="pd-price-row">
                             ${hasDiscount ? `<span class="pd-price-old">&#8377;${p.price}</span>` : ''}
-                            <span class="pd-price-new">&#8377;${p.dis_price}</span>
-                            ${p.quantity ? `<span class="pd-price-unit">/ ${p.quantity}</span>` : ''}
+                            <span class="pd-price-new">&#8377;${defaultCalcTotal !== null ? defaultCalcTotal : p.dis_price}</span>
+                            ${defaultPriceUnitLabel ? `<span class="pd-price-unit">/ ${defaultPriceUnitLabel}</span>` : ''}
                             ${discountBadge}
                         </div>
                         <p class="pd-price-hint">Inclusive of all taxes</p>
-                        <div class="pd-total-row">
-                            <span>Total:</span>
-                            <span class="pd-total-value">&#8377;${defaultCalcTotal !== null ? defaultCalcTotal : p.dis_price}</span>
-                        </div>
                         ${sizeSelectorHtml}
                         ${quantitySectionHtml}
                         <div class="pd-actions">
@@ -235,8 +232,11 @@ $(document).on("click", ".pd-weight-btn", function () {
     $btn.addClass("active");
     var amount = parseFloat($btn.attr("data-amount")) || 0;
     var rate = parseFloat($wrap.attr("data-rate")) || 0;
+    var label = $btn.attr("data-label") || "";
     var total = Math.round(rate * amount);
-    $btn.closest(".pd-info").find(".pd-total-value").text("₹" + total);
+    var $info = $btn.closest(".pd-info");
+    $info.find(".pd-price-new").text("₹" + total);
+    $info.find(".pd-price-unit").text("/ " + label);
 });
 
 $(document).on("click", ".buy", function (e) {
