@@ -12,12 +12,30 @@ $(document).ready(function () {
             if (res.status === 'success') {
                 let p = res.data.product;
                 let similar = res.data.similar;
+                let variants = res.data.variants || [];
 
                 let hasDiscount = p.dis_price && p.price && parseFloat(p.dis_price) < parseFloat(p.price);
                 let discountPercent = hasDiscount ? Math.round((1 - p.dis_price / p.price) * 100) : 0;
                 let discountBadge = hasDiscount ? `<span class="pd-discount-badge">${discountPercent}% OFF</span>` : '';
                 let ratingBlock = p.rating ? `<div class="pd-rating">${'<ion-icon name="star"></ion-icon>'.repeat(Math.round(p.rating))}<span>${p.rating}.0</span></div>` : '';
                 let benefitsList = (p.benefits || '').split(',').map(b => b.trim()).filter(Boolean);
+
+                // Size selector: only shown when this product has sibling size variants
+                // (e.g. the same rice available as 1kg / 5kg / 10kg / 25kg). Each option
+                // links to that size's own existing product page - no cart/pricing logic
+                // is touched here.
+                let sizeSelectorHtml = '';
+                if (variants.length > 1) {
+                    sizeSelectorHtml = `
+                        <div class="pd-size-row">
+                            <label>Size</label>
+                            <div class="pd-size-options">
+                                ${variants.map(v => `
+                                    <a href="productdetail.php?product=${v.slug}" class="pd-size-btn${v.is_current ? ' active' : ''}">${v.quantity}</a>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
 
                 // Build main product HTML
                 let html = `
@@ -39,6 +57,7 @@ $(document).ready(function () {
                             ${discountBadge}
                         </div>
                         <p class="pd-price-hint">Inclusive of all taxes</p>
+                        ${sizeSelectorHtml}
                         <div class="pd-qty-row">
                             <label>Quantity</label>
                             <div class="pd-stepper">

@@ -14,6 +14,13 @@ function slugify_product_name($text) {
     return $text;
 }
 
+// Removes a trailing size like " 1kg", " 500g", " 750ml" from a product name so that
+// "Raw Rice 10kg" and "Raw Rice 25kg" are recognised as size variants of the same product.
+// A name with no size suffix (e.g. "Raw rice") is returned unchanged.
+function strip_size_suffix($name) {
+    return trim(preg_replace('/\s+\d+(\.\d+)?\s*(kg|g|ml|l)$/i', '', $name));
+}
+
 $raw = trim($_GET['id'] ?? '');
 if ($raw === '') {
     echo json_encode(['status' => 'error', 'message' => 'No product ID']);
@@ -40,8 +47,8 @@ if (ctype_digit($raw)) {
 }
 
 // Fetch main product
-$stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, description, category, quantity, image, benefits, rating 
-                       FROM product_details 
+$stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, description, category, quantity, image, benefits, rating
+                       FROM product_details
                        WHERE id = ?");
 $stmt->execute([$id]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -52,17 +59,47 @@ if (!$product) {
 }
 
 // Fetch similar products (same category, exclude current product)
-$stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, image 
-                       FROM product_details 
-                       WHERE category = ? AND id != ? 
+$stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, image
+                       FROM product_details
+                       WHERE category = ? AND id != ?
                        ORDER BY timestamp DESC LIMIT 5");
 $stmt->execute([$product['category'], $id]);
 $similar = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch size variants: other products in the same category whose name is the same once
+// a trailing size (1kg / 5kg / 10kg / 25kg / 500g / ...) is stripped off. Only returned
+// when there's more than one, so single-size products render exactly as before.
+$variants = [];
+$baseName = strip_size_suffix($product['product_name']);
+if ($baseName !== '') {
+    $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, quantity
+                           FROM product_details
+                           WHERE category = ?");
+    $stmt->execute([$product['category']]);
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        if (strcasecmp(strip_size_suffix($row['product_name']), $baseName) === 0) {
+            $variants[] = [
+                'id' => (int) $row['id'],
+                'slug' => slugify_product_name($row['product_name']),
+                'quantity' => $row['quantity'],
+                'price' => $row['price'],
+                'dis_price' => $row['dis_price'],
+                'is_current' => ((int) $row['id'] === (int) $product['id']),
+            ];
+        }
+    }
+    usort($variants, function ($a, $b) {
+        $qa = (int) preg_replace('/\D/', '', (string) $a['quantity']);
+        $qb = (int) preg_replace('/\D/', '', (string) $b['quantity']);
+        return $qa <=> $qb;
+    });
+}
 
 echo json_encode([
     'status' => 'success',
     'data' => [
         'product' => $product,
-        'similar' => $similar
+        'similar' => $similar,
+        'variants' => count($variants) > 1 ? $variants : [],
     ]
 ]);
