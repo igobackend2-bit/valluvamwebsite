@@ -139,12 +139,12 @@ function loadProduct(idOrSlug, pushSlug) {
                             ${discountBadge}
                         </div>
                         <p class="pd-price-hint">Inclusive of all taxes</p>
-                        ${sizeSelectorHtml}
-                        ${quantitySectionHtml}
                         <div class="pd-total-row">
                             <span>Total:</span>
                             <span class="pd-total-value">&#8377;${defaultCalcTotal !== null ? defaultCalcTotal : p.dis_price}</span>
                         </div>
+                        ${sizeSelectorHtml}
+                        ${quantitySectionHtml}
                         <div class="pd-actions">
                             <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}" aria-label="Add ${p.product_name} to cart"><ion-icon name="cart-outline"></ion-icon> Add to Cart</button>
                             <a href="cart.php" class="pd-btn pd-btn-buy buy" data-id="${p.id}" aria-label="Buy ${p.product_name} now"><ion-icon name="flash-outline"></ion-icon> Buy it Now</a>
