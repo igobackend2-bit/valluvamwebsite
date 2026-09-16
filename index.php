@@ -452,11 +452,6 @@ include "header.php"
                     <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
                         <div class="col-md-12 ftco-animate text-center">
-                            <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Products</a>
-                                <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
-                                <a href="b2b-wholesale.php" class="btn btn-primary btn-outline-primary">Bulk / Wholesale</a>
-                            </p>
                         </div>
 
                     </div>
@@ -469,11 +464,6 @@ include "header.php"
                     <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
                         <div class="col-md-12 ftco-animate text-center">
-                            <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Products</a>
-                                <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
-                                <a href="b2b-wholesale.php" class="btn btn-primary btn-outline-primary">Bulk / Wholesale</a>
-                            </p>
                         </div>
 
                     </div>
@@ -485,11 +475,6 @@ include "header.php"
                     <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
 
                         <div class="col-md-12 ftco-animate text-center">
-                            <p class="hero-cta">
-                                <a href="shop.php" class="btn btn-primary">Shop Products</a>
-                                <a href="#shop-by-category" class="btn btn-primary btn-outline-primary">Explore Categories</a>
-                                <a href="b2b-wholesale.php" class="btn btn-primary btn-outline-primary">Bulk / Wholesale</a>
-                            </p>
                         </div>
 
                     </div>

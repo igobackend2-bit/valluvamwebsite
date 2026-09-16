@@ -201,8 +201,8 @@ function product_catelog() {
                                         data-id="${product.id}" title="View Product">
                                             <span><ion-icon name="menu"></ion-icon></span>
                                         </a>
-                                        <a href="#" class="buy now d-flex justify-content-center align-items-center btn btn-primary add-to-cart" id="add-to-cart" data-id="${product.id}"
-                                            <span><ion-icon name="cart"></ion-icon></a></span>
+                                        <a href="#" class="buy now d-flex justify-content-center align-items-center btn btn-primary add-to-cart" id="add-to-cart" data-id="${product.id}">
+                                            <span><ion-icon name="cart"></ion-icon></span>
                                         </a>
                                         <a href="#" class="heart d-flex justify-content-center align-items-center wishlist-btn" 
                                           data-product-id="${product.id}">
