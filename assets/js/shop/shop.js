@@ -110,7 +110,7 @@ function buildProductCard(product) {
     return `
     <div class="col-md-6 col-lg-3 mb-3">
       <div class="product">
-        <a href="productdetail.php?product=${slug}" class="img-prod">
+        <a href="${productUrl(product.category, product.product_name)}" class="img-prod">
           <img class="img-fluid" src="${image}" alt="${product.product_name}" loading="lazy">
           ${discount}
           <div class="overlay"></div>
@@ -122,7 +122,7 @@ function buildProductCard(product) {
 
         <div class="text py-3 pb-4 px-3 text-center">
           <h3>
-            <a href="productdetail.php?product=${slug}" title="${product.product_name}">
+            <a href="${productUrl(product.category, product.product_name)}" title="${product.product_name}">
               ${product.product_name}
             </a>
           </h3>
@@ -136,7 +136,7 @@ function buildProductCard(product) {
 
           <div class="bottom-area d-flex px-3">
             <div class="m-auto d-flex">
-              <a href="productdetail.php?product=${slug}"
+              <a href="${productUrl(product.category, product.product_name)}"
                  class="add-to-cart d-flex justify-content-center align-items-center text-center product-detail-btn"
                  data-id="${product.id}" title="View Product" aria-label="View ${product.product_name}">
                 <span><ion-icon name="menu"></ion-icon></span>

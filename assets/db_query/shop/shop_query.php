@@ -31,7 +31,9 @@ if ($action === 'all_products') {
     try {
         if ($query !== "") {
 
-            $sql = "SELECT id, product_name, price, dis_price, quantity, image
+            // category added to the SELECT (additive) so search-result cards can
+            // build the correct "/{category}/{slug}" product URL.
+            $sql = "SELECT id, product_name, price, dis_price, quantity, image, category
                     FROM product_details
                     WHERE product_name LIKE :query
                        OR description LIKE :query

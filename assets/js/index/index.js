@@ -32,7 +32,7 @@ $(document).ready(function () {
                           <div class="product">
                         
                             <!-- IMAGE -->
-                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod">
+                            <a href="${productUrl(product.category, product.product_name)}" class="img-prod">
                               <img class="img-fluid" src="${image}" alt="${product.product_name}">
                               ${discount}
                               <div class="overlay"></div>
@@ -42,7 +42,7 @@ $(document).ready(function () {
                         
                               <!-- PRODUCT NAME -->
                               <h3>
-                                <a href="productdetail.php?product=${slugify(product.product_name)}">
+                                <a href="${productUrl(product.category, product.product_name)}">
                                   ${product.product_name} (${product.quantity})
                                 </a>
                               </h3>
@@ -64,7 +64,7 @@ $(document).ready(function () {
                               <div class="bottom-area d-flex px-3">
                                 <div class="m-auto d-flex">
                         
-                                  <a href="productdetail.php?product=${slugify(product.product_name)}"
+                                  <a href="${productUrl(product.category, product.product_name)}"
                                      class="add-to-cart d-flex justify-content-center align-items-center text-center"
                                      title="View Details">
                                     <span><ion-icon name="menu"></ion-icon></span>
@@ -147,7 +147,7 @@ function loadTopRated() {
                     html += `
                     <div class="col-6 col-md-4 col-lg-3 mb-3">
                         <div class="product">
-                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod">
+                            <a href="${productUrl(product.category, product.product_name)}" class="img-prod">
                                 <img class="img-fluid" src="${image}" alt="${product.product_name}">
                                 ${discount}
                                 <div class="overlay"></div>
@@ -155,7 +155,7 @@ function loadTopRated() {
                             <div class="text py-3 pb-4 px-3 text-center">
                                 <div class="v-top-rated-stars">${stars}<span>${ratingValue}</span></div>
                                 <h3>
-                                    <a href="productdetail.php?product=${slugify(product.product_name)}">
+                                    <a href="${productUrl(product.category, product.product_name)}">
                                         ${product.product_name} (${product.quantity})
                                     </a>
                                 </h3>
@@ -172,7 +172,7 @@ function loadTopRated() {
                                 </div>
                                 <div class="bottom-area d-flex px-3">
                                     <div class="m-auto d-flex">
-                                        <a href="productdetail.php?product=${slugify(product.product_name)}"
+                                        <a href="${productUrl(product.category, product.product_name)}"
                                            class="add-to-cart d-flex justify-content-center align-items-center text-center"
                                            title="View Details">
                                             <span><ion-icon name="menu"></ion-icon></span>
@@ -266,14 +266,14 @@ function product_catelog() {
                     html += `
                     <div class="col-md-6 col-lg-3 mb-3">
                         <div class="product">
-                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod" onclick="showproduct('product-${slug}')">
+                            <a href="${productUrl(product.category, product.product_name)}" class="img-prod" onclick="showproduct('product-${slug}')">
                                 <img class="img-fluid" src="${image}" alt="${product.product_name}">
                                 ${discount}
                                 <div class="overlay"></div>
                             </a>
                             <div class="text py-3 pb-4 px-3 text-center">
                                 <h3>
-                                    <a href="productdetail.php?product=${slug}" onclick="showproduct('product-${slug}')">
+                                    <a href="${productUrl(product.category, product.product_name)}" onclick="showproduct('product-${slug}')">
                                         ${product.product_name} (${product.quantity})
                                     </a>
                                 </h3>
@@ -294,7 +294,7 @@ function product_catelog() {
                               
                                 <div class="bottom-area d-flex px-3">
                                     <div class="m-auto d-flex">
-                                        <a href="productdetail.php?product=${slugify(product.product_name)}"
+                                        <a href="${productUrl(product.category, product.product_name)}"
                                         class="add-to-cart d-flex justify-content-center align-items-center text-center product-detail-btn"
                                         data-id="${product.id}" title="View Product">
                                             <span><ion-icon name="menu"></ion-icon></span>

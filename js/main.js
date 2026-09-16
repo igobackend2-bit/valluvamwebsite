@@ -7,6 +7,24 @@ function slugify(text) {
 		.replace(/-+/g, '-');
 }
 
+// Shared helper: builds the pretty "/{category}/{product-slug}" product URL
+// (e.g. "/dryfruits/dry-strawberry") that .htaccess now rewrites internally
+// to productdetail.php?product={slug}. Loaded on every page via main.js, so
+// every place that links to a product page can call this instead of writing
+// "productdetail.php?product=..." directly.
+//
+// If category is missing/blank (a data gap, or a code path that doesn't
+// have it yet) this safely falls back to the old, still-fully-supported
+// "productdetail.php?product=..." link instead of producing a broken URL.
+function productUrl(category, productName) {
+	let slug = slugify(productName);
+	let categorySlug = String(category || '').trim().toLowerCase();
+	if (categorySlug === '') {
+		return 'productdetail.php?product=' + slug;
+	}
+	return categorySlug + '/' + slug;
+}
+
 AOS.init({
 	duration: 800,
 	easing: 'slide'

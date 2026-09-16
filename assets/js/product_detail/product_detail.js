@@ -36,7 +36,7 @@ function loadProduct(idOrSlug, pushSlug) {
                 productId = String(p.id);
                 if (pushSlug) {
                     try {
-                        history.pushState({}, '', 'productdetail.php?product=' + pushSlug);
+                        history.pushState({}, '', productUrl(p.category, p.product_name));
                     } catch (e) { /* pushState unsupported - address bar just won't update, page still works */ }
                 }
 
@@ -195,7 +195,7 @@ function loadProduct(idOrSlug, pushSlug) {
                     <h3>You may also like</h3>
                     <div class="pd-similar-grid">
                         ${similar.map(s => `
-                            <a href="productdetail.php?product=${slugify(s.product_name)}" class="pd-similar-card">
+                            <a href="${productUrl(p.category, s.product_name)}" class="pd-similar-card">
                                 <div class="pd-similar-img-frame">
                                     <img src="assets/uploads/${s.image}" alt="${s.product_name}">
                                 </div>

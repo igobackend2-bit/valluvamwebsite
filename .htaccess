@@ -36,3 +36,14 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !/$
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^([^/]+)$ $1.php [L,QSA]
+
+# ---- Pretty product URLs: /{category}/{product-slug} ----
+# e.g. /dryfruits/dry-strawberry -> internally served by productdetail.php
+# (address bar keeps showing the pretty URL). Restricted to the 7 known
+# category slugs so this can't swallow any other 2-segment path (admin/...,
+# api/..., assets/...) - those already have their own real subfolders and
+# are matched first as actual files/directories anyway, but the explicit
+# category list keeps this rule narrow on purpose.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(dryfruits|nuts|spices|oils|millets|rice|combo)/([^/]+)/?$ productdetail.php?product=$2 [L,QSA,NC]

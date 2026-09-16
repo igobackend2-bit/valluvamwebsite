@@ -13,8 +13,10 @@ if (isset($_GET['query'])) {
     $query = trim($_GET['query']);
 
     if ($query !== "") {
-        $sql = "SELECT id, product_name, price, dis_price, quantity, image 
-                FROM product_details 
+        // category added to the SELECT (additive) so search-result cards can
+        // build the correct "/{category}/{slug}" product URL.
+        $sql = "SELECT id, product_name, price, dis_price, quantity, image, category
+                FROM product_details
                 WHERE product_name LIKE :query";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['query' => "%$query%"]);

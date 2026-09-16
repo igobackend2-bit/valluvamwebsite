@@ -1,7 +1,69 @@
-<?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
-    include "header.php";
+<?php
     // URL is the product name slug, e.g. "honey". Old numeric/id-slug links ("213" or "213-honey") still resolve via their leading id.
     $product_param = $_GET['product'] ?? '';
+
+    // ---- Pretty product URL: /{category}/{slug} ----
+    // Placed before header.php's include (and before any other output) so a
+    // redirect header can still be sent. $knownCategorySlugs matches the 7
+    // real category pages/files; $pathSegments looks at the actual browser
+    // URL (not just the rewritten query string) to tell an old-style
+    // "/productdetail?product=..." request apart from one that already came
+    // in on the new pretty URL.
+    $knownCategorySlugs = ['dryfruits', 'nuts', 'spices', 'oils', 'millets', 'rice', 'combo'];
+    $requestPath = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+    $pathSegments = $requestPath === '' ? [] : explode('/', $requestPath);
+    $isPrettyUrlAlready = count($pathSegments) === 2 && in_array(strtolower($pathSegments[0]), $knownCategorySlugs, true);
+    $resolvedCategorySlug = $isPrettyUrlAlready ? strtolower($pathSegments[0]) : null;
+
+    // Old-style access ("/productdetail?product=..." or "?product=..&..")
+    // - look up the product's real category so we can 301 to the canonical
+    // pretty URL. Wrapped in try/catch: if the DB is unreachable or the
+    // product can't be matched, this silently falls through and the page
+    // still renders exactly as it did before this change, at the old URL.
+    if ($product_param !== '' && !$isPrettyUrlAlready) {
+        try {
+            require_once __DIR__ . '/assets/db_query/config.php';
+
+            function slugify_product_name_pd($text) {
+                $text = strtolower(trim($text));
+                $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
+                $text = preg_replace('/\s+/', '-', $text);
+                $text = preg_replace('/-+/', '-', $text);
+                return $text;
+            }
+
+            $rawParam = trim($product_param);
+            $matchedCategory = null;
+
+            if (ctype_digit($rawParam)) {
+                $stmt = $pdo->prepare("SELECT category FROM product_details WHERE id = ?");
+                $stmt->execute([(int) $rawParam]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    $matchedCategory = strtolower(trim($row['category']));
+                }
+            } else {
+                $stmt = $pdo->query("SELECT category, product_name FROM product_details");
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    if (slugify_product_name_pd($row['product_name']) === $rawParam) {
+                        $matchedCategory = strtolower(trim($row['category']));
+                        break;
+                    }
+                }
+            }
+
+            if ($matchedCategory !== null && in_array($matchedCategory, $knownCategorySlugs, true)) {
+                header('Location: https://www.valluvamproducts.com/' . $matchedCategory . '/' . rawurlencode($rawParam), true, 301);
+                exit;
+            }
+        } catch (Throwable $e) {
+            // DB unavailable or anything unexpected - render normally below
+            // at the old URL rather than breaking the page.
+        }
+    }
+
+    $actionpage = basename($_SERVER['PHP_SELF'], ".php");
+    include "header.php";
     $product_id = preg_match('/^\d+/', $product_param, $m) ? $m[0] : $product_param;
 
     // Build a human-readable product name from the URL slug alone (no DB lookup) for the page title/meta.
@@ -12,7 +74,12 @@
     $product_page_desc = $product_display_name !== ''
       ? 'Buy ' . htmlspecialchars($product_display_name) . ' online from Valluvam — farm-fresh, naturally processed and delivered to your door.'
       : "Explore product details, pricing and specifications for Valluvam's natural, farm-fresh products.";
-    $product_canonical = 'https://www.valluvamproducts.com/productdetail.php' . ($product_param !== '' ? '?product=' . urlencode($product_param) : '');
+    // Canonical now reflects the pretty "/{category}/{slug}" URL whenever the
+    // category is known (either because the request already used it, or the
+    // redirect lookup above resolved it); otherwise unchanged fallback.
+    $product_canonical = $resolvedCategorySlug !== null
+      ? 'https://www.valluvamproducts.com/' . $resolvedCategorySlug . '/' . urlencode($product_param)
+      : 'https://www.valluvamproducts.com/productdetail.php' . ($product_param !== '' ? '?product=' . urlencode($product_param) : '');
     ?>
 
   <head>
