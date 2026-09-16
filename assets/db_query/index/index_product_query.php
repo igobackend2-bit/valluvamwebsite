@@ -40,6 +40,35 @@ if ($action == 'category_slider') {
             'message' => $d->getMessage()
         ]);
     }
+} elseif ($action === 'top_rated') {
+    // New, additive action for the homepage "Top Rated" carousel. Only ever
+    // reads product_details.rating, an existing real column - no schema
+    // change, no new table. Products with no rating set (NULL or 0) are
+    // excluded rather than shown with a fabricated score.
+    try {
+        $stmt = $pdo->query("
+            SELECT id, product_name, price, dis_price, category, image, quantity, rating
+            FROM product_details
+            WHERE image IS NOT NULL
+              AND TRIM(image) <> ''
+              AND rating IS NOT NULL
+              AND rating > 0
+            ORDER BY rating DESC, id DESC
+            LIMIT 10
+        ");
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'status' => 'success',
+            'data' => $products
+        ]);
+        exit;
+    } catch (PDOException $d) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => $d->getMessage()
+        ]);
+    }
 } elseif ($action === 'product_search') {
     $query = trim($_GET['query'] ?? '');
 

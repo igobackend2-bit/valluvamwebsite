@@ -294,6 +294,182 @@ include "header.php"
             font-weight: 500;
         }
     </style>
+    <!-- ===== Homepage merchandising additions (index.php only) =====
+         New, additive sections only: Shop by Goal tiles, the Top Rated
+         carousel (real product_details.rating data), two ingredient
+         benefit info-cards, and an "Also Available On" marketplace strip
+         (Meesho, Zepto, Amazon - the 3 platforms confirmed as real).
+         Nothing here changes any selector used elsewhere on this page or
+         on any other page. -->
+    <style>
+        /* Shop by Goal */
+        .v-shop-goal .v-goal-tile {
+            border-radius: 14px;
+            padding: 28px 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+            min-height: 170px;
+        }
+
+        .v-shop-goal .v-goal-tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #1c1c1c;
+        }
+
+        .v-shop-goal .v-goal-tile p {
+            font-size: 14px;
+            color: #4a4a4a;
+            margin-bottom: 0;
+        }
+
+        .v-shop-goal .v-goal-tile a.v-goal-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #1c5034;
+            text-decoration: none;
+        }
+
+        .v-shop-goal .v-goal-tile a.v-goal-link ion-icon {
+            font-size: 18px;
+            transition: transform .2s ease;
+        }
+
+        .v-shop-goal .v-goal-tile:hover a.v-goal-link ion-icon {
+            transform: translateX(4px);
+        }
+
+        .v-goal-tile.v-goal-1 {
+            background: linear-gradient(135deg, #eaf5e6, #f7fbf3);
+        }
+
+        .v-goal-tile.v-goal-2 {
+            background: linear-gradient(135deg, #fdeef0, #fff7f5);
+        }
+
+        .v-goal-tile.v-goal-3 {
+            background: linear-gradient(135deg, #fdf3e3, #fffaf0);
+        }
+
+        .v-goal-tile.v-goal-4 {
+            background: linear-gradient(135deg, #e6f3f7, #f4fbfc);
+        }
+
+        /* Top Rated carousel star row */
+        .v-top-rated-stars {
+            font-size: 14px;
+            color: #f5a623;
+            margin-bottom: 6px;
+        }
+
+        .v-top-rated-stars ion-icon {
+            font-size: 14px;
+        }
+
+        .v-top-rated-stars span {
+            margin-left: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        #top-rated-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* Ingredient benefit info-cards */
+        .v-benefit-card {
+            background: #faf6ee;
+            border: 1px solid #e3e9d8;
+            border-radius: 12px;
+            padding: 26px 24px;
+            height: 100%;
+        }
+
+        .v-benefit-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1c5034;
+            margin-bottom: 14px;
+        }
+
+        .v-benefit-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .v-benefit-card ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 14px;
+            color: #4a4a4a;
+            margin-bottom: 10px;
+        }
+
+        .v-benefit-card ul li ion-icon {
+            color: #1c5034;
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        /* "Also Available On" marketplace strip - text/icon badges only,
+           deliberately not brand logo images, and lists only the 3
+           marketplaces confirmed real (Meesho, Zepto, Amazon). */
+        .v-marketplace-strip {
+            background: #1c5034;
+            padding: 34px 0;
+        }
+
+        .v-marketplace-strip p.v-marketplace-heading {
+            text-align: center;
+            color: #d8e8d2;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .v-marketplace-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .v-marketplace-badges a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: #1c1c1c;
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            text-decoration: none;
+        }
+
+        .v-marketplace-badges a ion-icon {
+            font-size: 18px;
+            color: #1c5034;
+        }
+
+        @media (max-width: 575.98px) {
+            .v-shop-goal .v-goal-tile {
+                min-height: auto;
+            }
+        }
+    </style>
     <!-- title tag -->
     <title>Buy Premium Dry Fruits, Nuts, Spices & Cold Pressed Oils Online | Valluvam</title>
     <!-- meta tag -->
@@ -551,6 +727,61 @@ include "header.php"
             </div>
     </section>
 
+    <!-- Shop by Goal - new section. Each tile links to an existing category
+         page (dryfruits.php/nuts.php, oils.php/spices.php, rice.php/millets.php,
+         combo.php) - no new pages, no schema change, purely a curated set of
+         shortcuts to pages that already exist. -->
+    <section class="ftco-section v-shop-goal">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-3">
+                <div class="col-md-8">
+                    <div class="heading-section">
+                        <span class="subheading">Find what you need</span>
+                        <h2>Shop by Goal</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 col-lg-3 mb-4">
+                    <div class="v-goal-tile v-goal-1">
+                        <div>
+                            <h3>Everyday Wellness</h3>
+                            <p>Nuts &amp; dry fruits for daily nourishment.</p>
+                        </div>
+                        <a href="nuts.php" class="v-goal-link">Explore <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 mb-4">
+                    <div class="v-goal-tile v-goal-2">
+                        <div>
+                            <h3>Kitchen Essentials</h3>
+                            <p>Cold-pressed oils &amp; spices for everyday cooking.</p>
+                        </div>
+                        <a href="oils.php" class="v-goal-link">Explore <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 mb-4">
+                    <div class="v-goal-tile v-goal-3">
+                        <div>
+                            <h3>Traditional Grains</h3>
+                            <p>Rice &amp; millets sourced the traditional way.</p>
+                        </div>
+                        <a href="rice.php" class="v-goal-link">Explore <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 mb-4">
+                    <div class="v-goal-tile v-goal-4">
+                        <div>
+                            <h3>Gifting &amp; Combos</h3>
+                            <p>Curated combo packs, ready to gift or stock up.</p>
+                        </div>
+                        <a href="combo.php" class="v-goal-link">Explore <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Featured Products (data loaded dynamically into #product-container
          by assets/js/index/index.js -> product_catelog(); heading, anchor
          and the "View All Products" link are the only additions) -->
@@ -573,6 +804,26 @@ include "header.php"
             </div>
             <div class="products-view-all">
                 <a href="shop.php" class="btn btn-primary btn-outline-primary">View All Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Rated - new section, hidden by loadTopRated() in index.js if no
+         product currently has a rating set. Uses the same real
+         product_details.rating column already shown on the product detail
+         page - not a fabricated "bestseller" list. -->
+    <section class="ftco-section ftco-no-pb" id="top-rated-section" style="display:none;">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-3">
+                <div class="col-md-8">
+                    <div class="heading-section">
+                        <span class="subheading">Loved by customers</span>
+                        <h2>Top Rated</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="top-rated-container" style="align-items:flex-start;">
+                <!-- Products will be loaded here -->
             </div>
         </div>
     </section>
@@ -649,6 +900,44 @@ include "header.php"
                             <p class="description">Pan-India shipping with tracking, from dispatch to your door.</p>
                         </div>
                         <span class="circle-before"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Did You Know? - two general, uncontroversial educational cards (not
+         medical claims tied to a specific product). New section, static
+         content only, no database or schema change. -->
+    <section class="ftco-section" style="background:#fff;">
+        <div class="container">
+            <div class="row justify-content-center text-center mb-3">
+                <div class="col-md-8">
+                    <div class="heading-section">
+                        <span class="subheading">Good to know</span>
+                        <h2>Did You Know?</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="v-benefit-card">
+                        <h3>Why Cold-Pressed Oils</h3>
+                        <ul>
+                            <li><ion-icon name="checkmark-circle-outline"></ion-icon> Extracted without heat, which helps retain more of the oil's natural nutrients.</li>
+                            <li><ion-icon name="checkmark-circle-outline"></ion-icon> No chemical solvents used in the extraction process.</li>
+                            <li><ion-icon name="checkmark-circle-outline"></ion-icon> Closer to its natural, unrefined form than commercially refined oils.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="v-benefit-card">
+                        <h3>Why Millets</h3>
+                        <ul>
+                            <li><ion-icon name="checkmark-circle-outline"></ion-icon> A traditional Indian grain grown for generations before rice became widespread.</li>
+                            <li><ion-icon name="checkmark-circle-outline"></ion-icon> Naturally gluten-free.</li>
+                            <li><ion-icon name="checkmark-circle-outline"></ion-icon> A good source of dietary fibre as part of a balanced diet.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -865,6 +1154,21 @@ include "header.php"
         </div>
     </section>
 
+    <!-- Also Available On - lists only the marketplaces confirmed real
+         (Meesho, Zepto, Amazon). Text/icon badges, not brand logo images,
+         to avoid any trademark or "is this really their logo" concern.
+         Update this list if the set of marketplaces changes. -->
+    <section class="v-marketplace-strip">
+        <div class="container">
+            <p class="v-marketplace-heading">Also Available On</p>
+            <div class="v-marketplace-badges">
+                <a href="https://www.amazon.in" target="_blank" rel="noopener"><ion-icon name="bag-handle-outline"></ion-icon> Amazon</a>
+                <a href="https://www.meesho.com" target="_blank" rel="noopener"><ion-icon name="bag-handle-outline"></ion-icon> Meesho</a>
+                <a href="https://www.zeptonow.com" target="_blank" rel="noopener"><ion-icon name="bag-handle-outline"></ion-icon> Zepto</a>
+            </div>
+        </div>
+    </section>
+
     <section class="ftco-section ftco-no-pt ftco-no-pb py-5 bg-light">
         <div class="container py-4">
             <div class="row d-flex justify-content-center py-5">
@@ -912,7 +1216,7 @@ include "header.php"
     <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
     <script src="js/google-map.js"></script> -->
     <script src="js/main.js"></script>
-    <script src="assets/js/index/index.js"></script>
+    <script src="assets/js/index/index.js?v=<?php echo @filemtime(__DIR__ . "/assets/js/index/index.js"); ?>"></script>
 
 
 

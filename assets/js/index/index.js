@@ -110,7 +110,99 @@ $(document).ready(function () {
 
     product_catelog();
     category_slider();
+    loadTopRated();
 });
+
+// New, additive homepage section: "Top Rated" carousel. Uses the same real
+// product_details.rating column already shown on the product detail page -
+// no fabricated bestseller/sales-count data, and no other function or
+// container on this page is touched.
+function loadTopRated() {
+    let $container = $('#top-rated-container');
+    if (!$container.length) return;
+
+    $.ajax({
+        url: 'assets/db_query/index/index_product_query.php?action=top_rated',
+        method: 'GET',
+        dataType: 'json',
+        success: function (res) {
+            if (res.status === 'success' && res.data && res.data.length) {
+                let html = '';
+                res.data.forEach(function (product) {
+                    let image = product.image ? 'assets/uploads/' + product.image : 'images/default.jpg';
+
+                    let discount = '';
+                    if (product.dis_price && product.price) {
+                        let percent = Math.round((1 - product.dis_price / product.price) * 100);
+                        discount = `<span class="status">${percent}%</span>`;
+                    }
+
+                    let ratingValue = parseFloat(product.rating).toFixed(1);
+                    let starCount = Math.round(ratingValue);
+                    let stars = '';
+                    for (let i = 0; i < 5; i++) {
+                        stars += `<ion-icon name="${i < starCount ? 'star' : 'star-outline'}"></ion-icon>`;
+                    }
+
+                    html += `
+                    <div class="col-6 col-md-4 col-lg-3 mb-3">
+                        <div class="product">
+                            <a href="productdetail.php?product=${slugify(product.product_name)}" class="img-prod">
+                                <img class="img-fluid" src="${image}" alt="${product.product_name}">
+                                ${discount}
+                                <div class="overlay"></div>
+                            </a>
+                            <div class="text py-3 pb-4 px-3 text-center">
+                                <div class="v-top-rated-stars">${stars}<span>${ratingValue}</span></div>
+                                <h3>
+                                    <a href="productdetail.php?product=${slugify(product.product_name)}">
+                                        ${product.product_name} (${product.quantity})
+                                    </a>
+                                </h3>
+                                <div class="d-flex justify-content-center">
+                                    <div class="pricing">
+                                        <p class="price">
+                                          ${product.dis_price && product.price
+                            ? `<span class="mr-2 price-dc">&#8377;${product.price}</span>
+                                             <span class="price-sale">&#8377;${product.dis_price}</span>`
+                            : `<span>&#8377;${product.price}</span>`
+                        }
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="bottom-area d-flex px-3">
+                                    <div class="m-auto d-flex">
+                                        <a href="productdetail.php?product=${slugify(product.product_name)}"
+                                           class="add-to-cart d-flex justify-content-center align-items-center text-center"
+                                           title="View Details">
+                                            <span><ion-icon name="menu"></ion-icon></span>
+                                        </a>
+                                        <a href="#" class="buy-now btn btn-primary add-to-cart" data-id="${product.id}">
+                                            <span><ion-icon name="cart"></ion-icon></span>
+                                        </a>
+                                        <a href="#" class="heart wishlist-btn" data-product-id="${product.id}">
+                                            <span><ion-icon name="heart"></ion-icon></span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+                $container.html(html);
+                $('#top-rated-section').show();
+            } else {
+                // No rated products yet - hide the section rather than show
+                // an empty shell or fabricated placeholder cards.
+                $('#top-rated-section').hide();
+            }
+        },
+        error: function () {
+            $('#top-rated-section').hide();
+        }
+    });
+}
 
 function category_slider() {
     $.ajax({
