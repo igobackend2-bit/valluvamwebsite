@@ -17,6 +17,27 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 <html lang="en">
 
 <head>
+  <?php
+    // HOTFIX: every CSS/JS/image reference on this site is written as a
+    // relative path (e.g. "css/style.css", "assets/js/..."), which only
+    // resolved correctly because every page used to live directly at the
+    // site root. Now that productdetail.php can be reached via the new
+    // "/{category}/{slug}" pretty URL (e.g. /dryfruits/dry-strawberry),
+    // those same relative paths resolve against that extra path segment
+    // instead and 404.
+    //
+    // Fix: only on productdetail.php, pin relative-URL resolution back to
+    // the real site root with a <base> tag. Scoped to this one page only
+    // (computed here directly from the executing script, not from a
+    // page-supplied variable, so it doesn't depend on every page consistently
+    // setting one) - a global/unconditional <base> would also change how
+    // same-page anchor links ("#faq" etc.) resolve on every OTHER page
+    // (e.g. "/rice" + href="#faq" would then navigate to "/#faq" on the
+    // homepage instead of scrolling on the rice page), which we don't want.
+    if (basename($_SERVER['PHP_SELF'], '.php') === 'productdetail') {
+      echo '<base href="https://www.valluvamproducts.com/">' . "\n";
+    }
+  ?>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
