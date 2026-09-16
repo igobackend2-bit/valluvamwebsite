@@ -121,12 +121,18 @@ function category_slider() {
             if (res.status === 'success') {
                 let html = '';
                 res.data.forEach(function (cat) {
+                    // category_name already came back from this same endpoint but was never
+                    // rendered, so every card showed only an identical "Explore Category"
+                    // button with no way to tell one category from another. Adding it as a
+                    // visible label; existing markup, classes and data are unchanged.
+                    let catName = cat.category_name ? cat.category_name : '';
                     html += `
                     <div class="slide">
                         <div class="slide-content">
                             <a href="${cat.link}" target="_blank">
-                                <img src="assets/thumbnail/${cat.thumbnali}" loading="lazy" alt="Valluvam product category" />
+                                <img src="assets/thumbnail/${cat.thumbnali}" loading="lazy" alt="${catName ? catName + ' - Valluvam product category' : 'Valluvam product category'}" />
                                 <div class="button-container">
+                                    ${catName ? `<span class="slide-cat-name">${catName}</span>` : ''}
                                     <span class="button">Explore Category</span>
                                 </div>
                             </a>

@@ -577,10 +577,133 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     .slid-er .slide .slide-content {
       background-color: #eceae3;
     }
+
+    /* 8e. Category name label: category_slider() now renders the category's own
+       name (already returned by the query, previously unused) as a small caption
+       over the image, above the existing "Explore Category" button, so every card
+       is distinguishable without waiting for the photo to load or guessing from it. */
+    .slid-er .slide .slide-content {
+      position: relative;
+    }
+
+    .slide-cat-name {
+      display: block;
+      color: #fff;
+      background: rgba(20, 40, 20, 0.55);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+  </style>
+
+  <!-- ===== Announcement strip (verified claims only - see body markup) ===== -->
+  <style>
+    .v-announce-bar {
+      background-color: #1f3d1a;
+      overflow: hidden;
+    }
+
+    .v-announce-track {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 6px 28px;
+      padding: 7px 12px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .v-announce-track span {
+      color: #e7f2e2;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .4px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 767.98px) {
+      .v-announce-track {
+        gap: 4px 16px;
+      }
+
+      .v-announce-track span {
+        font-size: 10.5px;
+      }
+    }
+  </style>
+
+  <!-- ===== Shop mega-menu: visual upgrade of the existing category dropdown.
+       Same 7 links/hrefs as before (nuts/dryfruits/oils/spices/millets/rice/combo);
+       only presentation changes - a labelled icon grid instead of a plain text list. ===== -->
+  <style>
+    #ftco-navbar .dropdown-menu.v-mega-menu {
+      display: none;
+      padding: 18px;
+      border: 0;
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .18);
+    }
+
+    #ftco-navbar .dropdown-menu.v-mega-menu.show {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 6px 10px;
+    }
+
+    @media (max-width: 575.98px) {
+      #ftco-navbar .dropdown-menu.v-mega-menu.show {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    #ftco-navbar .v-mega-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      padding: 14px 8px;
+      border-radius: 8px;
+      color: #2f2f2f !important;
+      transition: background-color .15s ease, transform .15s ease;
+    }
+
+    #ftco-navbar .v-mega-item:hover {
+      background-color: #f1f7ec;
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+
+    #ftco-navbar .v-mega-item ion-icon {
+      font-size: 26px;
+      color: #82ae46;
+    }
+
+    #ftco-navbar .v-mega-item span {
+      font-size: 13px;
+      font-weight: 500;
+    }
   </style>
 </head>
 
 <body>
+  <!-- Announcement strip: only claims already made elsewhere on the site (Why Choose
+       Valluvam / Our Services on index.php) - quality checks, pan-India delivery with
+       tracking, Razorpay secure payments, and the existing wholesale/bulk offering. No
+       shipping-cost or delivery-time promise is made here since none is confirmed. -->
+  <div class="v-announce-bar">
+    <div class="v-announce-track">
+      <span>QUALITY CHECKED PRODUCTS</span>
+      <span>PAN-INDIA DELIVERY WITH TRACKING</span>
+      <span>SECURE PAYMENTS VIA RAZORPAY</span>
+      <span>BULK / WHOLESALE ORDERS AVAILABLE</span>
+    </div>
+  </div>
   <div class="py-1 bg-primary" style="background-color: green;">
     <div class="container">
       <div class="row no-gutters d-flex align-items-start align-items-center px-md-0">
@@ -616,7 +739,9 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       $currentPage = basename($_SERVER['PHP_SELF']);
 
       // allowed pages where search should be shown
-      $allowedPages = ['index.php', 'shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'productdetail.php'];
+      // rice.php was missing from this list, so the search box didn't show on the Rice
+      // category page even though the same search endpoint already supports it.
+      $allowedPages = ['index.php', 'shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'rice.php', 'productdetail.php'];
       ?>
 
       <?php if (in_array($currentPage, $allowedPages)) : ?>
@@ -637,14 +762,16 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
           <li class="nav-item"><a href="index.php" class="nav-link">Home</a></li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
-            <div class="dropdown-menu" aria-labelledby="dropdown04">
-              <a class="dropdown-item" href="nuts.php">Nuts</a>
-              <a class="dropdown-item" href="dryfruits.php">Dryfruits</a>
-              <a class="dropdown-item" href="oils.php">Oils</a>
-              <a class="dropdown-item" href="spices.php">Spices</a>
-              <a class="dropdown-item" href="millets.php">Millets</a>
-              <a class="dropdown-item" href="rice.php">Rice</a>
-              <a class="dropdown-item" href="combo.php">Combo</a>
+            <!-- Same 7 category links/hrefs as before - only the presentation changed
+                 from a plain text list to a labelled icon grid. -->
+            <div class="dropdown-menu v-mega-menu" aria-labelledby="dropdown04">
+              <a class="v-mega-item" href="dryfruits.php"><ion-icon name="nutrition-outline"></ion-icon><span>Dry Fruits</span></a>
+              <a class="v-mega-item" href="nuts.php"><ion-icon name="leaf-outline"></ion-icon><span>Nuts</span></a>
+              <a class="v-mega-item" href="spices.php"><ion-icon name="flame-outline"></ion-icon><span>Spices</span></a>
+              <a class="v-mega-item" href="oils.php"><ion-icon name="water-outline"></ion-icon><span>Oils</span></a>
+              <a class="v-mega-item" href="millets.php"><ion-icon name="flower-outline"></ion-icon><span>Millets</span></a>
+              <a class="v-mega-item" href="rice.php"><ion-icon name="restaurant-outline"></ion-icon><span>Rice</span></a>
+              <a class="v-mega-item" href="combo.php"><ion-icon name="gift-outline"></ion-icon><span>Combos</span></a>
             </div>
           </li>
 

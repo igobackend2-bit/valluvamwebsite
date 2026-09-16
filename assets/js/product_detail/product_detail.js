@@ -43,7 +43,11 @@ function loadProduct(idOrSlug, pushSlug) {
                 let hasDiscount = p.dis_price && p.price && parseFloat(p.dis_price) < parseFloat(p.price);
                 let discountPercent = hasDiscount ? Math.round((1 - p.dis_price / p.price) * 100) : 0;
                 let discountBadge = hasDiscount ? `<span class="pd-discount-badge">${discountPercent}% OFF</span>` : '';
-                let ratingBlock = p.rating ? `<div class="pd-rating">${'<ion-icon name="star"></ion-icon>'.repeat(Math.round(p.rating))}<span>${p.rating}.0</span></div>` : '';
+                // Was appending a literal ".0" to whatever rating value came back from the
+                // database, so a stored "4.5" displayed as "4.5.0". parseFloat + toFixed(1)
+                // formats any stored value (e.g. "4", "4.5") to one decimal place correctly.
+                let ratingValue = p.rating ? parseFloat(p.rating).toFixed(1) : null;
+                let ratingBlock = ratingValue ? `<div class="pd-rating">${'<ion-icon name="star"></ion-icon>'.repeat(Math.round(ratingValue))}<span>${ratingValue}</span></div>` : '';
                 let benefitsList = (p.benefits || '').split(',').map(b => b.trim()).filter(Boolean);
 
                 // Size selector: only shown when this product has sibling size variants
@@ -204,11 +208,47 @@ function loadProduct(idOrSlug, pushSlug) {
                 `;
 
                 $('#product-details-container').html(html);
+                injectProductSchema(p, hasDiscount ? p.dis_price : p.price, ratingValue);
             } else {
                 $('#product-details-container').html('<p>Product not found.</p>');
             }
         }
     });
+}
+
+// Adds/updates a schema.org Product+Offer JSON-LD block for this page so search engines
+// can show price/availability rich results. Frontend-only: reuses data already returned
+// by the existing product_detail_query.php call above, no new backend endpoint. There is
+// no real stock/inventory field in the product data yet, so availability is left as
+// "InStock" (the same assumption the page's own Add to Cart button already makes) rather
+// than invented. ratingValue is only the single stored rating field (see the ratingBlock
+// fix above) - not a real review count - so no aggregateRating is added here; that should
+// wait until a genuine review system exists.
+function injectProductSchema(p, effectivePrice, ratingValue) {
+    var existing = document.getElementById('pd-product-schema');
+    if (existing) existing.remove();
+
+    var schema = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": p.product_name,
+        "description": p.description || undefined,
+        "category": p.category || undefined,
+        "image": p.image ? (window.location.origin + '/assets/uploads/' + p.image) : undefined,
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "INR",
+            "price": effectivePrice,
+            "availability": "https://schema.org/InStock",
+            "url": window.location.href
+        }
+    };
+
+    var script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'pd-product-schema';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
 }
 
 $(document).ready(function () {

@@ -51,6 +51,52 @@ include 'header.php' ?>
     }
   </script>
 
+  <!-- Matches the visible breadcrumb (Home > Rice) already rendered below - additive only. -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.valluvamproducts.com/index.php" },
+        { "@type": "ListItem", "position": 2, "name": "Rice", "item": "https://www.valluvamproducts.com/rice.php" }
+      ]
+    }
+  </script>
+
+  <!-- Sort toolbar: scoped to this new element only, additive. -->
+  <style>
+    .v-cat-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .v-cat-sort {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .v-cat-sort label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      margin: 0;
+    }
+
+    .v-cat-sort select {
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      background: #fff;
+    }
+  </style>
+
 </head>
 
 <body class="goto-here">
@@ -84,7 +130,23 @@ include 'header.php' ?>
           </ul>
         </div>
       </div>
-      <p class="v-cat-count" id="rice-count"></p>
+      <div class="v-cat-toolbar">
+        <p class="v-cat-count" id="rice-count"></p>
+        <!-- Client-side sort over the products already fetched for this page - no new
+             endpoint or database change. Price and Newest use real columns already
+             returned by rice_query.php (price / timestamp). There is no "featured" flag
+             or sales/popularity data in product_details, so those two sort options are
+             intentionally left out here rather than faked. -->
+        <div class="v-cat-sort">
+          <label for="rice-sort">Sort by</label>
+          <select id="rice-sort">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+      </div>
       <div class="row v-cat-grid" id="products-rice">
         <!-- All rice products here -->
       </div>

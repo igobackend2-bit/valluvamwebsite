@@ -231,46 +231,45 @@
 					</a>
 				</div>
 			</div>
+			<!-- ===== Footer reorganized into Shop / Customer Support / Business / Company /
+			     Connect. Every href below already existed somewhere in this footer before -
+			     this only regroups them under clearer headings and adds the 7 category page
+			     links (already live pages, just not linked from the footer previously). ===== -->
 			<div class="row mb-5">
 				<div class="col-md">
 					<div class="ftco-footer-widget mb-4">
 						<h2 class="ftco-heading-2" style="color: #fff;">Valluvam</h2>
 						<p>"Discover purity and tradition with Valluvam – your trusted source for cold-pressed oils, premium spices, dry fruits, nuts, and wholesome millets.
 							Naturally sourced, carefully packed, and delivered fresh to your doorstep."</p>
-						<div class="footer-col">
-							<h4 style="color:#fff">follow us</h4>
-							<div class="social-links">
-								<a href="https://www.facebook.com/valluvamproducts/"><ion-icon name="logo-facebook"></ion-icon></a>
-								<a href="https://www.instagram.com/valluvamproducts/"><ion-icon name="logo-instagram"></ion-icon></a>
-							</div>
-						</div>
 					</div>
 				</div>
 				<div class="col-md" style="color:#fff">
 					<div class="ftco-footer-widget mb-4 ml-md-5" style="color:#fff">
 						<h2 class="ftco-heading-2" style="color: #fff;">Shop</h2>
 						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="index.php">Home</a></li>
-							<li><a href="shop.php">Shop</a></li>
-							<li><a href="about.php">About</a></li>
-							<li><a href="blog.php">Blog</a></li>
-							<li><a href="contact.php">Contact</a></li>
+							<li><a href="shop.php">All Products</a></li>
+							<li><a href="rice.php">Rice</a></li>
+							<li><a href="nuts.php">Nuts</a></li>
+							<li><a href="dryfruits.php">Dry Fruits</a></li>
+							<li><a href="spices.php">Spices</a></li>
+							<li><a href="oils.php">Oils</a></li>
+							<li><a href="millets.php">Millets</a></li>
+							<li><a href="combo.php">Combos</a></li>
 						</ul>
 					</div>
 				</div>
-				<div class="col-md-4" style="color:#fff">
+				<div class="col-md" style="color:#fff">
 					<div class="ftco-footer-widget mb-4" style="color:#fff">
 						<h2 class="ftco-heading-2" style="color:#fff">Customer Support</h2>
-						<div class="d-flex" style="color:#fff">
-							<ul class="list-unstyled mr-l-5 pr-l-3 mr-4" style="color:#fff">
-								<li><a href="index.php#homeFaqHeading3">Shipping Information</a></li>
-								<li><a href="return.php">Returns and Exchange</a></li>
-								<li><a href="order_tracking.php">Order Status</a></li>
-								<li><a href="index.php#homeFaqHeading5">Payment Options</a></li>
-								<li><a href="term.php">Term & Conditions</a></li>
-								<li><a href="privacy.php">Privacy Policy</a></li>
-							</ul>
-						</div>
+						<ul class="list-unstyled" style="color:#fff">
+							<li><a href="contact.php">Contact</a></li>
+							<li><a href="index.php#homeFaqHeading3">Shipping Information</a></li>
+							<li><a href="return.php">Returns and Exchange</a></li>
+							<li><a href="order_tracking.php">Order Status</a></li>
+							<li><a href="index.php#homeFaqHeading5">Payment Options</a></li>
+							<li><a href="term.php">Term & Conditions</a></li>
+							<li><a href="privacy.php">Privacy Policy</a></li>
+						</ul>
 					</div>
 				</div>
 				<div class="col-md" style="color:#fff">
@@ -284,9 +283,26 @@
 						</ul>
 					</div>
 				</div>
+				<div class="col-md" style="color:#fff">
+					<div class="ftco-footer-widget mb-4" style="color:#fff">
+						<h2 class="ftco-heading-2" style="color:#fff">Company</h2>
+						<ul class="list-unstyled" style="color:#fff">
+							<li><a href="about.php">About Valluvam</a></li>
+							<li><a href="blog.php">Blog</a></li>
+							<li><a href="contact.php">Contact</a></li>
+						</ul>
+					</div>
+				</div>
 				<div class="col-md">
 					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:#fff">Have a Questions?</h2>
+						<h2 class="ftco-heading-2" style="color:#fff">Connect</h2>
+						<div class="footer-col">
+							<div class="social-links">
+								<a href="https://www.facebook.com/valluvamproducts/" aria-label="Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
+								<a href="https://www.instagram.com/valluvamproducts/" aria-label="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+								<a href="https://api.whatsapp.com/send?phone=918925969888" aria-label="WhatsApp"><ion-icon name="logo-whatsapp"></ion-icon></a>
+							</div>
+						</div>
 						<div class="block-23 mb-3">
 							<ul style="color:#fff">
 								<li><span class="icon icon-map-marker"></span><span class="text">No 17 , Kovalan street, 2nd main road, Uthandi kanathur, Chennai 600119.
