@@ -1,11 +1,4 @@
-RewriteEngine On
-
-# Force HTTPS everywhere except local development hosts
-RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|::1)$ [NC]
-RewriteCond %{HTTPS} !=on
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# Force www everywhere except local development hosts
-RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|::1)$ [NC]
-RewriteCond %{HTTP_HOST} !^www\. [NC]
-RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# SECURITY FIX (23 Sep 2026): this folder is an old duplicate copy of the
+# whole site (including its own .env). It must never be served publicly.
+# (The previous rules here forced https/www and caused an endless redirect loop.)
+Require all denied
