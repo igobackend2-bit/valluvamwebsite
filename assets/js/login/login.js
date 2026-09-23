@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    // FIX: opened when a logged-out customer is sent from checkout / order tracking (login.php -> /?login=1)
+    if (userStatus !== 1 && new URLSearchParams(window.location.search).get('login') === '1') {
+        $('#popupForm').fadeIn();
+    }
     setTimeout(function () {
         if (userStatus !== 1 && currentPage === 'index.php' && sessionStorage.getItem('login_popup_shown') !== 'true') {
             sessionStorage.setItem('login_popup_shown', 'true');

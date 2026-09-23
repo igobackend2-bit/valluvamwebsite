@@ -7,16 +7,18 @@ $status = isset($_SESSION['status']) ? $_SESSION['status'] : 0;
 $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
 ?>
-<script>
-  const userStatus = <?php echo $status; ?>;
-  const currentPage = "<?php echo basename($_SERVER['PHP_SELF']); ?>";
-</script>
+
 
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+  <!-- FIX: moved here from above <!DOCTYPE html> (it forced browsers into quirks mode) -->
+  <script>
+  const userStatus = <?php echo $status; ?>;
+  const currentPage = "<?php echo basename($_SERVER['PHP_SELF']); ?>";
+</script>
   <?php
     // HOTFIX: every CSS/JS/image reference on this site is written as a
     // relative path (e.g. "css/style.css", "assets/js/..."), which only
@@ -35,10 +37,12 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     // (e.g. "/rice" + href="#faq" would then navigate to "/#faq" on the
     // homepage instead of scrolling on the rice page), which we don't want.
     if (basename($_SERVER['PHP_SELF'], '.php') === 'productdetail') {
-      echo '<base href="https://www.valluvamproducts.com/">' . "\n";
+      echo '<base href="/">' . "\n";
     }
   ?>
   <meta charset="utf-8">
+  <!-- FIX: the #ftco-loader div sits at the END of every page, so it covered the already-painted page with a white screen (white flash on every click). -->
+  <style>#ftco-loader{display:none !important;}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
@@ -944,7 +948,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   </div>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="assets/js/utils/swal-helper.js"></script>
-  <script src="assets/js/login/login.js?v=20260911"></script>
+  <script src="assets/js/login/login.js?v=20260923"></script>
   <script src="assets/js/header/header.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -968,8 +972,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   </script>
 
   <!-- Removed duplicate jQuery 3.2.1.slim - using jQuery 3.6.0 from above -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <!-- FIX: removed duplicate CDN popper.js + bootstrap 4.0 here; every page already loads js/popper.min.js + js/bootstrap.min.js. Two Bootstrap copies made menus/dropdowns toggle twice (open then close = flashing). -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>

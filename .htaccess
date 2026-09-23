@@ -13,6 +13,36 @@ RewriteEngine On
 # redirects forever (ERR_TOO_MANY_REDIRECTS) now that .htaccess is actually
 # being read.
 
+# ---- SECURITY FIX (23 Sep 2026): block files that must never be public ----
+# These were all downloadable from the live site (including .env with the
+# DB / Razorpay / SMTP secrets and the whole .git folder). Returns 404.
+# Placed before the clean-URL rules so nothing below can re-expose them.
+
+# Any path segment starting with "." (.env, .git/, .htaccess, .DS_Store,
+# .gitignore ...) except /.well-known/ (used for SSL certificate checks)
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [R=404,L]
+
+# Source / build / backup / dump files
+RewriteRule \.(md|sql|zip|rar|bat|sh|lock|log|config|ini|bak|env)$ - [R=404,L,NC]
+RewriteRule (^|/)(Dockerfile|composer\.json|composer\.lock|dom-dump\.html)$ - [R=404,L,NC]
+
+# .txt files (contact-form submissions are saved as .txt under assets/)
+# except the two public ones
+RewriteCond %{REQUEST_URI} !^/(robots|llms)\.txt$ [NC]
+RewriteRule \.txt$ - [R=404,L,NC]
+
+# Composer packages, the duplicate site copy, and duplicate nested folders
+RewriteRule ^(vendor|valluvam)(/|$) - [R=404,L,NC]
+RewriteRule ^assets/(assets|db_query/db_query|js/js)(/|$) - [R=404,L,NC]
+
+# Never execute scripts from the upload folder
+RewriteRule ^assets/uploads/.*\.(php\d?|phtml|phar|pl|py|cgi)$ - [R=404,L,NC]
+
+# Unprotected dev / one-time / test scripts and unused leftover pages
+RewriteRule ^(save|fetch|add_db|add_product|add_dashboard|fix_rice_category|milets|product)(\.php)?$ - [R=404,L,NC]
+RewriteRule ^assets/db_query/cleanup_invalid_users\.php$ - [R=404,L,NC]
+
 # ---- Clean URLs: hide the .php extension (top-level pages only) ----
 # Only single-segment pages like shop.php / rice.php / about.php get the
 # clean-URL treatment. Anything with a "/" in the path (assets/db_query/...,

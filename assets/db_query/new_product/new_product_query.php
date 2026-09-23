@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
 
@@ -8,6 +8,17 @@ require_once __DIR__ . '/../config.php'; // your PDO connection file
 
 
 $action = $_GET['action'];
+
+// SECURITY FIX: adding/editing/deleting products used to work for anyone
+// on the internet (no login check). Now requires the admin panel login.
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (in_array($action, ['add_product', 'delete_products'], true)
+    && (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true)) {
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized - please log in to the admin panel']);
+    exit;
+}
 
 if ($action == 'add_product') {
 
@@ -33,6 +44,13 @@ if ($action == 'add_product') {
 
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
+            }
+
+            // SECURITY FIX: only allow real image files (a .php upload could run code on the server)
+            $allowedExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowedExt, true) || @getimagesize($_FILES['image']['tmp_name']) === false) {
+                throw new Exception("Only JPG, PNG, WEBP or GIF images are allowed");
             }
 
             // Only file name (for database storage)
