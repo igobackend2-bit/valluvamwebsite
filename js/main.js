@@ -137,24 +137,34 @@ AOS.init({
 	};
 	carousel();
 
-	$('nav .dropdown').hover(function () {
-		var $this = $(this);
-		// 	 timer;
-		// clearTimeout(timer);
-		$this.addClass('show');
-		$this.find('> a').attr('aria-expanded', true);
-		// $this.find('.dropdown-menu').addClass('animated-fast fadeInUp show');
-		$this.find('.dropdown-menu').addClass('show');
-	}, function () {
-		var $this = $(this);
-		// timer;
-		// timer = setTimeout(function(){
-		$this.removeClass('show');
-		$this.find('> a').attr('aria-expanded', false);
-		// $this.find('.dropdown-menu').removeClass('animated-fast fadeInUp show');
-		$this.find('.dropdown-menu').removeClass('show');
-		// }, 100);
-	});
+	// Mobile fix: this hover-open/hover-close behavior only fires on devices with a
+	// real mouse. On touch devices there is no hover, so the Shop dropdown could
+	// never be opened by tapping it (bootstrap's own data-toggle="dropdown" click
+	// handler is also on this link, and pairing it with a hover handler is what
+	// caused open-then-instant-close "flashing" on tap). Restricting this hover
+	// behavior to hover-capable pointers leaves tap/click on touch devices to
+	// bootstrap's built-in dropdown toggle, which already works with the existing
+	// ".show" CSS below - no other code needed to change.
+	if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+		$('nav .dropdown').hover(function () {
+			var $this = $(this);
+			// 	 timer;
+			// clearTimeout(timer);
+			$this.addClass('show');
+			$this.find('> a').attr('aria-expanded', true);
+			// $this.find('.dropdown-menu').addClass('animated-fast fadeInUp show');
+			$this.find('.dropdown-menu').addClass('show');
+		}, function () {
+			var $this = $(this);
+			// timer;
+			// timer = setTimeout(function(){
+			$this.removeClass('show');
+			$this.find('> a').attr('aria-expanded', false);
+			// $this.find('.dropdown-menu').removeClass('animated-fast fadeInUp show');
+			$this.find('.dropdown-menu').removeClass('show');
+			// }, 100);
+		});
+	}
 
 
 	$('#dropdown04').on('show.bs.dropdown', function () {
