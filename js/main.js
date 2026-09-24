@@ -176,20 +176,29 @@ AOS.init({
 
 	// scroll
 	var scrollWindow = function () {
+		var navSpacer = $();
 		$(window).scroll(function () {
 			var $w = $(this),
 				st = $w.scrollTop(),
 				navbar = $('.ftco_navbar'),
 				sd = $('.js-scroll-wrap');
 
+			// The navbar leaves normal flow (position: fixed) while `.scrolled`.
+			// Hold its space with a placeholder, otherwise the page height
+			// changes at the 150px threshold and the content jumps up/down.
 			if (st > 150) {
 				if (!navbar.hasClass('scrolled')) {
+					if (!navSpacer.length) {
+						navSpacer = $('<div id="navbar-spacer" aria-hidden="true"></div>').insertAfter(navbar);
+					}
+					navSpacer.css('height', navbar.outerHeight());
 					navbar.addClass('scrolled');
 				}
 			}
 			if (st < 150) {
 				if (navbar.hasClass('scrolled')) {
 					navbar.removeClass('scrolled sleep');
+					navSpacer.css('height', 0);
 				}
 			}
 			if (st > 350) {

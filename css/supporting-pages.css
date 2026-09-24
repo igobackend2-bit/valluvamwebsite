@@ -308,6 +308,13 @@
     color: var(--v-sp-green);
 }
 
+/* Phone card lists several numbers - one per line, easy to tap. */
+.v-info-card a[href^="tel:"] {
+    display: block;
+    line-height: 1.8;
+    white-space: nowrap;
+}
+
 /* -------------------------------------------------------------------- */
 /* Contact form polish (existing #contactForm markup/fields untouched)  */
 /* -------------------------------------------------------------------- */

@@ -410,7 +410,7 @@ include "header.php" ?>
                     <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>B2B / Wholesale</span></p>
                     <h1 class="wholesale-hero-title">Wholesale &amp; Institutional Supply of Premium Nuts, Dry Fruits, Oils, Spices &amp; Millets</h1>
                     <p class="wholesale-hero-sub">Stock a product customers trust – clean, consistent, and crafted for taste, health, and repeat purchase.</p>
-                    <a href="https://api.whatsapp.com/send?phone=918925969888&text=Hi%2C%20I%20would%20like%20to%20request%20the%20Valluvam%20wholesale%20price%20list." target="_blank" class="btn-b2b btn-b2b-primary">Request Price List</a>
+                    <a href="https://api.whatsapp.com/send?phone=918925878327&text=Hi%2C%20I%20would%20like%20to%20request%20the%20Valluvam%20wholesale%20price%20list." target="_blank" class="btn-b2b btn-b2b-primary">Request Price List</a>
                 </div>
             </div>
         </div>
@@ -672,7 +672,7 @@ include "header.php" ?>
                             <li><ion-icon name="checkmark-circle"></ion-icon> Batch &amp; manufacturing details on label</li>
                             <li><ion-icon name="checkmark-circle"></ion-icon> Shipping cartons branding (optional)</li>
                         </ul>
-                        <a href="https://api.whatsapp.com/send?phone=918925969888&text=Hi%2C%20I%20am%20interested%20in%20Valluvam%27s%20Private%20Label%20program." target="_blank" class="btn-b2b btn-b2b-primary mt-2">Start Private Label Inquiry</a>
+                        <a href="https://api.whatsapp.com/send?phone=918925878327&text=Hi%2C%20I%20am%20interested%20in%20Valluvam%27s%20Private%20Label%20program." target="_blank" class="btn-b2b btn-b2b-primary mt-2">Start Private Label Inquiry</a>
                     </div>
                     <div class="col-lg-5 d-none d-lg-block text-center">
                         <img src="images/private-label-oils.jpeg" alt="Valluvam Private Label Oils" class="private-label-img" loading="lazy">
@@ -870,8 +870,8 @@ include "header.php" ?>
         <div class="container">
             <h2>Let's Grow Together</h2>
             <p>Whether you are a retailer, restaurant, or distributor – we will help you build a strong nuts, dry fruits, oils, spices &amp; millets category with consistent quality and attractive margins.</p>
-            <a href="https://api.whatsapp.com/send?phone=918925969888&text=Hi%2C%20I%20would%20like%20to%20request%20the%20Valluvam%20wholesale%20price%20list." target="_blank" class="btn-b2b btn-b2b-primary">Request Price List</a>
-            <a href="https://api.whatsapp.com/send?phone=918925969888&text=Hi%2C%20I%20would%20like%20to%20talk%20about%20Valluvam%20wholesale." target="_blank" class="btn-b2b btn-b2b-outline">Talk On WhatsApp</a>
+            <a href="https://api.whatsapp.com/send?phone=918925878327&text=Hi%2C%20I%20would%20like%20to%20request%20the%20Valluvam%20wholesale%20price%20list." target="_blank" class="btn-b2b btn-b2b-primary">Request Price List</a>
+            <a href="https://api.whatsapp.com/send?phone=918925878327&text=Hi%2C%20I%20would%20like%20to%20talk%20about%20Valluvam%20wholesale." target="_blank" class="btn-b2b btn-b2b-outline">Talk On WhatsApp</a>
         </div>
     </section>
 

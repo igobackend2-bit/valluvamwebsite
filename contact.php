@@ -82,7 +82,11 @@ include "header.php" ?>
                     <div class="v-info-card w-100">
                         <ion-icon name="call-outline"></ion-icon>
                         <span class="v-info-label">Phone</span>
-                        <a href="tel://8925969888">+91-8925969888</a>
+                        <a href="tel:+918925969888">+91 89259 69888</a>
+                        <a href="tel:+918925878327">+91 89258 78327</a>
+                        <a href="tel:+918925833758">+91 89258 33758</a>
+                        <a href="tel:+918925958926">+91 89259 58926</a>
+                        <a href="tel:+918925978983">+91 89259 78983</a>
                     </div>
                 </div>
                 <div class="col-md-3 d-flex">
