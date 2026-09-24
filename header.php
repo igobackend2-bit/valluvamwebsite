@@ -257,6 +257,92 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       }
     }
 
+    /* 4b. Page banner (bg-main.jpg, used by Shop + every category page).
+       The photo is 2:1 with the products in its middle band, but the banner
+       is ~4.5:1, so `cover` sliced the bottle tops off and dropped the
+       white page title straight onto the busy product shot, where it
+       disappeared. Now: title on the photo's own flat green on the left,
+       the whole photo (uncropped) on the right. #467d06 is sampled from
+       the photo's edge so the two halves read as one surface. */
+    .hero-wrap.hero-bread[style*="bg-main.jpg"] {
+      background-color: #467d06;
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      background-position: right 3vw center;
+      padding: 0;
+    }
+
+    .hero-wrap.hero-bread[style*="bg-main.jpg"] .slider-text {
+      min-height: 340px;
+      justify-content: flex-start !important;
+    }
+
+    .hero-wrap.hero-bread[style*="bg-main.jpg"] .slider-text > [class*="col-"] {
+      flex: 0 0 42%;
+      max-width: 42%;
+      text-align: left !important;
+      padding: 48px 0;
+    }
+
+    .hero-wrap.hero-bread[style*="bg-main.jpg"] .breadcrumbs {
+      text-align: inherit;
+      margin: 0 0 6px;
+      padding: 0;
+    }
+
+    .hero-wrap.hero-bread[style*="bg-main.jpg"] .breadcrumbs a,
+    .hero-wrap.hero-bread[style*="bg-main.jpg"] .breadcrumbs span {
+      color: rgba(255, 255, 255, .85);
+    }
+
+    @media (max-width: 991.98px) {
+      /* Stack: title on flat green on top, full photo below it. */
+      .hero-wrap.hero-bread[style*="bg-main.jpg"] {
+        background-size: 100% auto;
+        background-position: center bottom;
+        padding-bottom: 50vw; /* photo is 2:1 */
+      }
+
+      .hero-wrap.hero-bread[style*="bg-main.jpg"] .slider-text {
+        min-height: 0;
+        justify-content: center !important;
+      }
+
+      .hero-wrap.hero-bread[style*="bg-main.jpg"] .slider-text > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+        text-align: center !important;
+        padding: 36px 15px 8px;
+      }
+    }
+
+    /* 4c. Category pills (shared category_pills.php, 14 items): on phones
+       they wrapped into 4-5 rows and pushed products below the fold. One
+       swipeable row instead; the fade on the right hints there is more. */
+    @media (max-width: 767.98px) {
+      body ul.product-category {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding: 6px 24px 6px 4px;
+        margin-left: -15px;
+        margin-right: -15px;
+        -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent);
+        mask-image: linear-gradient(90deg, #000 85%, transparent);
+      }
+
+      body ul.product-category::-webkit-scrollbar {
+        display: none;
+      }
+
+      body ul.product-category li {
+        flex: 0 0 auto;
+        margin: 0 4px;
+      }
+    }
+
     /* 5. Symmetrical vertical rhythm (was 115px top / 120px bottom). */
     .section-services {
       padding-top: 115px;
@@ -548,13 +634,91 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       white-space: nowrap;
     }
 
+    /* Phones: the four claims wrapped to four lines (~100px) above the
+       logo. Show one line at a time, cross-fading through all four. */
     @media (max-width: 767.98px) {
       .v-announce-track {
-        gap: 4px 16px;
+        position: relative;
+        display: block;
+        height: 28px;
+        padding: 0;
       }
 
       .v-announce-track span {
-        font-size: 10.5px;
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        opacity: 0;
+        animation: v-announce-cycle 14s infinite;
+      }
+
+      .v-announce-track span:nth-child(2) { animation-delay: 3.5s; }
+      .v-announce-track span:nth-child(3) { animation-delay: 7s; }
+      .v-announce-track span:nth-child(4) { animation-delay: 10.5s; }
+
+      @keyframes v-announce-cycle {
+        0% { opacity: 0; transform: translateY(4px); }
+        4%, 22% { opacity: 1; transform: none; }
+        26%, 100% { opacity: 0; transform: translateY(-4px); }
+      }
+    }
+
+    @media (max-width: 767.98px) and (prefers-reduced-motion: reduce) {
+      .v-announce-track span { animation: none; }
+      .v-announce-track span:first-child { opacity: 1; }
+    }
+
+    /* Contact strip + navbar on phones: was 68px + 202px of chrome. */
+    .topper a.text,
+    .topper a.text:hover {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    @media (max-width: 767.98px) {
+      .py-1.bg-primary .row.d-flex {
+        flex-wrap: nowrap;
+        justify-content: space-between;
+      }
+
+      .py-1.bg-primary .topper {
+        flex: 0 1 auto;
+        padding-right: 0 !important;
+        min-width: 0;
+      }
+
+      .py-1.bg-primary .topper .text {
+        font-size: 11px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #ftco-navbar .navbar-brand img {
+        max-height: 52px !important;
+        width: auto;
+      }
+
+      #ftco-navbar {
+        padding-top: 8px;
+        padding-bottom: 8px;
+      }
+
+      #ftco-navbar #searchForm {
+        width: 100%;
+        margin: 8px 0 0;
+      }
+
+      #ftco-navbar .search {
+        margin-top: 0;
+      }
+
+      #ftco-navbar .search-input {
+        font-size: 15px;
+        height: 42px;
       }
     }
   </style>
@@ -577,10 +741,31 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       gap: 6px 10px;
     }
 
+    /* 13 categories + "All Products" = 14 tiles: 7x2 on desktop so no tile
+       sits alone on a row. Fixed width + negative margin centres the panel
+       under "Shop" without using transform (motion-system.css animates it). */
+    @media (min-width: 1200px) {
+      #ftco-navbar .dropdown-menu.v-mega-menu.show {
+        grid-template-columns: repeat(7, 118px);
+        width: 922px;
+        left: 50%;
+        margin-left: -461px;
+      }
+    }
+
     @media (max-width: 575.98px) {
       #ftco-navbar .dropdown-menu.v-mega-menu.show {
         grid-template-columns: repeat(2, 1fr);
       }
+    }
+
+    #ftco-navbar .v-mega-item.v-mega-all {
+      background-color: #f1f7ec;
+    }
+
+    #ftco-navbar .v-mega-item.v-mega-all span {
+      font-weight: 600;
+      color: #1c5034;
     }
 
     #ftco-navbar .v-mega-item {
@@ -637,11 +822,11 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
           <div class="row d-flex">
             <div class="col-md pr-4 d-flex topper align-items-center">
               <div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-phone2"></span></div>
-              <span class="text">+918925969888</span>
+              <a class="text" href="tel:+918925969888">+91 89259 69888</a>
             </div>
-            <div class="col-md pr-4 d-flex topper align-item  s-center">
+            <div class="col-md pr-4 d-flex topper align-items-center">
               <div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
-              <span class="text">info.thefarmersfactory@gmail.com</span>
+              <a class="text" href="mailto:info.thefarmersfactory@gmail.com">info.thefarmersfactory@gmail.com</a>
             </div>
 
           </div>
@@ -703,7 +888,8 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
               <a class="v-mega-item" href="dal.php"><ion-icon name="basket-outline"></ion-icon><span>Dal</span></a>
               <a class="v-mega-item" href="honey.php"><ion-icon name="sunny-outline"></ion-icon><span>Honey</span></a>
               <a class="v-mega-item" href="ghee.php"><ion-icon name="flask-outline"></ion-icon><span>Ghee</span></a>
-              <a class="v-mega-item" href="pulses.php"><ion-icon name="ellipse-outline"></ion-icon><span>Pulses</span></a>
+              <a class="v-mega-item" href="pulses.php"><ion-icon name="apps-outline"></ion-icon><span>Pulses</span></a>
+              <a class="v-mega-item v-mega-all" href="shop.php"><ion-icon name="storefront-outline"></ion-icon><span>All Products</span></a>
             </div>
           </li>
 

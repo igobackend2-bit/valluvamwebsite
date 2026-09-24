@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/includes/check_admin.php';
-require_once __DIR__ . '/includes/sidebar.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +15,7 @@ require_once __DIR__ . '/includes/sidebar.php';
 <body>
     <a class="adm-skip-link" href="#adm-main-content">Skip to content</a>
     <div class="adm-shell">
-        <?php /* nav rendered by includes/sidebar.php above */ ?>
+        <?php require __DIR__ . '/includes/sidebar.php'; ?>
 
         <main class="adm-main" id="adm-main-content">
             <div class="adm-topbar">

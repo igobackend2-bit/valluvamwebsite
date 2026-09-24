@@ -14,7 +14,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </div>
     </div>
     <ul class="adm-nav">
-        <li><a href="index.php" class="<?= $current_page === 'index.php' ? 'active' : '' ?>"><i class="fas fa-grid-2"></i> Dashboard</a></li>
+        <li><a href="index.php" class="<?= $current_page === 'index.php' ? 'active' : '' ?>"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
         <li><a href="orders.php" class="<?= $current_page === 'orders.php' ? 'active' : '' ?>"><i class="fas fa-receipt"></i> Orders</a></li>
         <li><a href="products.php" class="<?= $current_page === 'products.php' ? 'active' : '' ?>"><i class="fas fa-box-open"></i> Products</a></li>
         <li class="adm-nav-divider"></li>

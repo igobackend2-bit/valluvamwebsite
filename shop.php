@@ -69,19 +69,10 @@ include "header.php" ?>
 		<div class="container">
 			<div class="row justify-content-center">
 				<div class="col-md-10 mb-5 text-center">
-					<ul class="product-category">
-						<li><a href="shop.php" class="active">All</a></li>
-						<li><a href="dryfruits.php">Dryfruits</a></li>
-						<li><a href="nuts.php">Nuts</a></li>
-						<li><a href="spices.php">Spices</a></li>
-						<li><a href="oils.php">Oils</a></li>
-						<li><a href="millets.php">Millets</a></li>
-						<li><a href="rice.php">Rice</a></li>
-
-					</ul>
+					<?php include __DIR__ . '/category_pills.php'; ?>
 				</div>
 			</div>
-			<section class="ftco-section" style="align-items:flex-start;">
+			<section class="v-shop-results"><!-- was a nested .ftco-section: doubled the padding and left a large empty gap under the category pills -->
 				<div class="container">
 					<div class="row mb-5" id="product-shop">
 						<div class="col-md-6 col-lg-3 mb-5">

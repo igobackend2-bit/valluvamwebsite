@@ -265,6 +265,12 @@ include "header.php"
             flex: 1 1 56%;
             position: relative;
             min-height: 560px;
+            /* A flex item's default min-width:auto lets it grow to Owl's
+               stage width (slides x N). Owl then re-measures that inflated
+               width on resize and each slide becomes thousands of px wide,
+               pushing the photo off-screen - the "blank green hero". */
+            min-width: 0;
+            overflow: hidden;
         }
 
         .v-hero-visual::before {
@@ -682,7 +688,7 @@ include "header.php"
     <!-- Phase 1 homepage redesign: presentation only, additive stylesheet.
          Linked here only, so it affects this page alone — header.php and
          footer.php render unchanged on every other page. -->
-    <link rel="stylesheet" href="css/home-redesign.css">
+    <link rel="stylesheet" href="css/home-redesign.css?v=20260924c">
 
     <!-- Valluvam Products Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">

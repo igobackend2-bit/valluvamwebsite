@@ -521,3 +521,66 @@
 #faq {
     overflow-x: hidden;
 }
+
+/* ---------- Product card consistency (Featured + Top Rated) ----------
+   1. Photos are a mix of wide rice-pack shots (3:2) and tall jars; `cover`
+      in a square cropped the pack names off. `contain` on a light frame
+      shows the whole product and keeps every card the same height.
+   2. style.css hides .pricing on hover and fades an absolutely-positioned
+      button row over it - the price vanishes exactly when a shopper is
+      deciding, and on touch screens the buttons never appear at all.
+      Keep both visible, stacked. */
+#product-container .img-prod,
+#top-rated-container .img-prod {
+    display: block;
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #fbfaf6;
+}
+
+#product-container .img-prod img,
+#top-rated-container .img-prod img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+}
+
+#top-rated-container .product {
+    background: #fff;
+    border-radius: var(--v-radius);
+    overflow: hidden;
+    box-shadow: var(--v-shadow);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+    height: 100%;
+}
+
+#top-rated-container .product:hover {
+    box-shadow: var(--v-shadow-hover);
+    transform: translateY(-4px);
+}
+
+#product-container .product .text,
+#top-rated-container .product .text {
+    display: flex;
+    flex-direction: column;
+}
+
+#product-container .product .text h3,
+#top-rated-container .product .text h3 {
+    min-height: 2.8em; /* two lines, so prices line up across a row */
+}
+
+#product-container .product:hover .pricing,
+#top-rated-container .product:hover .pricing {
+    opacity: 1;
+}
+
+#product-container .product .text .bottom-area,
+#top-rated-container .product .text .bottom-area {
+    position: static;
+    opacity: 1;
+    justify-content: center;
+    margin-top: 10px;
+}

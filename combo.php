@@ -66,20 +66,11 @@ include 'header.php' ?>
 			</div>
 		</div>
 	</div>
-	<section class="ftco-section" style="align-items:flex-start;">
+	<section class="v-shop-results"><!-- was a nested .ftco-section: doubled the padding and left a large empty gap under the category pills -->
 		<div class="container">
 			<div class="row justify-content-center">
 				<div class="col-md-10 mb-5 text-center">
-					<ul class="product-category">
-						<li><a href="shop.php">All</a></li>
-						<li><a href="dryfruits.php">Dryfruits</a></li>
-						<li><a href="nuts.php">Nuts</a></li>
-						<li><a href="spices.php">Spices</a></li>
-						<li><a href="oils.php">Oils</a></li>
-						<li><a href="millets.php">Millets</a></li>
-						<li><a href="rice.php">Rice</a></li>
-						<li><a href="combo.php" class="active">Combo</a></li>
-					</ul>
+					<?php include __DIR__ . '/category_pills.php'; ?>
 				</div>
 			</div>
 			<p class="v-cat-count" id="combo-count"></p>
