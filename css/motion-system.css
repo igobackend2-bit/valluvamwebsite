@@ -1,0 +1,168 @@
+/* ===== Motion system — site-wide smoothness layer =====
+   Loaded once in header.php, after every other stylesheet, so it can
+   refine (never fight) the existing redesign files (home/shop/category/
+   footer/product-detail/supporting-pages). Purely additive: no selector
+   here removes anything, it only upgrades easing, adds tactile feedback,
+   and smooths the scroll-reveal system that already runs via
+   .ftco-animate + waypoints + animate.css. Every rule is skipped for
+   prefers-reduced-motion so the page stays fully usable either way. */
+
+:root {
+  --v-ease: cubic-bezier(.16, 1, .3, 1);
+  --v-ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --v-dur-fast: .18s;
+  --v-dur: .32s;
+  --v-dur-slow: .6s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* ---- Smoother scroll-reveal: the site already adds
+     fadeIn/fadeInUp/fadeInLeft/fadeInRight (animate.css) to
+     .ftco-animate on scroll via js/main.js. animate.css's own timing is
+     a flat ease; this swaps in a slower, spring-flavoured curve so
+     content settles instead of just appearing. */
+  .ftco-animate.fadeInUp.ftco-animated,
+  .ftco-animate.fadeIn.ftco-animated,
+  .ftco-animate.fadeInLeft.ftco-animated,
+  .ftco-animate.fadeInRight.ftco-animated {
+    animation-duration: .85s;
+    animation-timing-function: var(--v-ease);
+  }
+
+  /* ---- Tactile feedback: every primary action gets a physical-feeling
+     press instead of just a colour swap. Scoped to buttons/CTAs already
+     used across shop, category, cart, checkout, product-detail and
+     forms sitewide. */
+  .btn,
+  button[type="submit"],
+  input[type="submit"],
+  .v-cat-grid .bottom-area a,
+  .v-shop-grid .bottom-area a,
+  a.add-to-cart,
+  a.buy,
+  a.product-detail-btn,
+  .wishlist-btn,
+  .quantity-selector button,
+  #ftco-navbar .v-mega-item,
+  .v-cat-related-links a,
+  ul.product-category li a {
+    transition: transform var(--v-dur-fast) var(--v-ease),
+      box-shadow var(--v-dur) var(--v-ease),
+      background-color var(--v-dur) var(--v-ease),
+      border-color var(--v-dur) var(--v-ease),
+      color var(--v-dur) var(--v-ease);
+  }
+
+  .btn:active,
+  button[type="submit"]:active,
+  input[type="submit"]:active,
+  .v-cat-grid .bottom-area a:active,
+  .v-shop-grid .bottom-area a:active,
+  a.add-to-cart:active,
+  a.buy:active,
+  .wishlist-btn:active {
+    transform: scale(.96);
+  }
+
+  /* ---- Product / card lift: upgrade the existing translateY hovers
+     (home, shop, category cards) to the same smooth curve so every
+     card in the site settles with the same feel. */
+  .v-cat-grid .product,
+  .v-shop-grid .product,
+  .home-cat-card,
+  .home-product-card,
+  .slid-er .slide .slide-content {
+    transition: transform var(--v-dur-slow) var(--v-ease),
+      box-shadow var(--v-dur-slow) var(--v-ease),
+      border-color var(--v-dur) var(--v-ease);
+  }
+
+  .v-cat-grid .img-prod img,
+  .v-shop-grid .img-prod img {
+    transition: transform var(--v-dur-slow) var(--v-ease);
+  }
+
+  /* ---- Navbar: soften the scrolled-state snap (was a flat .3s
+     ease-out) and give the fixed bar a touch of depth tinted to the
+     brand green rather than a generic black shadow. */
+  .ftco-navbar-light.scrolled.awake,
+  .ftco-navbar-light.scrolled.sleep {
+    transition: margin-top .45s var(--v-ease), box-shadow .45s var(--v-ease),
+      background-color .45s var(--v-ease);
+  }
+
+  .ftco-navbar-light.scrolled {
+    box-shadow: 0 8px 28px rgba(18, 54, 38, .12);
+    background: rgba(255, 255, 255, .88) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+  }
+
+  /* ---- Scroll-reveal for dynamically-rendered product grids (shop,
+     category pages, home category strip). These cards are injected by
+     JS/AJAX after page load, so the existing .ftco-animate/waypoints
+     system never touches them - js/motion-system.js adds and removes
+     the class below as each card enters view. */
+  .v-reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity var(--v-dur-slow) var(--v-ease), transform var(--v-dur-slow) var(--v-ease);
+  }
+
+  .v-reveal.v-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #ftco-navbar .dropdown-menu.v-mega-menu {
+    transition: opacity var(--v-dur) var(--v-ease), transform var(--v-dur) var(--v-ease);
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  #ftco-navbar .dropdown-menu.v-mega-menu.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- Mobile nav collapse: swap Bootstrap's instant show/hide for a
+     smooth height+fade. */
+  #ftco-nav.collapsing {
+    transition: height var(--v-dur-slow) var(--v-ease);
+  }
+
+  /* ---- Auth modal: smoother open than a flat display toggle. */
+  .form-modal[style*="display: flex"] .auth-modal,
+  .form-modal.is-open .auth-modal {
+    animation: v-modal-in .45s var(--v-ease);
+  }
+
+  @keyframes v-modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* Respect the OS-level reduced-motion preference: strip every addition
+   above back to instant state changes, on top of the site's own base
+   styles (which already work without animation). */
+@media (prefers-reduced-motion: reduce) {
+
+  .ftco-animate.fadeInUp.ftco-animated,
+  .ftco-animate.fadeIn.ftco-animated,
+  .ftco-animate.fadeInLeft.ftco-animated,
+  .ftco-animate.fadeInRight.ftco-animated {
+    animation: none !important;
+  }
+}

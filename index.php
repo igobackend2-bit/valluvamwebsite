@@ -121,91 +121,251 @@ include "header.php"
         }
     </style> -->
     <style>
-        /* ===== MOBILE HERO VIEW CHANGE ONLY =====
-           Re-scoped for the new hero copy/CTAs added below. The banner used
-           to carry no text on mobile (everything was commented out), so this
-           block dropped the overlay and shrank the slide to a short,
-           image-only strip. Now that the hero has a heading, sub-copy and
-           two buttons again, that same treatment would sit white-on-bright-
-           photo with no contrast and clip the content. Height/overlay are
-           restored close to the desktop treatment so the text stays legible
-           and doesn't overlap the artwork; nothing outside #home-section is
-           touched.
-
-           The hero-1/2/3.jpg photos have their headline text baked into the
-           image itself (1672x941, ~16:9). A fixed height here forces a
-           taller/narrower box than that, so `background-size: cover` had to
-           crop the sides to fill it - cutting off the baked-in text on
-           every phone width. Sizing the slide to the photos' own aspect
-           ratio lets `cover` scale instead of crop, so the full photo (and
-           its text) stays visible. Applied below 768px, matching the
-           breakpoint the rest of this slider already uses. */
-        @media (max-width: 767.98px) {
-
-            #home-section {
-                height: auto;
-            }
-
-            #home-section .slider-item {
-                aspect-ratio: 1672 / 941;
-                height: auto;
-                min-height: auto;
-                background-size: cover;
-                background-position: center center;
-                background-repeat: no-repeat;
-                background-color: #000;
-            }
-
-            /* Keep a soft overlay so white text stays readable on any photo */
-            #home-section .overlay {
-                background: rgba(0, 0, 0, 0.35);
-            }
-
-            .home-slider .slider-text {
-                min-height: 0;
-                padding: 0 10px;
-            }
-
-            .home-slider .owl-stage,
-            .home-slider .owl-item {
-                height: auto !important;
-            }
-        }
-    </style>
-    <!-- ===== Homepage refinement (index.php only) =====
-         Additive styles for the new/expanded homepage sections below:
-         hero CTAs, the "Shop by Category" and "Featured Products" headings,
-         the "Why Choose Valluvam" trust grid, the brand-story panel, the
-         B2B teaser and the FAQ accordion. Nothing here touches selectors
-         used on other pages. -->
-    <style>
-        /* Hero CTAs - .btn/.btn-primary are already site buttons; this just
-           gives the pair breathing room under the heading. */
-        .home-slider .hero-cta {
-            margin-top: 10px;
+        /* ===== Hero: split-screen redesign =====
+           Replaces the old centered-text-over-dark-photo carousel. The
+           hero-1/2/3.jpg photos carry their own baked-in headline text on
+           the left ~48% of the frame (1672x941) and product photography on
+           the right - which meant real, accessible, editable copy was
+           impossible without touching the JPGs. This keeps the same three
+           photos and the same Owl Carousel JS/init (js/main.js targets
+           `.home-slider` unchanged), but only shows their right-hand
+           (product) portion as a visual panel, and puts real HTML copy in
+           a solid content panel beside it - so headline/CTAs are selectable,
+           screen-reader-visible and editable without touching an image. */
+        #home-section {
+            /* Owl's fade transition changes layout at the very top of the
+               page each autoplay tick; scroll anchoring "corrects" for that
+               even far below the hero, which reads as random scroll jumps. */
+            overflow-anchor: none;
         }
 
-        .home-slider .hero-cta .btn {
-            margin: 6px 8px;
+        .v-hero {
+            display: flex;
+            align-items: stretch;
+            min-height: 560px;
+            background: linear-gradient(155deg, #123626 0%, #1c5034 65%, #21603d 100%);
+            overflow: hidden;
         }
 
-        .home-slider .slider-text .subheading {
-            letter-spacing: 3px;
-        }
-
-        /* .btn-outline-primary is green-on-transparent by default (see
-           css/style.css), which is too low-contrast sitting directly on a
-           photo. In the hero only, swap it to a white outline so it's
-           readable against any of the three banner images. */
-        .home-slider .btn-primary.btn-outline-primary {
-            border-color: #fff;
+        .v-hero-content {
+            flex: 0 0 44%;
+            max-width: 44%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 64px 56px 64px 5vw;
             color: #fff;
+            position: relative;
+            z-index: 2;
         }
 
-        .home-slider .btn-primary.btn-outline-primary:hover {
+        .v-hero-eyebrow {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2.4px;
+            text-transform: uppercase;
+            color: #bfe0a8;
+            margin-bottom: 18px;
+        }
+
+        .v-hero-heading {
+            font-size: clamp(30px, 3.4vw, 46px);
+            line-height: 1.14;
+            letter-spacing: -0.5px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 18px;
+            max-width: 15ch;
+        }
+
+        .v-hero-sub {
+            font-size: 16px;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.82);
+            max-width: 42ch;
+            margin-bottom: 30px;
+        }
+
+        .v-hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 34px;
+        }
+
+        .v-hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 26px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: .3px;
+            transition: transform .18s var(--v-ease, ease), background-color .25s ease, color .25s ease, border-color .25s ease;
+        }
+
+        .v-hero-btn:hover {
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .v-hero-btn:active {
+            transform: translateY(-2px) scale(.97);
+        }
+
+        .v-hero-btn-primary {
             background: #fff;
-            color: #1c5034;
+            color: #123626;
+            border: 1px solid #fff;
+        }
+
+        .v-hero-btn-primary:hover {
+            background: #f2f2f2;
+            color: #123626;
+        }
+
+        .v-hero-btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
+
+        .v-hero-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
             border-color: #fff;
+        }
+
+        .v-hero-trust {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 22px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .v-hero-trust li {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .v-hero-trust ion-icon {
+            font-size: 17px;
+            color: #bfe0a8;
+        }
+
+        .v-hero-visual {
+            flex: 1 1 56%;
+            position: relative;
+            min-height: 560px;
+        }
+
+        .v-hero-visual::before {
+            /* Blends the content panel's solid colour into the photo so the
+               seam reads as intentional, not a hard cut. */
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(90deg, #123626 0%, rgba(18, 54, 38, 0.45) 14%, rgba(18, 54, 38, 0) 32%);
+            pointer-events: none;
+        }
+
+        #home-section .v-hero-visual .home-slider,
+        #home-section .v-hero-visual .owl-carousel,
+        #home-section .v-hero-visual .owl-stage-outer,
+        #home-section .v-hero-visual .owl-stage,
+        #home-section .v-hero-visual .owl-item {
+            height: 100%;
+        }
+
+        #home-section .v-hero-visual .slider-item {
+            /* #home-section is an ID, which outranks css/style.css's 3-class
+               `.owl-carousel.home-slider .slider-item { height: 650px }` -
+               needed so this can actually override that fixed height. */
+            height: 100%;
+            /* Crop to the photos' right-hand (product) portion only, so the
+               baked-in headline text on the left half never shows - the new
+               HTML copy in .v-hero-content replaces it. */
+            background-position: 78% center;
+        }
+
+        #home-section .v-hero-visual .overlay {
+            /* Higher specificity than home-redesign.css's #home-section
+               .overlay (a dark 0.35-0.55 gradient meant for text-over-photo
+               contrast) - not needed now that copy lives in the solid
+               .v-hero-content panel, so the product photo can show through
+               clearly. */
+            background: #000;
+            opacity: .08;
+        }
+
+        @media (max-width: 1199.98px) {
+            .v-hero-content {
+                padding: 52px 40px;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .v-hero {
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .v-hero-content,
+            .v-hero-visual {
+                flex: 1 1 auto;
+                max-width: 100%;
+            }
+
+            .v-hero-content {
+                padding: 44px 24px 36px;
+                text-align: left;
+            }
+
+            .v-hero-heading {
+                max-width: none;
+            }
+
+            .v-hero-visual {
+                height: 240px;
+                min-height: 240px;
+            }
+
+            #home-section .v-hero-visual .home-slider,
+            #home-section .v-hero-visual .owl-carousel,
+            #home-section .v-hero-visual .owl-stage-outer,
+            #home-section .v-hero-visual .owl-stage,
+            #home-section .v-hero-visual .owl-item,
+            #home-section .v-hero-visual .slider-item {
+                height: 240px;
+                min-height: 240px;
+            }
+
+            .v-hero-visual::before {
+                background: linear-gradient(180deg, #123626 0%, rgba(18, 54, 38, 0.35) 10%, rgba(18, 54, 38, 0) 26%);
+            }
+
+            #home-section .v-hero-visual .slider-item {
+                background-position: center center;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .v-hero-content {
+                padding: 36px 18px 30px;
+            }
+
+            .v-hero-sub {
+                max-width: none;
+            }
         }
 
         /* Anchor targets so the fixed-ish navbar spacing doesn't crowd the
@@ -630,43 +790,33 @@ include "header.php"
 
 
     <!-- Swiper Section -->
-    <section id="home-section" class="hero">
-        <div class="home-slider owl-carousel">
-            <div class="slider-item" style="background-image: url(images/hero-1.jpg);">
-                <div class="overlay"></div>
-                <div class="container">
-                    <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
-
-                        <div class="col-md-12 ftco-animate text-center">
-                        </div>
-
-                    </div>
+    <section id="home-section" class="hero v-hero">
+        <div class="v-hero-content">
+            <span class="v-hero-eyebrow">As Pure As Nature</span>
+            <h1 class="v-hero-heading">Rice, spices &amp; oils, checked before they ever reach your kitchen.</h1>
+            <p class="v-hero-sub">From everyday rice and millets to dry fruits, nuts, cold-pressed oils and spices — every batch is quality-checked, then shipped pan-India with tracking.</p>
+            <div class="v-hero-cta">
+                <a href="shop.php" class="v-hero-btn v-hero-btn-primary">Shop Now <ion-icon name="arrow-forward-outline"></ion-icon></a>
+                <a href="#shop-by-category" class="v-hero-btn v-hero-btn-secondary">Browse Categories</a>
+            </div>
+            <ul class="v-hero-trust">
+                <li><ion-icon name="checkmark-circle-outline"></ion-icon> Quality checked</li>
+                <li><ion-icon name="shield-checkmark-outline"></ion-icon> Secure payments</li>
+                <li><ion-icon name="navigate-outline"></ion-icon> Tracked delivery</li>
+            </ul>
+        </div>
+        <div class="v-hero-visual">
+            <div class="home-slider owl-carousel">
+                <div class="slider-item" style="background-image: url(images/hero-1.jpg);">
+                    <div class="overlay"></div>
+                </div>
+                <div class="slider-item" style="background-image: url(images/hero-2.jpg);">
+                    <div class="overlay"></div>
+                </div>
+                <div class="slider-item" style="background-image: url(images/hero-3.jpg);">
+                    <div class="overlay"></div>
                 </div>
             </div>
-
-            <div class="slider-item" style="background-image: url(images/hero-2.jpg);">
-                <div class="overlay"></div>
-                <div class="container">
-                    <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
-
-                        <div class="col-md-12 ftco-animate text-center">
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="slider-item" style="background-image: url(images/hero-3.jpg);">
-                <div class="overlay"></div>
-                <div class="container">
-                    <div class="row slider-text justify-content-center align-items-center" data-scrollax-parent="true">
-
-                        <div class="col-md-12 ftco-animate text-center">
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
         </div>
     </section>
     <!-- <section id="home-section" class="hero">
@@ -1216,7 +1366,6 @@ include "header.php"
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.easing.1.3.js"></script>
     <script src="js/jquery.waypoints.min.js"></script>
-    <script src="js/jquery.stellar.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/jquery.magnific-popup.min.js"></script>
     <script src="js/aos.js"></script>

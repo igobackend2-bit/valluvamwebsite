@@ -28,7 +28,7 @@
     <link rel="shortcut icon" href="images/favicon/favicon.ico" type="image/ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png" />
     <link rel="manifest" href="images/favicon/site.webmanifest" />
-    <link rel="stylesheet" href="css/supporting-pages.css">
+    <link rel="stylesheet" href="css/supporting-pages.css?v=<?php echo @filemtime(__DIR__ . '/css/supporting-pages.css'); ?>">
 
     <script type="application/ld+json">
       {
@@ -75,50 +75,26 @@
     </div>
     <section class="ftco-section bg-light v-content-section" style="margin-bottom: 0px;">
       <div class="container">
-        <div class="row no-gutters ftco-services" style="padding-left: 50px;">
-          <div class="col-lg-3 text-center d-flex align-self-stretch ftco-animate">
-            <div class="media block-6 services mb-md-0 mb-4" style="margin-left: 80px;">
-              <div class="icon bg-color-1 active d-flex justify-content-center align-items-center mb-2" id="heading-bg">
-                <span class="flaticon-shipped"></span>
-              </div>
-              <div class="media-body">
-                <h3 class="heading">1 Day Shipping</h3>
-                <span>On order </span>
-              </div>
-            </div>
+        <div class="v-feature-grid">
+          <div class="v-info-card">
+            <span class="flaticon-shipped" style="font-size:28px;color:var(--v-sp-green);"></span>
+            <h3 class="heading" style="margin:10px 0 4px;font-size:1rem;">1 Day Shipping</h3>
+            <span>On order</span>
           </div>
-          <div class="col-lg-3 text-center d-flex align-self-stretch ftco-animate">
-            <div class="media block-6 services mb-md-0 mb-4" style="margin-left: 60px;">
-              <div class="icon bg-color-2 d-flex justify-content-center align-items-center mb-2" id="heading-bg">
-                <span class="flaticon-diet"></span>
-              </div>
-              <div class="media-body">
-                <h3 class="heading">Always Fresh</h3>
-                <span>Product well package</span>
-              </div>
-            </div>
+          <div class="v-info-card">
+            <span class="flaticon-diet" style="font-size:28px;color:var(--v-sp-green);"></span>
+            <h3 class="heading" style="margin:10px 0 4px;font-size:1rem;">Always Fresh</h3>
+            <span>Product well packaged</span>
           </div>
-          <div class="col-lg-3 text-center d-flex align-self-stretch ftco-animate">
-            <div class="media block-6 services mb-md-0 mb-4" style="margin-left: 60px;">
-              <div class="icon bg-color-3 d-flex justify-content-center align-items-center mb-2" id="heading-bg">
-                <span class="flaticon-award"></span>
-              </div>
-              <div class="media-body">
-                <h3 class="heading">Superior Quality</h3>
-                <span>Quality Products</span>
-              </div>
-            </div>
+          <div class="v-info-card">
+            <span class="flaticon-award" style="font-size:28px;color:var(--v-sp-green);"></span>
+            <h3 class="heading" style="margin:10px 0 4px;font-size:1rem;">Superior Quality</h3>
+            <span>Quality products</span>
           </div>
-          <div class="col-lg-3 text-center d-flex align-self-stretch ftco-animate">
-            <div class="media block-6 services mb-md-0 mb-4" style="margin-left: 70px;">
-              <div class="icon bg-color-4 d-flex justify-content-center align-items-center mb-2" id="heading-bg">
-                <span class="flaticon-customer-service"></span>
-              </div>
-              <div class="media-body">
-                <h3 class="heading">Support</h3>
-                <span>24/7 Support</span>
-              </div>
-            </div>
+          <div class="v-info-card">
+            <span class="flaticon-customer-service" style="font-size:28px;color:var(--v-sp-green);"></span>
+            <h3 class="heading" style="margin:10px 0 4px;font-size:1rem;">Support</h3>
+            <span>24/7 support</span>
           </div>
         </div>
       </div>
@@ -142,7 +118,7 @@
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <img src="images/blog-oil.jpg" alt="about-left" class="img-fluid" width="80%" loading="lazy">
+            <img src="images/blog-oil.jpg" alt="Valluvam cold-pressed oil being poured, part of the brand's naturally sourced product range" class="img-fluid" style="width:80%;border-radius:12px;" loading="lazy">
           </div>
           <div class="col-lg-6">
             <h3 class="v-subheading">Our Story</h3>
@@ -168,9 +144,6 @@
         </div>
       </div>
       <div class="container">
-        <div class="heading text-center">
-          <!-- <h2 class="head"> <span style="color: #252525;"></span></h2> -->
-        </div>
         <div class="row">
           <div class="col-lg-6">
             <h3 class="v-subheading">B2C – Households with Love</h3>
@@ -188,13 +161,15 @@
             <p><strong>Valluvam – Pure Taste. Honest Tradition.</strong></p>
           </div>
           <div class="col-lg-6">
-            <img src="images/about2.jpeg" alt="about" loading="lazy">
+            <img src="images/about2.jpeg" alt="Valluvam nuts, dry fruits and spices packed for delivery" class="img-fluid" style="border-radius:12px;" loading="lazy">
           </div>
         </div>
         <div class="row">
-          <!-- Image/iframe first: LEFT SIDE -->
+          <!-- Video first: LEFT SIDE -->
           <div class="col-lg-6">
-            <iframe width="100%" height="345" src="video/about-video.mp4" style="margin-bottom: 30px;"></iframe>
+            <video width="100%" height="345" style="margin-bottom: 30px;border-radius:12px;object-fit:cover;background:#000;" controls preload="metadata" poster="images/about2.jpeg">
+              <source src="video/about-video.mp4" type="video/mp4">
+            </video>
           </div>
 
           <!-- Content second: RIGHT SIDE -->
@@ -211,16 +186,43 @@
             <a href="b2b-wholesale.php" style="display:inline-block;color:#1c5034;font-weight:700;margin-top:6px;">See full wholesale details &rarr;</a>
           </div>
         </div>
-        <div>
-        </div>
-
       </div>
-
-
     </section>
 
-
-
+    <section class="ftco-section v-content-section v-cream">
+      <div class="container">
+        <div class="v-igo-panel">
+          <span class="v-eyebrow v-eyebrow-light">Backed by</span>
+          <h2>Part of the IGO Group</h2>
+          <p>Valluvam is part of IGO Group, a Chennai-headquartered agribusiness ecosystem operating
+            since 2016 across farm engineering, organic retail, fintech and agri-trade. That backing
+            is why Valluvam can promise what it promises: sourcing straight from farmers and
+            co-operatives, not intermediaries, with the same quality standards IGO Group applies
+            across its wider farming network.</p>
+          <dl class="v-igo-stats">
+            <div>
+              <dt>2016</dt>
+              <dd>Group Founded</dd>
+            </div>
+            <div>
+              <dt>27</dt>
+              <dd>Brands</dd>
+            </div>
+            <div>
+              <dt>18</dt>
+              <dd>Departments</dd>
+            </div>
+            <div>
+              <dt>Chennai</dt>
+              <dd>Head Office</dd>
+            </div>
+          </dl>
+          <a class="btn-igo" href="https://igogroups.in/about" target="_blank" rel="noopener">
+            Learn more about IGO Group <ion-icon name="arrow-forward-outline"></ion-icon>
+          </a>
+        </div>
+      </div>
+    </section>
 
 
     <?php include 'footer.php' ?>
@@ -240,7 +242,6 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.easing.1.3.js"></script>
     <script src="js/jquery.waypoints.min.js"></script>
-    <script src="js/jquery.stellar.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/jquery.magnific-popup.min.js"></script>
     <script src="js/aos.js"></script>
