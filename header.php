@@ -766,7 +766,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       // allowed pages where search should be shown
       // rice.php was missing from this list, so the search box didn't show on the Rice
       // category page even though the same search endpoint already supports it.
-      $allowedPages = ['index.php', 'shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'rice.php', 'productdetail.php'];
+      $allowedPages = ['index.php', 'shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'rice.php', 'palm-jaggery.php', 'seeds.php', 'dal.php', 'honey.php', 'ghee.php', 'pulses.php', 'productdetail.php'];
       ?>
 
       <?php if (in_array($currentPage, $allowedPages)) : ?>
@@ -797,6 +797,12 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
               <a class="v-mega-item" href="millets.php"><ion-icon name="flower-outline"></ion-icon><span>Millets</span></a>
               <a class="v-mega-item" href="rice.php"><ion-icon name="restaurant-outline"></ion-icon><span>Rice</span></a>
               <a class="v-mega-item" href="combo.php"><ion-icon name="gift-outline"></ion-icon><span>Combos</span></a>
+              <a class="v-mega-item" href="palm-jaggery.php"><ion-icon name="cafe-outline"></ion-icon><span>Palm Jaggery</span></a>
+              <a class="v-mega-item" href="seeds.php"><ion-icon name="aperture-outline"></ion-icon><span>Seeds</span></a>
+              <a class="v-mega-item" href="dal.php"><ion-icon name="basket-outline"></ion-icon><span>Dal</span></a>
+              <a class="v-mega-item" href="honey.php"><ion-icon name="sunny-outline"></ion-icon><span>Honey</span></a>
+              <a class="v-mega-item" href="ghee.php"><ion-icon name="flask-outline"></ion-icon><span>Ghee</span></a>
+              <a class="v-mega-item" href="pulses.php"><ion-icon name="ellipse-outline"></ion-icon><span>Pulses</span></a>
             </div>
           </li>
 

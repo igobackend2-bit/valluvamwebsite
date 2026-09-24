@@ -1,0 +1,56 @@
+<?php
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+header('Content-Type: application/json');
+// require_once 'C:/xampp/htdocs/valluvam/assets/db_query/config.php'; // your PDO connection file
+require_once __DIR__ . '/../config.php'; // your PDO connection file
+
+$action = $_GET['action'];
+ if ($_GET['action'] === 'pulses_products') {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM product_details WHERE category = 'Pulses' ORDER BY id DESC");
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'status' => 'success',
+            'data' => $products
+        ]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'DB Error: ' . $e->getMessage()
+        ]);
+    }
+}elseif ($action === 'product_search_pulses') {
+
+    $query = trim($_GET['query'] ?? '');
+
+    try {
+        if ($query !== "") {
+
+            // category added to the SELECT (additive) so search-result cards can
+            // build the correct "/{category}/{slug}" product URL.
+            $sql = "SELECT id, product_name, price, dis_price, quantity, image, category
+                    FROM product_details
+                    WHERE product_name LIKE :query
+                       OR description LIKE :query
+                       OR category LIKE :query";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['query' => "%$query%"]);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($results) {
+                echo json_encode(['status' => 'success', 'data' => $results]);
+            } else {
+                echo json_encode(['status' => 'not_found']);
+            }
+        } else {
+            echo json_encode(['status' => 'empty']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+    exit;
+}
