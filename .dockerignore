@@ -1,0 +1,11 @@
+.git
+.gitattributes
+.kilo
+.DS_Store
+Claude outputs
+valluvam
+images.zip
+*.zip
+node_modules
+vendor
+.env

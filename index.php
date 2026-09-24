@@ -130,15 +130,25 @@ include "header.php"
            photo with no contrast and clip the content. Height/overlay are
            restored close to the desktop treatment so the text stays legible
            and doesn't overlap the artwork; nothing outside #home-section is
-           touched. */
-        @media (max-width: 576px) {
+           touched.
+
+           The hero-1/2/3.jpg photos have their headline text baked into the
+           image itself (1672x941, ~16:9). A fixed height here forces a
+           taller/narrower box than that, so `background-size: cover` had to
+           crop the sides to fill it - cutting off the baked-in text on
+           every phone width. Sizing the slide to the photos' own aspect
+           ratio lets `cover` scale instead of crop, so the full photo (and
+           its text) stays visible. Applied below 768px, matching the
+           breakpoint the rest of this slider already uses. */
+        @media (max-width: 767.98px) {
 
             #home-section {
                 height: auto;
             }
 
             #home-section .slider-item {
-                height: 420px;
+                aspect-ratio: 1672 / 941;
+                height: auto;
                 min-height: auto;
                 background-size: cover;
                 background-position: center center;
