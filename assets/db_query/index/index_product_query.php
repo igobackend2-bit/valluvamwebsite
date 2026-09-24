@@ -9,7 +9,8 @@ $action = $_GET['action'] ?? '';
 
 if ($action == 'category_slider') {
     try {
-        $stmt = $pdo->prepare("SELECT category_name,thumbnali, link FROM product_category");
+        // Only categories with a homepage image appear in the slider (new admin categories without an image stay hidden here).
+        $stmt = $pdo->prepare("SELECT category_name,thumbnali, link FROM product_category WHERE thumbnali IS NOT NULL AND thumbnali <> ''");
         $stmt->execute();
         $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
