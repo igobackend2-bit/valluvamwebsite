@@ -33,7 +33,7 @@ $(document).ready(function () {
                         
                             <!-- IMAGE -->
                             <a href="${productUrl(product.category, product.product_name)}" class="img-prod">
-                              <img class="img-fluid" src="${image}" alt="${product.product_name}">
+                              <img class="img-fluid" src="${image}" alt="${product.product_name}" loading="lazy">
                               ${discount}
                               <div class="overlay"></div>
                             </a>
@@ -148,7 +148,7 @@ function loadTopRated() {
                     <div class="col-6 col-md-4 col-lg-3 mb-3">
                         <div class="product">
                             <a href="${productUrl(product.category, product.product_name)}" class="img-prod">
-                                <img class="img-fluid" src="${image}" alt="${product.product_name}">
+                                <img class="img-fluid" src="${image}" alt="${product.product_name}" loading="lazy">
                                 ${discount}
                                 <div class="overlay"></div>
                             </a>
@@ -267,7 +267,7 @@ function product_catelog() {
                     <div class="col-md-6 col-lg-3 mb-3">
                         <div class="product">
                             <a href="${productUrl(product.category, product.product_name)}" class="img-prod" onclick="showproduct('product-${slug}')">
-                                <img class="img-fluid" src="${image}" alt="${product.product_name}">
+                                <img class="img-fluid" src="${image}" alt="${product.product_name}" loading="lazy">
                                 ${discount}
                                 <div class="overlay"></div>
                             </a>

@@ -197,7 +197,7 @@ function loadProduct(idOrSlug, pushSlug) {
                         ${similar.map(s => `
                             <a href="${productUrl(p.category, s.product_name)}" class="pd-similar-card">
                                 <div class="pd-similar-img-frame">
-                                    <img src="assets/uploads/${s.image}" alt="${s.product_name}">
+                                    <img src="assets/uploads/${s.image}" alt="${s.product_name}" loading="lazy">
                                 </div>
                                 <div class="pd-similar-name">${s.product_name}</div>
                                 <div class="pd-similar-price">&#8377;${s.dis_price}</div>

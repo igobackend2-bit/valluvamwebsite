@@ -1,0 +1,20 @@
+.git
+.gitattributes
+.kilo
+.DS_Store
+Claude outputs
+valluvam
+images.zip
+*.zip
+node_modules
+vendor
+.env
+
+# Accidental nested duplicate copies (same disease as the top-level
+# valluvam/ duplicate above) - these are never referenced by any real
+# page and just bloat the build context.
+images/images
+js/js
+css/css
+assets/js/js
+assets/assets

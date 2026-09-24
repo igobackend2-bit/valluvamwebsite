@@ -216,7 +216,7 @@
 
 <body>
 	<div class="icon-bar">
-		<a href="https://api.whatsapp.com/send?phone=918925969888" class="whatsapp-float" target="_blank">
+		<a href="https://api.whatsapp.com/send?phone=918925878327" class="whatsapp-float" target="_blank">
 			<ion-icon name="logo-whatsapp"></ion-icon>
 		</a>
 	</div>
@@ -300,7 +300,7 @@
 							<div class="social-links">
 								<a href="https://www.facebook.com/valluvamproducts/" aria-label="Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
 								<a href="https://www.instagram.com/valluvamproducts/" aria-label="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
-								<a href="https://api.whatsapp.com/send?phone=918925969888" aria-label="WhatsApp"><ion-icon name="logo-whatsapp"></ion-icon></a>
+								<a href="https://api.whatsapp.com/send?phone=918925878327" aria-label="WhatsApp"><ion-icon name="logo-whatsapp"></ion-icon></a>
 							</div>
 						</div>
 						<div class="block-23 mb-3">
@@ -308,7 +308,11 @@
 								<li><span class="icon icon-map-marker"></span><span class="text">No 17 , Kovalan street, 2nd main road, Uthandi kanathur, Chennai 600119.
 
 									</span></li>
-								<li><a href="tel:+918925969888"><span class="icon icon-phone"></span><span class="text">+918925969888</span></a></li>
+								<li><a href="tel:+918925969888"><span class="icon icon-phone"></span><span class="text">+91 89259 69888</span></a></li>
+								<li><a href="tel:+918925878327"><span class="icon icon-phone"></span><span class="text">+91 89258 78327</span></a></li>
+								<li><a href="tel:+918925833758"><span class="icon icon-phone"></span><span class="text">+91 89258 33758</span></a></li>
+								<li><a href="tel:+918925958926"><span class="icon icon-phone"></span><span class="text">+91 89259 58926</span></a></li>
+								<li><a href="tel:+918925978983"><span class="icon icon-phone"></span><span class="text">+91 89259 78983</span></a></li>
 								<li><a href="mailto:info.thefarmersfactory@gmail.com"><span class="icon icon-envelope"></span><span class="text"> info.thefarmersfactory@<br>gmail.com
 										</span></a></li>
 							</ul>
@@ -321,6 +325,7 @@
 	</footer>
 	<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 	<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+	<script src="js/motion-system.js?v=1" defer></script>
 
 </body>
 

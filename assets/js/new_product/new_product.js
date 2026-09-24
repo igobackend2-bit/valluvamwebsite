@@ -158,36 +158,62 @@ function fetchProduct() {
 
 function editProduct() {
 	$('#productTable').on('click', '.edit-btn', function () {
-		const id = $(this).data('id');
-		$.getJSON(`assets/db_query/new_product/new_product_query.php?action=fetch_products&id=${id}`, function (data) {
-			$('#product_id').val(data.id);
-			$('[name="product_name"]').val(data.product_name);
-			$('[name="price"]').val(data.price);
-			$('[name="dis_price"]').val(data.dis_price);
-			$('[name="category"]').val(data.category);
-			$('[name="quantity"]').val(data.quantity);
-			$('[name="rating"]').val(data.rating);
-			$('[name="description"]').val(data.description);
-			$('[name="benefits"]').val(data.benefits);
-			// Image won't be previewed in file input; you can preview separately if needed
-			$('#productModal').modal('show');
-		});
+		openEditModal($(this).data('id'));
 	});
 
+	// Opened from admin/products.php "Edit" link: new_product.php?id=123
+	const idFromUrl = new URLSearchParams(window.location.search).get('id');
+	if (idFromUrl) {
+		openEditModal(idFromUrl);
+	}
 }
+
+function openEditModal(id) {
+	$.getJSON(`assets/db_query/new_product/new_product_query.php?action=fetch_products&id=${encodeURIComponent(id)}`, function (data) {
+		if (!data || !data.id) {
+			Swal.fire('Product not found');
+			return;
+		}
+		$('#product_id').val(data.id);
+		$('[name="product_name"]').val(data.product_name);
+		$('[name="price"]').val(data.price);
+		$('[name="dis_price"]').val(data.dis_price);
+		// Category options load asynchronously; add the saved value if it isn't there yet
+		const $cat = $('[name="category"]');
+		if (data.category && $cat.find('option').filter(function () { return this.value === data.category; }).length === 0) {
+			$cat.append($('<option>').val(data.category).text(data.category));
+		}
+		$cat.val(data.category);
+		$('[name="quantity"]').val(data.quantity);
+		$('[name="rating"]').val(data.rating);
+		$('[name="description"]').val(data.description);
+		$('[name="benefits"]').val(data.benefits);
+		// Image won't be previewed in file input; you can preview separately if needed
+		$('#productModal').modal('show');
+	});
+}
+
 function deleteProduct() {
 
 	// Delete
 	$('#productTable').on('click', '.delete-btn', function () {
-		if (Swal.fire('Are you sure you want to delete this product?')) {
-			const id = $(this).data('id');
+		const id = $(this).data('id');
+		Swal.fire({
+			title: 'Delete this product?',
+			text: "This can't be undone.",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#a8442f',
+			confirmButtonText: 'Delete'
+		}).then(function (result) {
+			if (!result.isConfirmed) return;
 			$.post('assets/db_query/new_product/new_product_query.php?action=delete_products', {
 				id
 			}, function (res) {
 				Swal.fire(res.message);
 				table.ajax.reload();
 			}, 'json');
-		}
+		});
 	});
 }
 $(document).ready(function () {

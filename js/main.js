@@ -56,14 +56,14 @@ AOS.init({
 	};
 
 
-	$(window).stellar({
-		responsive: true,
-		parallaxBackgrounds: true,
-		parallaxElements: true,
-		horizontalScrolling: false,
-		hideDistantElements: false,
-		scrollProperty: 'scroll'
-	});
+	// Stellar.js parallax init removed: no element on the site carries
+	// data-stellar-background-ratio (grep across every page confirms it),
+	// so this was doing nothing visible while still attaching a scroll
+	// listener on every page load - jQuery Stellar is a 2013-era plugin
+	// that predates passive scroll listeners, and an old-style non-passive
+	// `scroll` handler is exactly what makes touch scrolling feel janky on
+	// mobile (the browser has to wait for the handler before it can paint
+	// the scroll). Removing the call removes that listener entirely.
 
 
 	var fullHeight = function () {
@@ -99,6 +99,17 @@ AOS.init({
 			nav: false,
 			autoplayHoverPause: false,
 			items: 1,
+			// Owl's default touchDrag/mouseDrag add `touch-action: none` to
+			// every slide (see .owl-carousel.owl-drag .owl-item in
+			// owl.carousel.min.css), which hands ALL touch handling on this
+			// banner to Owl's own JS instead of the browser - so a vertical
+			// swipe that starts anywhere on the hero has to wait on Owl's
+			// swipe-direction detection before the page scrolls, which reads
+			// as scrolling being stuck/janky right at the top of every page.
+			// This slide already autoplays and has dots for manual nav, so
+			// drag isn't needed - turning it off restores native scrolling.
+			touchDrag: false,
+			mouseDrag: false,
 			navText: ["<span class='ion-md-arrow-back'></span>", "<span class='ion-chevron-right'></span>"],
 			responsive: {
 				0: {
@@ -120,6 +131,8 @@ AOS.init({
 			margin: 30,
 			stagePadding: 0,
 			nav: false,
+			touchDrag: false,
+			mouseDrag: false,
 			navText: ['<span class="ion-ios-arrow-back">', '<span class="ion-ios-arrow-forward">'],
 			responsive: {
 				0: {
@@ -173,20 +186,29 @@ AOS.init({
 
 	// scroll
 	var scrollWindow = function () {
+		var navSpacer = $();
 		$(window).scroll(function () {
 			var $w = $(this),
 				st = $w.scrollTop(),
 				navbar = $('.ftco_navbar'),
 				sd = $('.js-scroll-wrap');
 
+			// The navbar leaves normal flow (position: fixed) while `.scrolled`.
+			// Hold its space with a placeholder, otherwise the page height
+			// changes at the 150px threshold and the content jumps up/down.
 			if (st > 150) {
 				if (!navbar.hasClass('scrolled')) {
+					if (!navSpacer.length) {
+						navSpacer = $('<div id="navbar-spacer" aria-hidden="true"></div>').insertAfter(navbar);
+					}
+					navSpacer.css('height', navbar.outerHeight());
 					navbar.addClass('scrolled');
 				}
 			}
 			if (st < 150) {
 				if (navbar.hasClass('scrolled')) {
 					navbar.removeClass('scrolled sleep');
+					navSpacer.css('height', 0);
 				}
 			}
 			if (st > 350) {

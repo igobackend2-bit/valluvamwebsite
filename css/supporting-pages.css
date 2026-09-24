@@ -84,6 +84,133 @@
 }
 
 /* -------------------------------------------------------------------- */
+/* Eyebrow pill label (used above section headings)                     */
+/* -------------------------------------------------------------------- */
+.v-eyebrow {
+    display: inline-block;
+    background: rgba(28, 80, 52, 0.08);
+    color: var(--v-sp-green);
+    border: 1px solid rgba(28, 80, 52, 0.18);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.v-eyebrow.v-eyebrow-light {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* -------------------------------------------------------------------- */
+/* Feature grid (replaces fragile inline margin-left hacks on the old   */
+/* "1 Day Shipping / Always Fresh / ..." row - equal columns, no magic  */
+/* numbers, wraps cleanly at any width)                                 */
+/* -------------------------------------------------------------------- */
+.v-feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 767px) {
+    .v-feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* -------------------------------------------------------------------- */
+/* "Part of the IGO Group" panel                                        */
+/* -------------------------------------------------------------------- */
+.v-igo-panel {
+    position: relative;
+    background: linear-gradient(135deg, var(--v-sp-green-dark) 0%, var(--v-sp-green) 100%);
+    border-radius: 22px;
+    padding: 52px 44px;
+    color: #fff;
+    overflow: hidden;
+}
+
+.v-igo-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.1), transparent 55%);
+    pointer-events: none;
+}
+
+.v-igo-panel h2 {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin: 0 0 14px;
+    position: relative;
+}
+
+.v-igo-panel p {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 62ch;
+    margin: 0 0 24px;
+    position: relative;
+}
+
+.v-igo-stats {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 28px 40px;
+    margin: 0 0 26px;
+    position: relative;
+}
+
+@media (max-width: 767px) {
+    .v-igo-stats {
+        grid-template-columns: repeat(2, auto);
+    }
+}
+
+.v-igo-stats dt {
+    font-family: 'Lora', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.v-igo-stats dd {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.v-igo-panel .btn-igo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: var(--v-sp-green-dark);
+    border-radius: 999px;
+    padding: 12px 26px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.v-igo-panel .btn-igo:hover {
+    color: var(--v-sp-green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* -------------------------------------------------------------------- */
 /* Generic content card                                                 */
 /* -------------------------------------------------------------------- */
 .v-content-card {
@@ -181,6 +308,13 @@
     color: var(--v-sp-green);
 }
 
+/* Phone card lists several numbers - one per line, easy to tap. */
+.v-info-card a[href^="tel:"] {
+    display: block;
+    line-height: 1.8;
+    white-space: nowrap;
+}
+
 /* -------------------------------------------------------------------- */
 /* Contact form polish (existing #contactForm markup/fields untouched)  */
 /* -------------------------------------------------------------------- */
@@ -272,5 +406,14 @@
     .v-page-desc {
         font-size: 0.92rem;
         padding: 0 10px;
+    }
+
+    .v-igo-panel {
+        padding: 34px 24px;
+        border-radius: 18px;
+    }
+
+    .v-igo-panel h2 {
+        font-size: 1.4rem;
     }
 }

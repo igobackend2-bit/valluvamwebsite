@@ -116,24 +116,7 @@ include 'header.php' ?>
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-10 mb-5 text-center">
-          <ul class="product-category">
-            <li><a href="shop.php">All</a></li>
-            <li><a href="dryfruits.php">Dry Fruits</a></li>
-            <li><a href="nuts.php">Nuts</a></li>
-            <li><a href="spices.php">Spices</a></li>
-            <li><a href="oils.php">Oils</a></li>
-            <li><a href="millets.php">Millets</a></li>
-            <li><a href="rice.php">Rice</a></li>
-            <li><a href="combo.php">Combo</a></li>
-            <li><a href="palm-jaggery.php">Palm Jaggery</a></li>
-            <li><a href="seeds.php">Seeds</a></li>
-            <li><a href="dal.php">Dal</a></li>
-            <li><a href="honey.php">Honey</a></li>
-            <li><a href="ghee.php" class="active">Ghee</a></li>
-            <li><a href="pulses.php">Pulses</a></li>
-
-
-          </ul>
+          <?php include __DIR__ . '/category_pills.php'; ?>
         </div>
       </div>
       <div class="v-cat-toolbar">
@@ -195,7 +178,6 @@ include 'header.php' ?>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/jquery.easing.1.3.js"></script>
   <script src="js/jquery.waypoints.min.js"></script>
-  <script src="js/jquery.stellar.min.js"></script>
   <script src="js/owl.carousel.min.js"></script>
   <script src="js/jquery.magnific-popup.min.js"></script>
   <script src="js/aos.js"></script>

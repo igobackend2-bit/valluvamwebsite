@@ -1,0 +1,163 @@
+/* Visual layer for new_product.php (product add/edit).
+   Loaded after Bootstrap 5 + DataTables CSS so these overrides win on
+   equal-or-higher specificity. Reuses the admin/assets/admin.css tokens —
+   imported below — so this page reads as part of the same admin panel. */
+
+@import url('../../admin/assets/admin.css');
+
+body {
+  background: var(--adm-cream);
+  padding: 0 !important;
+}
+
+.npa-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 32px;
+  background: var(--adm-surface);
+  border-bottom: 1px solid var(--adm-line);
+  flex-wrap: wrap;
+}
+.npa-brand { display: flex; align-items: center; gap: 10px; }
+.npa-brand img { width: 32px; height: 32px; border-radius: 9px; }
+.npa-brand strong { display: block; font-size: 14px; font-weight: 700; }
+.npa-brand span { display: block; font-size: 11.5px; color: var(--adm-ink-soft); }
+.npa-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13.5px; font-weight: 600; color: var(--adm-ink-soft);
+  text-decoration: none;
+}
+.npa-back:hover { color: var(--adm-green-dark); }
+
+.npa-main { padding: 28px 32px 60px; max-width: 1240px; margin: 0 auto; }
+.npa-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.npa-head h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin: 0; color: var(--adm-ink); }
+.npa-head p { margin: 2px 0 0; color: var(--adm-ink-soft); font-size: 13.5px; }
+
+.npa-card {
+  background: var(--adm-surface);
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius-lg);
+  box-shadow: var(--adm-shadow);
+  padding: 8px 8px 4px;
+}
+
+/* ---- Buttons ---- */
+.npa-main .btn,
+.modal .btn {
+  border-radius: var(--adm-radius-sm);
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 9px 16px;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  border: 1px solid transparent;
+}
+.npa-main .btn:active, .modal .btn:active { transform: scale(0.97); }
+.npa-main .adm-btn-primary,
+.modal .btn-success {
+  background: var(--adm-green) !important;
+  border-color: var(--adm-green) !important;
+  color: #fff !important;
+}
+.npa-main .adm-btn-primary:hover,
+.modal .btn-success:hover { background: var(--adm-green-dark) !important; border-color: var(--adm-green-dark) !important; }
+.modal .btn-secondary {
+  background: transparent !important;
+  border-color: var(--adm-line) !important;
+  color: var(--adm-ink) !important;
+}
+.modal .btn-secondary:hover { border-color: var(--adm-ink-soft) !important; }
+
+.npa-main .btn-dark.edit-btn, .npa-main .btn-danger.delete-btn {
+  border-radius: 8px;
+  width: 32px; height: 32px;
+  padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.npa-main .btn-dark.edit-btn {
+  background: #fff !important;
+  border-color: var(--adm-line) !important;
+  color: var(--adm-ink-soft) !important;
+}
+.npa-main .btn-dark.edit-btn:hover { border-color: var(--adm-green) !important; color: var(--adm-green) !important; }
+.npa-main .btn-danger.delete-btn {
+  background: #fff !important;
+  border-color: var(--adm-line) !important;
+  color: var(--adm-red) !important;
+}
+.npa-main .btn-danger.delete-btn:hover { border-color: var(--adm-red) !important; background: var(--adm-red-soft) !important; }
+
+/* ---- Form controls ---- */
+.form-control, .form-select {
+  border: 1px solid var(--adm-line) !important;
+  border-radius: var(--adm-radius-sm) !important;
+  font-size: 13.8px !important;
+  padding: 9px 12px !important;
+  box-shadow: none !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--adm-green) !important;
+  box-shadow: 0 0 0 3px var(--adm-green-soft) !important;
+}
+.npa-field-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--adm-ink);
+  margin: 0 0 5px;
+}
+
+/* ---- Modal ---- */
+.modal-content { border-radius: var(--adm-radius-lg) !important; border: 1px solid var(--adm-line) !important; }
+.modal-header { border-bottom: 1px solid var(--adm-line) !important; padding: 18px 22px !important; }
+.modal-header .modal-title { font-weight: 700 !important; font-size: 16px !important; }
+.modal-body { padding: 20px 22px !important; }
+.modal-footer { border-top: 1px solid var(--adm-line) !important; padding: 16px 22px !important; }
+
+/* ---- Table ---- */
+table.dataTable {
+  border-collapse: collapse !important;
+  font-size: 13.5px;
+}
+table.dataTable thead th {
+  border-bottom: 1px solid var(--adm-line) !important;
+  text-transform: uppercase;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--adm-ink-soft);
+  padding: 12px 14px !important;
+}
+table.dataTable tbody td { padding: 12px 14px !important; border-bottom: 1px solid #f0ece1 !important; vertical-align: middle; }
+table.dataTable.table-striped tbody tr:nth-of-type(odd) { background: #faf8f2; }
+table.dataTable tbody tr:hover { background: var(--adm-green-soft) !important; }
+
+.dataTables_wrapper { padding: 16px 16px 20px; }
+.dataTables_filter input, .dataTables_length select {
+  border: 1px solid var(--adm-line);
+  border-radius: var(--adm-radius-sm);
+  padding: 6px 10px;
+  margin-left: 6px;
+}
+.dataTables_filter input:focus, .dataTables_length select:focus {
+  outline: none;
+  border-color: var(--adm-green);
+  box-shadow: 0 0 0 3px var(--adm-green-soft);
+}
+.dataTables_paginate .paginate_button {
+  border-radius: 7px !important;
+  margin: 0 2px;
+  border: 1px solid transparent !important;
+}
+.dataTables_paginate .paginate_button.current {
+  background: var(--adm-green) !important;
+  border-color: var(--adm-green) !important;
+  color: #fff !important;
+}
+.dataTables_paginate .paginate_button:hover:not(.current) {
+  background: var(--adm-green-soft) !important;
+  border-color: var(--adm-green-soft) !important;
+}
+.dataTables_info { color: var(--adm-ink-soft); font-size: 12.5px; }

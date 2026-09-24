@@ -10,7 +10,7 @@ include "header.php" ?>
     <meta name="description" content="Get in touch with Valluvam for orders, wholesale enquiries or support.">
     <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
     <link rel="canonical" href="https://valluvamproducts.com/contact.php">
-    <link rel="stylesheet" href="css/supporting-pages.css">
+    <link rel="stylesheet" href="css/supporting-pages.css?v=<?php echo @filemtime(__DIR__ . '/css/supporting-pages.css'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="index, follow">
     <meta property="og:type" content="website">
@@ -82,7 +82,11 @@ include "header.php" ?>
                     <div class="v-info-card w-100">
                         <ion-icon name="call-outline"></ion-icon>
                         <span class="v-info-label">Phone</span>
-                        <a href="tel://8925969888">+91-8925969888</a>
+                        <a href="tel:+918925969888">+91 89259 69888</a>
+                        <a href="tel:+918925878327">+91 89258 78327</a>
+                        <a href="tel:+918925833758">+91 89258 33758</a>
+                        <a href="tel:+918925958926">+91 89259 58926</a>
+                        <a href="tel:+918925978983">+91 89259 78983</a>
                     </div>
                 </div>
                 <div class="col-md-3 d-flex">
@@ -178,7 +182,6 @@ include "header.php" ?>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/jquery.easing.1.3.js"></script>
     <script src="js/jquery.waypoints.min.js"></script>
-    <script src="js/jquery.stellar.min.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/jquery.magnific-popup.min.js"></script>
     <script src="js/aos.js"></script>
