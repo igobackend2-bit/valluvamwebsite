@@ -1,188 +1,74 @@
 <?php
-session_start();
-// Check if admin is logged in
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
-    exit;
-}
-
-$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+require_once __DIR__ . '/includes/check_admin.php';
+require_once __DIR__ . '/includes/sidebar.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Valluvam</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Dashboard — Valluvam Admin</title>
+    <link rel="icon" href="../images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
-        body {
-            background-color: #f5f5f5;
-        }
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            margin-bottom: 20px;
-        }
-        .sidebar-header h4 {
-            margin: 0;
-            font-weight: 600;
-        }
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .sidebar-menu li {
-            margin: 0;
-        }
-        .sidebar-menu a {
-            display: block;
-            padding: 15px 20px;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s;
-        }
-        .sidebar-menu a:hover {
-            background: rgba(255,255,255,0.1);
-            padding-left: 25px;
-        }
-        .sidebar-menu a.active {
-            background: rgba(255,255,255,0.2);
-            border-left: 4px solid white;
-        }
-        .sidebar-menu i {
-            width: 20px;
-            margin-right: 10px;
-        }
-        .main-content {
-            margin-left: 250px;
-            padding: 30px;
-        }
-        .header-bar {
-            background: white;
-            padding: 15px 30px;
-            margin: -30px -30px 30px -30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .stats-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-        .stats-card .icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-        .stats-card h3 {
-            margin: 0;
-            font-size: 32px;
-            color: #333;
-        }
-        .stats-card p {
-            margin: 0;
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/admin.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-user-shield"></i> Admin Panel</h4>
-            <small>Valluvam Products</small>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="index.php" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="orders.php"><i class="fas fa-shopping-cart"></i> Orders</a></li>
-            <li><a href="products.php"><i class="fas fa-box"></i> Products</a></li>
-            <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a></li>
-            <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </div>
+    <a class="adm-skip-link" href="#adm-main-content">Skip to content</a>
+    <div class="adm-shell">
+        <?php /* nav rendered by includes/sidebar.php above */ ?>
 
-    <div class="main-content">
-        <div class="header-bar">
-            <h2>Dashboard</h2>
-            <div>
-                <span>Welcome, <strong><?= htmlspecialchars($admin_username) ?></strong></span>
+        <main class="adm-main" id="adm-main-content">
+            <div class="adm-topbar">
+                <div>
+                    <h1>Dashboard</h1>
+                    <div class="adm-sub">An overview of orders and catalog size</div>
+                </div>
+                <div class="adm-who">Signed in as <strong><?= htmlspecialchars($admin_username) ?></strong></div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="icon text-primary">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <h3 id="totalOrders">-</h3>
-                    <p>Total Orders</p>
+            <div class="adm-stats">
+                <div class="adm-stat is-primary">
+                    <div class="adm-stat-icon"><i class="fas fa-basket-shopping"></i></div>
+                    <h3 id="totalOrders"><span class="adm-skel"></span></h3>
+                    <p>Total orders</p>
+                </div>
+                <div class="adm-stat is-amber">
+                    <div class="adm-stat-icon"><i class="fas fa-truck"></i></div>
+                    <h3 id="pendingOrders"><span class="adm-skel"></span></h3>
+                    <p>In progress</p>
+                </div>
+                <div class="adm-stat is-green">
+                    <div class="adm-stat-icon"><i class="fas fa-circle-check"></i></div>
+                    <h3 id="deliveredOrders"><span class="adm-skel"></span></h3>
+                    <p>Delivered</p>
+                </div>
+                <div class="adm-stat is-neutral">
+                    <div class="adm-stat-icon"><i class="fas fa-box-open"></i></div>
+                    <h3 id="totalProducts"><span class="adm-skel"></span></h3>
+                    <p>Products listed</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="icon text-warning">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h3 id="pendingOrders">-</h3>
-                    <p>Pending Orders</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="icon text-success">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <h3 id="deliveredOrders">-</h3>
-                    <p>Delivered Orders</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <div class="icon text-info">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <h3 id="totalProducts">-</h3>
-                    <p>Total Products</p>
-                </div>
-            </div>
-        </div>
 
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5>Recent Orders</h5>
-            </div>
-            <div class="card-body">
-                <div id="recentOrders">Loading...</div>
-            </div>
-        </div>
+            <section class="adm-card">
+                <div class="adm-card-head">
+                    <h2>Recent orders</h2>
+                    <a href="orders.php" class="adm-btn adm-btn-ghost">View all</a>
+                </div>
+                <div class="adm-card-body" id="recentOrders">
+                    <div class="adm-table-wrap">
+                        <table class="adm-table"><tbody>
+                            <tr><td colspan="5"><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
+                            <tr><td colspan="5"><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
+                            <tr><td colspan="5"><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
+                        </tbody></table>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
@@ -192,68 +78,86 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
         function loadDashboardStats() {
             $.ajax({
-                    url: '../assets/db_query/admin/dashboard_stats.php',
+                url: '../assets/db_query/admin/dashboard_stats.php',
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
                     if (data.status === 'success') {
-                        $('#totalOrders').text(data.stats.total_orders || 0);
-                        $('#pendingOrders').text(data.stats.pending_orders || 0);
-                        $('#deliveredOrders').text(data.stats.delivered_orders || 0);
-                        $('#totalProducts').text(data.stats.total_products || 0);
+                        $('#totalOrders').text(data.stats.total_orders ?? 0);
+                        $('#pendingOrders').text(data.stats.pending_orders ?? 0);
+                        $('#deliveredOrders').text(data.stats.delivered_orders ?? 0);
+                        $('#totalProducts').text(data.stats.total_products ?? 0);
+                    } else {
+                        $('.adm-stat h3').text('—');
                     }
                 },
                 error: function() {
-                    console.error('Failed to load dashboard stats');
+                    $('.adm-stat h3').text('—');
                 }
             });
         }
 
         function loadRecentOrders() {
             $.ajax({
-                    url: '../assets/db_query/admin/get_orders.php?limit=5',
+                url: '../assets/db_query/admin/get_orders.php?limit=5',
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
                     if (data.status === 'success' && data.orders.length > 0) {
-                        let html = '<table class="table table-hover"><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>';
-                        data.orders.forEach(order => {
-                            html += `<tr>
-                                <td>${order.receipt}</td>
-                                <td>${order.first_name} ${order.last_name}</td>
-                                <td>₹${parseFloat(order.amount).toFixed(2)}</td>
-                                <td><span class="badge badge-${getStatusBadgeClass(order.order_status)}">${order.order_status || 'ordered'}</span></td>
-                                <td>${formatDate(order.created_at)}</td>
-                            </tr>`;
-                        });
-                        html += '</tbody></table>';
-                        $('#recentOrders').html(html);
+                        displayRecentOrders(data.orders);
+                    } else if (data.status === 'success') {
+                        $('#recentOrders').html(emptyState('fa-inbox', 'No orders yet', 'New orders placed on the site will show up here.'));
                     } else {
-                        $('#recentOrders').html('<p class="text-muted">No recent orders</p>');
+                        $('#recentOrders').html('<div class="adm-error">' + escapeHtml(data.message || 'Could not load recent orders.') + '</div>');
                     }
                 },
                 error: function() {
-                    $('#recentOrders').html('<p class="text-danger">Failed to load recent orders</p>');
+                    $('#recentOrders').html('<div class="adm-error">Could not reach the server while loading recent orders.</div>');
                 }
             });
         }
 
-        function getStatusBadgeClass(status) {
-            const classes = {
-                'ordered': 'primary',
-                'packed': 'info',
-                'couriered': 'warning',
-                'delivered': 'success'
+        function displayRecentOrders(orders) {
+            let rows = '';
+            orders.forEach(order => {
+                rows += `<tr>
+                    <td class="adm-cell-title">${escapeHtml(order.receipt)}</td>
+                    <td>${escapeHtml(order.first_name + ' ' + order.last_name)}</td>
+                    <td class="adm-money">₹${parseFloat(order.amount).toFixed(2)}</td>
+                    <td>${statusBadge(order.order_status)}</td>
+                    <td class="adm-cell-sub">${formatDate(order.created_at)}</td>
+                </tr>`;
+            });
+            $('#recentOrders').html(`<div class="adm-table-wrap"><table class="adm-table">
+                <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>`);
+        }
+
+        function statusBadge(status) {
+            const map = {
+                ordered: ['is-neutral', 'Ordered'],
+                packed: ['is-info', 'Packed'],
+                couriered: ['is-amber', 'Out for delivery'],
+                delivered: ['is-green', 'Delivered']
             };
-            return classes[status] || 'secondary';
+            const [cls, label] = map[status] || map.ordered;
+            return `<span class="adm-badge ${cls}">${label}</span>`;
+        }
+
+        function emptyState(icon, title, body) {
+            return `<div class="adm-empty"><i class="fas ${icon}"></i><p><strong>${title}</strong></p><p>${body}</p></div>`;
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
         }
 
         function formatDate(dateString) {
-            if (!dateString) return 'N/A';
+            if (!dateString) return '—';
             const date = new Date(dateString);
-            return date.toLocaleDateString('en-IN') + ' ' + date.toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
+            return date.toLocaleDateString('en-IN') + ' · ' + date.toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
         }
     </script>
 </body>
 </html>
-

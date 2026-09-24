@@ -5,17 +5,21 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
-<div class="sidebar">
-    <div class="sidebar-header">
-        <h4><i class="fas fa-user-shield"></i> Admin Panel</h4>
-        <small>Valluvam Products</small>
+<nav class="adm-sidebar" aria-label="Admin navigation">
+    <div class="adm-brand">
+        <img src="../images/logo.png" alt="">
+        <div class="adm-brand-text">
+            <strong>Valluvam</strong>
+            <span>Admin</span>
+        </div>
     </div>
-    <ul class="sidebar-menu">
-        <li><a href="index.php" class="<?= $current_page === 'index.php' ? 'active' : '' ?>"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="orders.php" class="<?= $current_page === 'orders.php' ? 'active' : '' ?>"><i class="fas fa-shopping-cart"></i> Orders</a></li>
-        <li><a href="products.php" class="<?= $current_page === 'products.php' ? 'active' : '' ?>"><i class="fas fa-box"></i> Products</a></li>
-        <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a></li>
-        <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+    <ul class="adm-nav">
+        <li><a href="index.php" class="<?= $current_page === 'index.php' ? 'active' : '' ?>"><i class="fas fa-grid-2"></i> Dashboard</a></li>
+        <li><a href="orders.php" class="<?= $current_page === 'orders.php' ? 'active' : '' ?>"><i class="fas fa-receipt"></i> Orders</a></li>
+        <li><a href="products.php" class="<?= $current_page === 'products.php' ? 'active' : '' ?>"><i class="fas fa-box-open"></i> Products</a></li>
+        <li class="adm-nav-divider"></li>
+        <li><a href="../index.php" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> View site</a></li>
+        <li><a href="logout.php"><i class="fas fa-right-from-bracket"></i> Log out</a></li>
     </ul>
-</div>
-
+    <div class="adm-sidebar-foot">Valluvam Products</div>
+</nav>

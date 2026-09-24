@@ -1,82 +1,60 @@
 <?php
-session_start();
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: login.php');
-    exit;
-}
-$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+require_once __DIR__ . '/includes/check_admin.php';
+require_once __DIR__ . '/includes/sidebar.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products Management - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Products — Valluvam Admin</title>
+    <link rel="icon" href="../images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
-        body { background-color: #f5f5f5; }
-        .sidebar {
-            position: fixed; top: 0; left: 0; height: 100vh; width: 250px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 20px 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1000;
-        }
-        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px; }
-        .sidebar-menu { list-style: none; padding: 0; margin: 0; }
-        .sidebar-menu a { display: block; padding: 15px 20px; color: white; text-decoration: none; transition: all 0.3s; }
-        .sidebar-menu a:hover { background: rgba(255,255,255,0.1); padding-left: 25px; }
-        .sidebar-menu a.active { background: rgba(255,255,255,0.2); border-left: 4px solid white; }
-        .sidebar-menu i { width: 20px; margin-right: 10px; }
-        .main-content { margin-left: 250px; padding: 30px; }
-        .header-bar { background: white; padding: 15px 30px; margin: -30px -30px 30px -30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .product-image { width: 80px; height: 80px; object-fit: cover; border-radius: 4px; }
-    </style>
+    <link rel="stylesheet" href="assets/admin.css">
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-user-shield"></i> Admin Panel</h4>
-            <small>Valluvam Products</small>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="index.php"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="orders.php"><i class="fas fa-shopping-cart"></i> Orders</a></li>
-            <li><a href="products.php" class="active"><i class="fas fa-box"></i> Products</a></li>
-            <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Site</a></li>
-            <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </div>
-
-    <div class="main-content">
-        <div class="header-bar d-flex justify-content-between align-items-center">
-            <h2>Products Management</h2>
-            <a href="../new_product.php" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Product
-            </a>
-        </div>
-
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">All Products</h5>
+    <a class="adm-skip-link" href="#adm-main-content">Skip to content</a>
+    <div class="adm-shell">
+        <main class="adm-main" id="adm-main-content">
+            <div class="adm-topbar">
                 <div>
-                    <input type="text" id="searchProduct" class="form-control form-control-sm" placeholder="Search products..." style="display: inline-block; width: 200px;">
+                    <h1>Products</h1>
+                    <div class="adm-sub">Add, edit and retire catalog items</div>
                 </div>
+                <a href="../new_product.php" class="adm-btn adm-btn-primary">
+                    <i class="fas fa-plus"></i> Add product
+                </a>
             </div>
-            <div class="card-body">
-                <div id="productsTable">Loading products...</div>
-            </div>
-        </div>
+
+            <section class="adm-card">
+                <div class="adm-card-head">
+                    <h2>All products</h2>
+                    <input type="text" id="searchProduct" class="adm-input" placeholder="Search products…" style="width:220px;">
+                </div>
+                <div class="adm-card-body" id="productsTable">
+                    <div class="adm-table-wrap">
+                        <table class="adm-table"><tbody>
+                            <tr><td><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
+                            <tr><td><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
+                            <tr><td><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
+                        </tbody></table>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        let searchTimer = null;
+
         $(document).ready(function() {
             loadProducts();
             $('#searchProduct').on('keyup', function() {
-                loadProducts();
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(loadProducts, 250);
             });
         });
 
@@ -90,64 +68,62 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                     if (data.status === 'success') {
                         displayProducts(data.products);
                     } else {
-                        $('#productsTable').html('<p class="text-danger">' + (data.message || 'Failed to load products') + '</p>');
+                        $('#productsTable').html('<div class="adm-error">' + escapeHtml(data.message || 'Could not load products.') + '</div>');
                     }
                 },
                 error: function() {
-                    $('#productsTable').html('<p class="text-danger">Failed to load products</p>');
+                    $('#productsTable').html('<div class="adm-error">Could not reach the server while loading products.</div>');
                 }
             });
         }
 
         function displayProducts(products) {
             if (products.length === 0) {
-                $('#productsTable').html('<p class="text-muted">No products found</p>');
+                $('#productsTable').html('<div class="adm-empty"><i class="fas fa-box-open"></i><p><strong>No products found</strong></p><p>Try a different search, or add a new product.</p></div>');
                 return;
             }
 
-            let html = '<div class="table-responsive"><table class="table table-hover"><thead><tr>' +
-                '<th>Image</th><th>Product Name</th><th>Category</th><th>Price</th><th>Discount Price</th><th>Stock</th><th>Actions</th>' +
-                '</tr></thead><tbody>';
-
+            let rows = '';
             products.forEach(product => {
-                html += `<tr>
-                    <td><img src="../assets/uploads/${product.image || 'no-image.jpg'}" class="product-image" alt="${product.product_name}"></td>
-                    <td><strong>${product.product_name}</strong></td>
-                    <td><span class="badge badge-info">${product.category || 'N/A'}</span></td>
-                    <td>₹${parseFloat(product.price || 0).toFixed(2)}</td>
-                    <td>₹${parseFloat(product.dis_price || 0).toFixed(2)}</td>
-                    <td>${product.stock || 'N/A'}</td>
+                const price = parseFloat(product.price || 0);
+                const disPrice = parseFloat(product.dis_price || 0);
+                rows += `<tr>
+                    <td><img src="../assets/uploads/${encodeURI(product.image || 'no-image.jpg')}" class="adm-thumb" alt="${escapeHtml(product.product_name)}"></td>
+                    <td class="adm-cell-title">${escapeHtml(product.product_name)}</td>
+                    <td><span class="adm-badge is-info">${escapeHtml(product.category || 'Uncategorized')}</span></td>
+                    <td class="adm-money">₹${price.toFixed(2)}</td>
+                    <td class="adm-money">${disPrice ? '₹' + disPrice.toFixed(2) : '<span class="adm-cell-sub">—</span>'}</td>
+                    <td>${product.stock ? escapeHtml(String(product.stock)) : '<span class="adm-cell-sub">—</span>'}</td>
                     <td>
-                        <a href="../new_product.php?id=${product.id}" class="btn btn-sm btn-warning" title="Edit">
-                            <i class="fas fa-edit"></i>
+                        <a href="../new_product.php?id=${product.id}" class="adm-icon-btn" title="Edit ${escapeHtml(product.product_name)}">
+                            <i class="fas fa-pen"></i>
                         </a>
-                        <button class="btn btn-sm btn-danger delete-product" data-product-id="${product.id}" data-product-name="${product.product_name}" title="Delete">
+                        <button class="adm-icon-btn is-danger delete-product" data-product-id="${product.id}" data-product-name="${escapeHtml(product.product_name)}" title="Delete ${escapeHtml(product.product_name)}">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
                 </tr>`;
             });
 
-            html += '</tbody></table></div>';
-            $('#productsTable').html(html);
+            $('#productsTable').html(`<div class="adm-table-wrap"><table class="adm-table">
+                <thead><tr><th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Discount price</th><th>Stock</th><th>Actions</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>`);
 
-            // Handle delete
             $('.delete-product').on('click', function() {
-                const productId = $(this).data('product-id');
-                const productName = $(this).data('product-name');
-                deleteProduct(productId, productName);
+                deleteProduct($(this).data('product-id'), $(this).data('product-name'));
             });
         }
 
         function deleteProduct(productId, productName) {
             Swal.fire({
-                title: 'Delete Product?',
-                text: `Are you sure you want to delete "${productName}"? This action cannot be undone.`,
+                title: 'Delete this product?',
+                text: `"${productName}" will be permanently removed. This can't be undone.`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, Delete',
+                confirmButtonColor: '#a8442f',
+                cancelButtonColor: '#6b6459',
+                confirmButtonText: 'Delete',
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -158,20 +134,23 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
-                                Swal.fire('Deleted!', 'Product has been deleted.', 'success');
+                                Swal.fire({ title: 'Deleted', text: 'Product removed.', icon: 'success', confirmButtonColor: '#1c5034' });
                                 loadProducts();
                             } else {
-                                Swal.fire('Error', response.message || 'Failed to delete product', 'error');
+                                Swal.fire({ title: 'Could not delete', text: response.message || 'The product was not removed.', icon: 'error', confirmButtonColor: '#1c5034' });
                             }
                         },
                         error: function() {
-                            Swal.fire('Error', 'Failed to delete product', 'error');
+                            Swal.fire({ title: 'Could not delete', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
                         }
                     });
                 }
             });
         }
+
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        }
     </script>
 </body>
 </html>
-

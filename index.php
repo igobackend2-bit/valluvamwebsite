@@ -291,10 +291,30 @@ include "header.php"
                `.owl-carousel.home-slider .slider-item { height: 650px }` -
                needed so this can actually override that fixed height. */
             height: 100%;
-            /* Crop to the photos' right-hand (product) portion only, so the
-               baked-in headline text on the left half never shows - the new
-               HTML copy in .v-hero-content replaces it. */
-            background-position: 78% center;
+            /* Override `background-size: cover` (also from style.css): cover
+               alone only crops a small sliver here since the box's aspect
+               ratio is close to the photo's own 1672x941. Sizing the image
+               to 190% of the box width (height auto, so it keeps the
+               photo's own proportions) and anchoring the crop window to the
+               right edge shows only the rightmost ~53% of the frame -
+               enough to hide the baked-in headline text that sits in the
+               left half of all three photos. The new HTML copy in
+               .v-hero-content replaces it. */
+            background-size: 190% auto;
+            /* !important: css/style.css sets `background-position: center
+               center !important` on this same element below 1199.98px, which
+               would otherwise silently win on every tablet/mobile width and
+               re-expose the baked-in text this crop exists to hide. */
+            background-position: 100% 38% !important;
+            background-color: #123626;
+        }
+
+        /* hero-2.jpg (the "Aroma of Celebration" / Basmati slide) is laid
+           out the other way round from the other two photos - its baked-in
+           text sits on the RIGHT and the product photography on the LEFT -
+           so it needs the crop window mirrored rather than anchored right. */
+        #home-section .v-hero-visual .slider-item.v-crop-left {
+            background-position: 0% 40% !important;
         }
 
         #home-section .v-hero-visual .overlay {
@@ -335,8 +355,8 @@ include "header.php"
             }
 
             .v-hero-visual {
-                height: 240px;
-                min-height: 240px;
+                height: 260px;
+                min-height: 260px;
             }
 
             #home-section .v-hero-visual .home-slider,
@@ -345,16 +365,12 @@ include "header.php"
             #home-section .v-hero-visual .owl-stage,
             #home-section .v-hero-visual .owl-item,
             #home-section .v-hero-visual .slider-item {
-                height: 240px;
-                min-height: 240px;
+                height: 260px;
+                min-height: 260px;
             }
 
             .v-hero-visual::before {
-                background: linear-gradient(180deg, #123626 0%, rgba(18, 54, 38, 0.35) 10%, rgba(18, 54, 38, 0) 26%);
-            }
-
-            #home-section .v-hero-visual .slider-item {
-                background-position: center center;
+                background: linear-gradient(180deg, #123626 0%, rgba(18, 54, 38, 0.3) 8%, rgba(18, 54, 38, 0) 20%);
             }
         }
 
@@ -810,7 +826,7 @@ include "header.php"
                 <div class="slider-item" style="background-image: url(images/hero-1.jpg);">
                     <div class="overlay"></div>
                 </div>
-                <div class="slider-item" style="background-image: url(images/hero-2.jpg);">
+                <div class="slider-item v-crop-left" style="background-image: url(images/hero-2.jpg);">
                     <div class="overlay"></div>
                 </div>
                 <div class="slider-item" style="background-image: url(images/hero-3.jpg);">
