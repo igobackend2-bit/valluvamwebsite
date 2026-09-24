@@ -145,13 +145,12 @@
 	}
 </style>
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="css/style.css">
+<!-- FIX: footer.php is include()'d into the middle of the single page document that
+     header.php already opened (<!DOCTYPE>/<html>/<head>/<body>), so it must NOT open
+     a second one of its own - a second nested <head> forced the browser to re-fetch
+     css/style.css (277KB) a second time on every single page load, and is invalid
+     HTML. The one footer-only stylesheet (css/footer-redesign.css) and the inline
+     <style> block below are kept, just no longer wrapped in their own document. -->
 	<link rel="stylesheet" href="css/footer-redesign.css">
 	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> -->
 	<style>
@@ -212,9 +211,7 @@
 			color: #252525;
 		}
 	</style>
-</head>
 
-<body>
 	<div class="icon-bar">
 		<a href="https://api.whatsapp.com/send?phone=918925878327" class="whatsapp-float" target="_blank">
 			<ion-icon name="logo-whatsapp"></ion-icon>
@@ -255,6 +252,12 @@
 							<li><a href="oils.php">Oils</a></li>
 							<li><a href="millets.php">Millets</a></li>
 							<li><a href="combo.php">Combos</a></li>
+							<li><a href="palm-jaggery.php">Palm Jaggery</a></li>
+							<li><a href="seeds.php">Seeds</a></li>
+							<li><a href="dal.php">Dal</a></li>
+							<li><a href="honey.php">Honey</a></li>
+							<li><a href="ghee.php">Ghee</a></li>
+							<li><a href="pulses.php">Pulses</a></li>
 						</ul>
 					</div>
 				</div>
