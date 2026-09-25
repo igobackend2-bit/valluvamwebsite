@@ -105,7 +105,7 @@
 /* ---------- Trust strip (new section) ---------- */
 .v-trust-strip {
     background: var(--v-green-dark);
-    padding: 22px 0;
+    padding: 30px 0;
 }
 
 .v-trust-strip ul {
@@ -115,22 +115,52 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 28px 44px;
+    gap: 20px 32px;
 }
 
 .v-trust-strip li {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     color: #eef6e7;
     font-weight: 600;
     font-size: 0.95em;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    padding: 10px 20px 10px 12px;
 }
 
-.v-trust-strip li ion-icon {
-    font-size: 1.4em;
-    color: #b7e08a;
+.v-trust-strip li .v-trust-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--v-green-soft, #82ae46);
     flex-shrink: 0;
+}
+
+.v-trust-strip li .v-trust-icon ion-icon {
+    font-size: 1.1em;
+    color: #1c5034;
+}
+
+/* "New" badge on the newest Featured Products cards (#product-container) */
+.v-new-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--v-green-dark, #1c5034);
+    color: #fff;
+    font-size: 0.72em;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    z-index: 2;
 }
 
 /* ---------- Section headings (shared visual rhythm) ---------- */

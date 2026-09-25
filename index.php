@@ -880,10 +880,10 @@ include "header.php"
     <section class="v-trust-strip">
         <div class="container">
             <ul>
-                <li><ion-icon name="ribbon-outline"></ion-icon> Quality Products</li>
-                <li><ion-icon name="cube-outline"></ion-icon> Fresh Packaging</li>
-                <li><ion-icon name="lock-closed-outline"></ion-icon> Secure Checkout</li>
-                <li><ion-icon name="rocket-outline"></ion-icon> Pan-India Delivery</li>
+                <li><span class="v-trust-icon"><ion-icon name="ribbon-outline"></ion-icon></span> Quality Products</li>
+                <li><span class="v-trust-icon"><ion-icon name="cube-outline"></ion-icon></span> Fresh Packaging</li>
+                <li><span class="v-trust-icon"><ion-icon name="lock-closed-outline"></ion-icon></span> Secure Checkout</li>
+                <li><span class="v-trust-icon"><ion-icon name="rocket-outline"></ion-icon></span> Pan-India Delivery</li>
             </ul>
         </div>
     </section>

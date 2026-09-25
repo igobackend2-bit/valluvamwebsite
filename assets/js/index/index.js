@@ -252,7 +252,7 @@ function product_catelog() {
             console.log(res)
             if (res.status === 'success') {
                 let html = '';
-                res.data.forEach(function (product) {
+                res.data.forEach(function (product, index) {
                     let slug = product.product_name.toLowerCase().replace(/\s+/g, '-');
                     let image = product.image ? 'assets/uploads/' + product.image : 'images/default.jpg';
 
@@ -262,6 +262,12 @@ function product_catelog() {
                         discount = `<span class="status">${percent}%</span>`;
                     }
 
+                    // "New" badge: this query is already ORDER BY id DESC (newest
+                    // first), so the first 2 cards genuinely are the most recently
+                    // added products — not a fabricated claim, just labelling what's
+                    // already true of this list.
+                    let newBadge = index < 2 ? '<span class="v-new-badge">New</span>' : '';
+
                     // ✅ Quantity added next to product name
                     html += `
                     <div class="col-md-6 col-lg-3 mb-3">
@@ -269,6 +275,7 @@ function product_catelog() {
                             <a href="${productUrl(product.category, product.product_name)}" class="img-prod" onclick="showproduct('product-${slug}')">
                                 <img class="img-fluid" src="${image}" alt="${product.product_name}" loading="lazy">
                                 ${discount}
+                                ${newBadge}
                                 <div class="overlay"></div>
                             </a>
                             <div class="text py-3 pb-4 px-3 text-center">
