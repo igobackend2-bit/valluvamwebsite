@@ -27,6 +27,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
 
         <li class="adm-nav-section">Inventory</li>
         <li><a href="products.php" class="<?= nav_active('products.php', $current_page) ?>"><i class="fas fa-box-open"></i> Products</a></li>
+        <li><a href="categories.php" class="<?= nav_active('categories.php', $current_page) ?>"><i class="fas fa-tags"></i> Categories</a></li>
         <li><a href="inventory_overview.php" class="<?= nav_active('inventory_overview.php', $current_page) ?>"><i class="fas fa-warehouse"></i> Inventory</a></li>
         <li><a href="stock_in.php" class="<?= nav_active('stock_in.php', $current_page) ?>"><i class="fas fa-dolly"></i> Stock In</a></li>
         <li><a href="stock_out.php" class="<?= nav_active('stock_out.php', $current_page) ?>"><i class="fas fa-hand-holding-box"></i> Stock Out</a></li>
