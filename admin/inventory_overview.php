@@ -22,7 +22,10 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <h1>Inventory Overview</h1>
                     <div class="adm-sub">Warehouse-aware stock levels, reservations and reorder status. For the original manual "Adjust stock" tool, see the Inventory page.</div>
                 </div>
-                <button class="adm-btn adm-btn-primary" id="exportCsvBtn"><i class="fas fa-file-csv"></i> Export CSV</button>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="adm-btn adm-btn-ghost" id="importStockBtn"><i class="fas fa-file-import"></i> Import Stock</button>
+                    <button class="adm-btn adm-btn-primary" id="exportCsvBtn"><i class="fas fa-file-csv"></i> Export CSV</button>
+                </div>
             </div>
 
             <!--
@@ -73,6 +76,7 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#statusFilter').on('change', render);
             $('#warehouseFilter').on('change', render);
             $('#exportCsvBtn').on('click', exportCsv);
+            $('#importStockBtn').on('click', openImportStock);
         });
 
         function loadWarehouses() {
@@ -205,6 +209,113 @@ require_once __DIR__ . '/includes/check_admin.php';
                         Swal.fire({ title: 'Could not update', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
                     }
                 });
+            });
+        }
+
+        // ---- Bulk stock import (Excel/CSV) ----
+        // Matches rows to EXISTING products by exact name (case-insensitive)
+        // only — never creates or renames a product. Unmatched names and bad
+        // quantity values are reported back, never guessed.
+        function openImportStock() {
+            Swal.fire({
+                title: 'Import Stock from File',
+                html: `
+                    <p style="text-align:left;margin:0 0 10px;color:#5a5650;font-size:14px;">
+                        Upload a <strong>CSV</strong> or <strong>Excel (.xlsx)</strong> file with a
+                        <strong>Product Name</strong> column and a <strong>Quantity</strong> column.
+                        Each row updates that product's stock to the quantity in the file — matching
+                        is by exact product name only, so nothing is renamed and no new product is
+                        created. Rows that don't match an existing product are listed afterwards so
+                        nothing silently happens to the wrong product.
+                    </p>
+                    <p style="text-align:left;margin:0 0 10px;color:#8a8478;font-size:13px;">
+                        PDF isn't supported — it can't be read reliably enough to trust with stock
+                        numbers. Please save/export the list as CSV or Excel instead.
+                    </p>
+                    <input type="file" id="swal-import-file" class="swal2-file" accept=".csv,.xlsx">
+                `,
+                confirmButtonText: 'Import',
+                confirmButtonColor: '#1c5034',
+                showCancelButton: true,
+                cancelButtonColor: '#6b6459',
+                preConfirm: () => {
+                    const fileInput = document.getElementById('swal-import-file');
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        Swal.showValidationMessage('Choose a CSV or Excel file first');
+                        return false;
+                    }
+                    return fileInput.files[0];
+                }
+            }).then((result) => {
+                if (result.isConfirmed) submitImportStock(result.value);
+            });
+        }
+
+        function submitImportStock(file) {
+            Swal.fire({ title: 'Importing…', text: 'Reading and matching the file, please wait.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const formData = new FormData();
+            formData.append('import_file', file);
+
+            $.ajax({
+                url: '../assets/db_query/admin/import_stock.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showImportSummary(response.summary, response.updated);
+                        loadInventory();
+                    } else {
+                        Swal.fire({ title: 'Could not import', text: response.message || 'The file could not be processed.', icon: 'error', confirmButtonColor: '#1c5034' });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ title: 'Could not import', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                }
+            });
+        }
+
+        function showImportSummary(summary, updated) {
+            let html = `<div style="text-align:left;font-size:14px;">
+                <p><strong>${summary.updated_count}</strong> product(s) updated, <strong>${summary.unchanged_count}</strong> already matched the file, out of <strong>${summary.total_rows}</strong> row(s) read.</p>`;
+
+            if (updated && updated.length > 0) {
+                html += '<div style="max-height:150px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;margin-bottom:10px;">';
+                updated.forEach(u => {
+                    html += `<div>${escapeHtml(u.name)}: ${u.previous_stock} → <strong>${u.new_stock}</strong></div>`;
+                });
+                html += '</div>';
+            }
+
+            if (summary.unmatched && summary.unmatched.length > 0) {
+                html += `<p style="color:#c0392b;margin-bottom:4px;"><strong>${summary.unmatched.length} row(s) not matched to any product</strong> (nothing was changed for these — check spelling against the product list):</p>`;
+                html += '<div style="max-height:120px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;margin-bottom:10px;">';
+                summary.unmatched.forEach(u => {
+                    html += `<div>${escapeHtml(u.name)} <span style="color:#8a8478;">— ${escapeHtml(u.reason)}</span></div>`;
+                });
+                html += '</div>';
+            }
+
+            if (summary.invalid_quantity && summary.invalid_quantity.length > 0) {
+                html += `<p style="color:#c0392b;margin-bottom:4px;"><strong>${summary.invalid_quantity.length} row(s) had an unreadable quantity</strong> and were skipped:</p>`;
+                html += '<div style="max-height:120px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;">';
+                summary.invalid_quantity.forEach(u => {
+                    html += `<div>${escapeHtml(u.name)}: "${escapeHtml(u.value)}"</div>`;
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            Swal.fire({
+                title: 'Import complete',
+                html: html,
+                icon: summary.unmatched.length > 0 || summary.invalid_quantity.length > 0 ? 'warning' : 'success',
+                confirmButtonColor: '#1c5034',
+                width: 560
             });
         }
 
