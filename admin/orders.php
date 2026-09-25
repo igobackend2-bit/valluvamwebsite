@@ -102,11 +102,16 @@ require_once __DIR__ . '/includes/check_admin.php';
                         </select>
                     </td>
                     <td class="adm-cell-sub">${formatDate(order.created_at)}</td>
+                    <td>
+                        <button type="button" class="adm-icon-btn view-items-btn" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" title="View products ordered">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
                 </tr>`;
             });
 
             $('#ordersTable').html(`<div class="adm-table-wrap"><table class="adm-table">
-                <thead><tr><th>Order</th><th>Customer</th><th>Phone</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
+                <thead><tr><th>Order</th><th>Customer</th><th>Phone</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Items</th></tr></thead>
                 <tbody>${rows}</tbody>
             </table></div>`);
 
@@ -116,6 +121,86 @@ require_once __DIR__ . '/includes/check_admin.php';
                 const currentStatus = $(this).data('current-status');
                 if (newStatus === currentStatus) return;
                 updateOrderStatus(orderId, newStatus, $(this));
+            });
+
+            $('.view-items-btn').on('click', function() {
+                viewOrderItems($(this).data('order-id'), $(this).data('receipt'));
+            });
+        }
+
+        function viewOrderItems(orderId, receipt) {
+            Swal.fire({
+                title: 'Loading items…',
+                html: '<span class="adm-skel" style="width:100%;height:18px;"></span>',
+                showConfirmButton: false,
+                willOpen: () => { Swal.showLoading(); }
+            });
+
+            $.ajax({
+                url: '../assets/db_query/admin/get_order_items.php?order_id=' + encodeURIComponent(orderId),
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status !== 'success') {
+                        Swal.fire({ title: 'Could not load items', text: data.message || 'Please try again.', icon: 'error', confirmButtonColor: '#1c5034' });
+                        return;
+                    }
+                    renderOrderItemsModal(receipt, data.items);
+                },
+                error: function() {
+                    Swal.fire({ title: 'Could not load items', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                }
+            });
+        }
+
+        function renderOrderItemsModal(receipt, items) {
+            if (!items || items.length === 0) {
+                Swal.fire({
+                    title: 'Order ' + escapeHtml(receipt),
+                    html: '<div class="adm-empty"><i class="fas fa-box-open"></i><p><strong>No product lines found</strong></p><p>This order has no recorded items.</p></div>',
+                    confirmButtonColor: '#1c5034',
+                    confirmButtonText: 'Close',
+                    width: 480
+                });
+                return;
+            }
+
+            let rows = '';
+            let grandTotal = 0;
+            items.forEach(item => {
+                const lineTotal = parseFloat(item.line_total || (item.quantity * item.price));
+                grandTotal += lineTotal;
+                const imgSrc = '../assets/uploads/' + encodeURI(item.image || 'no-image.jpg');
+                rows += `<tr>
+                    <td style="text-align:left;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="${imgSrc}" class="adm-thumb" onerror="this.src='../images/logo.png'" alt="">
+                            <div style="text-align:left;">
+                                <div class="adm-cell-title">${escapeHtml(item.product_name || ('Product #' + item.product_id))}</div>
+                                ${item.category ? '<div class="adm-cell-sub">' + escapeHtml(item.category) + '</div>' : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>${escapeHtml(String(item.quantity))}</td>
+                    <td class="adm-money">₹${parseFloat(item.price).toFixed(2)}</td>
+                    <td class="adm-money">₹${lineTotal.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            const html = `<div class="adm-table-wrap" style="text-align:left;">
+                <table class="adm-table">
+                    <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                    <tfoot><tr><td colspan="3" style="text-align:right;font-weight:700;">Grand total</td><td class="adm-money" style="font-weight:700;">₹${grandTotal.toFixed(2)}</td></tr></tfoot>
+                </table>
+            </div>`;
+
+            Swal.fire({
+                title: 'Products in order ' + escapeHtml(receipt),
+                html: html,
+                confirmButtonColor: '#1c5034',
+                confirmButtonText: 'Close',
+                width: 620
             });
         }
 
