@@ -341,3 +341,14 @@ table.adm-table tbody tr:last-child td { border-bottom: none; }
 /* Bootstrap 4 override shims (kept loaded for its grid utilities only) */
 .badge { border-radius: 6px; }
 .table-hover tbody tr:hover { background: #faf8f2; }
+
+/* ERP sidebar section labels (Sales / Inventory / Accounts / etc groupings) */
+.adm-nav-section {
+  padding: 14px 12px 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+.adm-nav li.adm-nav-section + li { margin-top: 2px; }
