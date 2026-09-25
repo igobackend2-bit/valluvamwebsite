@@ -22,9 +22,12 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <h1>Products</h1>
                     <div class="adm-sub">Add, edit and retire catalog items</div>
                 </div>
-                <a href="../new_product.php" class="adm-btn adm-btn-primary">
-                    <i class="fas fa-plus"></i> Add product
-                </a>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="adm-btn adm-btn-ghost" id="importProductsBtn"><i class="fas fa-file-import"></i> Import Products</button>
+                    <a href="../new_product.php" class="adm-btn adm-btn-primary">
+                        <i class="fas fa-plus"></i> Add product
+                    </a>
+                </div>
             </div>
 
             <section class="adm-card">
@@ -56,7 +59,115 @@ require_once __DIR__ . '/includes/check_admin.php';
                 clearTimeout(searchTimer);
                 searchTimer = setTimeout(loadProducts, 250);
             });
+            $('#importProductsBtn').on('click', openImportProducts);
         });
+
+        // ---- Bulk product import (Excel/CSV) ----
+        // Creates NEW products only — a row whose name already exists, or
+        // whose category doesn't match an existing category, is skipped and
+        // reported, never silently overwritten or invented.
+        function openImportProducts() {
+            Swal.fire({
+                title: 'Import Products from File',
+                html: `
+                    <p style="text-align:left;margin:0 0 10px;color:#5a5650;font-size:14px;">
+                        Upload a <strong>CSV</strong> or <strong>Excel (.xlsx)</strong> file with a header row
+                        containing <strong>Product Name, Category, Quantity, Price</strong> (required) and
+                        optionally <strong>Discount Price, Stock, Rating, Description, Benefits</strong>.
+                        Quantity needs a unit, e.g. "500g", "1kg", "750ml" or "1L". Category must match an
+                        existing category exactly — rows with an unrecognized category are skipped and listed
+                        afterwards so nothing gets miscategorized.
+                    </p>
+                    <p style="text-align:left;margin:0 0 10px;color:#8a8478;font-size:13px;">
+                        A product that already exists (by name) is skipped, not changed. No photo can come from
+                        a spreadsheet — imported products start with no image; add one later by editing the
+                        product. PDF isn't supported — please save/export the list as CSV or Excel instead.
+                    </p>
+                    <input type="file" id="swal-import-products-file" class="swal2-file" accept=".csv,.xlsx">
+                `,
+                confirmButtonText: 'Import',
+                confirmButtonColor: '#1c5034',
+                showCancelButton: true,
+                cancelButtonColor: '#6b6459',
+                preConfirm: () => {
+                    const fileInput = document.getElementById('swal-import-products-file');
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        Swal.showValidationMessage('Choose a CSV or Excel file first');
+                        return false;
+                    }
+                    return fileInput.files[0];
+                }
+            }).then((result) => {
+                if (result.isConfirmed) submitImportProducts(result.value);
+            });
+        }
+
+        function submitImportProducts(file) {
+            Swal.fire({ title: 'Importing…', text: 'Reading and creating products, please wait.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const formData = new FormData();
+            formData.append('import_file', file);
+
+            $.ajax({
+                url: '../assets/db_query/admin/import_products.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showImportProductsSummary(response.summary, response.created);
+                        loadProducts();
+                    } else {
+                        Swal.fire({ title: 'Could not import', text: response.message || 'The file could not be processed.', icon: 'error', confirmButtonColor: '#1c5034' });
+                    }
+                },
+                error: function() {
+                    Swal.fire({ title: 'Could not import', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                }
+            });
+        }
+
+        function showImportProductsSummary(summary, created) {
+            let html = `<div style="text-align:left;font-size:14px;">
+                <p><strong>${summary.created_count}</strong> new product(s) created out of <strong>${summary.total_rows}</strong> row(s) read.</p>`;
+
+            if (created && created.length > 0) {
+                html += '<div style="max-height:150px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;margin-bottom:10px;">';
+                created.forEach(p => {
+                    html += `<div>${escapeHtml(p.name)} — ${escapeHtml(p.category)}, ${escapeHtml(p.quantity)}, ₹${parseFloat(p.price).toFixed(2)}</div>`;
+                });
+                html += '</div>';
+            }
+
+            if (summary.skipped_existing && summary.skipped_existing.length > 0) {
+                html += `<p style="color:#8a8478;margin-bottom:4px;"><strong>${summary.skipped_existing.length} row(s) skipped</strong> — a product with that name already exists:</p>`;
+                html += '<div style="max-height:100px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;margin-bottom:10px;">' + summary.skipped_existing.map(escapeHtml).join('<br>') + '</div>';
+            }
+
+            if (summary.skipped_unknown_category && summary.skipped_unknown_category.length > 0) {
+                html += `<p style="color:#c0392b;margin-bottom:4px;"><strong>${summary.skipped_unknown_category.length} row(s) skipped</strong> — category didn't match an existing one:</p>`;
+                html += '<div style="max-height:100px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;margin-bottom:10px;">';
+                summary.skipped_unknown_category.forEach(u => { html += `<div>${escapeHtml(u.name)}: "${escapeHtml(u.category)}"</div>`; });
+                html += '</div>';
+            }
+
+            if (summary.invalid && summary.invalid.length > 0) {
+                html += `<p style="color:#c0392b;margin-bottom:4px;"><strong>${summary.invalid.length} row(s) had missing/invalid data</strong> and were skipped:</p>`;
+                html += '<div style="max-height:120px;overflow-y:auto;border:1px solid #e5e1d8;border-radius:6px;padding:8px;">';
+                summary.invalid.forEach(u => { html += `<div>${escapeHtml(u.name)}: ${escapeHtml(u.reason)}</div>`; });
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            const hasIssues = (summary.skipped_existing && summary.skipped_existing.length > 0) ||
+                (summary.skipped_unknown_category && summary.skipped_unknown_category.length > 0) ||
+                (summary.invalid && summary.invalid.length > 0);
+
+            Swal.fire({ title: 'Import complete', html: html, icon: hasIssues ? 'warning' : 'success', confirmButtonColor: '#1c5034', width: 560 });
+        }
 
         function loadProducts() {
             const search = $('#searchProduct').val();
