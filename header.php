@@ -957,8 +957,12 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       </div>
 
       <div class="auth-panel">
-        <img src="images/leaf-corner-tr.png" class="auth-corner-leaf auth-corner-leaf--tr" alt="">
-        <img src="images/leaf-corner-br.png" class="auth-corner-leaf auth-corner-leaf--br" alt="">
+        <!-- FIX: removed the decorative leaf-corner overlays here - at
+             common screen widths .auth-panel's overflow:hidden clipped
+             them mid-shape against the card edge, which read as a stray/
+             broken graphic rather than decoration. The logo right below
+             (images/auth-logo.png, the site's actual Valluvam wordmark)
+             is unaffected and still renders normally. -->
         <div class="auth-brand">
           <img src="images/auth-logo.png" class="auth-brand-logo" alt="Valluvam - Goodness from Nature">
         </div>
