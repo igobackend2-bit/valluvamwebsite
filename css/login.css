@@ -140,7 +140,18 @@
     height: 100%;
     background: linear-gradient(135deg, rgba(255, 253, 246, 0.35) 0%, rgba(255, 253, 246, 0.55) 100%), url("../images/login-bg.jpg") center center / cover no-repeat;
     z-index: 9999;
-    overflow-y: auto;
+    /* FIX (25 Sep 2026): this used to be overflow-y:auto, which let the
+       whole overlay scroll as one long page. Combined with .auth-modal
+       only setting min-height (not height), the photo's height had no
+       fixed reference to resolve against and fell back to its natural
+       tall aspect ratio, making the overlay taller than the screen -
+       so the page showed two independent scrollbars (this one, plus the
+       browser's), and the fixed "New to Valluvam?" bar stayed pinned in
+       place while the card scrolled underneath it and overlapped. This
+       is now a single fixed-height view (see .auth-modal/.auth-visual
+       below); only .auth-panel scrolls internally, and only on the rare
+       very short window where the form itself is taller than the screen. */
+    overflow: hidden;
 }
 
 .form-close {
@@ -231,7 +242,7 @@
 
 .auth-modal {
     display: flex;
-    min-height: 100%;
+    height: 100%;
     width: 100%;
     align-items: center;
     justify-content: center;
@@ -247,7 +258,7 @@
    width form column, so the two always meet edge-to-edge. */
 .auth-visual {
     flex: 1 1 auto;
-    min-height: 100%;
+    height: 100%;
     align-self: stretch;
     position: relative;
 }
@@ -292,7 +303,12 @@
     position: relative;
     z-index: 2;
     box-sizing: border-box;
-    overflow: hidden;
+    /* Only this card scrolls internally, and only on a window short
+       enough that the form itself doesn't fit - the fixed close button
+       and "New to Valluvam?" bar stay put either way, so they can never
+       overlap scrolled content again. */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .auth-brand {
