@@ -28,9 +28,12 @@ require_once __DIR__ . '/includes/check_admin.php';
             <div class="adm-topbar">
                 <div>
                     <h1>Invoices</h1>
-                    <div class="adm-sub">Billing documents — standalone or converted from a Sales Order</div>
+                    <div class="adm-sub">Billing documents — standalone, or auto-generated from a Sales Order the moment it's confirmed</div>
                 </div>
-                <button class="adm-btn adm-btn-primary" id="addInvBtn"><i class="fas fa-plus"></i> New Invoice</button>
+                <div style="display:flex; gap:8px;">
+                    <button class="adm-btn adm-btn-ghost" id="genFromSoBtn" title="Auto-create invoices for any confirmed sales order that doesn't have one yet"><i class="fas fa-bolt"></i> Generate from Sales Orders</button>
+                    <button class="adm-btn adm-btn-primary" id="addInvBtn"><i class="fas fa-plus"></i> New Invoice</button>
+                </div>
             </div>
 
             <section class="adm-card">
@@ -75,7 +78,36 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#addInvBtn').on('click', function() { openInvModal(null); });
             $('#invFilterBtn').on('click', loadInvoices);
             $('#invSearch').on('keyup', function(e) { if (e.key === 'Enter') loadInvoices(); });
+            $('#genFromSoBtn').on('click', generateInvoicesFromSalesOrders);
         });
+
+        function generateInvoicesFromSalesOrders() {
+            Swal.fire({
+                title: 'Generate invoices from Sales Orders?',
+                text: 'Every confirmed sales order that doesn\'t have an invoice yet will get one automatically, using that order\'s own items and amounts.',
+                icon: 'question', showCancelButton: true,
+                confirmButtonColor: '#1c5034', cancelButtonColor: '#6b6459', confirmButtonText: 'Generate'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                Swal.fire({ title: 'Generating…', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                $.ajax({
+                    url: '../assets/db_query/admin/generate_invoices_for_sales_orders.php', type: 'POST', dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                title: response.created_count > 0 ? `${response.created_count} invoice(s) created` : 'Nothing to generate',
+                                text: response.created_count > 0 ? response.created.join(', ') : 'Every confirmed sales order already has an invoice.',
+                                icon: 'success', confirmButtonColor: '#1c5034'
+                            });
+                            loadInvoices();
+                        } else {
+                            Swal.fire({ title: 'Could not generate', text: response.message || '', icon: 'error', confirmButtonColor: '#1c5034' });
+                        }
+                    },
+                    error: function() { Swal.fire({ title: 'Could not generate', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' }); }
+                });
+            });
+        }
 
         function loadLookups() {
             const p1 = $.ajax({ url: '../assets/db_query/admin/get_products_for_sales.php', type: 'GET', dataType: 'json' })

@@ -8,6 +8,7 @@
 // unit, rate, discount, tax}).
 require_once __DIR__ . '/auth_helper.php';
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/invoice_helper.php';
 
 require_admin_session();
 
@@ -149,7 +150,20 @@ try {
         'so_number' => $soNumber, 'status' => $status, 'grand_total' => $grandTotal
     ]);
 
-    echo json_encode(['status' => 'success', 'id' => $soId, 'so_number' => $soNumber]);
+    // Auto-generate the customer's invoice straight from this order's own
+    // items/amounts the moment it's a real (non-draft, non-cancelled) sale —
+    // best-effort: a failure here must never fail the sales-order save itself.
+    $autoInvoice = null;
+    try {
+        $autoInvoice = auto_generate_invoice_for_sales_order($pdo, $soId, $adminUsername);
+    } catch (Exception $e) {
+        error_log("Auto-invoice generation failed for SO #{$soId}: " . $e->getMessage());
+    }
+
+    echo json_encode([
+        'status' => 'success', 'id' => $soId, 'so_number' => $soNumber,
+        'auto_invoice_number' => $autoInvoice['invoice_number'] ?? null
+    ]);
 } catch (Exception $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log("Error saving sales order: " . $e->getMessage());
