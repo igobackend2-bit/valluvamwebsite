@@ -61,7 +61,18 @@ require_once __DIR__ . '/includes/check_admin.php';
             </section>
 
             <section class="adm-card">
-                <div class="adm-card-head"><h2>All stock ins</h2></div>
+                <div class="adm-card-head" style="flex-wrap:wrap;gap:10px;">
+                    <h2>All stock ins</h2>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <select id="f_period" class="adm-select">
+                            <option value="">All time</option>
+                            <option value="day">Today</option>
+                            <option value="week">This week (7 days)</option>
+                            <option value="month">This month (30 days)</option>
+                        </select>
+                        <button class="adm-btn adm-btn-ghost" id="exportStockInCsvBtn"><i class="fas fa-file-csv"></i> Download CSV</button>
+                    </div>
+                </div>
                 <div class="adm-card-body" id="stockInsTable">
                     <div class="adm-table-wrap"><table class="adm-table"><tbody>
                         <tr><td><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
@@ -91,6 +102,8 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#cancelFormBtn').on('click', function() { $('#stockInForm').hide(); });
             $('#addItemRowBtn').on('click', function() { addItemRow(); });
             $('#saveDraftBtn').on('click', function() { saveStockIn(); });
+            $('#f_period').on('change', function() { loadStockIns(); });
+            $('#exportStockInCsvBtn').on('click', exportStockInsCsv);
         });
 
         function resetForm() {
@@ -216,13 +229,17 @@ require_once __DIR__ . '/includes/check_admin.php';
             });
         }
 
+        let lastStockIns = [];
+
         function loadStockIns() {
+            const period = $('#f_period').val();
             $.ajax({
-                url: '../assets/db_query/admin/get_stock_ins.php',
+                url: '../assets/db_query/admin/get_stock_ins.php' + (period ? '?period=' + encodeURIComponent(period) : ''),
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
                     if (data.status === 'success') {
+                        lastStockIns = data.stock_ins;
                         displayStockIns(data.stock_ins);
                     } else {
                         $('#stockInsTable').html('<div class="adm-error">' + escapeHtml(data.message || 'Could not load stock ins.') + '</div>');
@@ -232,6 +249,40 @@ require_once __DIR__ . '/includes/check_admin.php';
                     $('#stockInsTable').html('<div class="adm-error">Could not reach the server while loading stock ins.</div>');
                 }
             });
+        }
+
+        function exportStockInsCsv() {
+            if (!lastStockIns.length) {
+                Swal.fire({ title: 'Nothing to export', text: 'No stock ins in this period.', icon: 'info', confirmButtonColor: '#1c5034' });
+                return;
+            }
+            const header = ['Stock In #', 'Date', 'Supplier', 'Warehouse', 'Items', 'Total Qty', 'Status', 'Created By', 'Created At'];
+            const rows = [header.join(',')];
+            lastStockIns.forEach(r => {
+                rows.push([
+                    csvEscape(r.stock_in_number), csvEscape(r.stock_in_date), csvEscape(r.supplier_name || ''),
+                    csvEscape(r.warehouse_name || ''), r.item_count, r.total_quantity, csvEscape(r.status),
+                    csvEscape(r.created_by || ''), csvEscape(r.created_at)
+                ].join(','));
+            });
+            const period = $('#f_period').val() || 'all';
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'stock_in_' + period + '_' + new Date().toISOString().substring(0, 10) + '.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function csvEscape(val) {
+            const str = String(val ?? '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
         }
 
         function statusBadge(status) {
