@@ -71,7 +71,8 @@ try {
         'paid_invoices'    => (int)safe_scalar($pdo, "SELECT COUNT(*) FROM invoices WHERE payment_status = 'paid'"),
         'outstanding_amount' => (float)safe_scalar($pdo, "SELECT COALESCE(SUM(grand_total - amount_paid),0) FROM invoices WHERE payment_status NOT IN ('paid','cancelled')"),
 
-        'low_stock_products' => (int)safe_scalar($pdo, "SELECT COUNT(*) FROM product_details WHERE stock IS NOT NULL AND stock <= 10"),
+        'low_stock_products' => (int)safe_scalar($pdo, "SELECT COUNT(*) FROM product_details WHERE stock IS NOT NULL AND stock > 0 AND stock < 20"),
+        'out_of_stock_products' => (int)safe_scalar($pdo, "SELECT COUNT(*) FROM product_details WHERE stock IS NOT NULL AND stock = 0"),
         'stock_in_today'  => (int)safe_scalar($pdo, "SELECT COALESCE(SUM(quantity),0) FROM stock_movements WHERE movement_type='stock_in' AND DATE(created_at) = CURDATE()"),
         'stock_out_today' => (int)safe_scalar($pdo, "SELECT COALESCE(ABS(SUM(quantity)),0) FROM stock_movements WHERE movement_type='stock_out' AND DATE(created_at) = CURDATE()"),
 

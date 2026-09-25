@@ -124,6 +124,32 @@ try {
     }
   }
 
+  // ✅ Deduct stock immediately for Cash on Delivery orders (payment is
+  // confirmed at order time for COD). For Razorpay orders, stock is deducted
+  // only after payment is verified successfully — see order/payment/verify.php
+  // — so an abandoned/failed Razorpay checkout never reserves stock.
+  if ($paymentMethod === 'COD') {
+    $stockLock = $pdo->prepare("SELECT stock FROM product_details WHERE id = ? FOR UPDATE");
+    $stockUpdate = $pdo->prepare("UPDATE product_details SET stock = ? WHERE id = ?");
+    foreach ($cart as $item) {
+      if (empty($item['product_id'])) continue;
+      $stockLock->execute([$item['product_id']]);
+      $prod = $stockLock->fetch(PDO::FETCH_ASSOC);
+      if (!$prod) continue;
+      $previousStock = (int)$prod['stock'];
+      $newStock = max(0, $previousStock - (int)$item['quantity']);
+      $stockUpdate->execute([$newStock, $item['product_id']]);
+      // Best-effort movement log — table added by the ERP module; order
+      // placement still succeeds even if it isn't present.
+      try {
+        $pdo->prepare("INSERT INTO stock_movements (movement_type, product_id, warehouse_id, quantity,
+                        previous_stock, new_stock, reference_type, reference_number, reason, created_by, created_at)
+                        VALUES ('stock_out', ?, 1, ?, ?, ?, 'website_order', ?, 'Website order (COD)', 'Website', NOW())")
+            ->execute([$item['product_id'], -1 * (int)$item['quantity'], $previousStock, $newStock, $receipt]);
+      } catch (PDOException $e) { /* stock_movements not present — ignore */ }
+    }
+  }
+
   // ✅ Handle Razorpay order creation
   $razorpayOrderId = null;
   if ($paymentMethod === 'RZP') {

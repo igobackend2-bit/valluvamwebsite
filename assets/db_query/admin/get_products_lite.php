@@ -7,7 +7,9 @@ require_once __DIR__ . '/../config.php';
 require_admin_session();
 
 try {
-    $stmt = $pdo->query("SELECT id, product_name, sku, stock FROM product_details ORDER BY product_name ASC");
+    // NOTE: product_details has no real `sku` column. Synthesize a stable
+    // display SKU from the id instead of adding a new column.
+    $stmt = $pdo->query("SELECT id, product_name, CONCAT('PRD-', id) AS sku, stock FROM product_details ORDER BY product_name ASC");
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['status' => 'success', 'products' => $products]);
 } catch (PDOException $e) {

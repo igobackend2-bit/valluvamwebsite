@@ -65,7 +65,18 @@ require_once __DIR__ . '/includes/check_admin.php';
             </section>
 
             <section class="adm-card">
-                <div class="adm-card-head"><h2>All stock outs</h2></div>
+                <div class="adm-card-head" style="flex-wrap:wrap;gap:10px;">
+                    <h2>All stock outs</h2>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <select id="f_period" class="adm-select">
+                            <option value="">All time</option>
+                            <option value="day">Today</option>
+                            <option value="week">This week (7 days)</option>
+                            <option value="month">This month (30 days)</option>
+                        </select>
+                        <button class="adm-btn adm-btn-ghost" id="exportStockOutCsvBtn"><i class="fas fa-file-csv"></i> Download CSV</button>
+                    </div>
+                </div>
                 <div class="adm-card-body" id="stockOutsTable">
                     <div class="adm-table-wrap"><table class="adm-table"><tbody>
                         <tr><td><span class="adm-skel" style="width:100%;height:18px;"></span></td></tr>
@@ -94,6 +105,8 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#cancelFormBtn').on('click', function() { $('#stockOutForm').hide(); });
             $('#addItemRowBtn').on('click', function() { addItemRow(); });
             $('#saveStockOutBtn').on('click', function() { saveStockOut(); });
+            $('#f_period').on('change', function() { loadStockOuts(); });
+            $('#exportStockOutCsvBtn').on('click', exportStockOutsCsv);
         });
 
         function resetForm() {
@@ -205,13 +218,17 @@ require_once __DIR__ . '/includes/check_admin.php';
             });
         }
 
+        let lastStockOuts = [];
+
         function loadStockOuts() {
+            const period = $('#f_period').val();
             $.ajax({
-                url: '../assets/db_query/admin/get_stock_outs.php',
+                url: '../assets/db_query/admin/get_stock_outs.php' + (period ? '?period=' + encodeURIComponent(period) : ''),
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
                     if (data.status === 'success') {
+                        lastStockOuts = data.stock_outs;
                         displayStockOuts(data.stock_outs);
                     } else {
                         $('#stockOutsTable').html('<div class="adm-error">' + escapeHtml(data.message || 'Could not load stock outs.') + '</div>');
@@ -221,6 +238,40 @@ require_once __DIR__ . '/includes/check_admin.php';
                     $('#stockOutsTable').html('<div class="adm-error">Could not reach the server while loading stock outs.</div>');
                 }
             });
+        }
+
+        function exportStockOutsCsv() {
+            if (!lastStockOuts.length) {
+                Swal.fire({ title: 'Nothing to export', text: 'No stock outs in this period.', icon: 'info', confirmButtonColor: '#1c5034' });
+                return;
+            }
+            const header = ['Stock Out #', 'Date', 'Reference Type', 'Reference #', 'Warehouse', 'Items', 'Total Qty', 'Customer', 'Created By', 'Created At'];
+            const rows = [header.join(',')];
+            lastStockOuts.forEach(r => {
+                rows.push([
+                    csvEscape(r.stock_out_number), csvEscape(r.stock_out_date), csvEscape(r.reference_type),
+                    csvEscape(r.reference_number || ''), csvEscape(r.warehouse_name || ''), r.item_count,
+                    r.total_quantity, csvEscape(r.customer_name || ''), csvEscape(r.created_by || ''), csvEscape(r.created_at)
+                ].join(','));
+            });
+            const period = $('#f_period').val() || 'all';
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'stock_out_' + period + '_' + new Date().toISOString().substring(0, 10) + '.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function csvEscape(val) {
+            const str = String(val ?? '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
         }
 
         function refBadge(type) {

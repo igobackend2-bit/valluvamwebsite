@@ -108,12 +108,16 @@ require_once __DIR__ . '/includes/check_admin.php';
             });
         }
 
+        // Default low-stock cutoff when a product has no explicit reorder level
+        // set: below 20 (units/kg/litre) counts as Low Stock, 0 as Out of Stock.
+        const DEFAULT_LOW_STOCK_THRESHOLD = 20;
+
         function computeStatus(p) {
             const stock = Number(p.stock) || 0;
-            const reorder = p.reorder_level !== null && p.reorder_level !== undefined ? Number(p.reorder_level) : null;
+            const reorder = p.reorder_level !== null && p.reorder_level !== undefined && p.reorder_level !== '' ? Number(p.reorder_level) : DEFAULT_LOW_STOCK_THRESHOLD;
             const max = p.max_stock_level !== null && p.max_stock_level !== undefined ? Number(p.max_stock_level) : null;
             if (stock === 0) return 'out';
-            if (reorder !== null && stock <= reorder) return 'low';
+            if (stock < reorder) return 'low';
             if (max !== null && max > 0 && stock > max) return 'over';
             return 'ok';
         }

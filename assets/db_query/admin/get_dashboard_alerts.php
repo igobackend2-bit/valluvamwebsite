@@ -26,8 +26,10 @@ push_alerts($pdo, $alerts,
     'fa-triangle-exclamation', 'danger', fn($r) => "Out of stock: " . $r['product_name'],
     'product', 'id');
 
+// Low stock cutoff: below 20 units/kg/litre (matches the default used on
+// the Inventory Overview page when a product has no explicit reorder level).
 push_alerts($pdo, $alerts,
-    "SELECT id, product_name, stock FROM product_details WHERE stock > 0 AND stock <= 10",
+    "SELECT id, product_name, stock FROM product_details WHERE stock > 0 AND stock < 20",
     'fa-box', 'amber', fn($r) => "Low stock: " . $r['product_name'] . " ({$r['stock']} left)",
     'product', 'id');
 

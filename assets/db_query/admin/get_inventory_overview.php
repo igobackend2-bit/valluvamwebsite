@@ -30,7 +30,10 @@ foreach ([
 }
 
 try {
-    $stmt = $pdo->query("SELECT id, product_name, sku, stock, min_stock_level, max_stock_level, reorder_level
+    // NOTE: product_details has no real `sku` column — it never had one in the
+    // original schema. We synthesize a stable display SKU from the id instead
+    // of adding a new column (no schema change needed to fix this).
+    $stmt = $pdo->query("SELECT id, product_name, CONCAT('PRD-', id) AS sku, stock, min_stock_level, max_stock_level, reorder_level
                           FROM product_details ORDER BY product_name ASC");
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

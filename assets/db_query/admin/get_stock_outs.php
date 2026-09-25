@@ -8,6 +8,20 @@ require_permission($pdo, 'inventory.view');
 
 $reference_type = $_GET['reference_type'] ?? '';
 $warehouse_id = $_GET['warehouse_id'] ?? '';
+// Period filter for reporting/export: 'day' (today), 'week' (last 7 days),
+// 'month' (last 30 days), or explicit date_from/date_to (YYYY-MM-DD).
+$period = $_GET['period'] ?? '';
+$date_from = $_GET['date_from'] ?? '';
+$date_to = $_GET['date_to'] ?? '';
+if ($period === 'day') {
+    $date_from = $date_to = date('Y-m-d');
+} elseif ($period === 'week') {
+    $date_from = date('Y-m-d', strtotime('-6 days'));
+    $date_to = date('Y-m-d');
+} elseif ($period === 'month') {
+    $date_from = date('Y-m-d', strtotime('-29 days'));
+    $date_to = date('Y-m-d');
+}
 
 try {
     $sql = "SELECT so.id, so.stock_out_number, so.stock_out_date, so.reference_type, so.reference_number,
@@ -22,6 +36,8 @@ try {
 
     if ($reference_type !== '') { $sql .= " AND so.reference_type = ?"; $params[] = $reference_type; }
     if ($warehouse_id !== '') { $sql .= " AND so.warehouse_id = ?"; $params[] = $warehouse_id; }
+    if ($date_from !== '') { $sql .= " AND so.stock_out_date >= ?"; $params[] = $date_from; }
+    if ($date_to !== '') { $sql .= " AND so.stock_out_date <= ?"; $params[] = $date_to; }
 
     $sql .= " ORDER BY so.created_at DESC";
 

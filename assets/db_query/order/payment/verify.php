@@ -21,6 +21,31 @@ use Razorpay\Api\Errors\SignatureVerificationError;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+// Deducts product stock for a paid Razorpay order and logs a stock_movements
+// row per item (best-effort — order confirmation still succeeds even if the
+// ERP stock_movements table isn't present). Stock is clamped at 0, same as
+// the rest of the admin stock tools.
+function deduct_stock_for_paid_order(PDO $pdo, array $items, string $receipt): void {
+  $stockLock = $pdo->prepare("SELECT stock FROM product_details WHERE id = ? FOR UPDATE");
+  $stockUpdate = $pdo->prepare("UPDATE product_details SET stock = ? WHERE id = ?");
+  foreach ($items as $item) {
+    $productId = $item['product_id'] ?? null;
+    if (!$productId) continue;
+    $stockLock->execute([$productId]);
+    $prod = $stockLock->fetch(PDO::FETCH_ASSOC);
+    if (!$prod) continue;
+    $previousStock = (int)$prod['stock'];
+    $newStock = max(0, $previousStock - (int)$item['quantity']);
+    $stockUpdate->execute([$newStock, $productId]);
+    try {
+      $pdo->prepare("INSERT INTO stock_movements (movement_type, product_id, warehouse_id, quantity,
+                      previous_stock, new_stock, reference_type, reference_number, reason, created_by, created_at)
+                      VALUES ('stock_out', ?, 1, ?, ?, ?, 'website_order', ?, 'Website order (Razorpay)', 'Website', NOW())")
+          ->execute([$productId, -1 * (int)$item['quantity'], $previousStock, $newStock, $receipt]);
+    } catch (PDOException $e) { /* stock_movements not present — ignore */ }
+  }
+}
+
 // Load PHPMailer (same project root as autoload)
 require $projectRoot . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require $projectRoot . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
@@ -36,7 +61,7 @@ try {
   $razorpaySignature = $_POST['razorpay_signature'];
 
   // Check if order already exists (shouldn't for new flow, but handle it)
-  $stmt = $pdo->prepare("SELECT id, receipt, first_name, last_name, email, phone, state, city, street_address, apartment, postcode, amount FROM orders WHERE razorpay_order_id = :oid LIMIT 1");
+  $stmt = $pdo->prepare("SELECT id, receipt, first_name, last_name, email, phone, state, city, street_address, apartment, postcode, amount, payment_status FROM orders WHERE razorpay_order_id = :oid LIMIT 1");
   $stmt->execute([':oid' => $razorpayOrderId]);
   $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -135,13 +160,19 @@ try {
     $items = [];
     foreach ($orderData['cart_items'] as $item) {
       $items[] = [
+        'product_id' => $item['product_id'],
         'quantity' => $item['quantity'],
         'price' => $item['price'],
         'product_name' => $item['product_name']
       ];
     }
+
+    // New order created directly from a successful payment — deduct stock now.
+    deduct_stock_for_paid_order($pdo, $items, $order['receipt']);
   } else {
     // Order already exists, just update payment status
+    $wasAlreadyPaid = ($order['payment_status'] ?? '') === 'paid';
+
     $upd = $pdo->prepare("UPDATE orders SET razorpay_payment_id = :pid, razorpay_signature = :sig, payment_status = 'paid' WHERE razorpay_order_id = :oid");
     $upd->execute([
       ':pid' => $razorpayPaymentId,
@@ -156,15 +187,22 @@ try {
       $updateCart->execute([$user_id]);
     }
 
-    // Get order items for email
+    // Get order items for email (and product_id, for the stock deduction below)
     $itemsStmt = $pdo->prepare("
-      SELECT oi.quantity, oi.price, p.product_name 
-      FROM order_items oi 
-      JOIN product_details p ON oi.product_id = p.id 
+      SELECT oi.product_id, oi.quantity, oi.price, p.product_name
+      FROM order_items oi
+      JOIN product_details p ON oi.product_id = p.id
       WHERE oi.order_id = ?
     ");
     $itemsStmt->execute([$order['id']]);
     $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Only deduct stock the first time this order is marked paid — verify.php
+    // can be hit more than once for the same order (client callback + any
+    // webhook), and stock must not be deducted twice for one payment.
+    if (!$wasAlreadyPaid) {
+      deduct_stock_for_paid_order($pdo, $items, $order['receipt']);
+    }
   }
 
   // Build items HTML for email (common for both flows)
