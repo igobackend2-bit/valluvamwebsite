@@ -6,11 +6,15 @@ require_admin_session();
 
 $alerts = [];
 
-function push_alerts(PDO $pdo, array &$alerts, string $sql, string $icon, string $level, callable $label) {
+function push_alerts(PDO $pdo, array &$alerts, string $sql, string $icon, string $level, callable $label, ?string $type = null, ?string $idField = null) {
     try {
         $stmt = $pdo->query($sql);
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $alerts[] = ['icon' => $icon, 'level' => $level, 'label' => $label($row)];
+            $entry = ['icon' => $icon, 'level' => $level, 'label' => $label($row)];
+            // Optional deep-link info (used by the dashboard to make an alert clickable).
+            if ($type !== null) { $entry['type'] = $type; }
+            if ($idField !== null && isset($row[$idField])) { $entry['ref_id'] = $row[$idField]; }
+            $alerts[] = $entry;
         }
     } catch (PDOException $e) {
         // Module not migrated yet — skip silently.
@@ -18,12 +22,14 @@ function push_alerts(PDO $pdo, array &$alerts, string $sql, string $icon, string
 }
 
 push_alerts($pdo, $alerts,
-    "SELECT product_name, stock FROM product_details WHERE stock = 0",
-    'fa-triangle-exclamation', 'danger', fn($r) => "Out of stock: " . $r['product_name']);
+    "SELECT id, product_name, stock FROM product_details WHERE stock = 0",
+    'fa-triangle-exclamation', 'danger', fn($r) => "Out of stock: " . $r['product_name'],
+    'product', 'id');
 
 push_alerts($pdo, $alerts,
-    "SELECT product_name, stock FROM product_details WHERE stock > 0 AND stock <= 10",
-    'fa-box', 'amber', fn($r) => "Low stock: " . $r['product_name'] . " ({$r['stock']} left)");
+    "SELECT id, product_name, stock FROM product_details WHERE stock > 0 AND stock <= 10",
+    'fa-box', 'amber', fn($r) => "Low stock: " . $r['product_name'] . " ({$r['stock']} left)",
+    'product', 'id');
 
 push_alerts($pdo, $alerts,
     "SELECT so_number FROM sales_orders WHERE status = 'draft'",

@@ -20,6 +20,10 @@ require_once __DIR__ . '/includes/check_admin.php';
         .adm-alert-row.is-danger i { color: var(--adm-red, #a8442f); }
         .adm-alert-row.is-amber i { color: var(--adm-amber, #b8862f); }
         .adm-alert-row.is-neutral i { color: #6b6459; }
+        .adm-alert-row.is-clickable { cursor: pointer; }
+        .adm-alert-row.is-clickable:hover { background: #faf8f2; }
+        #recentOrders .order-view-link { cursor: pointer; color: var(--adm-green); text-decoration: none; }
+        #recentOrders .order-view-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -259,9 +263,18 @@ require_once __DIR__ . '/includes/check_admin.php';
                         }
                         let html = '';
                         data.alerts.forEach(a => {
-                            html += `<div class="adm-alert-row is-${a.level}"><i class="fas ${a.icon}"></i><span>${escapeHtml(a.label)}</span></div>`;
+                            const clickable = (a.type === 'product' && a.ref_id) ? ' is-clickable' : '';
+                            const attrs = clickable ? ` data-alert-type="${escapeHtml(a.type)}" data-alert-ref="${escapeHtml(String(a.ref_id))}"` : '';
+                            html += `<div class="adm-alert-row is-${a.level}${clickable}"${attrs}><i class="fas ${a.icon}"></i><span>${escapeHtml(a.label)}</span></div>`;
                         });
                         $('#alertsPanel').html(html);
+                        $('#alertsPanel .adm-alert-row.is-clickable').on('click', function() {
+                            const type = $(this).data('alert-type');
+                            const refId = $(this).data('alert-ref');
+                            if (type === 'product') {
+                                window.location.href = '../new_product.php?id=' + encodeURIComponent(refId);
+                            }
+                        });
                     } else {
                         $('#alertsPanel').html('<div class="adm-error">Could not load alerts.</div>');
                     }
@@ -321,7 +334,7 @@ require_once __DIR__ . '/includes/check_admin.php';
             let rows = '';
             orders.forEach(order => {
                 rows += `<tr>
-                    <td class="adm-cell-title">${escapeHtml(order.receipt)}</td>
+                    <td class="adm-cell-title"><span class="order-view-link" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" title="Click to view products ordered">${escapeHtml(order.receipt)}</span></td>
                     <td>${escapeHtml(order.first_name + ' ' + order.last_name)}</td>
                     <td class="adm-money">₹${parseFloat(order.amount).toFixed(2)}</td>
                     <td>${statusBadge(order.order_status)}</td>
@@ -332,6 +345,85 @@ require_once __DIR__ . '/includes/check_admin.php';
                 <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
                 <tbody>${rows}</tbody>
             </table></div>`);
+            $('#recentOrders .order-view-link').on('click', function() {
+                viewOrderItems($(this).data('order-id'), $(this).data('receipt'));
+            });
+        }
+
+        function viewOrderItems(orderId, receipt) {
+            Swal.fire({
+                title: 'Loading items…',
+                html: '<span class="adm-skel" style="width:100%;height:18px;"></span>',
+                showConfirmButton: false,
+                willOpen: () => { Swal.showLoading(); }
+            });
+
+            $.ajax({
+                url: '../assets/db_query/admin/get_order_items.php?order_id=' + encodeURIComponent(orderId),
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.status !== 'success') {
+                        Swal.fire({ title: 'Could not load items', text: data.message || 'Please try again.', icon: 'error', confirmButtonColor: '#1c5034' });
+                        return;
+                    }
+                    renderOrderItemsModal(receipt, data.items);
+                },
+                error: function() {
+                    Swal.fire({ title: 'Could not load items', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                }
+            });
+        }
+
+        function renderOrderItemsModal(receipt, items) {
+            if (!items || items.length === 0) {
+                Swal.fire({
+                    title: 'Order ' + escapeHtml(receipt),
+                    html: '<div class="adm-empty"><i class="fas fa-box-open"></i><p><strong>No product lines found</strong></p><p>This order has no recorded items.</p></div>',
+                    confirmButtonColor: '#1c5034',
+                    confirmButtonText: 'Close',
+                    width: 480
+                });
+                return;
+            }
+
+            let rows = '';
+            let grandTotal = 0;
+            items.forEach(item => {
+                const lineTotal = parseFloat(item.line_total || (item.quantity * item.price));
+                grandTotal += lineTotal;
+                const imgSrc = '../assets/uploads/' + encodeURI(item.image || 'no-image.jpg');
+                rows += `<tr>
+                    <td style="text-align:left;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="${imgSrc}" class="adm-thumb" onerror="this.src='../images/logo.png'" alt="">
+                            <div style="text-align:left;">
+                                <div class="adm-cell-title">${escapeHtml(item.product_name || ('Product #' + item.product_id))}</div>
+                                ${item.category ? '<div class="adm-cell-sub">' + escapeHtml(item.category) + '</div>' : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>${escapeHtml(String(item.quantity))}</td>
+                    <td class="adm-money">₹${parseFloat(item.price).toFixed(2)}</td>
+                    <td class="adm-money">₹${lineTotal.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            const html = `<div class="adm-table-wrap" style="text-align:left;">
+                <table class="adm-table">
+                    <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                    <tfoot><tr><td colspan="3" style="text-align:right;font-weight:700;">Grand total</td><td class="adm-money" style="font-weight:700;">₹${grandTotal.toFixed(2)}</td></tr></tfoot>
+                </table>
+            </div>`;
+
+            Swal.fire({
+                title: 'Products in order ' + escapeHtml(receipt),
+                html: html,
+                confirmButtonColor: '#1c5034',
+                confirmButtonText: 'Close',
+                width: 620
+            });
         }
 
         function statusBadge(status) {
