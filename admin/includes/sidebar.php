@@ -17,6 +17,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <li><a href="index.php" class="<?= $current_page === 'index.php' ? 'active' : '' ?>"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
         <li><a href="orders.php" class="<?= $current_page === 'orders.php' ? 'active' : '' ?>"><i class="fas fa-receipt"></i> Orders</a></li>
         <li><a href="products.php" class="<?= $current_page === 'products.php' ? 'active' : '' ?>"><i class="fas fa-box-open"></i> Products</a></li>
+        <li><a href="customers.php" class="<?= $current_page === 'customers.php' ? 'active' : '' ?>"><i class="fas fa-users"></i> Customers</a></li>
+        <li><a href="account_requests.php" class="<?= $current_page === 'account_requests.php' ? 'active' : '' ?>"><i class="fas fa-user-gear"></i> Account Requests</a></li>
+        <li><a href="leads.php" class="<?= $current_page === 'leads.php' ? 'active' : '' ?>"><i class="fas fa-envelope-open-text"></i> Leads</a></li>
+        <li><a href="inventory.php" class="<?= $current_page === 'inventory.php' ? 'active' : '' ?>"><i class="fas fa-warehouse"></i> Inventory</a></li>
+        <li><a href="coupons.php" class="<?= $current_page === 'coupons.php' ? 'active' : '' ?>"><i class="fas fa-tags"></i> Coupons</a></li>
+        <li><a href="reviews.php" class="<?= $current_page === 'reviews.php' ? 'active' : '' ?>"><i class="fas fa-star"></i> Reviews</a></li>
+        <li><a href="feedback.php" class="<?= $current_page === 'feedback.php' ? 'active' : '' ?>"><i class="fas fa-comment-dots"></i> Feedback</a></li>
+        <li><a href="settings.php" class="<?= $current_page === 'settings.php' ? 'active' : '' ?>"><i class="fas fa-gear"></i> Settings</a></li>
         <li class="adm-nav-divider"></li>
         <li><a href="../index.php" target="_blank" rel="noopener"><i class="fas fa-arrow-up-right-from-square"></i> View site</a></li>
         <li><a href="logout.php"><i class="fas fa-right-from-bracket"></i> Log out</a></li>
