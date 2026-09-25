@@ -43,26 +43,16 @@ function addProduct() {
 			return;
 		}
 
-		if (!/^(\d+)(g|ml)$/i.test(quantity)) {
-			Swal.fire('Validation Error', 'Quantity must end with g or ml (e.g., "100g", "750ml").', 'warning');
+		// Admin can enter whatever quantity/unit fits the product — grams,
+		// kilograms, millilitres or litres, any positive amount (a decimal
+		// like "1.5kg" or "0.5L" is fine too). No fixed min/max range is
+		// enforced anymore; only the shape (a positive number + a real unit)
+		// is checked so the field can't be left garbled or empty.
+		if (!/^(\d+(?:\.\d+)?)\s*(g|kg|ml|l)$/i.test(quantity)) {
+			Swal.fire('Validation Error', 'Enter a quantity with its unit — e.g. "500g", "1kg", "750ml" or "1L".', 'warning');
 			return;
 		}
-		
-		let qtyValue = parseInt(quantity);
-		let unit = quantity.toLowerCase().replace(/[0-9]/g, ''); // Extract g or ml
-		
-		if (unit === 'g') {
-			if (qtyValue < 50 || qtyValue > 10000) { // 50g to 10000g
-				Swal.fire('Validation Error', 'Quantity in grams must be between 50g and 10000g (10kg).', 'warning');
-				return;
-			}
-		} else if (unit === 'ml') {
-			if (qtyValue < 500 || qtyValue > 1000) { // 500ml to 1000ml
-				Swal.fire('Validation Error', 'Quantity in ml must be between 500ml and 1000ml.', 'warning');
-				return;
-			}
-		}		
-		
+
 		const ratingVal = parseFloat(rating);
 		if (isNaN(ratingVal) || ratingVal < 1 || ratingVal > 5) {
 			Swal.fire('Validation Error', 'Rating must be a number between 1 and 5.', 'warning');
@@ -216,44 +206,21 @@ function deleteProduct() {
 		});
 	});
 }
-$(document).ready(function () {
-	// Create a modal instance with options to disable outside close
-	const modal = new bootstrap.Modal(document.getElementById('productModal'), {
-		backdrop: 'static',
-		keyboard: false
-	});
-});
 
-// New Product button opens modal
-$('.btn-primary').on('click', function () {
-	$('#product_form')[0].reset();
-	$('#product_id').val('');
-	modal.show();
-});
+// Category -> default unit auto-fill. Liquid categories (oils, ghee, honey)
+// default to litres, everything else (nuts, dry fruits, spices, millets,
+// rice, pulses, etc.) defaults to grams. Only fills in a starting value —
+// the admin can still type any quantity/unit they want over it.
+const LIQUID_CATEGORY_HINT = /(oil|ghee|honey|milk|syrup|juice)/i;
+function suggestQuantityForCategory(category) {
+	if (!category) return;
+	const $qty = $('#quantity');
+	if ($qty.val().trim() !== '') return; // don't overwrite something the admin already typed
+	$qty.val(LIQUID_CATEGORY_HINT.test(category) ? '1L' : '500g');
+}
 
-// Handle form submission (Save button)
-$('#product_form').on('submit', function (e) {
-	e.preventDefault();
-
-	let quantity = $('#quantity').val().trim();
-	let rating = $('#rating').val().trim();
-	let category = $('#category').val().trim();
-
-	if (category === '') {
-		Swal.fire('Validation Error', 'Please enter a product category.', 'warning');
-		return;
-	}
-
-	if (!/^\d+g$/i.test(quantity) || parseInt(quantity) < 50) {
-		Swal.fire('Validation Error', 'Quantity must be at least 50g (e.g., "100g").', 'warning');
-		return;
-	}
-
-	const ratingVal = parseFloat(rating);
-	if (isNaN(ratingVal) || ratingVal < 1 || ratingVal > 5) {
-		Swal.fire('Validation Error', 'Rating must be a number between 1 and 5.', 'warning');
-		return;
-	}
+$(document).on('change', '#category', function () {
+	suggestQuantityForCategory($(this).val());
 });
 
 
