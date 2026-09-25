@@ -21,7 +21,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li class="adm-nav-section">Sales</li>
         <li><a href="sales_orders.php" class="<?= nav_active('sales_orders.php', $current_page) ?>"><i class="fas fa-file-lines"></i> Sales Orders</a></li>
         <li><a href="manual_sales.php" class="<?= nav_active('manual_sales.php', $current_page) ?>"><i class="fas fa-cash-register"></i> Manual Sales Entry</a></li>
-        <li><a href="delivery_challans.php" class="<?= nav_active('delivery_challans.php', $current_page) ?>"><i class="fas fa-truck-ramp-box"></i> Delivery Challans</a></li>
+        <li><a href="credit_sale.php" class="<?= nav_active('credit_sale.php', $current_page) ?>"><i class="fas fa-hand-holding-dollar"></i> Credit Sale</a></li>
         <li><a href="invoices.php" class="<?= nav_active('invoices.php', $current_page) ?>"><i class="fas fa-file-invoice"></i> Invoices</a></li>
         <li><a href="orders.php" class="<?= nav_active('orders.php', $current_page) ?>"><i class="fas fa-basket-shopping"></i> Website Orders</a></li>
 
