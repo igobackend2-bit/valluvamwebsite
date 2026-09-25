@@ -11,6 +11,24 @@ require_once __DIR__ . '/includes/check_admin.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="assets/admin.css">
+    <style>
+        /* Orders page — scoped column alignment fix (doesn't touch admin.css / other pages) */
+        #ordersTable table.adm-table { table-layout: fixed; }
+        #ordersTable col.col-order   { width: 15%; }
+        #ordersTable col.col-customer{ width: 20%; }
+        #ordersTable col.col-phone   { width: 11%; }
+        #ordersTable col.col-amount  { width: 9%; }
+        #ordersTable col.col-payment { width: 9%; }
+        #ordersTable col.col-status  { width: 15%; }
+        #ordersTable col.col-date    { width: 13%; }
+        #ordersTable col.col-items   { width: 8%; }
+        #ordersTable th, #ordersTable td { overflow: hidden; text-overflow: ellipsis; }
+        #ordersTable .adm-cell-title, #ordersTable .adm-cell-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #ordersTable select.adm-select { width: 100%; }
+        #ordersTable td.adm-items-cell { text-align: center; }
+        .order-view-link { cursor: pointer; color: var(--adm-green); text-decoration: none; }
+        .order-view-link:hover { text-decoration: underline; }
+    </style>
 </head>
 <body>
     <a class="adm-skip-link" href="#adm-main-content">Skip to content</a>
@@ -85,7 +103,7 @@ require_once __DIR__ . '/includes/check_admin.php';
             let rows = '';
             orders.forEach(order => {
                 rows += `<tr>
-                    <td class="adm-cell-title">${escapeHtml(order.receipt)}</td>
+                    <td class="adm-cell-title"><span class="order-view-link view-items-btn" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" title="Click to view products ordered">${escapeHtml(order.receipt)}</span></td>
                     <td>
                         <div class="adm-cell-title">${escapeHtml(order.first_name + ' ' + order.last_name)}</div>
                         <div class="adm-cell-sub">${escapeHtml(order.email)}</div>
@@ -102,7 +120,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                         </select>
                     </td>
                     <td class="adm-cell-sub">${formatDate(order.created_at)}</td>
-                    <td>
+                    <td class="adm-items-cell">
                         <button type="button" class="adm-icon-btn view-items-btn" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" title="View products ordered">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -111,6 +129,10 @@ require_once __DIR__ . '/includes/check_admin.php';
             });
 
             $('#ordersTable').html(`<div class="adm-table-wrap"><table class="adm-table">
+                <colgroup>
+                    <col class="col-order"><col class="col-customer"><col class="col-phone"><col class="col-amount">
+                    <col class="col-payment"><col class="col-status"><col class="col-date"><col class="col-items">
+                </colgroup>
                 <thead><tr><th>Order</th><th>Customer</th><th>Phone</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Items</th></tr></thead>
                 <tbody>${rows}</tbody>
             </table></div>`);
@@ -208,7 +230,7 @@ require_once __DIR__ . '/includes/check_admin.php';
             Swal.fire({
                 title: 'Update order status?',
                 text: `Change status to "${newStatus}".`,
-                icon: 'question',
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#1c5034',
                 cancelButtonColor: '#6b6459',
