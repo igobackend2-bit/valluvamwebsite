@@ -80,6 +80,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <td>${c.thumbnali && c.link ? '<span class="adm-badge is-green">Shows on homepage slider</span>' : '<span class="adm-badge is-neutral">Product form only</span>'}</td>
                     <td>
                         <button class="adm-icon-btn edit-category" data-category='${JSON.stringify(c).replace(/'/g, "&#39;")}' title="Edit"><i class="fas fa-pen"></i></button>
+                        <button class="adm-icon-btn is-danger delete-category" data-id="${c.id}" data-name="${escapeHtml(c.category_name)}" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
             });
@@ -90,6 +91,40 @@ require_once __DIR__ . '/includes/check_admin.php';
             </table></div>`);
 
             $('.edit-category').on('click', function() { editCategory($(this).data('category')); });
+            $('.delete-category').on('click', function() { deleteCategory($(this).data('id'), $(this).data('name')); });
+        }
+
+        function deleteCategory(id, name) {
+            Swal.fire({
+                title: 'Delete this category?',
+                text: `"${name}" will be permanently removed. This can't be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#a8442f',
+                cancelButtonColor: '#6b6459',
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '../assets/db_query/admin/delete_category.php',
+                        type: 'POST',
+                        data: { id: id },
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                Swal.fire({ title: 'Deleted', text: 'Category removed.', icon: 'success', confirmButtonColor: '#1c5034' });
+                                loadCategories();
+                            } else {
+                                Swal.fire({ title: 'Could not delete', text: response.message || 'The category was not removed.', icon: 'error', confirmButtonColor: '#1c5034' });
+                            }
+                        },
+                        error: function() {
+                            Swal.fire({ title: 'Could not delete', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                        }
+                    });
+                }
+            });
         }
 
         function editCategory(category) {
