@@ -607,7 +607,16 @@
 
 /* Responsive: no room for a side image on tablets/phones — form takes over
    full width, matching the site's existing mobile-first patterns. */
-@media (min-width: 901px) and (max-width: 1180px) {
+/* FIX (25 Sep 2026): this compact layout used to stop at 1180px, but the
+   wide-desktop rule above it (.auth-visual: flex 0 0 48%, non-shrinking)
+   needs roughly 1540px+ of width to actually fit alongside the 620px card
+   with room to spare. Below that - which includes very common laptop
+   widths like 1366px and 1440px - the visual panel had nowhere to shrink,
+   so the whole modal got shoved flush against the left edge instead of
+   centering, and the card itself got squeezed under its intended width.
+   Extending this breakpoint's upper bound to 1580px reuses this same
+   already-correct compact layout for those laptop widths too. */
+@media (min-width: 901px) and (max-width: 1580px) {
     .auth-panel {
         flex: 0 1 460px;
         width: 460px;
