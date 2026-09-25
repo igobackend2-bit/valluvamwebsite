@@ -20,7 +20,7 @@ require_once __DIR__ . '/includes/check_admin.php';
             <div class="adm-topbar">
                 <div>
                     <h1>Reviews</h1>
-                    <div class="adm-sub">Approve or remove product reviews</div>
+                    <div class="adm-sub">Reviews go live on the product page as soon as a customer submits them. Reject hides one from the site without deleting it; Delete removes it permanently.</div>
                 </div>
             </div>
 
@@ -29,8 +29,8 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <h2>All reviews</h2>
                     <select id="filterApproved" class="adm-input" style="width:180px;">
                         <option value="">All</option>
-                        <option value="0">Pending approval</option>
-                        <option value="1">Approved</option>
+                        <option value="0">Hidden</option>
+                        <option value="1">Live on site</option>
                     </select>
                 </div>
                 <div class="adm-card-body" id="reviewsTable">
@@ -85,10 +85,12 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <td>${escapeHtml(r.reviewer_name || 'Anonymous')}</td>
                     <td>${stars}</td>
                     <td style="max-width:280px;">${escapeHtml(r.review_text || '—')}</td>
-                    <td>${Number(r.is_approved) === 1 ? '<span class="adm-badge is-green">Approved</span>' : '<span class="adm-badge is-amber">Pending</span>'}</td>
+                    <td>${Number(r.is_approved) === 1 ? '<span class="adm-badge is-green">Live on site</span>' : '<span class="adm-badge is-amber">Hidden</span>'}</td>
                     <td class="adm-cell-sub">${formatDate(r.created_at)}</td>
                     <td>
-                        ${Number(r.is_approved) !== 1 ? `<button class="adm-icon-btn approve-review" data-id="${r.id}" title="Approve"><i class="fas fa-check"></i></button>` : ''}
+                        ${Number(r.is_approved) === 1
+                            ? `<button class="adm-icon-btn reject-review" data-id="${r.id}" title="Reject (hide from site)"><i class="fas fa-eye-slash"></i></button>`
+                            : `<button class="adm-icon-btn approve-review" data-id="${r.id}" title="Approve (show on site)"><i class="fas fa-check"></i></button>`}
                         <button class="adm-icon-btn is-danger delete-review" data-id="${r.id}" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`;
@@ -99,25 +101,26 @@ require_once __DIR__ . '/includes/check_admin.php';
                 <tbody>${rows}</tbody>
             </table></div>`);
 
-            $('.approve-review').on('click', function() { setReviewApproved($(this).data('id'), 1); });
+            $('.approve-review').on('click', function() { setReviewApproved($(this).data('id'), 'approve'); });
+            $('.reject-review').on('click', function() { setReviewApproved($(this).data('id'), 'reject'); });
             $('.delete-review').on('click', function() { deleteReview($(this).data('id')); });
         }
 
-        function setReviewApproved(id, approved) {
+        function setReviewApproved(id, action) {
             $.ajax({
                 url: '../assets/db_query/admin/moderate_review.php',
                 type: 'POST',
-                data: { id: id, action: 'approve' },
+                data: { id: id, action: action },
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
                         loadReviews();
                     } else {
-                        Swal.fire({ title: 'Could not approve', text: response.message || '', icon: 'error', confirmButtonColor: '#1c5034' });
+                        Swal.fire({ title: 'Could not update review', text: response.message || '', icon: 'error', confirmButtonColor: '#1c5034' });
                     }
                 },
                 error: function() {
-                    Swal.fire({ title: 'Could not approve', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                    Swal.fire({ title: 'Could not update review', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
                 }
             });
         }

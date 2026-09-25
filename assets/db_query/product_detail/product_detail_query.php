@@ -21,6 +21,51 @@ function strip_size_suffix($name) {
     return trim(preg_replace('/\s+\d+(\.\d+)?\s*(kg|g|ml|l)$/i', '', $name));
 }
 
+// Parses a pack-size string like "1kg" / "500g" / "750ml" into a physical
+// weight (kg) or volume (litres) so total available stock can be expressed
+// in real-world units. Mirrors parseQuantityInfo() in product_detail.js —
+// kept in PHP too since this needs to run server-side for the low-stock
+// flag. Returns null if the text can't be parsed (e.g. "1 pack").
+function parse_quantity_info($q) {
+    $q = strtolower(trim((string) $q));
+    if (!preg_match('/([\d.]+)\s*(kg|g|gm|gram|grams|ml|l)?/', $q, $m) || $m[1] === '') {
+        return null;
+    }
+    $num = (float) $m[1];
+    $unit = $m[2] ?? 'g';
+    if ($unit === 'kg') return ['type' => 'weight', 'kg' => $num];
+    if ($unit === 'ml') return ['type' => 'volume', 'litres' => $num / 1000];
+    if ($unit === 'l') return ['type' => 'volume', 'litres' => $num];
+    return ['type' => 'weight', 'kg' => $num / 1000]; // g / gm / gram / grams
+}
+
+// Low-stock cutoff (per product's own package unit): under 10kg total for a
+// weight product, or under 10 litres total for a volume product.
+define('LOW_STOCK_PHYSICAL_THRESHOLD', 10);
+
+function build_stock_info($stock, $quantityLabel) {
+    $stock = (int) $stock;
+    $info = [
+        'stock' => $stock,
+        'in_stock' => $stock > 0,
+        'low_stock' => false,
+        'physical_stock_label' => null,
+    ];
+    $parsed = parse_quantity_info($quantityLabel);
+    if ($parsed) {
+        if ($parsed['type'] === 'weight') {
+            $totalKg = $stock * $parsed['kg'];
+            $info['physical_stock_label'] = (round($totalKg, 2)) . 'kg';
+            $info['low_stock'] = $stock > 0 && $totalKg < LOW_STOCK_PHYSICAL_THRESHOLD;
+        } else {
+            $totalL = $stock * $parsed['litres'];
+            $info['physical_stock_label'] = (round($totalL, 2)) . 'L';
+            $info['low_stock'] = $stock > 0 && $totalL < LOW_STOCK_PHYSICAL_THRESHOLD;
+        }
+    }
+    return $info;
+}
+
 $raw = trim($_GET['id'] ?? '');
 if ($raw === '') {
     echo json_encode(['status' => 'error', 'message' => 'No product ID']);
@@ -47,7 +92,7 @@ if (ctype_digit($raw)) {
 }
 
 // Fetch main product
-$stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, description, category, quantity, image, benefits, rating
+$stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, description, category, quantity, image, benefits, rating, stock
                        FROM product_details
                        WHERE id = ?");
 $stmt->execute([$id]);
@@ -57,6 +102,11 @@ if (!$product) {
     echo json_encode(['status' => 'error', 'message' => 'Product not found']);
     exit;
 }
+
+// Stock/availability info (see build_stock_info above) — merged into the
+// product so the front-end can show "Out of stock" / "Only Xkg left" and
+// disable ordering without a second request.
+$product = array_merge($product, build_stock_info($product['stock'], $product['quantity']));
 
 // Fetch similar products (same category, exclude current product)
 $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, image
@@ -72,20 +122,20 @@ $similar = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $variants = [];
 $baseName = strip_size_suffix($product['product_name']);
 if ($baseName !== '') {
-    $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, quantity
+    $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, quantity, stock
                            FROM product_details
                            WHERE category = ?");
     $stmt->execute([$product['category']]);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         if (strcasecmp(strip_size_suffix($row['product_name']), $baseName) === 0) {
-            $variants[] = [
+            $variants[] = array_merge([
                 'id' => (int) $row['id'],
                 'slug' => slugify_product_name($row['product_name']),
                 'quantity' => $row['quantity'],
                 'price' => $row['price'],
                 'dis_price' => $row['dis_price'],
                 'is_current' => ((int) $row['id'] === (int) $product['id']),
-            ];
+            ], build_stock_info($row['stock'], $row['quantity']));
         }
     }
     usort($variants, function ($a, $b) {

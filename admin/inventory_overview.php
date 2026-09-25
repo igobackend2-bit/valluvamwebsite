@@ -155,9 +155,13 @@ require_once __DIR__ . '/includes/check_admin.php';
             let html = '';
             rows.forEach(p => {
                 const status = computeStatus(p);
+                const physicalCell = p.physical_stock_label
+                    ? (p.physical_low_stock ? `<span class="adm-badge is-amber">${p.physical_stock_label} — Low</span>` : escapeHtml(p.physical_stock_label))
+                    : '<span class="adm-cell-sub">—</span>';
                 html += `<tr>
                     <td class="adm-cell-title">${escapeHtml(p.product_name)}<div class="adm-cell-sub">${escapeHtml(p.sku || '—')}</div></td>
                     <td>${p.stock}</td>
+                    <td>${physicalCell}</td>
                     <td>${p.reserved_stock}</td>
                     <td><strong>${p.available_to_sell}</strong></td>
                     <td>${p.min_stock_level ?? '—'}</td>
@@ -170,7 +174,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                 </tr>`;
             });
             $('#inventoryTable').html(`<div class="adm-table-wrap"><table class="adm-table">
-                <thead><tr><th>Product</th><th>Available Stock</th><th>Reserved</th><th>Available to Sell</th><th>Min</th><th>Reorder</th><th>Max</th><th>Status</th><th>Emergency</th></tr></thead>
+                <thead><tr><th>Product</th><th>Available Stock</th><th>Physical Stock (kg/L)</th><th>Reserved</th><th>Available to Sell</th><th>Min</th><th>Reorder</th><th>Max</th><th>Status</th><th>Emergency</th></tr></thead>
                 <tbody>${html}</tbody>
             </table></div>`);
 
@@ -325,12 +329,12 @@ require_once __DIR__ . '/includes/check_admin.php';
                 Swal.fire({ title: 'Nothing to export', icon: 'info', confirmButtonColor: '#1c5034' });
                 return;
             }
-            const header = ['Product', 'SKU', 'Available Stock', 'Reserved', 'Available to Sell', 'Min Level', 'Reorder Level', 'Max Level', 'Status'];
+            const header = ['Product', 'SKU', 'Available Stock', 'Physical Stock (kg/L)', 'Reserved', 'Available to Sell', 'Min Level', 'Reorder Level', 'Max Level', 'Status'];
             const csvRows = [header.join(',')];
             rows.forEach(p => {
                 const status = computeStatus(p);
                 const line = [
-                    csvEscape(p.product_name), csvEscape(p.sku || ''), p.stock, p.reserved_stock, p.available_to_sell,
+                    csvEscape(p.product_name), csvEscape(p.sku || ''), p.stock, csvEscape(p.physical_stock_label || ''), p.reserved_stock, p.available_to_sell,
                     p.min_stock_level ?? '', p.reorder_level ?? '', p.max_stock_level ?? '', status
                 ];
                 csvRows.push(line.join(','));

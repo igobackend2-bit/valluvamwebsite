@@ -33,7 +33,7 @@ try {
     // NOTE: product_details has no real `sku` column — it never had one in the
     // original schema. We synthesize a stable display SKU from the id instead
     // of adding a new column (no schema change needed to fix this).
-    $stmt = $pdo->query("SELECT id, product_name, CONCAT('PRD-', id) AS sku, stock, min_stock_level, max_stock_level, reorder_level
+    $stmt = $pdo->query("SELECT id, product_name, CONCAT('PRD-', id) AS sku, stock, quantity, min_stock_level, max_stock_level, reorder_level
                           FROM product_details ORDER BY product_name ASC");
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -41,6 +41,24 @@ try {
     echo json_encode(['status' => 'error', 'message' => 'Failed to load products: ' . $e->getMessage()]);
     exit;
 }
+
+// Parses a pack-size string like "1kg" / "500g" / "750ml" into a physical
+// weight (kg) or volume (litres). Same logic as product_detail_query.php's
+// parse_quantity_info() — duplicated here (not shared) to keep each endpoint
+// self-contained, matching this codebase's existing pattern.
+function inv_parse_quantity_info($q) {
+    $q = strtolower(trim((string) $q));
+    if (!preg_match('/([\d.]+)\s*(kg|g|gm|gram|grams|ml|l)?/', $q, $m) || $m[1] === '') {
+        return null;
+    }
+    $num = (float) $m[1];
+    $unit = $m[2] ?? 'g';
+    if ($unit === 'kg') return ['type' => 'weight', 'kg' => $num];
+    if ($unit === 'ml') return ['type' => 'volume', 'litres' => $num / 1000];
+    if ($unit === 'l') return ['type' => 'volume', 'litres' => $num];
+    return ['type' => 'weight', 'kg' => $num / 1000];
+}
+define('INV_LOW_STOCK_PHYSICAL_THRESHOLD', 10); // 10kg or 10 litres
 
 // Naive reserved-stock: sum of quantities on open sales orders per product,
 // best-effort since sales_orders/sales_order_items belong to another module.
@@ -64,6 +82,25 @@ foreach ($products as &$p) {
     $reservedQty = $reserved[(int)$p['id']] ?? 0;
     $p['reserved_stock'] = $reservedQty;
     $p['available_to_sell'] = max(0, $available - $reservedQty);
+
+    // Physical-quantity low-stock flag: under 10kg (weight products) or under
+    // 10 litres (volume products) of TOTAL stock, worked out from the pack
+    // size in `quantity` (e.g. "1kg" x stock count). Separate from — and in
+    // addition to — the existing count-based min/reorder/max levels above.
+    $p['physical_stock_label'] = null;
+    $p['physical_low_stock'] = false;
+    $parsed = inv_parse_quantity_info($p['quantity']);
+    if ($parsed) {
+        if ($parsed['type'] === 'weight') {
+            $totalKg = $available * $parsed['kg'];
+            $p['physical_stock_label'] = round($totalKg, 2) . 'kg';
+            $p['physical_low_stock'] = $available > 0 && $totalKg < INV_LOW_STOCK_PHYSICAL_THRESHOLD;
+        } else {
+            $totalL = $available * $parsed['litres'];
+            $p['physical_stock_label'] = round($totalL, 2) . 'L';
+            $p['physical_low_stock'] = $available > 0 && $totalL < INV_LOW_STOCK_PHYSICAL_THRESHOLD;
+        }
+    }
 }
 unset($p);
 

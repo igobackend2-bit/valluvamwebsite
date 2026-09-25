@@ -99,6 +99,15 @@ function loadProduct(idOrSlug, pushSlug) {
                 let defaultCalcTotal = (rate !== null && defaultPreset !== null) ? Math.round(rate * defaultPreset) : null;
                 let defaultPriceUnitLabel = (presets && labelFn && defaultPreset !== null) ? labelFn(defaultPreset) : p.quantity;
 
+                // Stock / availability (see build_stock_info() in product_detail_query.php).
+                // p.in_stock / p.low_stock / p.physical_stock_label are computed server-side
+                // from product_details.stock and the pack-size text in `quantity`.
+                let inStock = p.in_stock !== false;
+                let stockBadgeHtml = !inStock
+                    ? `<span class="pd-stock-badge pd-out-of-stock">Out of Stock</span>`
+                    : (p.low_stock ? `<span class="pd-stock-badge pd-low-stock">Only ${p.physical_stock_label} left</span>` : '');
+                let buyDisabledAttr = !inStock ? 'disabled aria-disabled="true"' : '';
+
                 let quantitySectionHtml;
                 if (presets) {
                     quantitySectionHtml = `
@@ -143,12 +152,13 @@ function loadProduct(idOrSlug, pushSlug) {
                             ${defaultPriceUnitLabel ? `<span class="pd-price-unit">/ ${defaultPriceUnitLabel}</span>` : ''}
                             ${discountBadge}
                         </div>
+                        ${stockBadgeHtml ? `<p class="pd-price-hint">${stockBadgeHtml}</p>` : ''}
                         <p class="pd-price-hint">Inclusive of all taxes</p>
                         ${sizeSelectorHtml}
                         ${quantitySectionHtml}
                         <div class="pd-actions">
-                            <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}" aria-label="Add ${p.product_name} to cart"><ion-icon name="cart-outline"></ion-icon> Add to Cart</button>
-                            <a href="cart.php" class="pd-btn pd-btn-buy buy" data-id="${p.id}" aria-label="Buy ${p.product_name} now"><ion-icon name="flash-outline"></ion-icon> Buy it Now</a>
+                            <button class="pd-btn pd-btn-cart cart" id="add-to-cart" data-id="${p.id}" ${buyDisabledAttr} aria-label="Add ${p.product_name} to cart">${!inStock ? 'Out of Stock' : '<ion-icon name="cart-outline"></ion-icon> Add to Cart'}</button>
+                            <a href="${!inStock ? '#' : 'cart.php'}" class="pd-btn pd-btn-buy buy${!inStock ? ' pd-btn-disabled' : ''}" data-id="${p.id}" ${buyDisabledAttr} aria-label="Buy ${p.product_name} now">${!inStock ? 'Out of Stock' : '<ion-icon name="flash-outline"></ion-icon> Buy it Now'}</a>
                             <button class="pd-btn-wishlist wishlist wishlist-btn" data-product-id="${productId}" aria-label="Add ${p.product_name} to wishlist" title="Add to wishlist"><ion-icon name="heart-outline"></ion-icon></button>
                         </div>
                         <div class="pd-trust">
@@ -191,6 +201,20 @@ function loadProduct(idOrSlug, pushSlug) {
                     </div>
                 </div>
 
+                <div class="pd-reviews-section" data-product-id="${p.id}">
+                    <h3>Customer Reviews</h3>
+                    <div id="pd-reviews-list"><p class="pd-cell-sub">Loading reviews…</p></div>
+                    <div class="pd-review-form">
+                        <h4>Write a review</h4>
+                        <div class="pd-review-stars" id="pd-review-stars" data-rating="0">
+                            ${[1, 2, 3, 4, 5].map(n => `<span class="pd-star-input" data-star="${n}">&#9734;</span>`).join('')}
+                        </div>
+                        <input type="text" id="pd-review-name" class="pd-review-input" placeholder="Your name (optional)">
+                        <textarea id="pd-review-text" class="pd-review-input" rows="3" placeholder="Share your experience with this product…"></textarea>
+                        <button type="button" class="pd-btn pd-btn-cart" id="pd-review-submit">Submit Review</button>
+                    </div>
+                </div>
+
                 <div class="pd-similar">
                     <h3>You may also like</h3>
                     <div class="pd-similar-grid">
@@ -209,6 +233,8 @@ function loadProduct(idOrSlug, pushSlug) {
 
                 $('#product-details-container').html(html);
                 injectProductSchema(p, hasDiscount ? p.dis_price : p.price, ratingValue);
+                injectStockAndReviewStyles();
+                loadProductReviews(p.id);
             } else {
                 $('#product-details-container').html('<p>Product not found.</p>');
             }
@@ -283,6 +309,11 @@ $(document).on("click", ".buy", function (e) {
     e.preventDefault();
     e.stopPropagation();
     var $btn = $(this);
+
+    if ($btn.hasClass("pd-btn-disabled") || $btn.attr("aria-disabled") === "true") {
+        return; // Out of stock — Buy it Now is visually disabled, block the click too.
+    }
+
     // Use attr so we get the value from DOM (avoids .data() cache); product id from template data-id="${p.id}"
     var productId = $btn.attr("data-id");
     var cartUrl = $btn.attr("href") || "cart.php";
@@ -382,3 +413,146 @@ $(document).on("click", ".pd-qty-minus, .pd-qty-plus", function () {
 $(document).on("click", ".pd-image-frame", function () {
     $(this).toggleClass("pd-zoomed");
 });
+
+// ===== Product reviews (see get_product_reviews.php / submit_review.php) =====
+
+function escapePdHtml(str) {
+    return String(str == null ? "" : str).replace(/[&<>"']/g, function (m) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+    });
+}
+
+function starsHtml(rating) {
+    rating = Math.round(Number(rating) || 0);
+    var out = "";
+    for (var i = 1; i <= 5; i++) out += i <= rating ? "&#9733;" : "&#9734;";
+    return out;
+}
+
+function loadProductReviews(productId) {
+    $.ajax({
+        url: "assets/db_query/product_detail/get_product_reviews.php",
+        type: "GET",
+        data: { product_id: productId },
+        dataType: "json",
+        success: function (res) {
+            var $list = $("#pd-reviews-list");
+            if (!$list.length) return;
+            if (res.status !== "success" || !res.reviews || res.reviews.length === 0) {
+                $list.html('<p class="pd-cell-sub">No reviews yet — be the first to review this product.</p>');
+                return;
+            }
+            var html = res.average_rating
+                ? '<p class="pd-review-avg"><span class="pd-review-stars-readonly">' + starsHtml(res.average_rating) + '</span> ' + res.average_rating + ' out of 5 (' + res.count + ' review' + (res.count === 1 ? '' : 's') + ')</p>'
+                : '';
+            html += res.reviews.map(function (r) {
+                return '<div class="pd-review-card">' +
+                    '<div class="pd-review-stars-readonly">' + starsHtml(r.rating) + '</div>' +
+                    '<div class="pd-review-name">' + escapePdHtml(r.reviewer_name || "Anonymous") + '</div>' +
+                    '<p class="pd-review-text">' + escapePdHtml(r.review_text) + '</p>' +
+                    '</div>';
+            }).join('');
+            $list.html(html);
+        },
+        error: function () {
+            $("#pd-reviews-list").html('<p class="pd-cell-sub">Could not load reviews right now.</p>');
+        }
+    });
+}
+
+$(document).on("click", ".pd-star-input", function () {
+    var $wrap = $(this).closest(".pd-review-stars");
+    var rating = parseInt($(this).attr("data-star"), 10) || 0;
+    $wrap.attr("data-rating", rating);
+    $wrap.find(".pd-star-input").each(function () {
+        var starVal = parseInt($(this).attr("data-star"), 10);
+        $(this).html(starVal <= rating ? "&#9733;" : "&#9734;").toggleClass("is-filled", starVal <= rating);
+    });
+});
+
+$(document).on("click", "#pd-review-submit", function () {
+    var $btn = $(this);
+    var $section = $btn.closest(".pd-reviews-section");
+    var productIdForReview = $section.attr("data-product-id");
+    var rating = parseInt($section.find("#pd-review-stars").attr("data-rating"), 10) || 0;
+    var reviewerName = $section.find("#pd-review-name").val();
+    var reviewText = ($section.find("#pd-review-text").val() || "").trim();
+
+    if (!rating) {
+        if (typeof SwalHelper !== "undefined" && SwalHelper.ecommerce) {
+            SwalHelper.ecommerce.cartError("Please select a star rating.");
+        } else {
+            alert("Please select a star rating.");
+        }
+        return;
+    }
+    if (!reviewText) {
+        if (typeof SwalHelper !== "undefined" && SwalHelper.ecommerce) {
+            SwalHelper.ecommerce.cartError("Please write a short review.");
+        } else {
+            alert("Please write a short review.");
+        }
+        return;
+    }
+
+    $btn.prop("disabled", true).text("Submitting…");
+
+    $.ajax({
+        url: "assets/db_query/product_detail/submit_review.php",
+        type: "POST",
+        data: {
+            product_id: productIdForReview,
+            rating: rating,
+            reviewer_name: reviewerName,
+            review_text: reviewText
+        },
+        dataType: "json",
+        success: function (res) {
+            $btn.prop("disabled", false).text("Submit Review");
+            if (res.status === "success") {
+                $section.find("#pd-review-name").val("");
+                $section.find("#pd-review-text").val("");
+                $section.find("#pd-review-stars").attr("data-rating", 0).find(".pd-star-input").html("&#9734;").removeClass("is-filled");
+                loadProductReviews(productIdForReview);
+                if (typeof SwalHelper !== "undefined" && SwalHelper.ecommerce) {
+                    SwalHelper.ecommerce.addedToCart && SwalHelper.close ? SwalHelper.close() : null;
+                }
+                alert(res.message || "Thank you for your review!");
+            } else {
+                alert(res.message || "Could not submit review.");
+            }
+        },
+        error: function () {
+            $btn.prop("disabled", false).text("Submit Review");
+            alert("Request failed. Please try again.");
+        }
+    });
+});
+
+// One-time CSS for the stock badges and the review section — kept here
+// (rather than a shared stylesheet) so this feature stays self-contained.
+function injectStockAndReviewStyles() {
+    if (document.getElementById("pdStockReviewStyles")) return;
+    var style = document.createElement("style");
+    style.id = "pdStockReviewStyles";
+    style.textContent = `
+        .pd-stock-badge{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:4px;}
+        .pd-out-of-stock{background:#fdecea;color:#c0392b;}
+        .pd-low-stock{background:#fff6e0;color:#a8720a;}
+        .pd-btn[disabled],.pd-btn-disabled{opacity:.55;cursor:not-allowed;pointer-events:none;}
+        .pd-reviews-section{margin:30px 0;padding:24px;background:#fafaf8;border-radius:10px;}
+        .pd-reviews-section h3{margin-bottom:14px;}
+        .pd-review-avg{font-weight:600;margin-bottom:12px;}
+        .pd-review-card{padding:14px 0;border-top:1px solid #e5e1d8;}
+        .pd-review-stars-readonly{color:#e0a415;letter-spacing:2px;}
+        .pd-review-name{font-weight:600;font-size:14px;margin-top:4px;}
+        .pd-review-text{margin:4px 0 0;color:#5a5650;}
+        .pd-review-form{margin-top:20px;padding-top:16px;border-top:1px solid #e5e1d8;}
+        .pd-review-stars{font-size:26px;color:#c9c4b8;cursor:pointer;letter-spacing:4px;margin-bottom:10px;}
+        .pd-star-input{cursor:pointer;}
+        .pd-star-input.is-filled{color:#e0a415;}
+        .pd-review-input{display:block;width:100%;max-width:420px;margin-bottom:10px;padding:9px 12px;border:1px solid #d8d3c6;border-radius:6px;font-size:14px;}
+        textarea.pd-review-input{resize:vertical;}
+    `;
+    document.head.appendChild(style);
+}

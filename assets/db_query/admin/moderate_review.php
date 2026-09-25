@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 $id = $_POST['id'] ?? 0;
 $action = $_POST['action'] ?? '';
 
-if (!$id || !in_array($action, ['approve', 'delete'])) {
+if (!$id || !in_array($action, ['approve', 'reject', 'delete'])) {
     echo json_encode(['status' => 'error', 'message' => 'id and a valid action are required']);
     exit;
 }
@@ -19,6 +19,11 @@ if (!$id || !in_array($action, ['approve', 'delete'])) {
 try {
     if ($action === 'approve') {
         $stmt = $pdo->prepare("UPDATE product_reviews SET is_approved = 1 WHERE id = ?");
+        $stmt->execute([$id]);
+    } elseif ($action === 'reject') {
+        // Reviews now go live immediately on submission — Reject pulls one
+        // back off the site without deleting the record (unlike Delete).
+        $stmt = $pdo->prepare("UPDATE product_reviews SET is_approved = 0 WHERE id = ?");
         $stmt->execute([$id]);
     } else {
         $stmt = $pdo->prepare("DELETE FROM product_reviews WHERE id = ?");

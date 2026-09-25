@@ -1,22 +1,34 @@
+var feedbackSubmittedOrderIds = [];
+
 $(document).ready(function () {
     loadOrders();
 });
 
 function loadOrders() {
     $.ajax({
-        url: 'assets/db_query/order/get_user_orders.php',
+        url: 'assets/db_query/order/get_order_feedback_status.php',
         type: 'GET',
         dataType: 'json',
-        success: function (data) {
-            if (data.status === 'success') {
-                displayOrders(data.orders);
-            } else {
-                SwalHelper.ecommerce.serverError(data.message || 'Failed to load orders');
-            }
+        success: function (statusRes) {
+            if (statusRes.status === 'success') feedbackSubmittedOrderIds = statusRes.order_ids || [];
         },
-        error: function () {
-            SwalHelper.close();
-            SwalHelper.ecommerce.networkError();
+        complete: function () {
+            $.ajax({
+                url: 'assets/db_query/order/get_user_orders.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.status === 'success') {
+                        displayOrders(data.orders);
+                    } else {
+                        SwalHelper.ecommerce.serverError(data.message || 'Failed to load orders');
+                    }
+                },
+                error: function () {
+                    SwalHelper.close();
+                    SwalHelper.ecommerce.networkError();
+                }
+            });
         }
     });
 }
@@ -132,6 +144,8 @@ function displayOrders(orders) {
                         </div>
                     </div>
                 </div>
+
+                ${getFeedbackBlockHtml(order, status)}
             </div>
         `;
     });
@@ -250,4 +264,70 @@ function getStatusProgress(status) {
 
     return html;
 }
+
+// ===== Post-delivery feedback (see submit_feedback.php / get_order_feedback_status.php) =====
+
+function getFeedbackBlockHtml(order, status) {
+    if (status !== 'delivered') return '';
+
+    if (feedbackSubmittedOrderIds.indexOf(order.id) !== -1) {
+        return `<div class="order-feedback mt-3 pt-3" style="border-top:1px solid #eee;">
+            <p class="mb-0 text-muted"><i class="fa-solid fa-circle-check" style="color:#82AE46;"></i> Thanks — you've already rated this order.</p>
+        </div>`;
+    }
+
+    return `<div class="order-feedback mt-3 pt-3" data-order-id="${order.id}" style="border-top:1px solid #eee;">
+        <h5>Rate your order</h5>
+        <div class="feedback-stars" data-rating="0" style="font-size:24px;color:#c9c4b8;cursor:pointer;letter-spacing:3px;">
+            ${[1, 2, 3, 4, 5].map(n => `<span class="feedback-star-input" data-star="${n}">&#9734;</span>`).join('')}
+        </div>
+        <textarea class="form-control feedback-comments mt-2" rows="2" placeholder="Any comments about the order or delivery? (optional)" style="max-width:480px;"></textarea>
+        <button type="button" class="btn btn-sm feedback-submit-btn mt-2" style="background:#82AE46;color:#fff;">Submit Feedback</button>
+    </div>`;
+}
+
+$(document).on('click', '.feedback-star-input', function () {
+    const $wrap = $(this).closest('.feedback-stars');
+    const rating = parseInt($(this).attr('data-star'), 10) || 0;
+    $wrap.attr('data-rating', rating);
+    $wrap.find('.feedback-star-input').each(function () {
+        const starVal = parseInt($(this).attr('data-star'), 10);
+        $(this).html(starVal <= rating ? '&#9733;' : '&#9734;').css('color', starVal <= rating ? '#e0a415' : '');
+    });
+});
+
+$(document).on('click', '.feedback-submit-btn', function () {
+    const $btn = $(this);
+    const $block = $btn.closest('.order-feedback');
+    const orderId = $block.data('order-id');
+    const rating = parseInt($block.find('.feedback-stars').attr('data-rating'), 10) || 0;
+    const comments = ($block.find('.feedback-comments').val() || '').trim();
+
+    if (!rating) {
+        alert('Please select a star rating.');
+        return;
+    }
+
+    $btn.prop('disabled', true).text('Submitting…');
+
+    $.ajax({
+        url: 'assets/db_query/order/submit_feedback.php',
+        type: 'POST',
+        data: { order_id: orderId, rating: rating, comments: comments },
+        dataType: 'json',
+        success: function (res) {
+            if (res.status === 'success') {
+                $block.html('<p class="mb-0 text-muted"><i class="fa-solid fa-circle-check" style="color:#82AE46;"></i> Thank you for your feedback!</p>');
+                feedbackSubmittedOrderIds.push(orderId);
+            } else {
+                $btn.prop('disabled', false).text('Submit Feedback');
+                alert(res.message || 'Could not submit feedback.');
+            }
+        },
+        error: function () {
+            $btn.prop('disabled', false).text('Submit Feedback');
+            alert('Request failed. Please try again.');
+        }
+    });
+});
 

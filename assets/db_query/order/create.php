@@ -62,6 +62,29 @@ if (empty($cart)) {
   exit;
 }
 
+// ✅ Stock check — block placing the order if any item now has less stock
+// available than the customer has in their cart (e.g. sold out since it was
+// added, or someone else bought the last of it). Checked here, before the
+// order is created, for both COD and Razorpay — not just at COD's deduction
+// step below, so an out-of-stock item can never actually be ordered.
+$insufficient = [];
+$stockCheckStmt = $pdo->prepare("SELECT stock FROM product_details WHERE id = ?");
+foreach ($cart as $item) {
+  if (empty($item['product_id'])) continue;
+  $stockCheckStmt->execute([$item['product_id']]);
+  $row = $stockCheckStmt->fetch(PDO::FETCH_ASSOC);
+  $available = $row ? (int)$row['stock'] : 0;
+  if ($available < (int)$item['quantity']) {
+    $insufficient[] = $item['product_name'] . ($available > 0 ? " (only {$available} left)" : " (out of stock)");
+  }
+}
+if (!empty($insufficient)) {
+  echo json_encode([
+    "status" => "error",
+    "message" => "Some items in your cart are no longer available in the quantity requested: " . implode(', ', $insufficient) . ". Please update your cart."
+  ]);
+  exit;
+}
 
 // ✅ Calculate total
 $subtotal = 0;
