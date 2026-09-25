@@ -160,12 +160,52 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <td>${p.reorder_level ?? '—'}</td>
                     <td>${p.max_stock_level ?? '—'}</td>
                     <td>${statusBadge(status)}</td>
+                    <td>${status === 'out'
+                        ? '<span class="adm-cell-sub">Already out</span>'
+                        : `<button class="adm-btn adm-btn-ghost mark-oos-btn" data-id="${p.id}" data-name="${escapeHtml(p.product_name)}"><i class="fas fa-triangle-exclamation"></i> Mark Out of Stock</button>`}</td>
                 </tr>`;
             });
             $('#inventoryTable').html(`<div class="adm-table-wrap"><table class="adm-table">
-                <thead><tr><th>Product</th><th>Available Stock</th><th>Reserved</th><th>Available to Sell</th><th>Min</th><th>Reorder</th><th>Max</th><th>Status</th></tr></thead>
+                <thead><tr><th>Product</th><th>Available Stock</th><th>Reserved</th><th>Available to Sell</th><th>Min</th><th>Reorder</th><th>Max</th><th>Status</th><th>Emergency</th></tr></thead>
                 <tbody>${html}</tbody>
             </table></div>`);
+
+            $('.mark-oos-btn').on('click', function() {
+                markOutOfStock($(this).data('id'), $(this).data('name'));
+            });
+        }
+
+        function markOutOfStock(productId, productName) {
+            Swal.fire({
+                title: 'Mark as Out of Stock?',
+                html: `This immediately sets <strong>${escapeHtml(productName)}</strong>'s stock to <strong>0</strong>, for emergencies (recall, damage, supply issue, etc). It will show as Out of Stock everywhere right away.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#c0392b',
+                cancelButtonColor: '#6b6459',
+                confirmButtonText: 'Yes, mark Out of Stock',
+                input: 'text',
+                inputPlaceholder: 'Reason (optional)'
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+                $.ajax({
+                    url: '../assets/db_query/admin/mark_out_of_stock.php',
+                    type: 'POST',
+                    data: { product_id: productId, reason: result.value || '' },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({ title: 'Marked Out of Stock', icon: 'success', confirmButtonColor: '#1c5034', timer: 1400, showConfirmButton: false });
+                            loadInventory();
+                        } else {
+                            Swal.fire({ title: 'Could not update', text: response.message || 'Stock was not changed.', icon: 'error', confirmButtonColor: '#1c5034' });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({ title: 'Could not update', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
+                    }
+                });
+            });
         }
 
         function exportCsv() {
