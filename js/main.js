@@ -445,61 +445,16 @@ $(document).ready(function () {
 });
 
 // -----------------------------------------------------------------------
-// Scroll dampening (presentation only).
-// Some mice/trackpads report very large wheel deltas per "notch", which
-// makes the page jump long distances in one go and skip past product
-// details before they can be read. This only steps in for those
-// abnormally large jumps -- normal mouse-wheel and trackpad scrolling
-// (the vast majority of wheel events) is left completely untouched and
-// handled natively by the browser, so this does not change how scrolling
-// feels for anyone whose scroll was already working normally. It also
-// skips modals, dropdowns and any other inner-scrolling element so those
-// keep scrolling exactly as before.
-(function () {
-	var MAX_STEP = 120;   // largest distance (px) a single wheel tick may move the page
-	var DURATION = 320;   // ms for the eased catch-up animation
-	var rafId = null;
-
-	function easeOutCubic(t) {
-		return 1 - Math.pow(1 - t, 3);
-	}
-
-	function isInnerScrollable(target) {
-		return !!(target && target.closest && target.closest(
-			'.form-modal, .modal, .dropdown-menu, .slider6, #slides, [data-no-scroll-dampen]'
-		));
-	}
-
-	window.addEventListener('wheel', function (e) {
-		if (e.ctrlKey || e.defaultPrevented) return;
-		if (isInnerScrollable(e.target)) return;
-
-		var delta = e.deltaY;
-		if (e.deltaMode === 1) { delta *= 18; }
-		else if (e.deltaMode === 2) { delta *= window.innerHeight; }
-
-		if (Math.abs(delta) <= MAX_STEP) return; // normal-sized tick: let the browser handle it as usual
-
-		e.preventDefault();
-
-		var clamped = delta > 0 ? MAX_STEP : -MAX_STEP;
-		var start = window.pageYOffset;
-		var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-		var target = Math.max(0, Math.min(maxScroll, start + clamped));
-		var startTime = null;
-
-		if (rafId) { cancelAnimationFrame(rafId); }
-
-		function step(ts) {
-			if (!startTime) { startTime = ts; }
-			var progress = Math.min(1, (ts - startTime) / DURATION);
-			window.scrollTo(0, start + (target - start) * easeOutCubic(progress));
-			if (progress < 1) {
-				rafId = requestAnimationFrame(step);
-			} else {
-				rafId = null;
-			}
-		}
-		rafId = requestAnimationFrame(step);
-	}, { passive: false });
-})();
+// FIX (25 Sep 2026): a "scroll dampening" listener used to live here. It
+// intercepted any wheel event whose deltaY exceeded 120px, cancelled it,
+// and animated a short 120px hop instead. The problem: normal continuous
+// scrolling (a mouse-wheel fling or trackpad swipe) fires many wheel
+// events per second, and modern mice/trackpads routinely report deltas
+// well above 120px even for ordinary scrolling. Each new event cancelled
+// the still-running animation from the previous one before it finished,
+// so the page kept restarting a tiny hop it never completed - visible as
+// scrolling getting "stuck" and re-snapping to the same spot instead of
+// moving smoothly. Confirmed live: simulating a normal continuous scroll
+// (180px deltas, ~16/sec) advanced the page only 25px total before
+// freezing completely. Removed entirely so wheel/trackpad scrolling is
+// handled natively by the browser again, which is smooth by default.
