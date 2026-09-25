@@ -351,6 +351,10 @@ require_once __DIR__ . '/includes/check_admin.php';
                     bindInvRowEvents();
                     recalcInvTotals();
                     $('#inv-add-row').on('click', function() { $('#inv-items').append(invItemRowHtml({})); bindInvRowEvents(); recalcInvTotals(); });
+                    $('#inv-customer').on('change', function() {
+                        const custId = $(this).val();
+                        if (custId) fillCustomerDetails(custId);
+                    });
                 },
                 preConfirm: () => {
                     const rows = collectInvRows();
@@ -375,6 +379,26 @@ require_once __DIR__ . '/includes/check_admin.php';
                 }
             }).then((result) => {
                 if (result.isConfirmed) saveInvoice(result.value);
+            });
+        }
+
+        function fillCustomerDetails(custId) {
+            // Instant fill from the already-loaded customer list (name, mobile)...
+            const c = CUSTOMERS.find(x => String(x.id) === String(custId));
+            if (c) {
+                $('#inv-cust-name').val(c.username || c.email || '');
+                $('#inv-cust-mobile').val(c.phone_number || '');
+            }
+            // ...then fetch their billing address (from their most recent order) in the background.
+            $.ajax({
+                url: '../assets/db_query/admin/get_customer_details.php', type: 'GET', data: { id: custId }, dataType: 'json',
+                success: function(data) {
+                    if (data.status === 'success' && data.customer) {
+                        if (data.customer.name) $('#inv-cust-name').val(data.customer.name);
+                        if (data.customer.mobile) $('#inv-cust-mobile').val(data.customer.mobile);
+                        if (data.customer.address) $('#inv-billing').val(data.customer.address);
+                    }
+                }
             });
         }
 
