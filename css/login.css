@@ -237,9 +237,16 @@
     justify-content: center;
 }
 
+/* FIX (25 Sep 2026): merge the photo panel and the form panel into one
+   seamless full-page split, matching the reference layout the client
+   supplied - no gap, no floating card, no rounded corners between them.
+   The photo used to be capped at 48%/760px (non-shrinking), leaving the
+   form card to sit beside it with its own margin/shadow/radius, which
+   read as two separate floating boxes rather than one continuous panel.
+   Now the photo simply fills whatever width is left beside the fixed-
+   width form column, so the two always meet edge-to-edge. */
 .auth-visual {
-    flex: 0 0 48%;
-    max-width: 760px;
+    flex: 1 1 auto;
     min-height: 100%;
     align-self: stretch;
     position: relative;
@@ -266,9 +273,11 @@
 }
 
 .auth-panel {
-    flex: 0 1 620px;
+    flex: 0 0 620px;
     width: 620px;
     max-width: 620px;
+    min-height: 100%;
+    align-self: stretch;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -276,10 +285,10 @@
     background: rgba(255, 255, 255, 0.55);
     -webkit-backdrop-filter: blur(28px) saturate(140%);
     backdrop-filter: blur(28px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.65);
-    border-radius: 28px;
-    box-shadow: 0 24px 60px rgba(20, 40, 30, 0.18), 0 2px 10px rgba(20, 40, 30, 0.1);
-    margin: 40px 60px 40px 40px;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
     position: relative;
     z-index: 2;
     box-sizing: border-box;
@@ -618,11 +627,11 @@
    already-correct compact layout for those laptop widths too. */
 @media (min-width: 901px) and (max-width: 1580px) {
     .auth-panel {
-        flex: 0 1 460px;
+        flex: 0 0 460px;
         width: 460px;
         max-width: 460px;
         padding: 48px 40px;
-        margin: 40px 40px 40px 24px;
+        margin: 0;
     }
 
     .form-toggle {
