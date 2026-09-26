@@ -831,3 +831,8 @@
     box-shadow: 0 8px 28px rgba(25, 55, 35, 0.11);
     border-color: rgba(43, 98, 68, 0.25);
 }
+
+/* Header Badges */
+.v-action-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.v-badge-count.v-badge-red { display: none; position: absolute; top: 0px; right: 0px; background-color: #d42a2a; color: white; font-size: 10px; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; text-align: center; line-height: 16px; padding:0; margin:0; }
+.v-badge-count.v-badge-red.has-items { display: block; }

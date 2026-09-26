@@ -67,6 +67,7 @@ if ($stmt->execute([$email, $username, $hashedPassword, $phone])) {
     $_SESSION['user_id'] = $pdo->lastInsertId();
     $_SESSION['username'] = $username;
     $_SESSION['email'] = $email;
+    $_SESSION['status'] = 1;
     echo json_encode(['status' => 'success']);
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Signup failed. Please try again.']);

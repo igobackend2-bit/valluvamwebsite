@@ -4,15 +4,37 @@ $(document).ready(function () {
 
 function loadCartCount() {
     $.ajax({
-        url: "assets/db_query/header/header_query.php?action=CartCount",
+        url: "assets/db_query/header/header_query.php?action=HeaderCounts",
         type: "GET",
         dataType: "json",
         success: function (res) {
             if (res.status === "success") {
-                $("#cartCount").text("[" + res.count + "]");
+                // Cart
+                if (parseInt(res.cart) > 0) {
+                    $("#cartCount").text(res.cart).addClass("has-items");
+                } else {
+                    $("#cartCount").text("").removeClass("has-items");
+                }
+                
+                // Wishlist
+                if (parseInt(res.wishlist) > 0) {
+                    $("#wishlistCountHeader").text(res.wishlist).addClass("has-items");
+                } else {
+                    $("#wishlistCountHeader").text("").removeClass("has-items");
+                }
+
+                // Notifications
+                if (parseInt(res.notif) > 0) {
+                    $("#notifCount").text(res.notif).addClass("has-items");
+                } else {
+                    $("#notifCount").text("").removeClass("has-items");
+                }
             } else {
-                $("#cartCount").text("[0]");
+                $(".v-badge-count").text("").removeClass("has-items");
             }
+        },
+        error: function() {
+            $(".v-badge-count").text("").removeClass("has-items");
         }
     });
 }
