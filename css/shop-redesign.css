@@ -1,9 +1,8 @@
-/* ==========================================================================
-   Valluvam Products — Shop / Product Catalogue Redesign (Phase 3)
-   Scope: shop.php only (linked only in this page's own <head>).
-   Frontend/presentation only — no markup class renamed that JS/cart/
-   wishlist logic depends on (.add-to-cart, #add-to-cart, .wishlist-btn,
-   data-id, data-product-id all preserved).
+﻿/* ==========================================================================
+   Valluvam Products â€” Shop / Product Catalogue Styles
+   Cards now use .v-product-card from css/premium-valluvam.css (loaded globally
+   via header.php). This file retains: category pills, grid wrapper, skeleton
+   loader and empty/error states only.
    ========================================================================== */
 
 :root {
@@ -15,7 +14,7 @@
 }
 
 /* -------------------------------------------------------------------- */
-/* Category navigation                                                  */
+/* Category navigation pills                                             */
 /* -------------------------------------------------------------------- */
 ul.product-category {
     display: flex;
@@ -75,23 +74,9 @@ ul.product-category li a:focus-visible {
 }
 
 /* -------------------------------------------------------------------- */
-/* Toolbar row (result count + existing search stays wherever it is;    */
-/* this just gives the category block breathing room above the grid)   */
-/* -------------------------------------------------------------------- */
-.v-shop-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin: 0 0 22px;
-    padding: 0 4px;
-    color: #6b6459;
-    font-size: 0.9rem;
-}
-
-/* -------------------------------------------------------------------- */
-/* Grid: 4 desktop / 3 tablet / 2 mobile                                */
+/* Product grid wrapper                                                  */
+/* #product-shop uses Bootstrap .row col-6 / col-md-4 / col-lg-3 cols   */
+/* rendered by buildProductCard() with .v-product-card inside each col  */
 /* -------------------------------------------------------------------- */
 #product-shop {
     display: flex;
@@ -108,25 +93,9 @@ ul.product-category li a:focus-visible {
     display: flex;
 }
 
-@media (min-width: 992px) {
-    #product-shop > [class*="col-"] {
-        flex: 0 0 25%;
-        max-width: 25%;
-    }
-}
-
-@media (min-width: 768px) and (max-width: 991.98px) {
-    #product-shop > [class*="col-"] {
-        flex: 0 0 33.3333%;
-        max-width: 33.3333%;
-    }
-}
-
-@media (max-width: 767.98px) {
-    #product-shop > [class*="col-"] {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
+/* Ensure .v-product-card stretches to fill the flex column */
+#product-shop .v-product-card {
+    width: 100%;
 }
 
 @media (max-width: 359.98px) {
@@ -140,262 +109,12 @@ ul.product-category li a:focus-visible {
     }
 }
 
-/* -------------------------------------------------------------------- */
-/* Product card                                                         */
-/* -------------------------------------------------------------------- */
-#product-shop .product {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    background: #fff;
-    border: 1px solid var(--v-shop-line);
-    border-radius: var(--v-shop-radius);
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(20, 30, 20, 0.05);
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-}
-
-#product-shop .product:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 28px rgba(20, 30, 20, 0.12);
-    border-color: #d7cfba;
-}
-
-/* Image */
-#product-shop .img-prod {
-    position: relative;
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background: var(--v-shop-cream);
-}
-
-#product-shop .img-prod img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    padding: 14px;
-    transition: transform 0.35s ease;
-}
-
-#product-shop .product:hover .img-prod img {
-    transform: scale(1.05);
-}
-
-#product-shop .img-prod .overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(18, 54, 38, 0);
-    transition: background 0.25s ease;
-    pointer-events: none;
-}
-
-#product-shop .product:hover .img-prod .overlay {
-    background: rgba(18, 54, 38, 0.04);
-}
-
-/* Discount badge */
-#product-shop .img-prod .status {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 2;
-    background: #d64545;
-    color: #fff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    padding: 4px 9px;
-    border-radius: 999px;
-    line-height: 1.2;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Wishlist button — top-right overlay on the card */
-#product-shop .product .wishlist-btn.heart {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 3;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #8a8375;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.14);
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-#product-shop .product .wishlist-btn.heart:hover,
-#product-shop .product .wishlist-btn.heart:focus-visible {
-    color: #d64545;
-    transform: scale(1.08);
-}
-
-#product-shop .product .wishlist-btn.heart ion-icon {
-    font-size: 17px;
-    pointer-events: none;
-}
-
-#product-shop .product .wishlist-btn.heart.active,
-#product-shop .product .wishlist-btn.heart.wishlisted {
-    color: #d64545;
-}
-
-/* Body text area */
-#product-shop .text {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    padding: 16px 16px 18px !important;
-    text-align: left !important;
-}
-
-#product-shop .text h3 {
-    font-size: 0.98rem;
-    font-weight: 700;
-    line-height: 1.35;
-    margin: 0 0 4px;
-    min-height: 2.6em;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-#product-shop .text h3 a {
-    color: var(--v-shop-green-dark);
-}
-
-#product-shop .text h3 a:hover {
-    color: var(--v-shop-green);
-    text-decoration: none;
-}
-
-.v-shop-qty {
-    margin: 0 0 10px;
-    font-size: 0.8rem;
-    color: #8a8375;
-}
-
-#product-shop .d-flex.justify-content-center {
-    justify-content: flex-start !important;
-    margin-top: auto;
-}
-
-#product-shop .pricing {
-    width: 100%;
-}
-
-#product-shop .pricing .price {
-    margin: 4px 0 12px;
-    font-size: 1.02rem;
-    font-weight: 700;
-    color: var(--v-shop-green-dark);
-}
-
-#product-shop .pricing .price-dc {
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: #a39c8d;
-    text-decoration: line-through;
-}
-
-#product-shop .pricing .price-sale {
-    color: #c0392b;
-}
-
-/* Action row */
-#product-shop .bottom-area {
-    padding: 0 !important;
-    width: 100%;
-}
-
-#product-shop .bottom-area .m-auto {
-    width: 100%;
-    margin: 0 !important;
-    display: flex;
-    gap: 8px;
-}
-
-#product-shop .bottom-area a.add-to-cart,
-#product-shop .bottom-area a.buy {
-    position: static;
-    height: 42px;
-    border-radius: 9px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    gap: 6px;
-}
-
-#product-shop .bottom-area a.product-detail-btn {
-    flex: 0 0 42px;
-    width: 42px;
-    background: var(--v-shop-cream);
-    color: var(--v-shop-green-dark);
-    border: 1px solid var(--v-shop-line);
-}
-
-#product-shop .bottom-area a.product-detail-btn:hover,
-#product-shop .bottom-area a.product-detail-btn:focus-visible {
-    background: #f1ead9;
-}
-
-#product-shop .bottom-area a#add-to-cart.add-to-cart {
-    flex: 1 1 auto;
-    background: var(--v-shop-green) !important;
-    border: 1px solid var(--v-shop-green) !important;
-    color: #fff !important;
-}
-
-#product-shop .bottom-area a#add-to-cart.add-to-cart:hover,
-#product-shop .bottom-area a#add-to-cart.add-to-cart:focus-visible {
-    background: var(--v-shop-green-dark) !important;
-    border-color: var(--v-shop-green-dark) !important;
-}
-
-#product-shop .bottom-area a .v-btn-label {
-    font-size: 0.78rem;
-    white-space: nowrap;
-}
-
-#product-shop .bottom-area a ion-icon {
-    font-size: 16px;
-    pointer-events: none;
-}
-
-#product-shop a:focus-visible,
-#product-shop button:focus-visible {
-    outline: 2px solid var(--v-shop-green);
-    outline-offset: 2px;
-}
-
-@media (max-width: 480px) {
-    #product-shop .bottom-area a .v-btn-label {
-        display: none;
-    }
-    #product-shop .bottom-area a#add-to-cart.add-to-cart {
-        flex: 0 0 42px;
-        width: 42px;
-    }
-    #product-shop .text {
-        padding: 12px 12px 14px !important;
-    }
-    #product-shop .text h3 {
-        font-size: 0.88rem;
-    }
+.v-shop-results {
+    padding: 0;
 }
 
 /* -------------------------------------------------------------------- */
-/* Loading skeleton                                                     */
+/* Loading skeleton                                                      */
 /* -------------------------------------------------------------------- */
 .v-shop-skel {
     background: #fff;
@@ -435,16 +154,12 @@ ul.product-category li a:focus-visible {
 }
 
 @keyframes v-shop-shimmer {
-    0% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0 50%;
-    }
+    0%   { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
 }
 
 /* -------------------------------------------------------------------- */
-/* Empty / error state                                                  */
+/* Empty / error state                                                   */
 /* -------------------------------------------------------------------- */
 .v-shop-empty {
     width: 100%;

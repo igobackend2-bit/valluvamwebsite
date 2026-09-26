@@ -32,7 +32,7 @@
 }
 
 .v-page-hero .bread {
-    font-family: 'Lora', serif;
+    font-family: var(--v-font-serif, 'Playfair Display', Georgia, serif);
 }
 
 .v-page-desc {
@@ -61,7 +61,7 @@
 }
 
 .v-section-heading h2 {
-    font-family: 'Lora', serif;
+    font-family: var(--v-font-serif, 'Playfair Display', Georgia, serif);
     color: var(--v-sp-green-dark);
     font-weight: 700;
     font-size: 1.9rem;
@@ -76,7 +76,7 @@
 }
 
 .v-subheading {
-    font-family: 'Lora', serif;
+    font-family: var(--v-font-serif, 'Playfair Display', Georgia, serif);
     color: var(--v-sp-green-dark);
     font-weight: 700;
     font-size: 1.3rem;
@@ -144,7 +144,7 @@
 }
 
 .v-igo-panel h2 {
-    font-family: 'Lora', serif;
+    font-family: var(--v-font-serif, 'Playfair Display', Georgia, serif);
     font-weight: 700;
     font-size: 1.8rem;
     margin: 0 0 14px;
@@ -175,7 +175,7 @@
 }
 
 .v-igo-stats dt {
-    font-family: 'Lora', serif;
+    font-family: var(--v-font-serif, 'Playfair Display', Georgia, serif);
     font-size: 1.6rem;
     font-weight: 700;
     color: #fff;
@@ -327,7 +327,7 @@
 }
 
 .contact-page-form h2 {
-    font-family: 'Lora', serif;
+    font-family: var(--v-font-serif, 'Playfair Display', Georgia, serif);
     color: var(--v-sp-green-dark);
     font-weight: 700;
     font-size: 1.4rem;

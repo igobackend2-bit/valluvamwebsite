@@ -57,7 +57,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-  <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800|Lora:400,400i,700,700i|Amatic+SC:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400;1,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=search" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_circle" />
   <meta property="og:image" content="images/logo.png" />
@@ -81,6 +81,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <link rel="stylesheet" href="css/productdet.css">
   <link rel="stylesheet" href="css/products.css?v=3">
   <link rel="stylesheet" href="css/login.css?v=20260911b">
+  <link rel="stylesheet" href="css/premium-valluvam.css?v=20260926">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
@@ -501,21 +502,18 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
          The proper fix is re-exporting the logo cropped and transparent;
          this makes it read correctly until then. */
       #ftco-navbar .navbar-brand {
-        width: 72px;
-        height: 72px;
-        overflow: hidden;
+        padding: 4px 0;
+        margin-right: 28px;
         flex: 0 0 auto;
       }
 
-      #ftco-navbar .navbar-brand img {
-        transform: scale(1.4);
-      }
-
-      /* 7b. Gap balance: the logo sat 20px from the search box, then a
-         162px void before the menu. Redistributed so the left cluster
-         breathes and the void closes to about 95px. */
-      #ftco-navbar .navbar-brand {
-        margin-right: 36px;
+      #ftco-navbar .navbar-brand img.v-main-logo {
+        height: 64px;
+        width: auto;
+        max-width: 140px;
+        object-fit: contain;
+        display: block;
+        transform: none;
       }
 
       #ftco-navbar #searchForm {
@@ -807,139 +805,188 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
        Valluvam / Our Services on index.php) - quality checks, pan-India delivery with
        tracking, Razorpay secure payments, and the existing wholesale/bulk offering. No
        shipping-cost or delivery-time promise is made here since none is confirmed. -->
-  <div class="v-announce-bar">
-    <div class="v-announce-track">
-      <span>QUALITY CHECKED PRODUCTS</span>
-      <span>PAN-INDIA DELIVERY WITH TRACKING</span>
-      <span>SECURE PAYMENTS VIA RAZORPAY</span>
-      <span>BULK / WHOLESALE ORDERS AVAILABLE</span>
-    </div>
-  </div>
-  <div class="py-1 bg-primary" style="background-color: green;">
+  <!-- TOP TRUST BAR -->
+  <div class="v-top-bar">
     <div class="container">
-      <div class="row no-gutters d-flex align-items-start align-items-center px-md-0">
-        <div class="col-lg-12 d-block">
-          <div class="row d-flex">
-            <div class="col-md pr-4 d-flex topper align-items-center">
-              <div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-phone2"></span></div>
-              <a class="text" href="tel:+918925969888">+91 89259 69888</a>
-            </div>
-            <div class="col-md pr-4 d-flex topper align-items-center">
-              <div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
-              <a class="text" href="mailto:info.thefarmersfactory@gmail.com">info.thefarmersfactory@gmail.com</a>
-            </div>
-
-          </div>
-        </div>
+      <div class="v-trust-pill-group">
+        <span class="v-trust-item"><i class="fa-solid fa-leaf"></i> Naturally Sourced</span>
+        <span class="v-top-sep">|</span>
+        <span class="v-trust-item"><i class="fa-solid fa-circle-check"></i> Quality Checked</span>
+        <span class="v-top-sep">|</span>
+        <span class="v-trust-item"><i class="fa-solid fa-box-open"></i> Carefully Packed</span>
+        <span class="v-top-sep">|</span>
+        <span class="v-trust-item"><i class="fa-solid fa-truck-fast"></i> Delivered With Care</span>
+      </div>
+      <div class="v-top-links">
+        <a href="tel:+918925969888"><i class="fa-solid fa-phone"></i> +91 89259 69888</a>
+        <span class="v-top-sep">|</span>
+        <a href="b2b-wholesale.php"><i class="fa-solid fa-briefcase"></i> B2B / Wholesale</a>
+        <span class="v-top-sep">|</span>
+        <a href="mailto:info.thefarmersfactory@gmail.com"><i class="fa-solid fa-envelope"></i> info.thefarmersfactory@gmail.com</a>
       </div>
     </div>
   </div>
-  <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="index.php">
-        <img src="images/logo.jpeg" alt="Valluvam - Premium Dry Fruits, Nuts, Spices &amp; Cold-Pressed Oils" class="img-fluid" style="max-height:100px;" width="100" height="100">
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="oi oi-menu"></span> Menu
-      </button>
-      <button id="navbarClose" class="navbar-close" aria-label="Close menu">&times;</button>
 
+  <!-- STICKY HEADER -->
+  <nav class="navbar navbar-expand-lg ftco_navbar ftco-navbar-light" id="ftco-navbar">
+    <div class="container">
+      <!-- LEFT: Existing Valluvam Logo (Untouched Asset) -->
+      <a class="navbar-brand d-flex align-items-center" href="index.php" title="Valluvam — As Pure As Nature">
+        <img src="images/logo.png" alt="Valluvam - As Pure As Nature" class="v-main-logo img-fluid" width="120" height="60">
+      </a>
+
+      <!-- Mobile Toggler -->
+      <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
 
       <?php
       // get the current page name
       $currentPage = basename($_SERVER['PHP_SELF']);
-
-      // allowed pages where search should be shown
-      // rice.php was missing from this list, so the search box didn't show on the Rice
-      // category page even though the same search endpoint already supports it.
       $allowedPages = ['index.php', 'shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'rice.php', 'palm-jaggery.php', 'seeds.php', 'dal.php', 'honey.php', 'ghee.php', 'pulses.php', 'productdetail.php'];
       ?>
 
-      <?php if (in_array($currentPage, $allowedPages)) : ?>
-        <form id="searchForm">
-          <div class="search">
-            <ion-icon name="search"></ion-icon>
-            <input class="search-input" type="search" id="search" placeholder="search products.....">
-          </div>
-        </form>
-      <?php endif; ?>
-
-      <!-- Products will display here -->
-      <div id="product-results"></div>
-
-
-      <div class="collapse navbar-collapse" id="ftco-nav">
-        <ul class="navbar-nav ml-auto" style="gap: 2px;">
-          <li class="nav-item"><a href="index.php" class="nav-link">Home</a></li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Shop</a>
-            <!-- Same 7 category links/hrefs as before - only the presentation changed
-                 from a plain text list to a labelled icon grid. -->
-            <div class="dropdown-menu v-mega-menu" aria-labelledby="dropdown04">
-              <a class="v-mega-item" href="dryfruits.php"><ion-icon name="nutrition-outline"></ion-icon><span>Dry Fruits</span></a>
-              <a class="v-mega-item" href="nuts.php"><ion-icon name="leaf-outline"></ion-icon><span>Nuts</span></a>
-              <a class="v-mega-item" href="spices.php"><ion-icon name="flame-outline"></ion-icon><span>Spices</span></a>
-              <a class="v-mega-item" href="oils.php"><ion-icon name="water-outline"></ion-icon><span>Oils</span></a>
-              <a class="v-mega-item" href="millets.php"><ion-icon name="flower-outline"></ion-icon><span>Millets</span></a>
-              <a class="v-mega-item" href="rice.php"><ion-icon name="restaurant-outline"></ion-icon><span>Rice</span></a>
-              <a class="v-mega-item" href="combo.php"><ion-icon name="gift-outline"></ion-icon><span>Combos</span></a>
-              <a class="v-mega-item" href="palm-jaggery.php"><ion-icon name="cafe-outline"></ion-icon><span>Palm Jaggery</span></a>
-              <a class="v-mega-item" href="seeds.php"><ion-icon name="aperture-outline"></ion-icon><span>Seeds</span></a>
-              <a class="v-mega-item" href="dal.php"><ion-icon name="basket-outline"></ion-icon><span>Dal</span></a>
-              <a class="v-mega-item" href="honey.php"><ion-icon name="sunny-outline"></ion-icon><span>Honey</span></a>
-              <a class="v-mega-item" href="ghee.php"><ion-icon name="flask-outline"></ion-icon><span>Ghee</span></a>
-              <a class="v-mega-item" href="pulses.php"><ion-icon name="apps-outline"></ion-icon><span>Pulses</span></a>
-              <a class="v-mega-item v-mega-all" href="shop.php"><ion-icon name="storefront-outline"></ion-icon><span>All Products</span></a>
+      <!-- CENTER: Main Navigation Links -->
+      <div class="collapse navbar-collapse justify-content-center" id="ftco-nav">
+        <ul class="navbar-nav">
+          <li class="nav-item <?php echo ($currentPage == 'index.php') ? 'active' : ''; ?>">
+            <a href="index.php" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item dropdown <?php echo (in_array($currentPage, ['shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'rice.php', 'palm-jaggery.php', 'seeds.php', 'dal.php', 'honey.php', 'ghee.php', 'pulses.php'])) ? 'active' : ''; ?>">
+            <a class="nav-link dropdown-toggle" href="shop.php" id="dropdownShop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Shop <i class="fa-solid fa-chevron-down ml-1" style="font-size:11px;"></i>
+            </a>
+            <!-- Premium Mega Menu with All 13 Categories + All Products -->
+            <div class="dropdown-menu v-mega-menu" aria-labelledby="dropdownShop">
+              <div class="v-mega-grid">
+                <a class="v-mega-item" href="dryfruits.php">
+                  <div class="v-mega-icon"><ion-icon name="nutrition-outline"></ion-icon></div>
+                  <span>Dry Fruits</span>
+                </a>
+                <a class="v-mega-item" href="nuts.php">
+                  <div class="v-mega-icon"><ion-icon name="leaf-outline"></ion-icon></div>
+                  <span>Nuts</span>
+                </a>
+                <a class="v-mega-item" href="oils.php">
+                  <div class="v-mega-icon"><ion-icon name="water-outline"></ion-icon></div>
+                  <span>Cold-Pressed Oils</span>
+                </a>
+                <a class="v-mega-item" href="spices.php">
+                  <div class="v-mega-icon"><ion-icon name="flame-outline"></ion-icon></div>
+                  <span>Spices</span>
+                </a>
+                <a class="v-mega-item" href="millets.php">
+                  <div class="v-mega-icon"><ion-icon name="flower-outline"></ion-icon></div>
+                  <span>Millets</span>
+                </a>
+                <a class="v-mega-item" href="rice.php">
+                  <div class="v-mega-icon"><ion-icon name="restaurant-outline"></ion-icon></div>
+                  <span>Heritage Rice</span>
+                </a>
+                <a class="v-mega-item" href="combo.php">
+                  <div class="v-mega-icon"><ion-icon name="gift-outline"></ion-icon></div>
+                  <span>Curated Combos</span>
+                </a>
+                <a class="v-mega-item" href="palm-jaggery.php">
+                  <div class="v-mega-icon"><ion-icon name="cafe-outline"></ion-icon></div>
+                  <span>Palm Jaggery</span>
+                </a>
+                <a class="v-mega-item" href="seeds.php">
+                  <div class="v-mega-icon"><ion-icon name="aperture-outline"></ion-icon></div>
+                  <span>Seeds</span>
+                </a>
+                <a class="v-mega-item" href="dal.php">
+                  <div class="v-mega-icon"><ion-icon name="basket-outline"></ion-icon></div>
+                  <span>Native Dal</span>
+                </a>
+                <a class="v-mega-item" href="honey.php">
+                  <div class="v-mega-icon"><ion-icon name="sunny-outline"></ion-icon></div>
+                  <span>Raw Honey</span>
+                </a>
+                <a class="v-mega-item" href="ghee.php">
+                  <div class="v-mega-icon"><ion-icon name="flask-outline"></ion-icon></div>
+                  <span>Pure Ghee</span>
+                </a>
+                <a class="v-mega-item" href="pulses.php">
+                  <div class="v-mega-icon"><ion-icon name="apps-outline"></ion-icon></div>
+                  <span>Pulses</span>
+                </a>
+                <a class="v-mega-item v-mega-all" href="shop.php">
+                  <div class="v-mega-icon"><ion-icon name="storefront-outline"></ion-icon></div>
+                  <span>All Products &rarr;</span>
+                </a>
+              </div>
             </div>
           </li>
-
-          <li class="nav-item"><a href="about.php" class="nav-link">About</a></li>
-          <li class="nav-item"><a href="blog.php" class="nav-link">Blog</a></li>
-          <li class="nav-item"><a href="b2b-wholesale.php" class="nav-link">B2B / Wholesale</a></li>
-          <li class="nav-item"><a href="contact.php" class="nav-link">Contact</a></li>
-          <li class="nav-item cta">
-            <a href="wishlist.php" class="nav-link" aria-label="Wishlist">
-              <span class="ion-ios-heart"></span>
-            </a>
+          <li class="nav-item">
+            <a href="index.php#shop-by-category" class="nav-link">Categories</a>
           </li>
-          <li class="nav-item cta cta-colored">
-            <a href="cart.php" class="nav-link">
-              <span class="icon-shopping_cart"></span>
-              <span id="cartCount">[0]</span>
-            </a>
+          <li class="nav-item <?php echo ($currentPage == 'about.php') ? 'active' : ''; ?>">
+            <a href="about.php" class="nav-link">About</a>
           </li>
-
-          <li class="nav-item dropdown">
-            <a class="nav-link <?php echo ($status == 1) ? 'dropdown-toggle' : ''; ?>"
-              href="#"
-              id="userIcon"
-              <?php if ($status == 1): ?>
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-              <?php endif; ?>>
-              <span class="login-nav">
-                <i class="ri-account-circle-fill"></i>
-                <?php if ($status == 1): ?>
-                  <span style="font-weight:bold;margin-left:5px;">
-                    <?php echo htmlspecialchars($user_name); ?>
-                  </span>
-                <?php endif; ?>
-
-              </span>
-            </a>
-
-            <?php if ($status == 1): ?>
-              <div class="dropdown-menu" aria-labelledby="userIcon">
-                <a class="dropdown-item" href="order_tracking.php"><i class="fa-solid fa-shopping-bag mr-2"></i>My Orders</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="logout.php"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
-              </div>
-            <?php endif; ?>
+          <li class="nav-item <?php echo ($currentPage == 'b2b-wholesale.php') ? 'active' : ''; ?>">
+            <a href="b2b-wholesale.php" class="nav-link">B2B / Wholesale</a>
           </li>
-
+          <li class="nav-item <?php echo ($currentPage == 'blog.php') ? 'active' : ''; ?>">
+            <a href="blog.php" class="nav-link">Knowledge / Blog</a>
+          </li>
         </ul>
       </div>
+
+      <!-- RIGHT: Interactive Actions (Search, Account, Wishlist, Cart) -->
+      <div class="v-header-actions">
+        <?php if (in_array($currentPage, $allowedPages)) : ?>
+          <form id="searchForm" class="v-header-search-wrap d-none d-md-block">
+            <div class="v-header-search-box search">
+              <ion-icon name="search-outline"></ion-icon>
+              <input class="search-input" type="search" id="search" placeholder="Search nuts, oils, spices &amp; more..." autocomplete="off">
+            </div>
+          </form>
+        <?php endif; ?>
+
+        <!-- Wishlist -->
+        <a href="wishlist.php" class="v-action-btn" title="Wishlist" aria-label="Wishlist">
+          <i class="fa-regular fa-heart"></i>
+        </a>
+
+        <!-- Cart -->
+        <a href="cart.php" class="v-action-btn cta cta-colored" title="Cart" aria-label="Cart">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span id="cartCount" class="v-badge-count">[0]</span>
+        </a>
+
+        <!-- Account / User Dropdown -->
+        <div class="dropdown d-inline-block">
+          <a class="v-action-btn login-nav <?php echo ($status == 1) ? 'dropdown-toggle' : ''; ?>"
+             href="#"
+             id="userIcon"
+             title="Account"
+             aria-label="Account"
+             <?php if ($status == 1): ?>
+             data-toggle="dropdown"
+             aria-haspopup="true"
+             aria-expanded="false"
+             <?php endif; ?>>
+            <i class="fa-regular fa-user"></i>
+            <?php if ($status == 1): ?>
+              <span class="v-user-name ml-1 font-weight-bold" style="font-size:12px; max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block;">
+                <?php echo htmlspecialchars($user_name); ?>
+              </span>
+            <?php endif; ?>
+          </a>
+
+          <?php if ($status == 1): ?>
+            <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userIcon" style="border-radius:12px; border:1px solid #e8e3d8; margin-top:8px;">
+              <a class="dropdown-item" href="order_tracking.php"><i class="fa-solid fa-shopping-bag mr-2 text-muted"></i>My Orders</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-danger" href="logout.php"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Live Search Results Dropdown -->
+      <div id="product-results"></div>
     </div>
   </nav>
   <!-- Login/Signup Modal -->

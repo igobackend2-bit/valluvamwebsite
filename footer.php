@@ -152,65 +152,6 @@
      HTML. The one footer-only stylesheet (css/footer-redesign.css) and the inline
      <style> block below are kept, just no longer wrapped in their own document. -->
 	<link rel="stylesheet" href="css/footer-redesign.css">
-	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"> -->
-	<style>
-		.footer-col .social-links {
-			display: flex;
-			/* Arrange icons in one row */
-			flex-wrap: wrap;
-			/* Allow wrapping if needed */
-			gap: 10px;
-			/* Space between icons */
-		}
-
-		.footer-col .social-links a {
-			display: inline-flex;
-			/* Keeps them inline, flex inside for centering */
-			justify-content: center;
-			align-items: center;
-			height: 40px;
-			width: 40px;
-			background-color: white;
-			border-radius: 50%;
-			color: #252525;
-			transition: all 0.5s ease;
-			font-size: 18px;
-		}
-
-		.footer-col .social-links a:hover {
-			color: white;
-			background-color: green;
-		}
-
-		#footer {
-			background-color: #252525;
-			color: white;
-		}
-
-		.whatsapp-float {
-			position: fixed;
-			bottom: 20px;
-			right: 20px;
-			z-index: 9999;
-			background-color: #25ae25;
-			height: 60px;
-			width: 60px;
-			color: white;
-			border-radius: 50%;
-			text-align: center;
-			font-size: 32px;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-			transition: transform .3s;
-		}
-
-		.whatsapp-float:hover {
-			transform: scale(1.1);
-			color: #252525;
-		}
-	</style>
 
 	<div class="icon-bar">
 		<a href="https://api.whatsapp.com/send?phone=918925878327" class="whatsapp-float" target="_blank">
@@ -219,110 +160,92 @@
 	</div>
 
 
-	<footer class="ftco-footer ftco-section" id="footer">
+	<footer class="v-footer-modern" id="footer">
 		<div class="container">
-			<div class="row">
-				<div class="mouse">
-					<a href="#" class="mouse-icon">
-						<div class="mouse-wheel"><span class="ion-ios-arrow-up"></span></div>
-					</a>
+			<div class="v-footer-grid">
+				<!-- Brand & Mission Column -->
+				<div class="v-footer-col">
+					<img src="images/logo.png" alt="Valluvam — As Pure As Nature" class="v-footer-brand-logo" width="130" height="55">
+					<p class="v-footer-bio">
+						Rooted in tradition, crafted for everyday living. Your trusted Indian source for unadulterated cold-pressed oils, native grains, wholesome millets, sun-dried spices and premium dry fruits.
+					</p>
+					<div class="v-footer-social">
+						<a href="https://www.facebook.com/valluvamproducts/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+						<a href="https://www.instagram.com/valluvam_agro_products/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+						<a href="https://api.whatsapp.com/send?phone=918925878327" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+					</div>
+				</div>
+
+				<!-- Column 2: SHOP -->
+				<div class="v-footer-col">
+					<h4>SHOP</h4>
+					<ul class="v-footer-links">
+						<li><a href="shop.php">All Products</a></li>
+						<li><a href="oils.php">Cold-Pressed Oils</a></li>
+						<li><a href="nuts.php">Premium Nuts</a></li>
+						<li><a href="dryfruits.php">Dry Fruits</a></li>
+						<li><a href="spices.php">Whole Spices</a></li>
+						<li><a href="millets.php">Native Millets</a></li>
+						<li><a href="rice.php">Heritage Rice</a></li>
+						<li><a href="combo.php">Curated Combos</a></li>
+						<li><a href="palm-jaggery.php">Palm Jaggery</a></li>
+						<li><a href="dal.php">Dal &amp; Pulses</a></li>
+					</ul>
+				</div>
+
+				<!-- Column 3: VALLUVAM -->
+				<div class="v-footer-col">
+					<h4>VALLUVAM</h4>
+					<ul class="v-footer-links">
+						<li><a href="about.php">About Us</a></li>
+						<li><a href="about.php#story">Our Story</a></li>
+						<li><a href="index.php#why-valluvam">Why Valluvam</a></li>
+						<li><a href="blog.php">Knowledge &amp; Recipes</a></li>
+						<li><a href="contact.php">Contact Us</a></li>
+					</ul>
+				</div>
+
+				<!-- Column 4: BUSINESS -->
+				<div class="v-footer-col">
+					<h4>BUSINESS</h4>
+					<ul class="v-footer-links">
+						<li><a href="b2b-wholesale.php">B2B Supply</a></li>
+						<li><a href="b2b-wholesale.php">Wholesale Enquiry</a></li>
+						<li><a href="b2b-wholesale.php">Private Label</a></li>
+						<li><a href="order_tracking.php">Track Your Order</a></li>
+					</ul>
+				</div>
+
+				<!-- Column 5: HELP & LEGAL -->
+				<div class="v-footer-col">
+					<h4>HELP &amp; LEGAL</h4>
+					<ul class="v-footer-links mb-3">
+						<li><a href="contact.php">Customer Support</a></li>
+						<li><a href="return.php">Returns &amp; Exchange</a></li>
+						<li><a href="privacy.php">Privacy Policy</a></li>
+						<li><a href="term.php">Terms of Service</a></li>
+					</ul>
+					<div class="v-footer-contact-item">
+						<i class="fa-solid fa-location-dot"></i>
+						<span>No 17, Kovalan street, 2nd main road, Uthandi Kanathur, Chennai 600119</span>
+					</div>
+					<div class="v-footer-contact-item">
+						<i class="fa-solid fa-phone"></i>
+						<a href="tel:+918925969888">+91 89259 69888</a>
+					</div>
 				</div>
 			</div>
-			<!-- ===== Footer reorganized into Shop / Customer Support / Business / Company /
-			     Connect. Every href below already existed somewhere in this footer before -
-			     this only regroups them under clearer headings and adds the 7 category page
-			     links (already live pages, just not linked from the footer previously). ===== -->
-			<div class="row mb-5">
-				<div class="col-md">
-					<div class="ftco-footer-widget mb-4">
-						<h2 class="ftco-heading-2" style="color: #fff;">Valluvam</h2>
-						<p>"Discover purity and tradition with Valluvam – your trusted source for cold-pressed oils, premium spices, dry fruits, nuts, and wholesome millets.
-							Naturally sourced, carefully packed, and delivered fresh to your doorstep."</p>
-					</div>
-				</div>
-				<div class="col-md" style="color:#fff">
-					<div class="ftco-footer-widget mb-4 ml-md-5" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color: #fff;">Shop</h2>
-						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="shop.php">All Products</a></li>
-							<li><a href="rice.php">Rice</a></li>
-							<li><a href="nuts.php">Nuts</a></li>
-							<li><a href="dryfruits.php">Dry Fruits</a></li>
-							<li><a href="spices.php">Spices</a></li>
-							<li><a href="oils.php">Oils</a></li>
-							<li><a href="millets.php">Millets</a></li>
-							<li><a href="combo.php">Combos</a></li>
-							<li><a href="palm-jaggery.php">Palm Jaggery</a></li>
-							<li><a href="seeds.php">Seeds</a></li>
-							<li><a href="dal.php">Dal</a></li>
-							<li><a href="honey.php">Honey</a></li>
-							<li><a href="ghee.php">Ghee</a></li>
-							<li><a href="pulses.php">Pulses</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md" style="color:#fff">
-					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:#fff">Customer Support</h2>
-						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="contact.php">Contact</a></li>
-							<li><a href="index.php#homeFaqHeading3">Shipping Information</a></li>
-							<li><a href="return.php">Returns and Exchange</a></li>
-							<li><a href="order_tracking.php">Order Status</a></li>
-							<li><a href="index.php#homeFaqHeading5">Payment Options</a></li>
-							<li><a href="term.php">Term & Conditions</a></li>
-							<li><a href="privacy.php">Privacy Policy</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md" style="color:#fff">
-					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:#fff">Business / Wholesale</h2>
-						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="b2b-wholesale.php">B2B / Wholesale Supply</a></li>
-							<li><a href="b2b-wholesale.php">Bulk Enquiry</a></li>
-							<li><a href="order_tracking.php">Track Your Order</a></li>
-							<li><a href="contact.php">Contact Sales</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md" style="color:#fff">
-					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:#fff">Company</h2>
-						<ul class="list-unstyled" style="color:#fff">
-							<li><a href="about.php">About Valluvam</a></li>
-							<li><a href="blog.php">Blog</a></li>
-							<li><a href="contact.php">Contact</a></li>
-						</ul>
-					</div>
-				</div>
-				<div class="col-md">
-					<div class="ftco-footer-widget mb-4" style="color:#fff">
-						<h2 class="ftco-heading-2" style="color:#fff">Connect</h2>
-						<div class="footer-col">
-							<div class="social-links">
-								<a href="https://www.facebook.com/valluvamproducts/" aria-label="Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
-								<a href="https://www.instagram.com/valluvamproducts/" aria-label="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
-								<a href="https://api.whatsapp.com/send?phone=918925878327" aria-label="WhatsApp"><ion-icon name="logo-whatsapp"></ion-icon></a>
-							</div>
-						</div>
-						<div class="block-23 mb-3">
-							<ul style="color:#fff">
-								<li><span class="icon icon-map-marker"></span><span class="text">No 17 , Kovalan street, 2nd main road, Uthandi kanathur, Chennai 600119.
 
-									</span></li>
-								<li><a href="tel:+918925969888"><span class="icon icon-phone"></span><span class="text">+91 89259 69888</span></a></li>
-								<li><a href="tel:+918925878327"><span class="icon icon-phone"></span><span class="text">+91 89258 78327</span></a></li>
-								<li><a href="tel:+918925833758"><span class="icon icon-phone"></span><span class="text">+91 89258 33758</span></a></li>
-								<li><a href="tel:+918925958926"><span class="icon icon-phone"></span><span class="text">+91 89259 58926</span></a></li>
-								<li><a href="tel:+918925978983"><span class="icon icon-phone"></span><span class="text">+91 89259 78983</span></a></li>
-								<li><a href="mailto:info.thefarmersfactory@gmail.com"><span class="icon icon-envelope"></span><span class="text"> info.thefarmersfactory@<br>gmail.com
-										</span></a></li>
-							</ul>
-						</div>
-					</div>
+			<!-- Bottom Bar -->
+			<div class="v-footer-bottom">
+				<div>
+					&copy; <?php echo date('Y'); ?> Valluvam Products. All Rights Reserved. Naturally Sourced &amp; Packed in India.
 				</div>
-
+				<div class="v-footer-payments">
+					<i class="fa-brands fa-cc-visa" title="Visa"></i>
+					<i class="fa-brands fa-cc-mastercard" title="Mastercard"></i>
+					<i class="fa-solid fa-shield-halved" title="Razorpay Secure" style="font-size:16px;"> Razorpay Secure</i>
+				</div>
 			</div>
 		</div>
 	</footer>

@@ -1,122 +1,328 @@
-/* ===== Site footer — Phase 6 design-system consistency =====
-   Loaded from within footer.php's own <head> block (footer.php is
-   included at the end of every page's <body>, and already loads its own
-   css/style.css from that same block — this follows the exact same,
-   already-working pattern, just adding one more stylesheet). Because
-   footer.php renders on every single page, this is the one file that
-   makes the footer look identical and premium everywhere at once. No
-   markup, links, or text were changed — colors, spacing and typography
-   only. */
+/* ===== Valluvam Luxury Modern Footer Redesign =====
+   Loaded dynamically on all pages via footer.php.
+   Provides a cohesive, premium dark-forest brand grounding for the entire site. */
 
 :root {
-    --v-footer-green: #1c5034;
-    --v-footer-green-dark: #123626;
+    --v-footer-bg: #0d2217;
+    --v-footer-bg-deep: #08160f;
+    --v-footer-text: #e2ebe4;
+    --v-footer-muted: rgba(226, 235, 228, 0.72);
+    --v-footer-dim: rgba(226, 235, 228, 0.48);
+    --v-footer-gold: #c59a45;
+    --v-footer-gold-hover: #e0b45b;
+    --v-footer-border: rgba(255, 255, 255, 0.09);
+    --v-footer-sage: #8fa88b;
 }
 
-#footer.ftco-footer {
-    background-color: #14201a;
-    padding-top: 64px;
-    padding-bottom: 28px;
-}
-
-#footer .ftco-heading-2 {
-    font-family: 'Lora', serif;
-    font-size: 1.15rem !important;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    margin-bottom: 18px !important;
+#footer.v-footer-modern {
+    background: linear-gradient(180deg, var(--v-footer-bg) 0%, var(--v-footer-bg-deep) 100%) !important;
+    color: var(--v-footer-text) !important;
+    padding: 72px 0 32px !important;
+    font-family: var(--v-font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif) !important;
     position: relative;
-    padding-bottom: 10px;
+    border-top: 2px solid rgba(197, 154, 69, 0.25);
+    clear: both;
 }
 
-#footer .ftco-heading-2::after {
+#footer.v-footer-modern::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(197, 154, 69, 0.6), transparent);
+}
+
+.v-footer-modern .container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* Footer Grid */
+.v-footer-grid {
+    display: grid;
+    grid-template-columns: 2.2fr 1.1fr 1.1fr 1.1fr 1.6fr;
+    gap: 40px;
+    margin-bottom: 48px;
+}
+
+.v-footer-col {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Brand Column */
+.v-footer-brand-logo {
+    display: inline-block;
+    height: 52px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+    background: #ffffff;
+    padding: 7px 14px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    margin-bottom: 20px;
+    transition: transform 0.25s ease;
+}
+
+.v-footer-brand-logo:hover {
+    transform: translateY(-2px);
+}
+
+.v-footer-bio {
+    color: var(--v-footer-muted);
+    font-size: 0.88rem;
+    line-height: 1.65;
+    margin-bottom: 22px;
+    max-width: 320px;
+}
+
+/* Social links */
+.v-footer-social {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.v-footer-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff !important;
+    font-size: 15px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+}
+
+.v-footer-social a:hover {
+    background: var(--v-footer-gold);
+    border-color: var(--v-footer-gold);
+    color: #0d2217 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(197, 154, 69, 0.35);
+}
+
+/* Footer Section Headings */
+.v-footer-col h4 {
+    font-family: var(--v-font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--v-footer-gold);
+    margin-top: 0;
+    margin-bottom: 20px;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.v-footer-col h4::after {
     content: "";
     position: absolute;
     left: 0;
     bottom: 0;
-    width: 36px;
+    width: 24px;
     height: 2px;
-    background: #4a8f6a;
+    background: rgba(197, 154, 69, 0.5);
+    border-radius: 2px;
 }
 
-#footer p {
-    color: rgba(255, 255, 255, 0.75);
-    line-height: 1.7;
-    font-size: 0.92rem;
+/* Footer Navigation Links */
+.v-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-#footer .list-unstyled li {
-    margin-bottom: 9px;
+.v-footer-links li {
+    margin-bottom: 10px;
 }
 
-#footer .list-unstyled li a {
-    color: rgba(255, 255, 255, 0.78) !important;
-    font-size: 0.92rem;
-    transition: color 0.2s ease, padding-left 0.2s ease;
-}
-
-#footer .list-unstyled li a:hover {
-    color: #7fd8ab !important;
+.v-footer-links li a {
+    color: var(--v-footer-muted) !important;
+    font-size: 0.88rem;
     text-decoration: none;
-    padding-left: 3px;
+    transition: all 0.2s ease;
+    display: inline-block;
+    line-height: 1.4;
 }
 
-#footer .block-23 ul li {
+.v-footer-links li a:hover {
+    color: #ffffff !important;
+    padding-left: 5px;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Contact Info Items */
+.v-footer-contact-item {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 14px;
+    font-size: 0.85rem;
+    color: var(--v-footer-muted);
+    line-height: 1.55;
 }
 
-#footer .block-23 ul li .icon {
-    color: #7fd8ab;
-    flex: 0 0 auto;
-    margin-top: 2px;
+.v-footer-contact-item i {
+    color: var(--v-footer-gold);
+    margin-top: 3px;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
-#footer .block-23 ul li a,
-#footer .block-23 ul li .text {
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.92rem;
-    line-height: 1.5;
+.v-footer-contact-item a {
+    color: var(--v-footer-muted) !important;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-#footer .block-23 ul li a:hover {
-    color: #7fd8ab;
+.v-footer-contact-item a:hover {
+    color: var(--v-footer-gold-hover) !important;
 }
 
-.footer-col .social-links a {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #fff;
-    transition: all 0.25s ease;
+/* Bottom Bar */
+.v-footer-bottom {
+    border-top: 1px solid var(--v-footer-border);
+    padding-top: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 0.82rem;
+    color: var(--v-footer-dim);
 }
 
-.footer-col .social-links a:hover {
-    background-color: var(--v-footer-green);
-    color: #fff;
-    transform: translateY(-2px);
+.v-footer-bottom a {
+    color: var(--v-footer-dim);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-#footer .mouse-icon {
-    border-color: rgba(255, 255, 255, 0.3);
+.v-footer-bottom a:hover {
+    color: var(--v-footer-muted);
 }
 
+.v-footer-payments {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.v-footer-payments i {
+    transition: color 0.2s ease;
+}
+
+.v-footer-payments i:hover {
+    color: #ffffff;
+}
+
+.v-footer-payments .fa-shield-halved {
+    font-size: 14px;
+    font-family: var(--v-font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
+    font-weight: 600;
+    color: var(--v-footer-sage);
+}
+
+/* WhatsApp Floating Button */
 .whatsapp-float {
-    background-color: #22c55e !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    background-color: #25d366 !important;
+    height: 56px;
+    width: 56px;
+    color: #ffffff !important;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    text-decoration: none;
 }
 
 .whatsapp-float:hover {
-    color: #fff !important;
-    background-color: #1ba750 !important;
+    transform: scale(1.1) translateY(-3px);
+    box-shadow: 0 12px 28px rgba(37, 211, 102, 0.55);
+    color: #ffffff !important;
 }
 
-@media (max-width: 767px) {
-    #footer.ftco-footer {
-        padding-top: 44px;
+/* Responsive Media Queries */
+@media (max-width: 1100px) {
+    .v-footer-grid {
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 32px;
+    }
+    
+    .v-footer-col:last-child {
+        grid-column: 1 / -1;
+        border-top: 1px solid var(--v-footer-border);
+        padding-top: 24px;
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    #footer.v-footer-modern {
+        padding: 50px 0 28px !important;
     }
 
-    #footer .ftco-footer-widget {
-        margin-bottom: 30px !important;
+    .v-footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px 20px;
+    }
+
+    .v-footer-col:first-child {
+        grid-column: 1 / -1;
+        margin-bottom: 8px;
+    }
+
+    .v-footer-bio {
+        max-width: 100%;
+    }
+
+    .v-footer-col:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .v-footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        gap: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .v-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .v-footer-brand-logo {
+        height: 48px;
+    }
+
+    .whatsapp-float {
+        bottom: 18px;
+        right: 18px;
+        height: 50px;
+        width: 50px;
+        font-size: 26px;
     }
 }
