@@ -17,6 +17,16 @@ function formatVolumeLabel(litres) {
     return rounded + 'L';
 }
 
+// Mirrors formatVolumeLabel above, for weight presets (see the fix note on the
+// weight preset list below): a preset under 1kg is shown in grams, matching how
+// admin actually enters small pack sizes (e.g. "250g", "500g") instead of always
+// showing a fraction of a kg.
+function formatWeightLabel(kg) {
+    if (kg < 1) return Math.round(kg * 1000) + 'g';
+    var rounded = Math.round(kg * 100) / 100;
+    return rounded + 'kg';
+}
+
 function loadProduct(idOrSlug, pushSlug) {
     $.ajax({
         url: 'assets/db_query/product_detail/product_detail_query.php',
@@ -79,9 +89,19 @@ function loadProduct(idOrSlug, pushSlug) {
                 let presets = null, defaultPreset = null, rate = null, labelFn = null, rowLabel = 'Select Weight';
 
                 if (qInfo && qInfo.type === 'weight' && parseFloat(p.dis_price)) {
-                    presets = [1, 2, 5, 10, 25];
+                    // FIX (26 Sep 2026): this preset list only had 1kg and up, so any
+                    // product actually packed under 1kg (e.g. Honey 250g/500g, Ghee,
+                    // Dal, Pulses, Seeds, Palm Jaggery packs) could never match its own
+                    // real pack size - "closest preset" always rounded up to 1kg, so
+                    // the price shown was an extrapolated 1kg estimate instead of the
+                    // admin-entered price for the pack actually being viewed (e.g.
+                    // showing ~₹580 for a 500g honey jar priced at ₹290). Adding 0.25kg/
+                    // 0.5kg (mirroring the volume presets below, which already had
+                    // 0.25L/0.5L) lets a sub-1kg pack match itself exactly, so the
+                    // default price shown is always this exact product's own price.
+                    presets = [0.25, 0.5, 1, 2, 5, 10, 25];
                     rate = parseFloat(p.dis_price) / qInfo.kg;
-                    labelFn = function (w) { return w + 'kg'; };
+                    labelFn = formatWeightLabel;
                     rowLabel = 'Select Weight';
                     defaultPreset = presets.reduce(function (closest, w) {
                         return Math.abs(w - qInfo.kg) < Math.abs(closest - qInfo.kg) ? w : closest;
