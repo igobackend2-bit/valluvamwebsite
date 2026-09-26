@@ -101,126 +101,7 @@ include "header.php";
 
 <body class="goto-here">
 
-    <!-- ====================================================================
-         1. HERO SECTION (Full-Width Cinematic Natural Food Presentation)
-         ==================================================================== -->
-    <section class="v-hero-section" id="home-section">
-        <div class="container">
-            <div class="v-hero-grid">
-                <!-- Left: Editorial Content -->
-                <div class="v-hero-content">
-                    <span class="v-hero-badge">
-                        <i class="fa-solid fa-seedling"></i> GOOD FOOD.
-                    </span>
-                    <h1 class="v-hero-heading">
-                        ROOTED IN <span class="v-hero-accent">TRADITION.</span>
-                    </h1>
-                    <p class="v-hero-subtext">
-                        Carefully sourced Indian foods for everyday living. From wood cold-pressed oils and sun-dried spices to hand-sorted nuts and ancient grains.
-                    </p>
-                    <div class="v-hero-actions">
-                        <a href="shop.php" class="v-btn-primary">
-                            SHOP PRODUCTS <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                        <a href="#shop-by-category" class="v-btn-secondary">
-                            EXPLORE COLLECTIONS
-                        </a>
-                        <a href="b2b-wholesale.php" class="v-btn-tertiary">
-                            EXPLORE WHOLESALE &rarr;
-                        </a>
-                    </div>
-                    <ul class="v-hero-trust-list">
-                        <li><i class="fa-solid fa-shield-halved"></i> Quality Checked</li>
-                        <li><i class="fa-solid fa-truck-fast"></i> Tracked Pan-India Delivery</li>
-                        <li><i class="fa-solid fa-lock"></i> Secure Checkout</li>
-                    </ul>
-                </div>
-
-                <!-- Right: Visual Food Photography -->
-                <div class="v-hero-media-wrap">
-                    <div class="v-hero-frame">
-                        <img src="images/hero-premium.jpg" alt="Valluvam natural cold-pressed oils, nuts, spices, and heritage grains" class="v-hero-img" width="800" height="550" loading="eager">
-                    </div>
-                    <div class="v-hero-float-card">
-                        <div class="v-hero-float-icon">
-                            <i class="fa-solid fa-award"></i>
-                        </div>
-                        <div>
-                            <p class="v-hero-float-title">100% Pure &amp; Unadulterated</p>
-                            <p class="v-hero-float-desc">Hand-selected at the harvest source</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-        
-
-    <!-- ====================================================================
-         2. OUR COLLECTIONS (Redesigned)
-         ==================================================================== -->
-    <section class="v-collections-section">
-        <div class="v-collections-bg-leaf"></div>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 mb-4 mb-lg-0">
-                    <div class="v-col-title-wrap">
-                        <span class="v-eyebrow" style="color:var(--v-forest);">CURATED FOR YOU</span>
-                        <h2 class="v-section-title" style="color:var(--v-forest-deep); font-family:var(--v-font-serif);">Our Collections</h2>
-                        <p class="v-section-subtitle" style="text-align:left; max-width:100%; margin-bottom:20px;">Thoughtfully curated for every occasion, season and lifestyle.</p>
-                        <div>
-                            <a href="shop.php" class="v-btn-secondary" style="border:1px solid var(--v-forest); color:var(--v-forest);">Explore All Collections &rarr;</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-9">
-                    <div class="v-col-grid">
-                        <div class="v-col-card">
-                            <img src="images/combo1.jpg" alt="Best Sellers" class="v-col-img" loading="lazy">
-                            <div class="v-col-overlay">
-                                <h3 class="v-col-name">Best Sellers</h3>
-                                <p class="v-col-desc">Our most loved products</p>
-                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
-                            </div>
-                        </div>
-                        <div class="v-col-card">
-                            <img src="images/combo2.jpg" alt="Healthy Choices" class="v-col-img" loading="lazy">
-                            <div class="v-col-overlay">
-                                <h3 class="v-col-name">Healthy Choices</h3>
-                                <p class="v-col-desc">Good food, better living</p>
-                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
-                            </div>
-                        </div>
-                        <div class="v-col-card">
-                            <img src="images/combo3.jpg" alt="Traditional Foods" class="v-col-img" loading="lazy">
-                            <div class="v-col-overlay">
-                                <h3 class="v-col-name">Traditional Foods</h3>
-                                <p class="v-col-desc">Timeless taste</p>
-                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
-                            </div>
-                        </div>
-                        <div class="v-col-card">
-                            <img src="images/combo4.jpg" alt="Gifting" class="v-col-img" loading="lazy">
-                            <div class="v-col-overlay">
-                                <h3 class="v-col-name">Gifting</h3>
-                                <p class="v-col-desc">Share the goodness</p>
-                                <a href="combo.php" class="v-col-link">Explore &rarr;</a>
-                            </div>
-                        </div>
-                        <div class="v-col-card">
-                            <img src="assets/thumbnail/rice.jpg" alt="Everyday Essentials" class="v-col-img" loading="lazy">
-                            <div class="v-col-overlay">
-                                <h3 class="v-col-name">Everyday Essentials</h3>
-                                <p class="v-col-desc">For your daily needs</p>
-                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
 <!-- ====================================================================
          3. SHOP BY CATEGORY (Redesigned)
@@ -318,13 +199,13 @@ include "header.php";
     </section>
 
 <!-- ====================================================================
-         4. BEST PRODUCTS (Dynamic from Database)
+         4. BEST SELLERS (Dynamic from Database)
          ==================================================================== -->
     <section class="v-products-section" id="best-products-section">
         <div class="container">
             <div class="v-section-header">
                 <span class="v-eyebrow"><i class="fa-solid fa-star"></i> Customer Favorites</span>
-                <h2 class="v-section-title">BEST PRODUCTS</h2>
+                <h2 class="v-section-title" style="font-family:var(--v-font-serif); color:var(--v-forest-deep);">BEST SELLERS</h2>
                 <p class="v-section-subtitle">Loved by many, chosen for uncompromised quality and everyday nourishment.</p>
             </div>
 
@@ -649,6 +530,52 @@ include "header.php";
             </div>
         </div>
     </section>
+    <!-- ====================================================================
+         HEALTHY CHOICES
+         ==================================================================== -->
+    <section class="v-products-section" id="healthy-choices-section" style="background:#fcfaf5; padding:60px 0; border-top:1px solid #f0eadd;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:var(--v-forest);">NUTRITION FIRST</span>
+                    <h2 class="v-section-title" style="color:var(--v-forest-deep); font-family:var(--v-font-serif);">HEALTHY CHOICES</h2>
+                    <p class="v-section-subtitle text-left">Nourishing selections to support your everyday wellness journey.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:var(--v-forest); font-weight:600;">View All Healthy Choices &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="healthy-choices-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         TRADITIONAL FOODS
+         ==================================================================== -->
+    <section class="v-products-section" id="traditional-foods-section" style="background:#f9f5ed; padding:60px 0; border-top:1px solid #e8e2d2;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:#8b5a2b;">HERITAGE TASTE</span>
+                    <h2 class="v-section-title" style="color:#5c3a21; font-family:var(--v-font-serif);">TRADITIONAL FOODS</h2>
+                    <p class="v-section-subtitle text-left">Authentic flavors rooted in generations of culinary wisdom.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:#8b5a2b; font-weight:600;">View All Traditional Foods &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="traditional-foods-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
         <!-- ====================================================================
          10. FROM FARM TO PACK (Redesigned Banner)
@@ -822,105 +749,52 @@ include "header.php";
             </div>
         </div>
     </section>
-
     <!-- ====================================================================
-         13. SHOP BY LIFESTYLE (Premium Redesign)
+         GIFTING
          ==================================================================== -->
-    <section class="v-lifestyle-section v-lifestyle-premium">
-        <!-- Botanical leaf decorations -->
-        <div class="v-ls-leaf v-ls-leaf-tl"></div>
-        <div class="v-ls-leaf v-ls-leaf-br"></div>
-        <div class="v-ls-leaf v-ls-leaf-tr"></div>
-
-        <div class="container position-relative">
-            <div class="v-section-header">
-                <span class="v-eyebrow v-ls-badge"><i class="fa-solid fa-heart"></i> DAILY LIVING</span>
-                <h2 class="v-section-title v-ls-heading">SHOP FOR <span class="v-ls-accent">EVERYDAY LIFE</span> <span class="v-ls-leaf-icon">🌿</span></h2>
-                <p class="v-section-subtitle">Tailored categories designed around your household rhythms and culinary habits.</p>
-                <!-- Decorative divider -->
-                <div class="v-ls-divider"><span></span><i class="fa-solid fa-leaf"></i><span></span></div>
+    <section class="v-products-section" id="gifting-section" style="background:#fffaf0; padding:60px 0; border-top:1px solid #f2ead3;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:#c0392b;">SHARE THE GOODNESS</span>
+                    <h2 class="v-section-title" style="color:#7a1f16; font-family:var(--v-font-serif);">GIFTING</h2>
+                    <p class="v-section-subtitle text-left">Curated boxes and festive bundles for your loved ones.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="combo.php" class="v-btn-tertiary" style="color:#c0392b; font-weight:600;">View All Gifting &rarr;</a>
+                </div>
             </div>
-
-            <div class="v-ls-grid">
-
-                <!-- Card 1: Everyday Pantry -->
-                <a href="shop.php" class="v-ls-card" style="--ls-bg: #fef9f0;">
-                    <div class="v-ls-img-wrap">
-                        <img src="images/lifestyle/pantry.jpg" alt="Everyday Pantry" class="v-ls-img" loading="lazy">
-                        <div class="v-ls-icon-float">
-                            <i class="fa-solid fa-kitchen-set"></i>
-                        </div>
-                    </div>
-                    <div class="v-ls-body">
-                        <h4 class="v-ls-name">Everyday Pantry</h4>
-                        <p class="v-ls-sub">Rice, dal, salt, cold-pressed oils</p>
-                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                </a>
-
-                <!-- Card 2: Traditional Kitchen -->
-                <a href="millets.php" class="v-ls-card" style="--ls-bg: #f5f5ef;">
-                    <div class="v-ls-img-wrap">
-                        <img src="assets/thumbnail/spice.jpg" alt="Traditional Kitchen" class="v-ls-img" loading="lazy">
-                        <div class="v-ls-icon-float">
-                            <i class="fa-solid fa-mortar-pestle"></i>
-                        </div>
-                    </div>
-                    <div class="v-ls-body">
-                        <h4 class="v-ls-name">Traditional Kitchen</h4>
-                        <p class="v-ls-sub">Native spices, millets &amp; jaggery</p>
-                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                </a>
-
-                <!-- Card 3: Healthy Choices (center, highlighted) -->
-                <a href="nuts.php" class="v-ls-card v-ls-card-center" style="--ls-bg: #f2f7f2;">
-                    <div class="v-ls-img-wrap">
-                        <img src="assets/thumbnail/nuts.jpg" alt="Healthy Choices" class="v-ls-img" loading="lazy">
-                        <div class="v-ls-icon-float">
-                            <i class="fa-solid fa-person-running"></i>
-                        </div>
-                    </div>
-                    <div class="v-ls-body">
-                        <h4 class="v-ls-name">Healthy Choices</h4>
-                        <p class="v-ls-sub">Almonds, chia seeds &amp; walnuts</p>
-                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                </a>
-
-                <!-- Card 4: Family Essentials -->
-                <a href="honey.php" class="v-ls-card" style="--ls-bg: #fef6f0;">
-                    <div class="v-ls-img-wrap">
-                        <img src="assets/thumbnail/dryfruits.jpg" alt="Family Essentials" class="v-ls-img" loading="lazy">
-                        <div class="v-ls-icon-float">
-                            <i class="fa-solid fa-people-roof"></i>
-                        </div>
-                    </div>
-                    <div class="v-ls-body">
-                        <h4 class="v-ls-name">Family Essentials</h4>
-                        <p class="v-ls-sub">Pure ghee, raw honey &amp; dry fruits</p>
-                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                </a>
-
-                <!-- Card 5: Gifting -->
-                <a href="combo.php" class="v-ls-card" style="--ls-bg: #f8f2f8;">
-                    <div class="v-ls-img-wrap">
-                        <img src="images/combo4.jpg" alt="Gifting" class="v-ls-img" loading="lazy">
-                        <div class="v-ls-icon-float">
-                            <i class="fa-solid fa-gift"></i>
-                        </div>
-                    </div>
-                    <div class="v-ls-body">
-                        <h4 class="v-ls-name">Gifting</h4>
-                        <p class="v-ls-sub">Festive boxes &amp; wellness packs</p>
-                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
-                    </div>
-                </a>
-
+            <div class="row" id="gifting-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
             </div>
         </div>
     </section>
+
+    <!-- ====================================================================
+         EVERYDAY ESSENTIALS
+         ==================================================================== -->
+    <section class="v-products-section" id="everyday-essentials-section" style="background:#ffffff; padding:60px 0; border-top:1px solid #eef0ec;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:#4a6050;">DAILY PANTRY</span>
+                    <h2 class="v-section-title" style="color:#1a3d2b; font-family:var(--v-font-serif);">EVERYDAY ESSENTIALS</h2>
+                    <p class="v-section-subtitle text-left">Pure and unadulterated staples for your daily cooking needs.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:#1a3d2b; font-weight:600;">View All Essentials &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="everyday-essentials-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- ====================================================================
          14. CUSTOMER REVIEWS (Real Testimonials)

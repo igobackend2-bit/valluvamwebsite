@@ -36,6 +36,10 @@ $(document).ready(function () {
     product_catelog();
     category_slider();
     loadTopRated();
+    loadCollection('healthy', 'healthy-choices-container', 'healthy-choices-section');
+    loadCollection('traditional', 'traditional-foods-container', 'traditional-foods-section');
+    loadCollection('gifting', 'gifting-container', 'gifting-section');
+    loadCollection('everyday', 'everyday-essentials-container', 'everyday-essentials-section');
 });
 
 // Shared premium product card builder for Valluvam
@@ -130,6 +134,34 @@ function loadTopRated() {
         },
         error: function () {
             $('#top-rated-section').hide();
+        }
+    });
+}
+
+// Collection Loaders
+function loadCollection(type, containerId, sectionId) {
+    let $container = $('#' + containerId);
+    if (!$container.length) return;
+
+    $.ajax({
+        url: 'assets/db_query/index/index_product_query.php?action=collection&type=' + type,
+        method: 'GET',
+        dataType: 'json',
+        success: function (res) {
+            if (res.status === 'success' && res.data && res.data.length) {
+                let html = '';
+                res.data.forEach(function (product, idx) {
+                    html += renderValluvamProductCard(product, idx);
+                });
+                $container.html(html);
+                if(sectionId) $('#' + sectionId).show();
+            } else {
+                $container.html('<p class="w-100 text-center py-4 text-muted">No products found in this collection.</p>');
+                if(sectionId) $('#' + sectionId).hide();
+            }
+        },
+        error: function () {
+            if(sectionId) $('#' + sectionId).hide();
         }
     });
 }

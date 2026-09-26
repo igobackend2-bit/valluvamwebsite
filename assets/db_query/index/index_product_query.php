@@ -98,6 +98,24 @@ if ($action == 'category_slider') {
         echo json_encode(['status' => 'error','message' => $e->getMessage()]);
     }
     exit;
+} elseif ($action === 'collection') {
+    $type = $_GET['type'] ?? '';
+    $cats = [];
+    if ($type === 'healthy') $cats = ['Dry Fruits','Nuts','Honey','Millets'];
+    elseif ($type === 'traditional') $cats = ['Millets','Rice','Palm Jaggery'];
+    elseif ($type === 'gifting') $cats = ['Combo','Combos','Gifting'];
+    elseif ($type === 'everyday') $cats = ['Oils','Spices','Dal','Pulses','Ghee'];
+    else { echo json_encode(['status'=>'error','message'=>'Invalid collection type']); exit; }
+    
+    try {
+        $placeholders = str_repeat('?,', count($cats) - 1) . '?';
+        $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, category, image, quantity, rating FROM product_details WHERE image IS NOT NULL AND TRIM(image) <> '' AND category IN ($placeholders) ORDER BY id DESC LIMIT 8");
+        $stmt->execute($cats);
+        echo json_encode(['status'=>'success','data'=>$stmt->fetchAll(PDO::FETCH_ASSOC)]);
+    } catch (PDOException $e) {
+        echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+    }
+    exit;
 } else {
     http_response_code(400);
     echo json_encode([
