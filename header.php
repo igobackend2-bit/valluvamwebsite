@@ -721,49 +721,71 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     }
   </style>
 
-  <!-- ===== Shop mega-menu: visual upgrade of the existing category dropdown.
-       Same 7 links/hrefs as before (nuts/dryfruits/oils/spices/millets/rice/combo);
-       only presentation changes - a labelled icon grid instead of a plain text list. ===== -->
+  <!-- Mega-menu & Sticky Header Alignment -->
   <style>
+    #ftco-navbar .container {
+      position: relative !important;
+    }
+
+    #ftco-navbar .nav-item.dropdown {
+      position: static !important;
+    }
+
     #ftco-navbar .dropdown-menu.v-mega-menu {
+      position: absolute !important;
+      top: 100% !important;
+      left: 15px !important;
+      right: 15px !important;
+      width: calc(100% - 30px) !important;
+      max-width: 1140px !important;
+      margin: 8px auto 0 !important;
+      transform: none !important;
+      padding: 22px 24px !important;
+      border: 1px solid rgba(19, 56, 38, 0.12) !important;
+      border-radius: 16px !important;
+      background: #ffffff !important;
+      box-shadow: 0 16px 48px rgba(19, 56, 38, 0.14) !important;
       display: none;
-      padding: 18px;
-      border: 0;
-      border-radius: 10px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, .18);
+      z-index: 1050 !important;
     }
 
     #ftco-navbar .dropdown-menu.v-mega-menu.show {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(120px, 1fr));
-      gap: 6px 10px;
+      display: block !important;
     }
 
-    /* 13 categories + "All Products" = 14 tiles: 7x2 on desktop so no tile
-       sits alone on a row. Fixed width + negative margin centres the panel
-       under "Shop" without using transform (motion-system.css animates it). */
-    @media (min-width: 1200px) {
-      #ftco-navbar .dropdown-menu.v-mega-menu.show {
-        grid-template-columns: repeat(7, 118px);
-        width: 922px;
-        left: 50%;
-        margin-left: -461px;
+    .v-mega-grid {
+      display: grid !important;
+      grid-template-columns: repeat(7, 1fr) !important;
+      gap: 10px 12px !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    @media (max-width: 1199.98px) {
+      .v-mega-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
       }
     }
 
-    @media (max-width: 575.98px) {
-      #ftco-navbar .dropdown-menu.v-mega-menu.show {
-        grid-template-columns: repeat(2, 1fr);
+    @media (max-width: 991.98px) {
+      #ftco-navbar .nav-item.dropdown {
+        position: relative !important;
       }
-    }
-
-    #ftco-navbar .v-mega-item.v-mega-all {
-      background-color: #f1f7ec;
-    }
-
-    #ftco-navbar .v-mega-item.v-mega-all span {
-      font-weight: 600;
-      color: #1c5034;
+      #ftco-navbar .dropdown-menu.v-mega-menu {
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        margin: 8px 0 !important;
+        box-shadow: none !important;
+        padding: 14px !important;
+        background: #f7f9f7 !important;
+      }
+      .v-mega-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
     }
 
     #ftco-navbar .v-mega-item {
@@ -771,27 +793,139 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 6px;
-      padding: 14px 8px;
-      border-radius: 8px;
-      color: #2f2f2f !important;
-      transition: background-color .15s ease, transform .15s ease;
+      gap: 8px;
+      padding: 12px 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(19, 56, 38, 0.06);
+      background: #fafbf9;
+      color: #1a2e22 !important;
+      text-decoration: none !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     #ftco-navbar .v-mega-item:hover {
-      background-color: #f1f7ec;
+      background: #ffffff;
+      border-color: #8fa88b;
       transform: translateY(-2px);
-      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(19, 56, 38, 0.08);
+      color: #133826 !important;
     }
 
-    #ftco-navbar .v-mega-item ion-icon {
-      font-size: 26px;
-      color: #82ae46;
+    #ftco-navbar .v-mega-item .v-mega-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid rgba(19, 56, 38, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #133826;
+      box-shadow: 0 2px 6px rgba(19, 56, 38, 0.04);
+      transition: all 0.2s ease;
+    }
+
+    #ftco-navbar .v-mega-item:hover .v-mega-icon {
+      background: #133826;
+      color: #ffffff;
+      transform: scale(1.05);
     }
 
     #ftco-navbar .v-mega-item span {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: #2a3a30;
+    }
+
+    #ftco-navbar .v-mega-item.v-mega-all {
+      background: #133826;
+      border-color: #133826;
+      color: #ffffff !important;
+    }
+
+    #ftco-navbar .v-mega-item.v-mega-all span {
+      color: #ffffff !important;
+      font-weight: 700;
+    }
+
+    #ftco-navbar .v-mega-item.v-mega-all .v-mega-icon {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: transparent;
+      color: #ffffff;
+    }
+
+    #ftco-navbar .v-mega-item.v-mega-all:hover {
+      background: #0d2217;
+      border-color: #0d2217;
+    }
+
+    /* Logo Clarity & Natural Proportions */
+    #ftco-navbar .navbar-brand {
+      display: flex !important;
+      align-items: center !important;
+      padding: 0 !important;
+      margin-right: 16px !important;
+    }
+
+    #ftco-navbar .navbar-brand img.v-main-logo {
+      height: 66px !important;
+      max-height: 66px !important;
+      width: auto !important;
+      max-width: none !important;
+      object-fit: contain !important;
+      display: block !important;
+    }
+
+    @media (max-width: 991.98px) {
+      #ftco-navbar .navbar-brand img.v-main-logo {
+        height: 50px !important;
+        max-height: 50px !important;
+      }
+    }
+
+    /* Header Nav Links Professional Kerning & Spacing */
+    #ftco-navbar .navbar-nav > .nav-item > .nav-link {
+      padding: 8px 11px !important;
+      font-size: 13.5px !important;
+      letter-spacing: 0.1px !important;
+      white-space: nowrap !important;
+    }
+
+    /* Top Trust Bar Clean Alignment */
+    .v-top-bar .container {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+    }
+
+    .v-trust-pill-group {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      flex-wrap: nowrap !important;
+      white-space: nowrap !important;
+    }
+
+    .v-trust-item, .v-top-links a {
+      white-space: nowrap !important;
+      font-size: 11.5px !important;
+    }
+
+    .v-top-links {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      flex-wrap: nowrap !important;
+      white-space: nowrap !important;
+    }
+
+    @media (max-width: 1250px) {
+      .v-top-email, .v-top-email-sep {
+        display: none !important;
+      }
     }
   </style>
 
@@ -820,9 +954,9 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       <div class="v-top-links">
         <a href="tel:+918925969888"><i class="fa-solid fa-phone"></i> +91 89259 69888</a>
         <span class="v-top-sep">|</span>
-        <a href="b2b-wholesale.php"><i class="fa-solid fa-briefcase"></i> B2B / Wholesale</a>
-        <span class="v-top-sep">|</span>
-        <a href="mailto:info.thefarmersfactory@gmail.com"><i class="fa-solid fa-envelope"></i> info.thefarmersfactory@gmail.com</a>
+        <a href="b2b-wholesale.php"><i class="fa-solid fa-briefcase"></i> Wholesale</a>
+        <span class="v-top-sep v-top-email-sep">|</span>
+        <a href="mailto:info.thefarmersfactory@gmail.com" class="v-top-email"><i class="fa-solid fa-envelope"></i> info.thefarmersfactory@gmail.com</a>
       </div>
     </div>
   </div>
@@ -832,7 +966,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     <div class="container">
       <!-- LEFT: Existing Valluvam Logo (Untouched Asset) -->
       <a class="navbar-brand d-flex align-items-center" href="index.php" title="Valluvam — As Pure As Nature">
-        <img src="images/logo.png" alt="Valluvam - As Pure As Nature" class="v-main-logo img-fluid" width="120" height="60">
+        <img src="images/logo.png" alt="Valluvam - As Pure As Nature" class="v-main-logo img-fluid" width="140" height="70">
       </a>
 
       <!-- Mobile Toggler -->
@@ -925,10 +1059,10 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
             <a href="about.php" class="nav-link">About</a>
           </li>
           <li class="nav-item <?php echo ($currentPage == 'b2b-wholesale.php') ? 'active' : ''; ?>">
-            <a href="b2b-wholesale.php" class="nav-link">B2B / Wholesale</a>
+            <a href="b2b-wholesale.php" class="nav-link">Wholesale</a>
           </li>
           <li class="nav-item <?php echo ($currentPage == 'blog.php') ? 'active' : ''; ?>">
-            <a href="blog.php" class="nav-link">Knowledge / Blog</a>
+            <a href="blog.php" class="nav-link">Blog</a>
           </li>
         </ul>
       </div>
@@ -939,7 +1073,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
           <form id="searchForm" class="v-header-search-wrap d-none d-md-block">
             <div class="v-header-search-box search">
               <ion-icon name="search-outline"></ion-icon>
-              <input class="search-input" type="search" id="search" placeholder="Search nuts, oils, spices &amp; more..." autocomplete="off">
+              <input class="search-input" type="search" id="search" placeholder="Search products..." autocomplete="off">
             </div>
           </form>
         <?php endif; ?>

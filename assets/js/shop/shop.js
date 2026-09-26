@@ -46,7 +46,7 @@ $(document).ready(function () {
             method: "GET",
             dataType: "json",
             cache: false,
-            data: { action: "shop_products" },
+            data: { action: "all_products" },
             success: function (res) {
                 if (res.status !== "success" || !res.data || !res.data.length) {
                     renderEmptyState("#product-shop", "empty");
