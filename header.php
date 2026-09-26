@@ -1112,6 +1112,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
           <?php if ($status == 1): ?>
             <div class="dropdown-menu dropdown-menu-right shadow-sm" aria-labelledby="userIcon" style="border-radius:12px; border:1px solid #e8e3d8; margin-top:8px;">
+              <a class="dropdown-item" href="profile.php"><i class="fa-solid fa-circle-user mr-2 text-muted"></i>My Profile</a>
               <a class="dropdown-item" href="order_tracking.php"><i class="fa-solid fa-shopping-bag mr-2 text-muted"></i>My Orders</a>
               <div class="dropdown-divider"></div>
               <a class="dropdown-item text-danger" href="logout.php"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</a>
