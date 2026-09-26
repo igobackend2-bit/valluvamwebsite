@@ -75,7 +75,20 @@ include "header.php";
     <!-- ====================================================================
          1. HERO SECTION (Editorial Banner & Brand Statement)
          ==================================================================== -->
-    <section class="v-hero-section">
+    <style>
+        /* Homepage hero: supplied campaign banner contains its own copy and CTAs. */
+        .v-hero-section.v-hero-banner {
+            min-height: 0 !important;
+            padding: 0 !important;
+            aspect-ratio: 25 / 9;
+            background: url('images/Banner/hero-banner.jpg.jpeg') center / cover no-repeat;
+        }
+        .v-hero-section.v-hero-banner::before,
+        .v-hero-section.v-hero-banner .container {
+            display: none;
+        }
+    </style>
+    <section class="v-hero-section v-hero-banner" aria-label="Valluvam products">
         <div class="container">
             <div class="v-hero-grid">
                 <div class="v-hero-content">
