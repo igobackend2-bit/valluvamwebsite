@@ -4,15 +4,24 @@
 
     // ---- Pretty product URL: /{category}/{slug} ----
     // Placed before header.php's include (and before any other output) so a
-    // redirect header can still be sent. $knownCategorySlugs matches the 7
-    // real category pages/files; $pathSegments looks at the actual browser
-    // URL (not just the rewritten query string) to tell an old-style
+    // redirect header can still be sent. $pathSegments looks at the actual
+    // browser URL (not just the rewritten query string) to tell an old-style
     // "/productdetail?product=..." request apart from one that already came
     // in on the new pretty URL.
-    $knownCategorySlugs = ['dryfruits', 'nuts', 'spices', 'oils', 'millets', 'rice', 'combo'];
+    //
+    // FIX (26 Sep 2026): this used to only recognise a hardcoded list of 7
+    // category slugs (dryfruits|nuts|spices|oils|millets|rice|combo), so a
+    // product in any other category (e.g. "honey") never got its 301
+    // redirect to the pretty URL or its canonical/og:url set correctly -
+    // same root cause as the matching .htaccess fix. This page is only ever
+    // reached with a 2-segment path via that .htaccess rewrite (which now
+    // accepts any category), so there's nothing left to validate here: any
+    // 2-segment path is treated as the pretty URL, and any resolved category
+    // is used for the redirect below. No category list to keep in sync when
+    // admin adds a new category from now on.
     $requestPath = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
     $pathSegments = $requestPath === '' ? [] : explode('/', $requestPath);
-    $isPrettyUrlAlready = count($pathSegments) === 2 && in_array(strtolower($pathSegments[0]), $knownCategorySlugs, true);
+    $isPrettyUrlAlready = count($pathSegments) === 2 && $pathSegments[0] !== '' && $pathSegments[1] !== '';
     $resolvedCategorySlug = $isPrettyUrlAlready ? strtolower($pathSegments[0]) : null;
 
     // Old-style access ("/productdetail?product=..." or "?product=..&..")
@@ -52,7 +61,7 @@
                 }
             }
 
-            if ($matchedCategory !== null && in_array($matchedCategory, $knownCategorySlugs, true)) {
+            if ($matchedCategory !== null && $matchedCategory !== '') {
                 header('Location: https://www.valluvamproducts.com/' . $matchedCategory . '/' . rawurlencode($rawParam), true, 301);
                 exit;
             }

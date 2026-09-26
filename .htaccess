@@ -3,6 +3,18 @@ php_value post_max_size 25M
 php_value max_execution_time 300
 php_value max_input_time 300
 
+# ---- SESSION FIX (25 Sep 2026): PHP's default admin session only lasts
+# ~24 minutes of inactivity (session.gc_maxlifetime default = 1440s). Any
+# admin page that's left open while filling in a longer form (e.g. typing
+# a product's name/price/category/quantity/description/benefits) can sit
+# idle past that window - the page still looks fine since it's already
+# loaded, but the save/update request then gets rejected as
+# "Unauthorized - please log in to the admin panel" because the server
+# already garbage-collected the session. Extended to 8 working hours so a
+# logged-in admin isn't silently signed out mid-task.
+php_value session.gc_maxlifetime 28800
+php_value session.cookie_lifetime 28800
+
 # ---- SPEED FIX (24 Sep 2026): the site had no gzip compression and no
 # browser-cache headers at all, so every visitor re-downloaded the full,
 # uncompressed CSS/JS/font/image bytes on every single page view. Both
@@ -101,11 +113,23 @@ RewriteRule ^([^/]+)$ $1.php [L,QSA]
 
 # ---- Pretty product URLs: /{category}/{product-slug} ----
 # e.g. /dryfruits/dry-strawberry -> internally served by productdetail.php
-# (address bar keeps showing the pretty URL). Restricted to the 7 known
-# category slugs so this can't swallow any other 2-segment path (admin/...,
-# api/..., assets/...) - those already have their own real subfolders and
-# are matched first as actual files/directories anyway, but the explicit
-# category list keeps this rule narrow on purpose.
+# (address bar keeps showing the pretty URL).
+#
+# FIX (26 Sep 2026): this used to only match a hardcoded list of 7 category
+# slugs (dryfruits|nuts|spices|oils|millets|rice|combo), so a product in any
+# other category - e.g. "honey" - 404'd even though the product and its
+# category page both work fine (valluvamproducts.com/honey/valluvam-multifloral-honey
+# was the reported case). productdetail.php never actually checked that the
+# first URL segment matched the product's real category anyway (it looks the
+# product up by slug/id alone) - so the hardcoded list was pure friction with
+# no real benefit. Replaced with an open first segment: any two-segment path
+# that isn't a real file or directory (still guarded by !-f / !-d below,
+# exactly as before) is treated as /{category}/{product-slug}. This means
+# every category admin adds from now on - old or new - gets a working
+# pretty product URL automatically, with no .htaccess edit ever needed again.
+# The negative lookahead below still excludes this site's real top-level
+# folders by name, so a bad/typo link inside one of them (e.g. /admin/xyz)
+# keeps returning a normal 404 instead of being sent to productdetail.php.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(dryfruits|nuts|spices|oils|millets|rice|combo)/([^/]+)/?$ productdetail.php?product=$2 [L,QSA,NC]
+RewriteRule ^(?!admin/|api/|assets/|css/|fonts/|images/|js/|scss/|video/|cron/|sitemap/|robot/|valluvam/)([a-zA-Z0-9-]+)/([^/]+)/?$ productdetail.php?product=$2 [L,QSA,NC]
