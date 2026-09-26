@@ -1052,9 +1052,6 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
               </div>
             </div>
           </li>
-          <li class="nav-item">
-            <a href="index.php#shop-by-category" class="nav-link">Categories</a>
-          </li>
           <li class="nav-item <?php echo ($currentPage == 'about.php') ? 'active' : ''; ?>">
             <a href="about.php" class="nav-link">About</a>
           </li>
