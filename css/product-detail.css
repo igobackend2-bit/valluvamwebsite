@@ -802,3 +802,130 @@
     font-weight: 600;
 }
 
+/* ============================================================
+   ALSO AVAILABLE ON — Marketplace Section
+   ============================================================ */
+
+.v-marketplace-section {
+    margin: 20px 0 14px;
+    padding: 18px 20px 16px;
+    background: linear-gradient(135deg, #fdfcf8 0%, #f8f5ef 100%);
+    border: 1px solid rgba(19, 56, 38, 0.12);
+    border-radius: 14px;
+}
+
+.v-mp-header {
+    margin-bottom: 14px;
+}
+
+.v-mp-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #133826;
+    letter-spacing: 0.2px;
+    margin: 0 0 3px;
+    line-height: 1.3;
+}
+
+.v-mp-sub {
+    font-size: 12px;
+    color: #7a8878;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Grid: 4 equal cards on desktop, 2-col on mobile */
+.v-mp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 900px) {
+    .v-mp-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    .v-mp-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+}
+
+/* Individual marketplace card */
+.v-mp-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 12px 14px;
+    background: var(--mp-bg, #fff);
+    border: 1.5px solid var(--mp-border, #e0d8cc);
+    border-radius: 10px;
+    text-decoration: none !important;
+    color: inherit;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.v-mp-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    border-color: var(--mp-color, #133826);
+    text-decoration: none !important;
+    color: inherit;
+}
+
+/* Logo area */
+.v-mp-logo {
+    width: 100%;
+    height: 28px;
+    display: flex;
+    align-items: center;
+}
+
+.v-mp-logo svg {
+    height: 22px;
+    width: auto;
+    max-width: 100%;
+}
+
+/* Name label */
+.v-mp-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mp-color, #1a2e22);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* CTA row */
+.v-mp-cta {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mp-color, #133826);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: auto;
+    white-space: nowrap;
+}
+
+.v-mp-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    font-size: 13px;
+}
+
+.v-mp-card:hover .v-mp-arrow {
+    transform: translateX(4px);
+}
+

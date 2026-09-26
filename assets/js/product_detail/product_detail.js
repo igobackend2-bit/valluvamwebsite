@@ -1,3 +1,93 @@
+// ============================================================
+// MARKETPLACE LINKS CONFIG (frontend-only — no DB/backend change)
+// Map: product name slug → { zepto, blinkit, amazon, meesho }
+// Leave a key out (or set to null / '') to hide that marketplace.
+// To add a new product: add an entry below with the exact URL from
+// each marketplace's listing page for that product.
+// ============================================================
+var MARKETPLACE_LINKS = {
+    // Example structure (replace # with real listing URLs when available):
+    // 'cold-pressed-groundnut-oil': {
+    //     zepto:   'https://zeptonow.com/pn/valluvam-cold-pressed-groundnut-oil/pvid/...',
+    //     blinkit: 'https://blinkit.com/prn/valluvam-groundnut-oil/prid/...',
+    //     amazon:  'https://www.amazon.in/dp/XXXXXXXXXX',
+    //     meesho:  'https://meesho.com/valluvam-groundnut-oil/p/XXXXXXX'
+    // },
+    // Add more products here as they go live on each marketplace.
+};
+
+var MARKETPLACE_META = [
+    {
+        key: 'zepto',
+        name: 'Zepto',
+        // Zepto brand color: deep purple #5B2D8E
+        color: '#5B2D8E',
+        bg: '#f6f0fc',
+        border: '#d6b8f5',
+        svgLogo: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 36" fill="none" aria-label="Zepto"><text x="0" y="28" font-family="Arial Black,Arial,sans-serif" font-size="28" font-weight="900" fill="#5B2D8E">zepto</text></svg>',
+        label: 'Buy on Zepto'
+    },
+    {
+        key: 'blinkit',
+        name: 'Blinkit',
+        // Blinkit brand color: yellow #F8C200 on dark background
+        color: '#1c1c1c',
+        bg: '#fffde7',
+        border: '#f8e03a',
+        svgLogo: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" fill="none" aria-label="Blinkit"><rect x="0" y="4" width="28" height="28" rx="6" fill="#F8C200"/><text x="8" y="24" font-family="Arial Black,Arial,sans-serif" font-size="16" font-weight="900" fill="#1c1c1c">b!</text><text x="36" y="27" font-family="Arial Black,Arial,sans-serif" font-size="22" font-weight="900" fill="#1c1c1c">blinkit</text></svg>',
+        label: 'Buy on Blinkit'
+    },
+    {
+        key: 'amazon',
+        name: 'Amazon',
+        // Amazon brand color: #FF9900 orange, on white
+        color: '#0F1111',
+        bg: '#fff8f0',
+        border: '#f0c070',
+        svgLogo: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 36" fill="none" aria-label="Amazon"><text x="0" y="26" font-family="Arial,sans-serif" font-size="26" font-weight="700" fill="#0F1111">amazon</text><path d="M6 30 Q50 38 100 30" stroke="#FF9900" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+        label: 'Buy on Amazon'
+    },
+    {
+        key: 'meesho',
+        name: 'Meesho',
+        // Meesho brand color: coral/pink #F43397
+        color: '#F43397',
+        bg: '#fff0f8',
+        border: '#f9a8d4',
+        svgLogo: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 36" fill="none" aria-label="Meesho"><text x="0" y="27" font-family="Arial,sans-serif" font-size="24" font-weight="800" fill="#F43397">meesho</text></svg>',
+        label: 'Buy on Meesho'
+    }
+];
+
+// Build marketplace section HTML for a given product slug
+function buildMarketplaceSection(productSlug) {
+    var links = MARKETPLACE_LINKS[productSlug] || {};
+    var cards = MARKETPLACE_META.filter(function(m) {
+        return links[m.key] && links[m.key].trim() !== '' && links[m.key] !== '#';
+    });
+
+    // If no marketplace URLs configured for this product, return empty string
+    if (cards.length === 0) return '';
+
+    var cardsHtml = cards.map(function(m) {
+        return '<a href="' + links[m.key] + '" target="_blank" rel="noopener noreferrer" class="v-mp-card" ' +
+               'data-mp="' + m.key + '" aria-label="' + m.label + '" ' +
+               'style="--mp-color:' + m.color + ';--mp-bg:' + m.bg + ';--mp-border:' + m.border + ';">' +
+               '<div class="v-mp-logo">' + m.svgLogo + '</div>' +
+               '<div class="v-mp-name">' + m.name + '</div>' +
+               '<div class="v-mp-cta">' + m.label + ' <span class="v-mp-arrow">&rarr;</span></div>' +
+               '</a>';
+    }).join('');
+
+    return '<div class="v-marketplace-section">' +
+           '<div class="v-mp-header">' +
+           '<h3 class="v-mp-title">Also Available On</h3>' +
+           '<p class="v-mp-sub">Shop Valluvam products from your preferred marketplace.</p>' +
+           '</div>' +
+           '<div class="v-mp-grid">' + cardsHtml + '</div>' +
+           '</div>';
+}
+
 function parseQuantityInfo(q) {
     q = String(q || '').trim().toLowerCase();
     var m = q.match(/([\d.]+)\s*(kg|g|gm|gram|grams|ml|l)?/);
@@ -194,6 +284,9 @@ function loadProduct(idOrSlug, pushSlug) {
                             <div id="pd-pincode-result" class="pd-pincode-result" style="display:none;"></div>
                         </div>
 
+                        <!-- MARKETPLACE AVAILABILITY — injected by JS after render -->
+                        <div id="v-marketplace-placeholder"></div>
+
                         <div class="pd-trust">
                             <div class="pd-trust-item"><ion-icon name="ribbon-outline"></ion-icon> Quality Products</div>
                             <div class="pd-trust-item"><ion-icon name="lock-closed-outline"></ion-icon> Secure Payment</div>
@@ -269,6 +362,17 @@ function loadProduct(idOrSlug, pushSlug) {
                 injectStockAndReviewStyles();
                 loadProductReviews(p.id);
                 initPincodeEstimator();
+
+                // Marketplace section — derive slug from product name (same logic as URL slugs)
+                var mpSlug = (p.product_name || '').toLowerCase().trim()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                var mpHtml = buildMarketplaceSection(mpSlug);
+                if (mpHtml) {
+                    $('#v-marketplace-placeholder').html(mpHtml);
+                }
+
             } else {
                 $('#product-details-container').html('<p>Product not found.</p>');
             }

@@ -1111,8 +1111,14 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
              <?php endif; ?>>
             <i class="fa-regular fa-user"></i>
             <?php if ($status == 1): ?>
-              <span class="v-user-name ml-1 font-weight-bold" style="font-size:12px; max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block;">
-                <?php echo htmlspecialchars($user_name); ?>
+              <?php
+                // Show first name only so even long names fit cleanly in the nav bar
+                $first_name = explode(' ', trim($user_name))[0];
+              ?>
+              <span class="v-user-name ml-1 font-weight-bold"
+                    title="<?php echo htmlspecialchars($user_name); ?>"
+                    style="font-size:12px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;">
+                <?php echo htmlspecialchars($first_name); ?>
               </span>
             <?php endif; ?>
           </a>
