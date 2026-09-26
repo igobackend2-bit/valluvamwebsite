@@ -1,0 +1,285 @@
+/* ==========================================================================
+   REDESIGN - NEW HOMEPAGE STYLES
+   ========================================================================== */
+
+/* 1. Our Collections */
+.v-collections-section {
+    padding: 80px 0;
+    background: #fdfbf7;
+    position: relative;
+    overflow: hidden;
+}
+
+.v-collections-bg-leaf {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="%23e8efe6" d="M50,0 C80,0 100,20 100,50 C100,80 80,100 50,100 C20,100 0,80 0,50 C0,20 20,0 50,0 Z" opacity="0.6"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 0;
+    top: -50px;
+    left: -50px;
+    pointer-events: none;
+}
+
+.v-col-title-wrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    z-index: 1;
+    position: relative;
+}
+
+.v-col-grid {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 20px;
+    scrollbar-width: none;
+}
+.v-col-grid::-webkit-scrollbar { display: none; }
+
+.v-col-card {
+    flex: 0 0 240px;
+    scroll-snap-align: center;
+    position: relative;
+    border-radius: var(--v-radius-lg);
+    overflow: hidden;
+    height: 320px;
+    box-shadow: var(--v-shadow-sm);
+    transition: transform 0.3s ease;
+}
+
+.v-col-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--v-shadow-md);
+}
+
+.v-col-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.v-col-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 24px 20px;
+    background: linear-gradient(to top, rgba(19, 56, 38, 0.95) 0%, rgba(19, 56, 38, 0.6) 60%, transparent 100%);
+    color: #fff;
+}
+
+.v-col-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-family: var(--v-font-serif);
+}
+
+.v-col-desc {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin-bottom: 12px;
+}
+
+.v-col-link {
+    color: #fff;
+    font-size: 0.8rem;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.v-col-link:hover { color: var(--v-gold); }
+
+/* 2. Shop By Category (Circular Design) */
+.v-cat-circle-section {
+    padding: 80px 0;
+    background: #f8f6f0;
+    text-align: center;
+}
+
+.v-cat-circle-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 24px;
+    padding: 20px 0;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    justify-content: center;
+}
+@media (max-width: 992px) {
+    .v-cat-circle-grid { justify-content: flex-start; }
+}
+.v-cat-circle-grid::-webkit-scrollbar { display: none; }
+
+.v-cat-circle-card {
+    flex: 0 0 160px;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none !important;
+    transition: transform 0.3s ease;
+}
+
+.v-cat-circle-card:hover {
+    transform: translateY(-8px);
+}
+
+.v-cat-image-wrap {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    padding: 6px;
+    background: #fff;
+    box-shadow: 0 10px 25px rgba(19, 56, 38, 0.08);
+    position: relative;
+    margin-bottom: 16px;
+    transition: box-shadow 0.3s ease;
+}
+
+.v-cat-circle-card:hover .v-cat-image-wrap {
+    box-shadow: 0 15px 35px rgba(19, 56, 38, 0.15);
+}
+
+.v-cat-image-wrap img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.v-cat-icon-sm {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 32px;
+    background: var(--v-forest);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 2px solid #fff;
+}
+
+.v-cat-circle-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--v-ink);
+    margin-bottom: 4px;
+}
+
+.v-cat-circle-sub {
+    font-size: 0.75rem;
+    color: var(--v-text);
+    margin-bottom: 8px;
+}
+
+.v-cat-circle-link {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--v-forest);
+    text-transform: uppercase;
+}
+.v-cat-circle-card:hover .v-cat-circle-link {
+    color: var(--v-leaf);
+}
+
+/* 3. Farm to Pack Banner */
+.v-farm-banner {
+    background: var(--v-forest-deep);
+    border-radius: var(--v-radius-xl);
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    margin: 60px 0;
+}
+
+.v-farm-banner-img {
+    width: 30%;
+    object-fit: cover;
+    min-height: 250px;
+}
+
+.v-farm-banner-content {
+    width: 70%;
+    padding: 40px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@media (max-width: 991px) {
+    .v-farm-banner { flex-direction: column; }
+    .v-farm-banner-img { width: 100%; height: 200px; }
+    .v-farm-banner-content { width: 100%; flex-direction: column; text-align: center; gap: 30px; }
+}
+
+.v-farm-steps {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+@media (max-width: 767px) {
+    .v-farm-steps { flex-wrap: wrap; justify-content: center; }
+}
+
+.v-farm-step {
+    text-align: center;
+    position: relative;
+}
+
+.v-farm-step:not(:last-child)::after {
+    content: '\2192';
+    position: absolute;
+    right: -22px;
+    top: 20px;
+    color: rgba(255,255,255,0.3);
+    font-size: 18px;
+}
+
+@media (max-width: 767px) {
+    .v-farm-step:not(:last-child)::after { display: none; }
+}
+
+.v-farm-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 12px;
+    color: var(--v-gold-light);
+}
+
+.v-farm-step span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Trust Strip Bottom Border */
+.v-trust-strip-section {
+    border-top: 1px solid var(--v-border-light);
+    border-bottom: 1px solid var(--v-border-light);
+    background: #fff;
+}

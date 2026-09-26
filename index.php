@@ -155,7 +155,198 @@ include "header.php";
         </div>
     </section>
 
+        
+
     <!-- ====================================================================
+         2. OUR COLLECTIONS (Redesigned)
+         ==================================================================== -->
+    <section class="v-collections-section">
+        <div class="v-collections-bg-leaf"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 mb-4 mb-lg-0">
+                    <div class="v-col-title-wrap">
+                        <span class="v-eyebrow" style="color:var(--v-forest);">CURATED FOR YOU</span>
+                        <h2 class="v-section-title" style="color:var(--v-forest-deep); font-family:var(--v-font-serif);">Our Collections</h2>
+                        <p class="v-section-subtitle" style="text-align:left; max-width:100%; margin-bottom:20px;">Thoughtfully curated for every occasion, season and lifestyle.</p>
+                        <div>
+                            <a href="shop.php" class="v-btn-secondary" style="border:1px solid var(--v-forest); color:var(--v-forest);">Explore All Collections &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9">
+                    <div class="v-col-grid">
+                        <div class="v-col-card">
+                            <img src="images/combo1.jpg" alt="Best Sellers" class="v-col-img" loading="lazy">
+                            <div class="v-col-overlay">
+                                <h3 class="v-col-name">Best Sellers</h3>
+                                <p class="v-col-desc">Our most loved products</p>
+                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="v-col-card">
+                            <img src="images/combo2.jpg" alt="Healthy Choices" class="v-col-img" loading="lazy">
+                            <div class="v-col-overlay">
+                                <h3 class="v-col-name">Healthy Choices</h3>
+                                <p class="v-col-desc">Good food, better living</p>
+                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="v-col-card">
+                            <img src="images/combo3.jpg" alt="Traditional Foods" class="v-col-img" loading="lazy">
+                            <div class="v-col-overlay">
+                                <h3 class="v-col-name">Traditional Foods</h3>
+                                <p class="v-col-desc">Timeless taste</p>
+                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="v-col-card">
+                            <img src="images/combo4.jpg" alt="Gifting" class="v-col-img" loading="lazy">
+                            <div class="v-col-overlay">
+                                <h3 class="v-col-name">Gifting</h3>
+                                <p class="v-col-desc">Share the goodness</p>
+                                <a href="combo.php" class="v-col-link">Explore &rarr;</a>
+                            </div>
+                        </div>
+                        <div class="v-col-card">
+                            <img src="assets/thumbnail/rice.jpg" alt="Everyday Essentials" class="v-col-img" loading="lazy">
+                            <div class="v-col-overlay">
+                                <h3 class="v-col-name">Everyday Essentials</h3>
+                                <p class="v-col-desc">For your daily needs</p>
+                                <a href="shop.php" class="v-col-link">Explore &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- ====================================================================
+         3. SHOP BY CATEGORY (Redesigned)
+         ==================================================================== -->
+    <section class="v-cat-circle-section" id="shop-by-category">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:var(--v-forest);">SHOP BY CATEGORY</span>
+                    <h2 class="v-section-title" style="color:var(--v-forest-deep); font-size:clamp(28px, 4vw, 42px); font-family:var(--v-font-serif);">Natture's Goodness, In Every Category</h2>
+                    <p class="v-section-subtitle text-left">Explore our range of natural and wholesome products.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:var(--v-forest); font-weight:600;">View All Categories &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Dynamic Slider Container (Maintains backend AJAX compatibility) -->
+            <div class="slid-er mb-4 d-none d-md-block" style="display:none !important;">
+                <div class="slides" id="slides"></div>
+            </div>
+
+            <div class="v-cat-circle-grid">
+                <a href="nuts.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Nuts</div>
+                    <div class="v-cat-circle-sub">Crunchy &amp; Nutritious</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+                
+                <a href="dryfruits.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/dryfruits.jpg" alt="Dry Fruits">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Dry Fruits</div>
+                    <div class="v-cat-circle-sub">Nature's Energy</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="oils.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/oil.jpg" alt="Cold Pressed Oils">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Cold Pressed Oils</div>
+                    <div class="v-cat-circle-sub">Pure &amp; Healthy</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="spices.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/spice.jpg" alt="Spices">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Spices</div>
+                    <div class="v-cat-circle-sub">Rich in Flavour</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="millets.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/millets.jpg" alt="Millets">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Millets</div>
+                    <div class="v-cat-circle-sub">Ancient Superfood</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="rice.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/rice.jpg" alt="Rice">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Rice</div>
+                    <div class="v-cat-circle-sub">Wholesome &amp; Natural</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="combo.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="assets/thumbnail/combo.jpg" alt="Combos">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Combos</div>
+                    <div class="v-cat-circle-sub">Better Together</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+<!-- ====================================================================
+         4. BEST PRODUCTS (Dynamic from Database)
+         ==================================================================== -->
+    <section class="v-products-section" id="best-products-section">
+        <div class="container">
+            <div class="v-section-header">
+                <span class="v-eyebrow"><i class="fa-solid fa-star"></i> Customer Favorites</span>
+                <h2 class="v-section-title">BEST PRODUCTS</h2>
+                <p class="v-section-subtitle">Loved by many, chosen for uncompromised quality and everyday nourishment.</p>
+            </div>
+
+            <!-- Products loaded dynamically by assets/js/index/index.js -->
+            <div class="row" id="product-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="sr-only">Loading products...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="shop.php" class="v-btn-primary" style="background:var(--v-forest); border-color:var(--v-forest); color:#fff !important;">
+                    View All Products &rarr;
+                </a>
+            </div>
+        </div>
+    </section>
+
+    
+<!-- ====================================================================
          2. TRUST STRIP
          ==================================================================== -->
     <section class="v-trust-strip-section">
@@ -201,168 +392,8 @@ include "header.php";
         </div>
     </section>
 
-    <!-- ====================================================================
-         3. SHOP BY CATEGORY
-         ==================================================================== -->
-    <section class="v-category-section" id="shop-by-category">
-        <div class="container">
-            <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-border-all"></i> Curated Selections</span>
-                <h2 class="v-section-title">SHOP BY CATEGORY</h2>
-                <p class="v-section-subtitle">Explore our range of natural and wholesome products, crafted for healthy homes.</p>
-            </div>
-
-            <!-- Dynamic Slider Container (Maintains backend AJAX compatibility) -->
-            <div class="slid-er mb-4 d-none d-md-block" style="display:none !important;">
-                <div class="slides" id="slides"></div>
-            </div>
-
-            <!-- Visual High-End Category Grid -->
-            <div class="v-category-grid">
-                <!-- 1. Nuts -->
-                <a href="nuts.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Nuts</h3>
-                            <p class="v-category-desc">Almonds, cashews, walnuts, pistachios sorted for premium crunch.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 2. Dry Fruits -->
-                <a href="dryfruits.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/dryfruits.jpg" alt="Dry Fruits" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Dry Fruits</h3>
-                            <p class="v-category-desc">Sun-ripened figs, Arabian dates, golden raisins and berries.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 3. Cold-Pressed Oils -->
-                <a href="oils.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/oil.jpg" alt="Cold-Pressed Oils" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Cold-Pressed Oils</h3>
-                            <p class="v-category-desc">Traditional wood-churned sesame, groundnut and coconut oils.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 4. Spices -->
-                <a href="spices.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/spice.jpg" alt="Spices" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Spices</h3>
-                            <p class="v-category-desc">Whole aromatic cardamom, Tellicherry pepper, cloves &amp; turmeric.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 5. Millets -->
-                <a href="millets.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/millets.jpg" alt="Millets" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Millets</h3>
-                            <p class="v-category-desc">Nutrient-dense ancient grains, naturally gluten-free and wholesome.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 6. Heritage Rice -->
-                <a href="rice.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/rice.jpg" alt="Heritage Rice" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Heritage Rice</h3>
-                            <p class="v-category-desc">Traditional heirloom rice varieties sourced directly from native paddy.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 7. Combos -->
-                <a href="combo.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="assets/thumbnail/combo.jpg" alt="Curated Combos" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Curated Combos</h3>
-                            <p class="v-category-desc">Thoughtfully paired pantry combinations and festive gift packs.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-
-                <!-- 8. Palm Jaggery -->
-                <a href="palm-jaggery.php" class="v-category-card">
-                    <div class="v-category-img-wrap">
-                        <img src="images/palm-jaggery.jpg" alt="Palm Jaggery" class="v-category-img" loading="lazy">
-                    </div>
-                    <div class="v-category-info">
-                        <div>
-                            <h3 class="v-category-name">Palm Jaggery</h3>
-                            <p class="v-category-desc">Authentic unrefined traditional palm sweetener with zero chemicals.</p>
-                        </div>
-                        <span class="v-category-cta">Explore &rarr;</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         4. BEST PRODUCTS (Dynamic from Database)
-         ==================================================================== -->
-    <section class="v-products-section" id="best-products-section">
-        <div class="container">
-            <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-star"></i> Customer Favorites</span>
-                <h2 class="v-section-title">BEST PRODUCTS</h2>
-                <p class="v-section-subtitle">Loved by many, chosen for uncompromised quality and everyday nourishment.</p>
-            </div>
-
-            <!-- Products loaded dynamically by assets/js/index/index.js -->
-            <div class="row" id="product-container">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-success" role="status">
-                        <span class="sr-only">Loading products...</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-center mt-4">
-                <a href="shop.php" class="v-btn-primary" style="background:var(--v-forest); border-color:var(--v-forest); color:#fff !important;">
-                    View All Products &rarr;
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
+    
+<!-- ====================================================================
          5. PREMIUM PROMOTIONAL AREA (3-Column Layout)
          ==================================================================== -->
     <section class="v-promo-section">
@@ -619,67 +650,43 @@ include "header.php";
         </div>
     </section>
 
-    <!-- ====================================================================
-         10. FROM FARM TO PACK (Visual Timeline)
+        <!-- ====================================================================
+         10. FROM FARM TO PACK (Redesigned Banner)
          ==================================================================== -->
-    <section class="v-timeline-section">
-        <div class="container">
-            <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-route"></i> Traceable Journey</span>
-                <h2 class="v-section-title">FROM FARM TO PACK</h2>
-                <p class="v-section-subtitle">Every step in our supply chain respects purity, nutritional integrity, and traditional craft.</p>
-            </div>
-
-            <div class="v-timeline-track">
-                <div class="v-timeline-step">
-                    <div class="v-timeline-node">
-                        <i class="fa-solid fa-wheat-awn"></i>
-                        <span class="v-timeline-num">01</span>
+    <div class="container">
+        <section class="v-farm-banner">
+            <div class="v-farm-banner-content">
+                <div>
+                    <h2 style="font-family:var(--v-font-serif); margin-bottom:10px; font-size:28px;">From Farm to Pack</h2>
+                    <p style="opacity:0.8; font-size:14px; margin-bottom:0;">Pure. Natural. With Care.</p>
+                    <div style="margin-top:20px;">
+                        <a href="#" class="v-btn-secondary" style="border-color:#fff; color:#fff; background:transparent;">Discover Our Process &rarr;</a>
                     </div>
-                    <h4 class="v-timeline-step-title">SOURCE</h4>
-                    <p class="v-timeline-step-desc">Harvested from trusted partner farmer networks across Tamil Nadu and India.</p>
                 </div>
-
-                <div class="v-timeline-step">
-                    <div class="v-timeline-node">
-                        <i class="fa-solid fa-microscope"></i>
-                        <span class="v-timeline-num">02</span>
+                <div class="v-farm-steps">
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-seedling"></i></div>
+                        <span>Source</span>
                     </div>
-                    <h4 class="v-timeline-step-title">QUALITY CHECK</h4>
-                    <p class="v-timeline-step-desc">Inspected for natural moisture, aroma, size consistency, and zero contaminants.</p>
-                </div>
-
-                <div class="v-timeline-step">
-                    <div class="v-timeline-node">
-                        <i class="fa-solid fa-gears"></i>
-                        <span class="v-timeline-num">03</span>
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-microscope"></i></div>
+                        <span>Quality Check</span>
                     </div>
-                    <h4 class="v-timeline-step-title">PROCESSING</h4>
-                    <p class="v-timeline-step-desc">Wood cold-pressed and unheated, preserving active vitamins and antioxidants.</p>
-                </div>
-
-                <div class="v-timeline-step">
-                    <div class="v-timeline-node">
-                        <i class="fa-solid fa-box-archive"></i>
-                        <span class="v-timeline-num">04</span>
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-gears"></i></div>
+                        <span>Processing</span>
                     </div>
-                    <h4 class="v-timeline-step-title">PACKAGING</h4>
-                    <p class="v-timeline-step-desc">Aroma-sealed in clean, food-grade materials to protect natural goodness.</p>
-                </div>
-
-                <div class="v-timeline-step">
-                    <div class="v-timeline-node">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
-                        <span class="v-timeline-num">05</span>
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-box-archive"></i></div>
+                        <span>Packaging</span>
                     </div>
-                    <h4 class="v-timeline-step-title">DELIVERY</h4>
-                    <p class="v-timeline-step-desc">Dispatched with doorstep tracking for fresh delivery across India.</p>
                 </div>
             </div>
-        </div>
-    </section>
+            <img src="images/hero-premium.jpg" alt="Farm to Pack" class="v-farm-banner-img">
+        </section>
+    </div>
 
-    <!-- ====================================================================
+<!-- ====================================================================
          11. FEATURED PRODUCT STORY (Editorial Split Section)
          ==================================================================== -->
     <section class="v-story-section">

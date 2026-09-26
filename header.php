@@ -82,7 +82,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <link rel="stylesheet" href="css/products.css?v=3">
   <link rel="stylesheet" href="css/login.css?v=20260911b">
   <link rel="stylesheet" href="css/premium-valluvam.css?v=20260926">
-
+  <link rel="stylesheet" href="css/redesign.css?v=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
 
