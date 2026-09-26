@@ -853,6 +853,86 @@ include "header.php";
         </div>
     </section>
 
+
+    <!-- ====================================================================
+         11b. SHOP VALLUVAM YOUR WAY — Marketplace Availability Strip
+              Logos shown without links for now. Links will be added later.
+         ==================================================================== -->
+    <section class="v-mp-home-section">
+        <div class="container">
+            <div class="v-mp-home-header">
+                <span class="v-eyebrow" style="justify-content:center;"><i class="fa-solid fa-store"></i> FIND US ON</span>
+                <h2 class="v-mp-home-title">SHOP VALLUVAM YOUR WAY</h2>
+                <p class="v-mp-home-sub">Also available on your favourite marketplace apps. Links coming soon.</p>
+            </div>
+
+            <div class="v-mp-home-grid">
+
+                <!-- Zepto -->
+                <div class="v-mp-home-card v-mp-home-coming" role="img" aria-label="Zepto — Coming Soon" data-mp-tooltip="Coming Soon on Zepto">
+                    <div class="v-mp-home-logo-wrap">
+                        <svg viewBox="0 0 130 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <!-- Zepto "Z" icon mark -->
+                            <rect x="2" y="4" width="36" height="36" rx="10" fill="#5B2D8E"/>
+                            <text x="9" y="30" font-family="Arial Black,Arial,sans-serif" font-size="22" font-weight="900" fill="#ffffff">Z</text>
+                            <!-- Wordmark -->
+                            <text x="46" y="30" font-family="Arial Black,Arial,sans-serif" font-size="22" font-weight="900" fill="#5B2D8E">zepto</text>
+                        </svg>
+                    </div>
+                    <div class="v-mp-home-name" style="color:#5B2D8E;">Zepto</div>
+                    <div class="v-mp-home-badge">Coming Soon</div>
+                </div>
+
+                <!-- Blinkit -->
+                <div class="v-mp-home-card v-mp-home-coming" role="img" aria-label="Blinkit — Coming Soon" data-mp-tooltip="Coming Soon on Blinkit">
+                    <div class="v-mp-home-logo-wrap">
+                        <svg viewBox="0 0 150 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <!-- Blinkit yellow icon mark -->
+                            <rect x="2" y="4" width="36" height="36" rx="10" fill="#F8C200"/>
+                            <text x="9.5" y="30" font-family="Arial Black,Arial,sans-serif" font-size="18" font-weight="900" fill="#1c1c1c">b!</text>
+                            <!-- Wordmark -->
+                            <text x="46" y="30" font-family="Arial Black,Arial,sans-serif" font-size="20" font-weight="900" fill="#1c1c1c">blinkit</text>
+                        </svg>
+                    </div>
+                    <div class="v-mp-home-name" style="color:#1c1c1c;">Blinkit</div>
+                    <div class="v-mp-home-badge">Coming Soon</div>
+                </div>
+
+                <!-- Amazon -->
+                <div class="v-mp-home-card v-mp-home-coming" role="img" aria-label="Amazon — Coming Soon" data-mp-tooltip="Coming Soon on Amazon">
+                    <div class="v-mp-home-logo-wrap">
+                        <svg viewBox="0 0 150 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <!-- Amazon wordmark + smile arrow -->
+                            <text x="0" y="28" font-family="Arial,Helvetica,sans-serif" font-size="24" font-weight="700" fill="#0F1111">amazon</text>
+                            <!-- Smile / arrow underline — Amazon's brand arc -->
+                            <path d="M4 33 Q54 44 104 33" stroke="#FF9900" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+                            <!-- Arrow head -->
+                            <polygon points="100,29 108,33 100,37" fill="#FF9900"/>
+                        </svg>
+                    </div>
+                    <div class="v-mp-home-name" style="color:#0F1111;">Amazon</div>
+                    <div class="v-mp-home-badge">Coming Soon</div>
+                </div>
+
+                <!-- Meesho -->
+                <div class="v-mp-home-card v-mp-home-coming" role="img" aria-label="Meesho — Coming Soon" data-mp-tooltip="Coming Soon on Meesho">
+                    <div class="v-mp-home-logo-wrap">
+                        <svg viewBox="0 0 150 44" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <!-- Meesho "M" icon dot -->
+                            <circle cx="18" cy="22" r="14" fill="#F43397"/>
+                            <text x="10" y="28" font-family="Arial Black,Arial,sans-serif" font-size="18" font-weight="900" fill="#ffffff">M</text>
+                            <!-- Wordmark -->
+                            <text x="40" y="29" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="800" fill="#F43397">meesho</text>
+                        </svg>
+                    </div>
+                    <div class="v-mp-home-name" style="color:#F43397;">Meesho</div>
+                    <div class="v-mp-home-badge">Coming Soon</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     <!-- ====================================================================
          12. B2B / WHOLESALE & PRIVATE LABEL
          ==================================================================== -->
