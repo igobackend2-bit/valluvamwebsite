@@ -2,32 +2,6 @@
 $activePage = basename($_SERVER['PHP_SELF'], ".php");
 include "header.php";
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valluvam — Premium Natural Foods | Cold-Pressed Oils, Dry Fruits, Nuts &amp; Spices</title>
-    <meta name="description" content="Discover pure, authentic Indian foods from Valluvam. Premium wood cold-pressed oils, hand-picked nuts, dry fruits, unadulterated spices, native millets and heritage rice. Naturally sourced, quality checked, delivered pan-India.">
-    <meta name="keywords" content="Valluvam, cold pressed oils, organic dry fruits, premium nuts online, whole spices, millets delivery, traditional Indian food, farm fresh groceries">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://www.valluvamproducts.com/">
-
-    <!-- Social & Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Valluvam — Good Food, Rooted in Tradition">
-    <meta property="og:description" content="Discover pure, authentic Indian foods from Valluvam. Cold-pressed oils, nuts, dry fruits, spices and millets delivered with care.">
-    <meta property="og:url" content="https://www.valluvamproducts.com/">
-    <meta property="og:image" content="/images/logo.png">
-    <meta property="og:site_name" content="Valluvam">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Valluvam — Good Food, Rooted in Tradition">
-    <meta name="twitter:description" content="Discover pure, authentic Indian foods from Valluvam. Cold-pressed oils, nuts, dry fruits, spices and millets delivered with care.">
-    <meta name="twitter:image" content="/images/logo.png">
-
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -97,21 +71,70 @@ include "header.php";
         ]
     }
     </script>
-</head>
 
-<body class="goto-here">
+    <!-- ====================================================================
+         1. HERO SECTION (Editorial Banner & Brand Statement)
+         ==================================================================== -->
+    <section class="v-hero-section">
+        <div class="container">
+            <div class="v-hero-grid">
+                <div class="v-hero-content">
+                    <div class="v-hero-badge">
+                        <i class="fa-solid fa-leaf"></i> TRADITIONAL &amp; PURE
+                    </div>
+                    <h1 class="v-hero-heading">
+                        GOOD FOOD. <br>
+                        <span class="v-hero-accent">ROOTED IN TRADITION.</span>
+                    </h1>
+                    <p class="v-hero-subtext">
+                        Carefully sourced Indian foods for everyday living. Cold-pressed oils, hand-picked nuts, sun-dried fruits, whole spices and heritage grains — unadulterated and delivered straight to your home.
+                    </p>
+                    <div class="v-hero-actions">
+                        <a href="shop.php" class="v-btn-primary">
+                            SHOP PRODUCTS <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                        <a href="#shop-by-category" class="v-btn-secondary">
+                            EXPLORE COLLECTIONS
+                        </a>
+                        <a href="b2b-wholesale.php" class="v-btn-tertiary">
+                            EXPLORE WHOLESALE &rarr;
+                        </a>
+                    </div>
+                    <ul class="v-hero-trust-list">
+                        <li><i class="fa-solid fa-droplet"></i> 100% Cold Pressed</li>
+                        <li><i class="fa-solid fa-seedling"></i> Direct from Farmers</li>
+                        <li><i class="fa-solid fa-shield-heart"></i> Zero Preservatives</li>
+                        <li><i class="fa-solid fa-truck-fast"></i> Pan-India Delivery</li>
+                    </ul>
+                </div>
 
-    
+                <div class="v-hero-media-wrap">
+                    <div class="v-hero-frame">
+                        <img src="images/hero-premium.jpg" alt="Valluvam Traditional Cold Pressed Natural Foods" class="v-hero-img" loading="eager">
+                    </div>
+                    <div class="v-hero-float-card">
+                        <div class="v-hero-float-icon">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <div>
+                            <p class="v-hero-float-title">Certified Purity</p>
+                            <p class="v-hero-float-desc">FSSAI Certified &amp; Lab-Tested</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<!-- ====================================================================
-         3. SHOP BY CATEGORY (Redesigned)
+    <!-- ====================================================================
+         2. SHOP BY CATEGORY (Visual Circle Category Hub)
          ==================================================================== -->
     <section class="v-cat-circle-section" id="shop-by-category">
         <div class="container">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
                 <div class="v-section-header text-left mb-0">
                     <span class="v-eyebrow" style="color:var(--v-forest);">SHOP BY CATEGORY</span>
-                    <h2 class="v-section-title" style="color:var(--v-forest-deep); font-size:clamp(28px, 4vw, 42px); font-family:var(--v-font-serif);">Natture's Goodness, In Every Category</h2>
+                    <h2 class="v-section-title" style="color:var(--v-forest-deep); font-size:clamp(28px, 4vw, 42px); font-family:var(--v-font-serif);">Nature's Goodness, In Every Category</h2>
                     <p class="v-section-subtitle text-left">Explore our range of natural and wholesome products.</p>
                 </div>
                 <div class="mt-3 mt-md-0">
@@ -127,7 +150,7 @@ include "header.php";
             <div class="v-cat-circle-grid">
                 <a href="nuts.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts">
+                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Nuts</div>
@@ -137,7 +160,7 @@ include "header.php";
                 
                 <a href="dryfruits.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/dryfruits.jpg" alt="Dry Fruits">
+                        <img src="assets/thumbnail/dryfruits.jpg" alt="Dry Fruits" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Dry Fruits</div>
@@ -147,7 +170,7 @@ include "header.php";
 
                 <a href="oils.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/oil.jpg" alt="Cold Pressed Oils">
+                        <img src="assets/thumbnail/oil.jpg" alt="Cold Pressed Oils" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Cold Pressed Oils</div>
@@ -157,7 +180,7 @@ include "header.php";
 
                 <a href="spices.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/spice.jpg" alt="Spices">
+                        <img src="assets/thumbnail/spice.jpg" alt="Spices" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Spices</div>
@@ -167,7 +190,7 @@ include "header.php";
 
                 <a href="millets.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/millets.jpg" alt="Millets">
+                        <img src="assets/thumbnail/millets.jpg" alt="Millets" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Millets</div>
@@ -177,29 +200,79 @@ include "header.php";
 
                 <a href="rice.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/rice.jpg" alt="Rice">
+                        <img src="assets/thumbnail/rice.jpg" alt="Rice" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Rice</div>
-                    <div class="v-cat-circle-sub">Wholesome &amp; Natural</div>
+                    <div class="v-cat-circle-sub">Heritage Grains</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="pulses.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="images/bg-product-1.jpg" alt="Dals &amp; Pulses" loading="lazy">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Dals &amp; Pulses</div>
+                    <div class="v-cat-circle-sub">Protein Rich</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="seeds.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="images/bg-product-8.jpg" alt="Seeds" loading="lazy">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Seeds</div>
+                    <div class="v-cat-circle-sub">Daily Nutrition</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="palm-jaggery.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="images/palm-jaggery.jpg" alt="Palm Jaggery" loading="lazy">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Palm Jaggery</div>
+                    <div class="v-cat-circle-sub">Natural Sweetener</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="ghee.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="images/bg-product-10.jpg" alt="Desi Ghee" loading="lazy">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Desi Ghee</div>
+                    <div class="v-cat-circle-sub">Traditional A2</div>
+                    <div class="v-cat-circle-link">Explore &rarr;</div>
+                </a>
+
+                <a href="honey.php" class="v-cat-circle-card">
+                    <div class="v-cat-image-wrap">
+                        <img src="images/bg-product-12.jpg" alt="Raw Honey" loading="lazy">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                    </div>
+                    <div class="v-cat-circle-title">Raw Honey</div>
+                    <div class="v-cat-circle-sub">Forest Harvest</div>
                     <div class="v-cat-circle-link">Explore &rarr;</div>
                 </a>
 
                 <a href="combo.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/combo.jpg" alt="Combos">
-                        <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
+                        <img src="images/combo1.jpg" alt="Combo Packs" loading="lazy">
+                        <div class="v-cat-icon-sm"><i class="fa-solid fa-gift"></i></div>
                     </div>
-                    <div class="v-cat-circle-title">Combos</div>
-                    <div class="v-cat-circle-sub">Better Together</div>
+                    <div class="v-cat-circle-title">Combo Packs</div>
+                    <div class="v-cat-circle-sub">Curated Bundles</div>
                     <div class="v-cat-circle-link">Explore &rarr;</div>
                 </a>
             </div>
         </div>
     </section>
 
-<!-- ====================================================================
-         4. BEST SELLERS (Dynamic from Database)
+    <!-- ====================================================================
+         3. BEST SELLERS (Products from Database)
          ==================================================================== -->
     <section class="v-products-section" id="best-products-section">
         <div class="container">
@@ -226,10 +299,426 @@ include "header.php";
         </div>
     </section>
 
-    
-<!-- ====================================================================
-         2. TRUST STRIP
+    <!-- ====================================================================
+         4. WHY VALLUVAM (Brand Story & 5 Quality Pillars)
          ==================================================================== -->
+    <section class="v-why-section" id="why-valluvam">
+        <div class="v-why-bg-leaf v-why-leaf-left"></div>
+        <div class="v-why-bg-leaf v-why-leaf-right"></div>
+        <div class="v-why-bg-wave"></div>
+
+        <div class="container relative-z">
+            <div class="v-section-header">
+                <span class="v-eyebrow v-eyebrow-pale">&#9670; THE VALLUVAM PROMISE</span>
+                <h2 class="v-section-title">WHY VALLUVAM?</h2>
+                <p class="v-section-subtitle">We honor the purity of traditional Indian food wisdom with modern transparency.</p>
+            </div>
+
+            <div class="v-why-wrapper">
+                <div class="v-why-grid">
+                    <!-- Pillar 1 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/sourced.jpg" alt="Carefully Sourced" class="v-why-img" loading="lazy">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-seedling"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Carefully Sourced</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Sourced directly from verified farming regions known for authentic native soil and heritage harvesting.</p>
+                            <a href="about.php" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 2 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/traditional.jpg" alt="Traditional Products" class="v-why-img" loading="lazy">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-bowl-rice"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Traditional Products</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Time-honored techniques including wood cold-pressing (Marachekku) and slow stone processing.</p>
+                            <a href="about.php" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 3 (Center Highlight) -->
+                    <div class="v-why-card v-why-highlight">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/quality.jpg" alt="Quality Focused" class="v-why-img" loading="lazy">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-award"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Quality Focused</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Zero artificial chemicals, synthetic food colorings, or industrial preservatives in any batch.</p>
+                            <a href="about.php" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 4 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/packaging.jpg" alt="Thoughtful Packaging" class="v-why-img" loading="lazy">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-box-open"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Thoughtful Packaging</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Hygienic, aroma-preserving food-grade packaging that protects vital nutrients to your door.</p>
+                            <a href="about.php" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
+                    </div>
+
+                    <!-- Pillar 5 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/customer.jpg" alt="Customer First" class="v-why-img" loading="lazy">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-heart"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Customer First</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Pan-India delivery with real-time tracking, transparent communication, and dedicated support.</p>
+                            <a href="about.php" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         5. HEALTHY CHOICES (Nutrition-First Products)
+         ==================================================================== -->
+    <section class="v-products-section" id="healthy-choices-section" style="background:#fcfaf5; padding:64px 0; border-top:1px solid #f0eadd;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:var(--v-forest);">NUTRITION FIRST</span>
+                    <h2 class="v-section-title" style="color:var(--v-forest-deep); font-family:var(--v-font-serif);">HEALTHY CHOICES</h2>
+                    <p class="v-section-subtitle text-left">Nourishing selections to support your everyday wellness journey.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:var(--v-forest); font-weight:600;">View All Healthy Choices &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="healthy-choices-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         6. DID YOU KNOW? (Educational Food Wisdom)
+         ==================================================================== -->
+    <section class="v-know-section v-know-premium">
+        <div class="v-dk-leaf v-dk-leaf-l"></div>
+        <div class="v-dk-leaf v-dk-leaf-r"></div>
+        <div class="v-dk-leaf v-dk-leaf-br"></div>
+
+        <div class="container position-relative" style="z-index:2;">
+            <div class="v-section-header">
+                <span class="v-eyebrow v-dk-badge"><i class="fa-solid fa-seedling"></i> TRADITION &bull; NUTRITION &bull; HERITAGE</span>
+                <h2 class="v-section-title v-dk-heading">DID YOU KNOW?</h2>
+                <p class="v-section-subtitle">Factual insights on the health and nutritional heritage of Indian staples.</p>
+                <div class="v-dk-divider"><span></span><i class="fa-solid fa-leaf"></i><span></span></div>
+            </div>
+
+            <div class="v-dk-grid">
+                <!-- Card 1: Millets -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/millets.jpg" alt="Millets" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-wheat-awn"></i></div>
+                    </div>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">ANCIENT GRAINS</span>
+                        <h4 class="v-dk-title">Millets</h4>
+                        <p class="v-dk-desc">Climate-resilient grains cultivated in India for millennia. Naturally gluten-free with low glycemic index and high dietary fibre.</p>
+                        <a href="millets.php" class="v-dk-cta">Explore Millets <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Cold-Pressed Oils -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/oil.jpg" alt="Cold-Pressed Oils" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-droplet"></i></div>
+                    </div>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">UNREFINED OILS</span>
+                        <h4 class="v-dk-title">Cold-Pressed Oils</h4>
+                        <p class="v-dk-desc">Extracted without artificial heat or chemical hexanes, preserving natural polyphenols, Vitamin E, and original aroma.</p>
+                        <a href="oils.php" class="v-dk-cta">Explore Oils <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 3: Whole Spices (center highlight) -->
+                <div class="v-dk-card v-dk-card-center">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/spice.jpg" alt="Whole Spices" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                    </div>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">AROMATIC PURITY</span>
+                        <h4 class="v-dk-title">Whole Spices</h4>
+                        <p class="v-dk-desc">Unadulterated whole spices retain their natural volatile essential oils that factory-pulverized spice blends lose.</p>
+                        <a href="spices.php" class="v-dk-cta">Explore Spices <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 4: Nuts & Dry Fruits -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts and Dry Fruits" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-apple-whole"></i></div>
+                    </div>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">CLEAN ENERGY</span>
+                        <h4 class="v-dk-title">Nuts &amp; Dry Fruits</h4>
+                        <p class="v-dk-desc">Hand-sorted whole almonds, cashews, and sun-dried figs provide clean plant protein, heart-healthy fats, and essential minerals.</p>
+                        <a href="nuts.php" class="v-dk-cta">Explore Nuts <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Card 5: Palm Jaggery -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="images/palm-jaggery.jpg" alt="Palm Jaggery" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-tree"></i></div>
+                    </div>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">HERITAGE SWEETENER</span>
+                        <h4 class="v-dk-title">Palm Jaggery</h4>
+                        <p class="v-dk-desc">Made from traditional palm sap. An unrefined alternative to white refined sugar, rich in iron, magnesium, and potassium.</p>
+                        <a href="palm-jaggery.php" class="v-dk-cta">Explore Jaggery <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         7. TRADITIONAL FOODS (Products)
+         ==================================================================== -->
+    <section class="v-products-section" id="traditional-foods-section" style="background:#f9f5ed; padding:64px 0; border-top:1px solid #e8e2d2;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:#8b5a2b;">HERITAGE TASTE</span>
+                    <h2 class="v-section-title" style="color:#5c3a21; font-family:var(--v-font-serif);">TRADITIONAL FOODS</h2>
+                    <p class="v-section-subtitle text-left">Authentic flavors rooted in generations of culinary wisdom.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:#8b5a2b; font-weight:600;">View All Traditional Foods &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="traditional-foods-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         8. FROM FARM TO PACK & ARTISANAL OIL STORY (Process & Craft)
+         ==================================================================== -->
+    <div class="container my-5">
+        <section class="v-farm-banner">
+            <div class="v-farm-banner-content">
+                <div>
+                    <h2 style="font-family:var(--v-font-serif); margin-bottom:10px; font-size:28px;">From Farm to Pack</h2>
+                    <p style="opacity:0.85; font-size:14px; margin-bottom:0;">Pure. Natural. Sourced With Care.</p>
+                    <div style="margin-top:20px;">
+                        <a href="about.php" class="v-btn-secondary" style="border-color:#fff; color:#fff; background:transparent;">Discover Our Process &rarr;</a>
+                    </div>
+                </div>
+                <div class="v-farm-steps">
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-seedling"></i></div>
+                        <span>Source</span>
+                    </div>
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-microscope"></i></div>
+                        <span>Quality Check</span>
+                    </div>
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-gears"></i></div>
+                        <span>Processing</span>
+                    </div>
+                    <div class="v-farm-step">
+                        <div class="v-farm-icon"><i class="fa-solid fa-box-archive"></i></div>
+                        <span>Packaging</span>
+                    </div>
+                </div>
+            </div>
+            <img src="images/hero-premium.jpg" alt="Farm to Pack Process" class="v-farm-banner-img" loading="lazy">
+        </section>
+    </div>
+
+    <!-- Editorial Product Craft Section -->
+    <section class="v-story-section">
+        <div class="container">
+            <div class="v-story-grid">
+                <div class="v-story-media">
+                    <img src="images/story-cold-pressed.jpg" alt="Valluvam Traditional Cold Pressed Sesame and Groundnut Oil" loading="lazy">
+                </div>
+
+                <div class="v-story-content">
+                    <span class="v-eyebrow"><i class="fa-solid fa-droplet"></i> Artisanal Heritage</span>
+                    <h2 class="v-story-heading">FROM TRADITION TO YOUR TABLE</h2>
+                    <p class="v-story-prose">
+                        In traditional Indian kitchens, oil was never an industrial chemical solvent — it was pure, cold-extracted liquid sunshine. At Valluvam, our wood cold-pressed (Marachekku) sesame, groundnut, and coconut oils are extracted slowly at room temperature using wooden pestles.
+                    </p>
+
+                    <div class="v-story-highlights">
+                        <div class="v-story-point">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <div class="v-story-point-text">
+                                <strong>Why Customers Choose It</strong>
+                                <span>Zero chemical bleaching, zero artificial refining, natural aroma intact.</span>
+                            </div>
+                        </div>
+                        <div class="v-story-point">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <div class="v-story-point-text">
+                                <strong>Everyday Culinary Use</strong>
+                                <span>Perfect for authentic tadka, daily curries, dosas, and healthy salad dressings.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="oils.php" class="v-btn-primary">
+                        EXPLORE COLD-PRESSED OILS &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         9. GIFTING & FESTIVE COMBOS (Products)
+         ==================================================================== -->
+    <section class="v-products-section" id="gifting-section" style="background:#fffaf0; padding:64px 0; border-top:1px solid #f2ead3;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:#c0392b;">SHARE THE GOODNESS</span>
+                    <h2 class="v-section-title" style="color:#7a1f16; font-family:var(--v-font-serif);">GIFTING &amp; COMBOS</h2>
+                    <p class="v-section-subtitle text-left">Curated boxes and festive bundles for your loved ones.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="combo.php" class="v-btn-tertiary" style="color:#c0392b; font-weight:600;">View All Gifting &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="gifting-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Curated Combos Visual Cards -->
+    <section class="v-category-section" style="background:var(--v-cream); padding:50px 0;">
+        <div class="container">
+            <div class="v-section-header">
+                <span class="v-eyebrow"><i class="fa-solid fa-gift"></i> Balanced Packs</span>
+                <h2 class="v-section-title">CURATED COMBOS</h2>
+                <p class="v-section-subtitle">Carefully matched combinations designed for complete kitchen health and thoughtful gifting.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-6 col-lg-3 mb-4">
+                    <a href="combo.php" class="v-category-card">
+                        <div class="v-category-img-wrap">
+                            <img src="images/combo1.jpg" alt="Wellness Combo" class="v-category-img" loading="lazy">
+                        </div>
+                        <div class="v-category-info">
+                            <h3 class="v-category-name">Wellness Combo</h3>
+                            <p class="v-category-desc">Daily energy nuts, natural seeds, and nutrient-dense dry fruits.</p>
+                            <span class="v-category-cta">View Details &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-6 col-lg-3 mb-4">
+                    <a href="combo.php" class="v-category-card">
+                        <div class="v-category-img-wrap">
+                            <img src="images/combo2.jpg" alt="Family Essentials" class="v-category-img" loading="lazy">
+                        </div>
+                        <div class="v-category-info">
+                            <h3 class="v-category-name">Family Essentials</h3>
+                            <p class="v-category-desc">Everyday cold-pressed oils, native dal, and heritage grains.</p>
+                            <span class="v-category-cta">View Details &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-6 col-lg-3 mb-4">
+                    <a href="combo.php" class="v-category-card">
+                        <div class="v-category-img-wrap">
+                            <img src="images/combo3.jpg" alt="Traditional Foods Combo" class="v-category-img" loading="lazy">
+                        </div>
+                        <div class="v-category-info">
+                            <h3 class="v-category-name">Traditional Foods</h3>
+                            <p class="v-category-desc">Time-honored millets, palm jaggery, and unrefined wood-pressed oils.</p>
+                            <span class="v-category-cta">View Details &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-6 col-lg-3 mb-4">
+                    <a href="combo.php" class="v-category-card">
+                        <div class="v-category-img-wrap">
+                            <img src="images/combo4.jpg" alt="Festive Gifting" class="v-category-img" loading="lazy">
+                        </div>
+                        <div class="v-category-info">
+                            <h3 class="v-category-name">Festive Gifting</h3>
+                            <p class="v-category-desc">Artisanal dry fruit boxes and wellness sets packaged for celebrations.</p>
+                            <span class="v-category-cta">View Details &rarr;</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================================================================
+         10. EVERYDAY ESSENTIALS (Daily Pantry Products)
+         ==================================================================== -->
+    <section class="v-products-section" id="everyday-essentials-section" style="background:#ffffff; padding:64px 0; border-top:1px solid #eef0ec;">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+                <div class="v-section-header text-left mb-0">
+                    <span class="v-eyebrow" style="color:#4a6050;">DAILY PANTRY</span>
+                    <h2 class="v-section-title" style="color:#1a3d2b; font-family:var(--v-font-serif);">EVERYDAY ESSENTIALS</h2>
+                    <p class="v-section-subtitle text-left">Pure and unadulterated staples for your daily cooking needs.</p>
+                </div>
+                <div class="mt-3 mt-md-0">
+                    <a href="shop.php" class="v-btn-tertiary" style="color:#1a3d2b; font-weight:600;">View All Essentials &rarr;</a>
+                </div>
+            </div>
+            <div class="row" id="everyday-essentials-container">
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust Strip -->
     <section class="v-trust-strip-section">
         <div class="container">
             <div class="v-trust-grid">
@@ -273,531 +762,20 @@ include "header.php";
         </div>
     </section>
 
-    
-<!-- ====================================================================
-         5. PREMIUM PROMOTIONAL AREA (3-Column Layout)
-         ==================================================================== -->
-    <section class="v-promo-section">
-        <div class="container">
-            <div class="v-promo-grid">
-                <!-- CARD 1: PREMIUM COMBOS -->
-                <div class="v-promo-card v-promo-card-1">
-                    <div>
-                        <span class="v-promo-tag">Family Wellness</span>
-                        <h3 class="v-promo-title">PREMIUM COMBOS</h3>
-                        <p class="v-promo-desc">Curated products for complete family wellness and everyday nourishment.</p>
-                    </div>
-                    <a href="combo.php" class="v-promo-btn">
-                        EXPLORE COMBOS &rarr;
-                    </a>
-                </div>
-
-                <!-- CARD 2: SPECIAL OFFERS -->
-                <div class="v-promo-card v-promo-card-2">
-                    <div>
-                        <span class="v-promo-tag">Value Packs</span>
-                        <h3 class="v-promo-title">SPECIAL OFFERS</h3>
-                        <p class="v-promo-desc">Hand-picked seasonal discounts on essential kitchen staples.</p>
-                    </div>
-                    <a href="shop.php" class="v-promo-btn">
-                        SHOP NOW &rarr;
-                    </a>
-                </div>
-
-                <!-- CARD 3: SHOP BY GOAL -->
-                <div class="v-promo-card v-promo-card-3">
-                    <div>
-                        <span class="v-promo-tag">Personalized Nutrition</span>
-                        <h3 class="v-promo-title">SHOP BY GOAL</h3>
-                        <p class="v-promo-desc">Wellness, Kitchen Essentials, Traditional Foods, and Healthy Gifting.</p>
-                    </div>
-                    <a href="shop.php" class="v-promo-btn">
-                        FIND YOUR FIT &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         6. TRENDING NOW / TOP RATED SECTION
-         ==================================================================== -->
-    <section class="v-products-section" id="top-rated-section" style="background:var(--v-cream); display:none;">
+    <!-- Top Rated Section (Dynamic if database has rated products) -->
+    <section class="v-products-section" id="top-rated-section" style="background:var(--v-cream); display:none; padding:64px 0;">
         <div class="container">
             <div class="v-section-header">
                 <span class="v-eyebrow"><i class="fa-solid fa-fire"></i> Most Popular</span>
                 <h2 class="v-section-title">TRENDING NOW</h2>
                 <p class="v-section-subtitle">Real top-rated selections from our kitchen staples and wholesome dry fruits.</p>
             </div>
-
-            <!-- Populated via loadTopRated() in index.js -->
             <div class="row" id="top-rated-container"></div>
         </div>
     </section>
 
     <!-- ====================================================================
-         7. SPECIAL OFFERS BANNER (OFFERS YOU'LL LOVE)
-         ==================================================================== -->
-    <section class="v-promo-section" style="background:#ffffff;">
-        <div class="container">
-            <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-tag"></i> Pure Savings</span>
-                <h2 class="v-section-title">OFFERS YOU'LL LOVE</h2>
-                <p class="v-section-subtitle">Verified value on everyday essentials, cold-pressed oils, and farm staples.</p>
-            </div>
-
-            <div class="row align-items-center" style="background: linear-gradient(135deg, #133826 0%, #1e5237 100%); border-radius: var(--v-radius-xl); overflow: hidden; padding: 40px; color:#ffffff;">
-                <div class="col-lg-7">
-                    <span class="v-eyebrow" style="background: rgba(255,255,255,0.15); color:#ffffff;">Seasonal Pantry Savings</span>
-                    <h3 style="font-size: clamp(26px, 3vw, 38px); color:#ffffff; margin: 14px 0 16px;">Stock Up on Pure Indian Staples</h3>
-                    <p style="font-size: 16px; color: rgba(255,255,255,0.9); line-height: 1.6; max-width: 500px; margin-bottom: 26px;">
-                        Save more on wholesome family bundles. Multi-pack cold-pressed oils, nutritious millets, and daily cooking essentials without compromising on unrefined purity.
-                    </p>
-                    <a href="shop.php" class="v-btn-primary" style="background:#ffffff; color:#133826 !important; border-color:#ffffff;">
-                        DISCOVER ALL OFFERS &rarr;
-                    </a>
-                </div>
-                <div class="col-lg-5 text-center mt-4 mt-lg-0">
-                    <img src="images/story-cold-pressed.jpg" alt="Special Offers" class="img-fluid rounded-lg shadow-lg" style="max-height: 280px; object-fit: cover; border-radius: var(--v-radius-lg);" loading="lazy">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         8. CURATED COMBOS
-         ==================================================================== -->
-    <section class="v-category-section" style="background:var(--v-cream);">
-        <div class="container">
-            <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-gift"></i> Balanced Packs</span>
-                <h2 class="v-section-title">CURATED COMBOS</h2>
-                <p class="v-section-subtitle">Carefully matched combinations designed for complete kitchen health and thoughtful gifting.</p>
-            </div>
-
-            <div class="row">
-                <div class="col-6 col-lg-3 mb-4">
-                    <a href="combo.php" class="v-category-card">
-                        <div class="v-category-img-wrap">
-                            <img src="images/combo1.jpg" alt="Wellness Combo" class="v-category-img" loading="lazy">
-                        </div>
-                        <div class="v-category-info">
-                            <h3 class="v-category-name">Wellness Combo</h3>
-                            <p class="v-category-desc">Daily energy nuts, natural seeds, and nutrient-dense dry fruits.</p>
-                            <span class="v-category-cta">View Details &rarr;</span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-6 col-lg-3 mb-4">
-                    <a href="combo.php" class="v-category-card">
-                        <div class="v-category-img-wrap">
-                            <img src="images/combo2.jpg" alt="Family Combo" class="v-category-img" loading="lazy">
-                        </div>
-                        <div class="v-category-info">
-                            <h3 class="v-category-name">Family Essentials</h3>
-                            <p class="v-category-desc">Everyday cold-pressed oils, native dal, and heritage grains.</p>
-                            <span class="v-category-cta">View Details &rarr;</span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-6 col-lg-3 mb-4">
-                    <a href="combo.php" class="v-category-card">
-                        <div class="v-category-img-wrap">
-                            <img src="images/combo3.jpg" alt="Traditional Foods Combo" class="v-category-img" loading="lazy">
-                        </div>
-                        <div class="v-category-info">
-                            <h3 class="v-category-name">Traditional Foods</h3>
-                            <p class="v-category-desc">Time-honored millets, palm jaggery, and unrefined wood-pressed oils.</p>
-                            <span class="v-category-cta">View Details &rarr;</span>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-6 col-lg-3 mb-4">
-                    <a href="combo.php" class="v-category-card">
-                        <div class="v-category-img-wrap">
-                            <img src="images/combo4.jpg" alt="Gifting Combo" class="v-category-img" loading="lazy">
-                        </div>
-                        <div class="v-category-info">
-                            <h3 class="v-category-name">Festive Gifting</h3>
-                            <p class="v-category-desc">Artisanal dry fruit boxes and wellness sets packaged for celebrations.</p>
-                            <span class="v-category-cta">View Details &rarr;</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         9. WHY VALLUVAM (Brand Story & Pillars)
-         ==================================================================== -->
-    <section class="v-why-section">
-        <!-- Subtle background shapes -->
-        <div class="v-why-bg-leaf v-why-leaf-left"></div>
-        <div class="v-why-bg-leaf v-why-leaf-right"></div>
-        <div class="v-why-bg-wave"></div>
-
-        <div class="container relative-z">
-            <div class="v-section-header">
-                <span class="v-eyebrow v-eyebrow-pale">◆ THE VALLUVAM PROMISE</span>
-                <h2 class="v-section-title">WHY VALLUVAM?</h2>
-                <p class="v-section-subtitle">We honor the purity of traditional Indian food wisdom with modern transparency.</p>
-            </div>
-
-            <!-- Swipe carousel on mobile, grid on desktop -->
-            <div class="v-why-wrapper">
-                <div class="v-why-grid">
-                    
-                    <!-- Card 1 -->
-                    <div class="v-why-card">
-                        <div class="v-why-image-wrap">
-                            <img src="images/why-valluvam/sourced.jpg" alt="Carefully Sourced" class="v-why-img">
-                            <div class="v-why-icon-badge"><i class="fa-solid fa-seedling"></i></div>
-                        </div>
-                        <div class="v-why-content">
-                            <h3 class="v-why-title">Carefully Sourced</h3>
-                            <div class="v-why-divider"></div>
-                            <p class="v-why-desc">Sourced directly from verified farming regions known for authentic native soil and heritage harvesting.</p>
-                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
-                            <div class="v-why-decor"></div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="v-why-card">
-                        <div class="v-why-image-wrap">
-                            <img src="images/why-valluvam/traditional.jpg" alt="Traditional Products" class="v-why-img">
-                            <div class="v-why-icon-badge"><i class="fa-solid fa-bowl-rice"></i></div>
-                        </div>
-                        <div class="v-why-content">
-                            <h3 class="v-why-title">Traditional Products</h3>
-                            <div class="v-why-divider"></div>
-                            <p class="v-why-desc">Time-honored techniques including wood cold-pressing (Marachekku) and slow stone processing.</p>
-                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
-                            <div class="v-why-decor"></div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3 (Center Highlighted) -->
-                    <div class="v-why-card v-why-highlight">
-                        <div class="v-why-image-wrap">
-                            <img src="images/why-valluvam/quality.jpg" alt="Quality Focused" class="v-why-img">
-                            <div class="v-why-icon-badge"><i class="fa-solid fa-award"></i></div>
-                        </div>
-                        <div class="v-why-content">
-                            <h3 class="v-why-title">Quality Focused</h3>
-                            <div class="v-why-divider"></div>
-                            <p class="v-why-desc">Zero artificial chemicals, synthetic food colorings, or industrial preservatives in any batch.</p>
-                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
-                            <div class="v-why-decor"></div>
-                        </div>
-                    </div>
-
-                    <!-- Card 4 -->
-                    <div class="v-why-card">
-                        <div class="v-why-image-wrap">
-                            <img src="images/why-valluvam/packaging.jpg" alt="Thoughtful Packaging" class="v-why-img">
-                            <div class="v-why-icon-badge"><i class="fa-solid fa-box-open"></i></div>
-                        </div>
-                        <div class="v-why-content">
-                            <h3 class="v-why-title">Thoughtful Packaging</h3>
-                            <div class="v-why-divider"></div>
-                            <p class="v-why-desc">Hygienic, aroma-preserving food-grade packaging that protects vital nutrients to your door.</p>
-                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
-                            <div class="v-why-decor"></div>
-                        </div>
-                    </div>
-
-                    <!-- Card 5 -->
-                    <div class="v-why-card">
-                        <div class="v-why-image-wrap">
-                            <img src="images/why-valluvam/customer.jpg" alt="Customer First" class="v-why-img">
-                            <div class="v-why-icon-badge"><i class="fa-solid fa-heart"></i></div>
-                        </div>
-                        <div class="v-why-content">
-                            <h3 class="v-why-title">Customer First</h3>
-                            <div class="v-why-divider"></div>
-                            <p class="v-why-desc">Pan-India delivery with real-time tracking, transparent communication, and dedicated support.</p>
-                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
-                            <div class="v-why-decor"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- ====================================================================
-         HEALTHY CHOICES
-         ==================================================================== -->
-    <section class="v-products-section" id="healthy-choices-section" style="background:#fcfaf5; padding:60px 0; border-top:1px solid #f0eadd;">
-        <div class="container">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
-                <div class="v-section-header text-left mb-0">
-                    <span class="v-eyebrow" style="color:var(--v-forest);">NUTRITION FIRST</span>
-                    <h2 class="v-section-title" style="color:var(--v-forest-deep); font-family:var(--v-font-serif);">HEALTHY CHOICES</h2>
-                    <p class="v-section-subtitle text-left">Nourishing selections to support your everyday wellness journey.</p>
-                </div>
-                <div class="mt-3 mt-md-0">
-                    <a href="shop.php" class="v-btn-tertiary" style="color:var(--v-forest); font-weight:600;">View All Healthy Choices &rarr;</a>
-                </div>
-            </div>
-            <div class="row" id="healthy-choices-container">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-success" role="status"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         TRADITIONAL FOODS
-         ==================================================================== -->
-    <section class="v-products-section" id="traditional-foods-section" style="background:#f9f5ed; padding:60px 0; border-top:1px solid #e8e2d2;">
-        <div class="container">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
-                <div class="v-section-header text-left mb-0">
-                    <span class="v-eyebrow" style="color:#8b5a2b;">HERITAGE TASTE</span>
-                    <h2 class="v-section-title" style="color:#5c3a21; font-family:var(--v-font-serif);">TRADITIONAL FOODS</h2>
-                    <p class="v-section-subtitle text-left">Authentic flavors rooted in generations of culinary wisdom.</p>
-                </div>
-                <div class="mt-3 mt-md-0">
-                    <a href="shop.php" class="v-btn-tertiary" style="color:#8b5a2b; font-weight:600;">View All Traditional Foods &rarr;</a>
-                </div>
-            </div>
-            <div class="row" id="traditional-foods-container">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-success" role="status"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-        <!-- ====================================================================
-         10. FROM FARM TO PACK (Redesigned Banner)
-         ==================================================================== -->
-    <div class="container">
-        <section class="v-farm-banner">
-            <div class="v-farm-banner-content">
-                <div>
-                    <h2 style="font-family:var(--v-font-serif); margin-bottom:10px; font-size:28px;">From Farm to Pack</h2>
-                    <p style="opacity:0.8; font-size:14px; margin-bottom:0;">Pure. Natural. With Care.</p>
-                    <div style="margin-top:20px;">
-                        <a href="#" class="v-btn-secondary" style="border-color:#fff; color:#fff; background:transparent;">Discover Our Process &rarr;</a>
-                    </div>
-                </div>
-                <div class="v-farm-steps">
-                    <div class="v-farm-step">
-                        <div class="v-farm-icon"><i class="fa-solid fa-seedling"></i></div>
-                        <span>Source</span>
-                    </div>
-                    <div class="v-farm-step">
-                        <div class="v-farm-icon"><i class="fa-solid fa-microscope"></i></div>
-                        <span>Quality Check</span>
-                    </div>
-                    <div class="v-farm-step">
-                        <div class="v-farm-icon"><i class="fa-solid fa-gears"></i></div>
-                        <span>Processing</span>
-                    </div>
-                    <div class="v-farm-step">
-                        <div class="v-farm-icon"><i class="fa-solid fa-box-archive"></i></div>
-                        <span>Packaging</span>
-                    </div>
-                </div>
-            </div>
-            <img src="images/hero-premium.jpg" alt="Farm to Pack" class="v-farm-banner-img">
-        </section>
-    </div>
-
-<!-- ====================================================================
-         11. FEATURED PRODUCT STORY (Editorial Split Section)
-         ==================================================================== -->
-    <section class="v-story-section">
-        <div class="container">
-            <div class="v-story-grid">
-                <!-- Left: Editorial Product Photography -->
-                <div class="v-story-media">
-                    <img src="images/story-cold-pressed.jpg" alt="Valluvam Traditional Cold Pressed Sesame and Groundnut Oil" loading="lazy">
-                </div>
-
-                <!-- Right: Story Narrative -->
-                <div class="v-story-content">
-                    <span class="v-eyebrow"><i class="fa-solid fa-droplet"></i> Artisanal Heritage</span>
-                    <h2 class="v-story-heading">FROM TRADITION TO YOUR TABLE</h2>
-                    <p class="v-story-prose">
-                        In traditional Indian kitchens, oil was never an industrial chemical solvent — it was pure, cold-extracted liquid sunshine. At Valluvam, our wood cold-pressed (Marachekku) sesame, groundnut, and coconut oils are extracted slowly at room temperature using wooden pestles.
-                    </p>
-
-                    <div class="v-story-highlights">
-                        <div class="v-story-point">
-                            <i class="fa-solid fa-check-circle"></i>
-                            <div class="v-story-point-text">
-                                <strong>Why Customers Choose It</strong>
-                                <span>Zero chemical bleaching, zero artificial refining, natural aroma intact.</span>
-                            </div>
-                        </div>
-                        <div class="v-story-point">
-                            <i class="fa-solid fa-check-circle"></i>
-                            <div class="v-story-point-text">
-                                <strong>Everyday Culinary Use</strong>
-                                <span>Perfect for authentic tadka, daily curries, dosas, and healthy salad dressings.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="oils.php" class="v-btn-primary">
-                        EXPLORE COLD-PRESSED OILS &rarr;
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         12. DID YOU KNOW? (Premium Redesign)
-         ==================================================================== -->
-    <section class="v-know-section v-know-premium">
-        <!-- Botanical decorations -->
-        <div class="v-dk-leaf v-dk-leaf-l"></div>
-        <div class="v-dk-leaf v-dk-leaf-r"></div>
-        <div class="v-dk-leaf v-dk-leaf-br"></div>
-
-        <div class="container position-relative" style="z-index:2;">
-            <div class="v-section-header">
-                <span class="v-eyebrow v-dk-badge"><i class="fa-solid fa-seedling"></i> TRADITION &bull; NUTRITION &bull; HERITAGE</span>
-                <h2 class="v-section-title v-dk-heading">DID YOU KNOW?</h2>
-                <p class="v-section-subtitle">Factual insights on the health and nutritional heritage of Indian staples.</p>
-                <div class="v-dk-divider"><span></span><i class="fa-solid fa-leaf"></i><span></span></div>
-            </div>
-
-            <div class="v-dk-grid">
-
-                <!-- Card 1: Millets -->
-                <div class="v-dk-card">
-                    <div class="v-dk-img-wrap">
-                        <img src="assets/thumbnail/millets.jpg" alt="Millets" class="v-dk-img" loading="lazy">
-                        <div class="v-dk-icon-float"><i class="fa-solid fa-wheat-awn"></i></div>
-                    </div>
-                    <div class="v-dk-body">
-                        <span class="v-dk-tag">ANCIENT GRAINS</span>
-                        <h4 class="v-dk-title">Millets</h4>
-                        <p class="v-dk-desc">Climate-resilient grains cultivated in India for millennia. Naturally gluten-free with low glycemic index and high dietary fibre.</p>
-                        <a href="millets.php" class="v-dk-cta">Explore Millets <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-                <!-- Card 2: Cold-Pressed Oils -->
-                <div class="v-dk-card">
-                    <div class="v-dk-img-wrap">
-                        <img src="assets/thumbnail/oil.jpg" alt="Cold-Pressed Oils" class="v-dk-img" loading="lazy">
-                        <div class="v-dk-icon-float"><i class="fa-solid fa-droplet"></i></div>
-                    </div>
-                    <div class="v-dk-body">
-                        <span class="v-dk-tag">UNREFINED OILS</span>
-                        <h4 class="v-dk-title">Cold-Pressed Oils</h4>
-                        <p class="v-dk-desc">Extracted without artificial heat or chemical hexanes, preserving natural polyphenols, Vitamin E, and original aroma.</p>
-                        <a href="oils.php" class="v-dk-cta">Explore Oils <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-                <!-- Card 3: Whole Spices (centre) -->
-                <div class="v-dk-card v-dk-card-center">
-                    <div class="v-dk-img-wrap">
-                        <img src="assets/thumbnail/spice.jpg" alt="Whole Spices" class="v-dk-img" loading="lazy">
-                        <div class="v-dk-icon-float"><i class="fa-solid fa-fire-flame-curved"></i></div>
-                    </div>
-                    <div class="v-dk-body">
-                        <span class="v-dk-tag">AROMATIC PURITY</span>
-                        <h4 class="v-dk-title">Whole Spices</h4>
-                        <p class="v-dk-desc">Unadulterated whole spices retain their natural volatile essential oils that factory-pulverized spice blends lose.</p>
-                        <a href="spices.php" class="v-dk-cta">Explore Spices <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-                <!-- Card 4: Nuts & Dry Fruits -->
-                <div class="v-dk-card">
-                    <div class="v-dk-img-wrap">
-                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts and Dry Fruits" class="v-dk-img" loading="lazy">
-                        <div class="v-dk-icon-float"><i class="fa-solid fa-apple-whole"></i></div>
-                    </div>
-                    <div class="v-dk-body">
-                        <span class="v-dk-tag">CLEAN ENERGY</span>
-                        <h4 class="v-dk-title">Nuts &amp; Dry Fruits</h4>
-                        <p class="v-dk-desc">Hand-sorted whole almonds, cashews, and sun-dried figs provide clean plant protein, heart-healthy fats, and essential minerals.</p>
-                        <a href="nuts.php" class="v-dk-cta">Explore Nuts <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-                <!-- Card 5: Palm Jaggery -->
-                <div class="v-dk-card">
-                    <div class="v-dk-img-wrap">
-                        <img src="images/palm-jaggery.jpg" alt="Palm Jaggery" class="v-dk-img" loading="lazy">
-                        <div class="v-dk-icon-float"><i class="fa-solid fa-tree"></i></div>
-                    </div>
-                    <div class="v-dk-body">
-                        <span class="v-dk-tag">HERITAGE SWEETENER</span>
-                        <h4 class="v-dk-title">Palm Jaggery</h4>
-                        <p class="v-dk-desc">Made from traditional palm sap. An unrefined alternative to white refined sugar, rich in iron, magnesium, and potassium.</p>
-                        <a href="palm-jaggery.php" class="v-dk-cta">Explore Jaggery <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-    <!-- ====================================================================
-         GIFTING
-         ==================================================================== -->
-    <section class="v-products-section" id="gifting-section" style="background:#fffaf0; padding:60px 0; border-top:1px solid #f2ead3;">
-        <div class="container">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
-                <div class="v-section-header text-left mb-0">
-                    <span class="v-eyebrow" style="color:#c0392b;">SHARE THE GOODNESS</span>
-                    <h2 class="v-section-title" style="color:#7a1f16; font-family:var(--v-font-serif);">GIFTING</h2>
-                    <p class="v-section-subtitle text-left">Curated boxes and festive bundles for your loved ones.</p>
-                </div>
-                <div class="mt-3 mt-md-0">
-                    <a href="combo.php" class="v-btn-tertiary" style="color:#c0392b; font-weight:600;">View All Gifting &rarr;</a>
-                </div>
-            </div>
-            <div class="row" id="gifting-container">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-success" role="status"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ====================================================================
-         EVERYDAY ESSENTIALS
-         ==================================================================== -->
-    <section class="v-products-section" id="everyday-essentials-section" style="background:#ffffff; padding:60px 0; border-top:1px solid #eef0ec;">
-        <div class="container">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
-                <div class="v-section-header text-left mb-0">
-                    <span class="v-eyebrow" style="color:#4a6050;">DAILY PANTRY</span>
-                    <h2 class="v-section-title" style="color:#1a3d2b; font-family:var(--v-font-serif);">EVERYDAY ESSENTIALS</h2>
-                    <p class="v-section-subtitle text-left">Pure and unadulterated staples for your daily cooking needs.</p>
-                </div>
-                <div class="mt-3 mt-md-0">
-                    <a href="shop.php" class="v-btn-tertiary" style="color:#1a3d2b; font-weight:600;">View All Essentials &rarr;</a>
-                </div>
-            </div>
-            <div class="row" id="everyday-essentials-container">
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-success" role="status"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- ====================================================================
-         14. CUSTOMER REVIEWS (Real Testimonials)
+         11. CUSTOMER REVIEWS (Real Testimonials)
          ==================================================================== -->
     <section class="v-reviews-section">
         <div class="container">
@@ -876,7 +854,7 @@ include "header.php";
     </section>
 
     <!-- ====================================================================
-         15. B2B / WHOLESALE SUPPLY
+         12. B2B / WHOLESALE & PRIVATE LABEL
          ==================================================================== -->
     <section class="v-b2b-section">
         <div class="container">
@@ -918,9 +896,7 @@ include "header.php";
         </div>
     </section>
 
-    <!-- ====================================================================
-         16. PRIVATE LABEL (BUILD YOUR OWN BRAND)
-         ==================================================================== -->
+    <!-- Private Label White-Label Manufacturing -->
     <section class="v-privatelabel-section">
         <div class="container">
             <div class="v-privatelabel-grid">
@@ -963,7 +939,7 @@ include "header.php";
     </section>
 
     <!-- ====================================================================
-         17. FROM OUR KITCHEN (Knowledge / Recipes)
+         13. FROM OUR KITCHEN (Knowledge / Recipes)
          ==================================================================== -->
     <section class="v-blog-section">
         <div class="container">
@@ -1014,7 +990,7 @@ include "header.php";
     </section>
 
     <!-- ====================================================================
-         18. NEWSLETTER
+         14. NEWSLETTER
          ==================================================================== -->
     <section class="v-newsletter-section">
         <div class="container">
@@ -1034,7 +1010,7 @@ include "header.php";
     </section>
 
     <!-- ====================================================================
-         19. FINAL BANNER CTA
+         15. FINAL BANNER CTA
          ==================================================================== -->
     <section class="v-final-cta-section">
         <img src="images/cta-pantry.jpg" alt="Valluvam Natural Food Pantry" class="v-final-cta-bg" loading="lazy">
@@ -1052,11 +1028,6 @@ include "header.php";
             </div>
         </div>
     </section>
-
-    <!-- ====================================================================
-         20. FOOTER INCLUSION
-         ==================================================================== -->
-    <?php include "footer.php"; ?>
 
     <!-- Loader & Scripts -->
     <div id="ftco-loader" class="show fullscreen" style="display:none !important;">
@@ -1078,6 +1049,7 @@ include "header.php";
     <script src="js/main.js"></script>
     <script src="assets/js/index/index.js?v=<?php echo @filemtime(__DIR__ . "/assets/js/index/index.js"); ?>"></script>
 
-</body>
-
-</html>
+    <!-- ====================================================================
+         16. FOOTER INCLUSION
+         ==================================================================== -->
+    <?php include "footer.php"; ?>

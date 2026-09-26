@@ -1260,8 +1260,4 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
   <!-- Removed duplicate jQuery 3.2.1.slim - using jQuery 3.6.0 from above -->
   <!-- FIX: removed duplicate CDN popper.js + bootstrap 4.0 here; every page already loads js/popper.min.js + js/bootstrap.min.js. Two Bootstrap copies made menus/dropdowns toggle twice (open then close = flashing). -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-</body>
-
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

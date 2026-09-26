@@ -1,284 +1,363 @@
-<?php $actionpage = basename($_SERVER['PHP_SELF'], ".php");
-include 'header.php' ?>
-<!DOCTYPE html>
-<html lang="en">
+<?php 
+$actionpage = basename($_SERVER['PHP_SELF'], ".php");
+include 'header.php';
+?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist | Valluvam</title>
-    <meta name="description" content="View and manage the Valluvam products you've saved to your wishlist.">
-    <meta name="keywords" content="nuts, dry fruits, cold pressed oils, spices online, millets delivery, farm fresh groceries">
-    <link rel="canonical" href="https://valluvamproducts.com/wishlist.php">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="index, follow">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="My Wishlist | Valluvam">
-    <meta property="og:description" content="View and manage the Valluvam products you've saved to your wishlist.">
-    <meta property="og:url" content="https://valluvamproducts.com/wishlist.php">
-    <meta property="og:image" content="/images/logo.png">
-    <meta property="og:site_name" content="Valluvam">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="My Wishlist | Valluvam">
-    <meta name="twitter:description" content="View and manage the Valluvam products you've saved to your wishlist.">
-    <meta name="twitter:image" content="/images/logo.png">
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "Store",
-            "name": "Valluvam",
-            "description": "Nuts, dry fruits, cold-pressed oils, spices & millets delivered fresh to your door.",
-            "url": "https://www.valluvamproducts.com/",
-            "logo": "https://www.valluvamproducts.com/assets/images/logo.png",
-            "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "No 17, Kovalan street, 2nd main road, Uthandi Kanathur",
-                "addressLocality": "Chennai",
-                "postalCode": "600119",
-                "addressCountry": "IN"
-            },
-            "contactPoint": {
-                "@type": "ContactPoint",
-                "telephone": "+91-8925969888",
-                "contactType": "Customer Support"
-            },
-            "sameAs": [
-                "https://www.facebook.com/valluvamproducts/",
-                "https://www.instagram.com/valluvam_agro_products/"
-            ],
-            "openingHours": "Mo-Su 10:00-07:30"
+    <style>
+        .v-wishlist-container {
+            max-width: 1100px;
+            margin: 40px auto 60px;
+            padding: 0 15px;
         }
-    </script>
 
-</head>
+        .v-wishlist-card {
+            background: #ffffff;
+            border-radius: var(--v-radius-lg, 16px);
+            border: 1px solid #eae5d9;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
 
+        .v-wishlist-header {
+            padding: 24px 30px;
+            border-bottom: 1px solid #ede7dc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #faf7f2;
+        }
 
-<head>
-	<style>
-		/* wishlist thumbnails */
-		.image-prod .img {
-			width: 120px;
-			height: 80px;
-			background-size: cover;
-			background-position: center;
-			border-radius: 4px;
-		}
-	</style>
-</head>
+        .v-wishlist-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #133826;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--v-font-serif, serif);
+        }
 
-<body class="goto-here">
-	<div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
-		<div class="container">
-			<div class="row no-gutters slider-text align-items-center justify-content-center">
-				<div class="col-md-9 ftco-animate text-center">
-					<p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Wishlist</span></p>
-					<h1 class="mb-0 bread">Wishlist</h1>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- wishlist.php -->
-	<div class="container mt-4">
-		<h2>My Wishlist</h2>
-		<div id="loginNotice" style="display:none;" class="alert alert-warning">Please login to view your wishlist.</div>
+        .v-wishlist-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-		<div class="cart-list">
-			<table class="table">
-				<thead class="thead-primary" style="background:#28a745;color:#fff;"> <!-- green header -->
-					<tr class="text-center">
-						<th>&nbsp;</th>
-						<th>Product</th>
-						<th>&nbsp;</th>
-						<th>Price</th>
-						<th>Quantity</th>
-						<th>Total</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody id="wishlistTable"></tbody>
-				<tfoot>
-					<tr>
-						<td colspan="5" class="text-right"><strong>Grand Total:</strong></td>
-						<td id="grandTotal">₹0.00</td>
-						<td></td>
-					</tr>
-				</tfoot>
-			</table>
-		</div>
-	</div>
+        .v-wishlist-table th {
+            background: #f4efe6;
+            color: #133826;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e5dec9;
+        }
 
+        .v-wishlist-table td {
+            padding: 18px 20px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f2ece0;
+            font-size: 14px;
+        }
 
-	<script>
-		$(document).ready(function() {
-			function loadWishlist() {
-				$.ajax({
-					url: 'assets/db_query/wishlist/wishlist_query.php?action=get',
-					type: 'GET',
-					dataType: 'json',
-					success: function(res) {
-						if (res.status === 'not_logged_in') {
-							$('#loginNotice').show();
-							$('#wishlistTable').html('');
-							return;
-						}
-						if (res.status !== 'success') {
-							alert(res.message || 'Error loading wishlist');
-							return;
-						}
+        .v-wishlist-table tr:last-child td {
+            border-bottom: none;
+        }
 
-						const rows = res.wishlist.map(item => {
-							const price = parseFloat(item.dis_price || 0);
-							const qty = parseInt(item.quantity || 1);
-							const total = (price * qty).toFixed(2);
+        .v-wishlist-img-frame {
+            width: 72px;
+            height: 72px;
+            background: #fbf9f4;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #eae5d9;
+        }
 
-							return `
-                        <tr class="text-center" data-wishlist-id="${item.id}">
-                            <td class="product-remove">
-                                <a href="#" class="remove-wishlist" data-id="${item.id}">
-                                    <span class="ion-ios-close"></span>
-                                </a>
-                            </td>
-                            <td class="image-prod">
-                                <div class="img" style="background-image:url(${escapeHtml(item.product_image)});"></div>
-                            </td>
-                            <td class="product-name">
-                                <h3>${escapeHtml(item.product_name)}</h3>
-                                <p>${escapeHtml(item.category || '')}</p>
-                            </td>
-                            <td class="price">${price.toFixed(2)}</td>
-                            <td class="quantity">
-                                <div class="input-group mb-3">
-                                    <input type="text" class="quantity form-control input-number" value="${qty}" min="1" max="100">
-                                </div>
-                            </td>
-                            <td class="total">${total}</td>
-                            <td>
-                                <button class="btn btn-sm  add-to-cart" data-id="${item.product_id}" style="background-color:82ae46">
-                                    Add to Cart
-                                </button>
+        .v-wishlist-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            padding: 4px;
+        }
+
+        .v-wishlist-name {
+            font-weight: 700;
+            color: #1a2420;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+
+        .v-wishlist-name:hover {
+            color: #133826;
+            text-decoration: none;
+        }
+
+        .v-wishlist-cat {
+            font-size: 12px;
+            color: #8c8273;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+        .v-wishlist-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: #133826;
+        }
+
+        .v-wishlist-remove {
+            color: #c0392b;
+            background: rgba(192, 57, 43, 0.08);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .v-wishlist-remove:hover {
+            background: #c0392b;
+            color: #ffffff;
+        }
+
+        .v-wishlist-empty {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .v-wishlist-empty i {
+            font-size: 48px;
+            color: #d8d0c2;
+            margin-bottom: 16px;
+        }
+
+        .v-wishlist-empty h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #133826;
+            margin-bottom: 8px;
+        }
+
+        .v-wishlist-empty p {
+            font-size: 14px;
+            color: #726859;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 767.98px) {
+            .v-wishlist-table thead {
+                display: none;
+            }
+            .v-wishlist-table, .v-wishlist-table tbody, .v-wishlist-table tr, .v-wishlist-table td {
+                display: block;
+                width: 100%;
+            }
+            .v-wishlist-table tr {
+                padding: 16px;
+                border-bottom: 1px solid #f2ece0;
+                position: relative;
+            }
+            .v-wishlist-table td {
+                padding: 6px 0;
+                border-bottom: none;
+                text-align: left !important;
+            }
+            .v-wishlist-remove-td {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+                width: auto !important;
+            }
+        }
+    </style>
+
+    <!-- Page Breadcrumbs Banner -->
+    <div class="hero-wrap hero-bread" style="background-image: url('images/bg-main.jpg');">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.php">Home</a></span> <span>Wishlist</span></p>
+                    <h1 class="mb-0 bread">My Wishlist</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Container -->
+    <div class="container v-wishlist-container">
+        <div id="loginNotice" style="display:none;" class="alert alert-warning p-4 rounded-lg mb-4 text-center">
+            <i class="fa-solid fa-lock mr-2"></i>
+            Please <a href="javascript:void(0)" onclick="openForm()" class="font-weight-bold text-success" style="text-decoration:underline;">login to your account</a> to view and sync your saved wishlist items.
+        </div>
+
+        <div class="v-wishlist-card">
+            <div class="v-wishlist-header">
+                <h2><i class="fa-solid fa-heart" style="color:#c59a45;"></i> Saved Items</h2>
+                <a href="shop.php" class="v-btn-tertiary" style="color:#133826; font-size:13px; font-weight:600;">+ Explore More Products</a>
+            </div>
+
+            <div id="wishlistContent">
+                <table class="v-wishlist-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">&nbsp;</th>
+                            <th style="width: 90px;">Product</th>
+                            <th>Details</th>
+                            <th>Unit Price</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wishlistTable">
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="spinner-border text-success" role="status"></div>
                             </td>
                         </tr>
-                    `;
-						}).join('');
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-						$('#wishlistTable').html(rows);
-					},
-					error: function() {
-						alert('AJAX error while loading wishlist');
-					}
-				});
-			}
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/main.js"></script>
 
-			// Remove item from wishlist
-			$(document).on('click', '.remove-wishlist', function(e) {
-				e.preventDefault();
-				const wishId = $(this).data('id');
-				if (!confirm('Remove this item from your wishlist?')) return;
+    <script>
+        $(document).ready(function() {
+            function loadWishlist() {
+                $.ajax({
+                    url: 'assets/db_query/wishlist/wishlist_query.php?action=get',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.status === 'not_logged_in') {
+                            $('#loginNotice').show();
+                            $('#wishlistContent').html(`
+                                <div class="v-wishlist-empty">
+                                    <i class="fa-solid fa-user-lock"></i>
+                                    <h4>Sign In Required</h4>
+                                    <p>Login to see your saved favourites across all your devices.</p>
+                                    <button type="button" class="v-btn-primary" onclick="openForm()">Sign In Now</button>
+                                </div>
+                            `);
+                            return;
+                        }
 
-				$.ajax({
-					url: 'assets/db_query/wishlist/wishlist_query.php?action=delete',
-					type: 'POST',
-					data: {
-						wishlist_id: wishId
-					},
-					dataType: 'json',
-					success: function(res) {
-						if (res.status === 'success') {
-							loadWishlist();
-						} else if (res.status === 'not_logged_in') {
-							alert('Please login first');
-						} else {
-							alert(res.message || 'Delete failed');
-						}
-					}
-				});
-			});
+                        if (res.status !== 'success' || !res.wishlist || !res.wishlist.length) {
+                            $('#wishlistContent').html(`
+                                <div class="v-wishlist-empty">
+                                    <i class="fa-regular fa-heart"></i>
+                                    <h4>Your wishlist is empty</h4>
+                                    <p>Explore our natural foods and click the heart icon to save favourites.</p>
+                                    <a href="shop.php" class="v-btn-primary">Browse Catalogue &rarr;</a>
+                                </div>
+                            `);
+                            return;
+                        }
 
-			// Add to cart handler removed - now handled globally in header.js to prevent duplicate execution
+                        const rows = res.wishlist.map(item => {
+                            const price = parseFloat(item.dis_price || item.price || 0);
+                            const imgUrl = item.product_image ? (item.product_image.startsWith('http') || item.product_image.startsWith('assets/') || item.product_image.startsWith('images/') ? item.product_image : 'assets/uploads/' + item.product_image) : 'images/logo.png';
+                            const detailUrl = productUrl(item.category, item.product_name);
 
-			function escapeHtml(text) {
-				if (text === null || text === undefined) return '';
-				return String(text)
-					.replace(/&/g, '&amp;')
-					.replace(/</g, '&lt;')
-					.replace(/>/g, '&gt;')
-					.replace(/"/g, '&quot;');
-			}
+                            return `
+                                <tr data-wishlist-id="${item.id}">
+                                    <td class="v-wishlist-remove-td">
+                                        <button type="button" class="v-wishlist-remove remove-wishlist" data-id="${item.id}" title="Remove from Wishlist" aria-label="Remove item">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <a href="${detailUrl}">
+                                            <div class="v-wishlist-img-frame">
+                                                <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.product_name)}" class="v-wishlist-img" loading="lazy">
+                                            </div>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="${detailUrl}" class="v-wishlist-name">${escapeHtml(item.product_name)}</a>
+                                        <p class="v-wishlist-cat">${escapeHtml(item.category || '')} ${item.quantity ? ' &bull; ' + escapeHtml(item.quantity) : ''}</p>
+                                    </td>
+                                    <td>
+                                        <span class="v-wishlist-price">&#8377;${price.toFixed(2)}</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button" class="v-btn-primary add-to-cart" data-id="${item.product_id}" style="padding: 9px 18px; font-size: 13px;">
+                                            <i class="fa-solid fa-bag-shopping"></i> Add to Cart
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
 
-			loadWishlist();
-		});
-	</script>
+                        $('#wishlistTable').html(rows);
+                    },
+                    error: function() {
+                        $('#wishlistContent').html(`
+                            <div class="v-wishlist-empty">
+                                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+                                <h4>Unable to load wishlist</h4>
+                                <p>Please refresh the page and try again.</p>
+                            </div>
+                        `);
+                    }
+                });
+            }
 
+            // Remove item from wishlist
+            $(document).on('click', '.remove-wishlist', function(e) {
+                e.preventDefault();
+                const wishId = $(this).data('id');
+                const $row = $(this).closest('tr');
 
+                $.ajax({
+                    url: 'assets/db_query/wishlist/wishlist_query.php?action=delete',
+                    type: 'POST',
+                    data: { wishlist_id: wishId },
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            $row.fadeOut(200, function() {
+                                $(this).remove();
+                                if ($('#wishlistTable tr').length === 0) {
+                                    loadWishlist();
+                                }
+                            });
+                        } else {
+                            alert(res.message || 'Could not remove item');
+                        }
+                    }
+                });
+            });
 
-	<?php include 'footer.php' ?>
+            function escapeHtml(text) {
+                if (text === null || text === undefined) return '';
+                return String(text)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
 
+            loadWishlist();
+        });
+    </script>
 
-
-	<!-- loader -->
-	<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px">
-			<circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" />
-			<circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00" />
-		</svg></div>
-
-	<!-- jQuery already loaded in header.php, removed duplicate -->
-	<script src="js/jquery.min.js"></script>
-	<script src="js/jquery-migrate-3.0.1.min.js"></script>
-	<script src="js/popper.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/jquery.easing.1.3.js"></script>
-	<script src="js/jquery.waypoints.min.js"></script>
-	<script src="js/owl.carousel.min.js"></script>
-	<script src="js/jquery.magnific-popup.min.js"></script>
-	<script src="js/aos.js"></script>
-	<script src="js/jquery.animateNumber.min.js"></script>
-	<script src="js/bootstrap-datepicker.js"></script>
-	<script src="js/scrollax.min.js"></script>
-	<!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
-	<script src="js/google-map.js"></script> -->
-	<script src="js/main.js"></script>
-	<script src="assets/js/wishlist/wishlist.js"></script>
-
-
-
-
-	<script>
-		$(document).ready(function() {
-
-			var quantitiy = 0;
-			$('.quantity-right-plus').click(function(e) {
-
-				// Stop acting like a button
-				e.preventDefault();
-				// Get the field name
-				var quantity = parseInt($('#quantity').val());
-
-				// If is not undefined
-
-				$('#quantity').val(quantity + 1);
-
-
-				// Increment
-
-			});
-
-			$('.quantity-left-minus').click(function(e) {
-				// Stop acting like a button
-				e.preventDefault();
-				// Get the field name
-				var quantity = parseInt($('#quantity').val());
-
-				// If is not undefined
-
-				// Increment
-				if (quantity > 0) {
-					$('#quantity').val(quantity - 1);
-				}
-			});
-
-		});
-	</script>
-
-</body>
-
-</html>
+    <?php include 'footer.php'; ?>

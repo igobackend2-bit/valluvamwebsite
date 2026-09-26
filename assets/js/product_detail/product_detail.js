@@ -181,6 +181,19 @@ function loadProduct(idOrSlug, pushSlug) {
                             <a href="${!inStock ? '#' : 'cart.php'}" class="pd-btn pd-btn-buy buy${!inStock ? ' pd-btn-disabled' : ''}" data-id="${p.id}" ${buyDisabledAttr} aria-label="Buy ${p.product_name} now">${!inStock ? 'Out of Stock' : '<ion-icon name="flash-outline"></ion-icon> Buy it Now'}</a>
                             <button class="pd-btn-wishlist wishlist wishlist-btn" data-product-id="${productId}" aria-label="Add ${p.product_name} to wishlist" title="Add to wishlist"><ion-icon name="heart-outline"></ion-icon></button>
                         </div>
+
+                        <!-- Pincode Delivery Estimator -->
+                        <div class="pd-pincode-box">
+                            <div class="pd-pincode-title">
+                                <ion-icon name="location-outline"></ion-icon> Delivery &amp; Pincode Availability
+                            </div>
+                            <div class="pd-pincode-form">
+                                <input type="text" id="pd-pincode-input" class="pd-pincode-input" placeholder="Enter 6-digit Pincode" maxlength="6" inputmode="numeric">
+                                <button type="button" id="pd-pincode-btn" class="pd-pincode-btn">Check</button>
+                            </div>
+                            <div id="pd-pincode-result" class="pd-pincode-result" style="display:none;"></div>
+                        </div>
+
                         <div class="pd-trust">
                             <div class="pd-trust-item"><ion-icon name="ribbon-outline"></ion-icon> Quality Products</div>
                             <div class="pd-trust-item"><ion-icon name="lock-closed-outline"></ion-icon> Secure Payment</div>
@@ -255,12 +268,81 @@ function loadProduct(idOrSlug, pushSlug) {
                 injectProductSchema(p, hasDiscount ? p.dis_price : p.price, ratingValue);
                 injectStockAndReviewStyles();
                 loadProductReviews(p.id);
+                initPincodeEstimator();
             } else {
                 $('#product-details-container').html('<p>Product not found.</p>');
             }
         }
     });
 }
+
+function initPincodeEstimator() {
+    var savedPin = localStorage.getItem('valluvam_delivery_pincode');
+    if (savedPin && /^[1-9][0-9]{5}$/.test(savedPin)) {
+        $('#pd-pincode-input').val(savedPin);
+        showPincodeDeliveryResult(savedPin);
+    }
+
+    $('#pd-pincode-btn').off('click').on('click', function () {
+        handlePincodeCheck();
+    });
+
+    $('#pd-pincode-input').off('keypress').on('keypress', function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            handlePincodeCheck();
+        }
+    });
+
+    $(document).off('click', '.pd-pincode-change-link').on('click', '.pd-pincode-change-link', function () {
+        $('#pd-pincode-result').slideUp(150);
+        $('#pd-pincode-input').val('').focus();
+    });
+}
+
+function handlePincodeCheck() {
+    var pin = $('#pd-pincode-input').val().trim();
+    if (!/^[1-9][0-9]{5}$/.test(pin)) {
+        $('#pd-pincode-result').html(`
+            <div class="pd-pincode-error">
+                <ion-icon name="alert-circle-outline"></ion-icon> <span>Please enter a valid 6-digit Indian pincode.</span>
+            </div>
+        `).slideDown(150);
+        return;
+    }
+
+    localStorage.setItem('valluvam_delivery_pincode', pin);
+    showPincodeDeliveryResult(pin);
+}
+
+function showPincodeDeliveryResult(pin) {
+    var days = '3-5 Business Days';
+    var region = 'Pan-India Delivery';
+
+    if (pin.startsWith('60') || pin.startsWith('61') || pin.startsWith('62') || pin.startsWith('63') || pin.startsWith('64')) {
+        days = '1-2 Business Days';
+        region = 'Express Tamil Nadu Delivery';
+    } else if (pin.startsWith('56') || pin.startsWith('57') || pin.startsWith('58') || pin.startsWith('50') || pin.startsWith('51') || pin.startsWith('52') || pin.startsWith('53') || pin.startsWith('67') || pin.startsWith('68') || pin.startsWith('69')) {
+        days = '2-3 Business Days';
+        region = 'South India Express Delivery';
+    } else {
+        days = '3-5 Business Days';
+        region = 'Standard Pan-India Delivery';
+    }
+
+    $('#pd-pincode-result').html(`
+        <div class="pd-pincode-success">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <div>
+                <strong>Delivery available to ${pin}</strong> (${region})
+                <br>
+                <span>Estimated arrival in <strong>${days}</strong> with real-time tracking.</span>
+                <span class="pd-pincode-change-link">Change PIN</span>
+            </div>
+        </div>
+    `).slideDown(150);
+}
+
 
 // Adds/updates a schema.org Product+Offer JSON-LD block for this page so search engines
 // can show price/availability rich results. Frontend-only: reuses data already returned

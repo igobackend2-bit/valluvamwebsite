@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    Valluvam Products â€” Shop / Product Catalogue Styles
    Cards now use .v-product-card from css/premium-valluvam.css (loaded globally
    via header.php). This file retains: category pills, grid wrapper, skeleton
@@ -207,3 +207,445 @@ ul.product-category li a:focus-visible {
     text-decoration: none;
     color: #fff;
 }
+
+/* ==========================================================================
+   E-COMMERCE FILTER SIDEBAR, TOOLBAR & MOBILE DRAWER
+   ========================================================================== */
+.v-shop-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.v-filter-sidebar {
+    width: 270px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 1px solid #eae5d9;
+    border-radius: var(--v-shop-radius);
+    padding: 22px;
+    position: sticky;
+    top: 100px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.v-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eee8db;
+    margin-bottom: 18px;
+}
+
+.v-filter-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--v-shop-green-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+}
+
+.v-filter-reset-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: #8b5a2b;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.v-filter-reset-btn:hover {
+    color: #c0392b;
+}
+
+.v-filter-group {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #f2ece0;
+}
+
+.v-filter-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.v-filter-group-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a443a;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.v-filter-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd #fbf9f4;
+}
+
+.v-filter-list::-webkit-scrollbar {
+    width: 4px;
+}
+.v-filter-list::-webkit-scrollbar-thumb {
+    background: #d8d0c2;
+    border-radius: 4px;
+}
+
+.v-filter-item {
+    margin-bottom: 8px;
+}
+
+.v-filter-item:last-child {
+    margin-bottom: 0;
+}
+
+.v-filter-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13.5px;
+    color: #4f473e;
+    cursor: pointer;
+    margin: 0;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.v-filter-label:hover {
+    background: var(--v-shop-cream);
+    color: var(--v-shop-green);
+}
+
+.v-filter-checkbox,
+.v-filter-radio {
+    accent-color: var(--v-shop-green);
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.v-filter-count {
+    font-size: 11px;
+    color: #8c8273;
+    background: #f0ece1;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* Price Inputs */
+.v-price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.v-price-input-wrap {
+    position: relative;
+    flex: 1;
+}
+
+.v-price-input-wrap span {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #7d7365;
+}
+
+.v-price-input {
+    width: 100%;
+    padding: 6px 6px 6px 20px;
+    font-size: 12.5px;
+    border: 1px solid #dcd4c5;
+    border-radius: 6px;
+    outline: none;
+    color: #2b251e;
+}
+
+.v-price-input:focus {
+    border-color: var(--v-shop-green);
+}
+
+.v-price-go-btn {
+    padding: 6px 12px;
+    background: var(--v-shop-green);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.v-price-go-btn:hover {
+    background: var(--v-shop-green-dark);
+}
+
+/* Toolbar */
+.v-shop-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.v-shop-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: #ffffff;
+    border: 1px solid #eae5d9;
+    border-radius: var(--v-shop-radius);
+    padding: 12px 18px;
+    margin-bottom: 16px;
+}
+
+.v-shop-count {
+    font-size: 14px;
+    color: #5d554a;
+}
+
+.v-shop-count strong {
+    color: var(--v-shop-green-dark);
+    font-weight: 700;
+}
+
+.v-shop-sort-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.v-shop-sort-label {
+    font-size: 13px;
+    color: #726859;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.v-shop-sort-select {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--v-shop-green-dark);
+    border: 1px solid #dcd4c5;
+    border-radius: 8px;
+    background-color: #ffffff;
+    cursor: pointer;
+    outline: none;
+}
+
+.v-shop-sort-select:focus {
+    border-color: var(--v-shop-green);
+}
+
+/* Mobile Filter Trigger Button */
+.v-mobile-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #dcd4c5;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--v-shop-green-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.v-mobile-filter-btn:hover {
+    background: var(--v-shop-cream);
+    border-color: var(--v-shop-green);
+}
+
+.v-filter-badge-count {
+    background: var(--v-shop-green);
+    color: #fff;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+/* Active Filter Chips */
+.v-active-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.v-active-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--v-shop-cream);
+    border: 1px solid #e3dccf;
+    color: var(--v-shop-green-dark);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.v-active-chip-remove {
+    background: none;
+    border: none;
+    color: #8c8273;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v-active-chip-remove:hover {
+    color: #c0392b;
+}
+
+.v-chips-clear-all {
+    font-size: 12px;
+    color: #c0392b;
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* Mobile Filter Drawer & Overlay */
+.v-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.v-drawer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.v-drawer-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 85vh;
+    background: #ffffff;
+    border-radius: 20px 20px 0 0;
+    z-index: 9999;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.v-drawer-sheet.active {
+    transform: translateY(0);
+}
+
+.v-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #ede7dc;
+}
+
+.v-drawer-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--v-shop-green-dark);
+}
+
+.v-drawer-close-btn {
+    background: #f0ece1;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #554d42;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v-drawer-body {
+    padding: 18px 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.v-drawer-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #ede7dc;
+    display: flex;
+    gap: 12px;
+    background: #faf8f3;
+}
+
+.v-drawer-apply-btn {
+    flex: 1;
+    padding: 12px;
+    background: var(--v-shop-green);
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.v-drawer-clear-btn {
+    padding: 12px 20px;
+    background: #ffffff;
+    color: #6d6455;
+    border: 1px solid #dcd4c5;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (max-width: 991.98px) {
+    .v-filter-sidebar {
+        display: none;
+    }
+}
+

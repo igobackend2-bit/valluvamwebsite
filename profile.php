@@ -557,8 +557,6 @@ include 'header.php';
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
-
 <script>
 // ── Tab Navigation ─────────────────────────────────────────────
 const tabs   = document.querySelectorAll('[data-tab]');
@@ -838,5 +836,4 @@ document.getElementById('passwordForm').addEventListener('submit', function(e) {
 loadOrders();
 loadNotifications();
 </script>
-</body>
-</html>
+<?php include 'footer.php'; ?>
