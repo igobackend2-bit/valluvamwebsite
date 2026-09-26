@@ -731,61 +731,94 @@ include "header.php";
     </section>
 
     <!-- ====================================================================
-         12. DID YOU KNOW? (Educational Cards)
+         12. DID YOU KNOW? (Premium Redesign)
          ==================================================================== -->
-    <section class="v-know-section">
-        <div class="container">
+    <section class="v-know-section v-know-premium">
+        <!-- Botanical decorations -->
+        <div class="v-dk-leaf v-dk-leaf-l"></div>
+        <div class="v-dk-leaf v-dk-leaf-r"></div>
+        <div class="v-dk-leaf v-dk-leaf-br"></div>
+
+        <div class="container position-relative" style="z-index:2;">
             <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-lightbulb"></i> Food Wisdom</span>
-                <h2 class="v-section-title">DID YOU KNOW?</h2>
+                <span class="v-eyebrow v-dk-badge"><i class="fa-solid fa-seedling"></i> TRADITION &bull; NUTRITION &bull; HERITAGE</span>
+                <h2 class="v-section-title v-dk-heading">DID YOU KNOW?</h2>
                 <p class="v-section-subtitle">Factual insights on the health and nutritional heritage of Indian staples.</p>
+                <div class="v-dk-divider"><span></span><i class="fa-solid fa-leaf"></i><span></span></div>
             </div>
 
-            <div class="v-know-grid">
-                <div class="v-know-card">
-                    <div>
-                        <span class="v-know-tag">Ancient Grains</span>
-                        <h4 class="v-know-title">Millets</h4>
-                        <p class="v-know-desc">Climate-resilient grains cultivated in India for millennia. Naturally gluten-free with low glycemic index and high dietary fibre.</p>
+            <div class="v-dk-grid">
+
+                <!-- Card 1: Millets -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/millets.jpg" alt="Millets" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-wheat-awn"></i></div>
                     </div>
-                    <a href="millets.php" class="v-know-link">Explore Millets &rarr;</a>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">ANCIENT GRAINS</span>
+                        <h4 class="v-dk-title">Millets</h4>
+                        <p class="v-dk-desc">Climate-resilient grains cultivated in India for millennia. Naturally gluten-free with low glycemic index and high dietary fibre.</p>
+                        <a href="millets.php" class="v-dk-cta">Explore Millets <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
                 </div>
 
-                <div class="v-know-card">
-                    <div>
-                        <span class="v-know-tag">Unrefined Oils</span>
-                        <h4 class="v-know-title">Cold-Pressed Oils</h4>
-                        <p class="v-know-desc">Extracted without artificial heat or chemical hexanes, preserving natural polyphenols, Vitamin E, and original aroma.</p>
+                <!-- Card 2: Cold-Pressed Oils -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/oil.jpg" alt="Cold-Pressed Oils" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-droplet"></i></div>
                     </div>
-                    <a href="oils.php" class="v-know-link">Explore Oils &rarr;</a>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">UNREFINED OILS</span>
+                        <h4 class="v-dk-title">Cold-Pressed Oils</h4>
+                        <p class="v-dk-desc">Extracted without artificial heat or chemical hexanes, preserving natural polyphenols, Vitamin E, and original aroma.</p>
+                        <a href="oils.php" class="v-dk-cta">Explore Oils <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
                 </div>
 
-                <div class="v-know-card">
-                    <div>
-                        <span class="v-know-tag">Aromatic Purity</span>
-                        <h4 class="v-know-title">Whole Spices</h4>
-                        <p class="v-know-desc">Unadulterated whole spices retain their natural volatile essential oils that factory-pulverized spice blends lose.</p>
+                <!-- Card 3: Whole Spices (centre) -->
+                <div class="v-dk-card v-dk-card-center">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/spice.jpg" alt="Whole Spices" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-fire-flame-curved"></i></div>
                     </div>
-                    <a href="spices.php" class="v-know-link">Explore Spices &rarr;</a>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">AROMATIC PURITY</span>
+                        <h4 class="v-dk-title">Whole Spices</h4>
+                        <p class="v-dk-desc">Unadulterated whole spices retain their natural volatile essential oils that factory-pulverized spice blends lose.</p>
+                        <a href="spices.php" class="v-dk-cta">Explore Spices <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
                 </div>
 
-                <div class="v-know-card">
-                    <div>
-                        <span class="v-know-tag">Clean Energy</span>
-                        <h4 class="v-know-title">Nuts &amp; Dry Fruits</h4>
-                        <p class="v-know-desc">Hand-sorted whole almonds, cashews, and sun-dried figs provide clean plant protein, heart-healthy fats, and essential minerals.</p>
+                <!-- Card 4: Nuts & Dry Fruits -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts and Dry Fruits" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-apple-whole"></i></div>
                     </div>
-                    <a href="nuts.php" class="v-know-link">Explore Nuts &rarr;</a>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">CLEAN ENERGY</span>
+                        <h4 class="v-dk-title">Nuts &amp; Dry Fruits</h4>
+                        <p class="v-dk-desc">Hand-sorted whole almonds, cashews, and sun-dried figs provide clean plant protein, heart-healthy fats, and essential minerals.</p>
+                        <a href="nuts.php" class="v-dk-cta">Explore Nuts <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
                 </div>
 
-                <div class="v-know-card">
-                    <div>
-                        <span class="v-know-tag">Heritage Sweetener</span>
-                        <h4 class="v-know-title">Palm Jaggery</h4>
-                        <p class="v-know-desc">Made from traditional palm sap. An unrefined alternative to white refined sugar, rich in iron, magnesium, and potassium.</p>
+                <!-- Card 5: Palm Jaggery -->
+                <div class="v-dk-card">
+                    <div class="v-dk-img-wrap">
+                        <img src="images/palm-jaggery.jpg" alt="Palm Jaggery" class="v-dk-img" loading="lazy">
+                        <div class="v-dk-icon-float"><i class="fa-solid fa-tree"></i></div>
                     </div>
-                    <a href="palm-jaggery.php" class="v-know-link">Explore Jaggery &rarr;</a>
+                    <div class="v-dk-body">
+                        <span class="v-dk-tag">HERITAGE SWEETENER</span>
+                        <h4 class="v-dk-title">Palm Jaggery</h4>
+                        <p class="v-dk-desc">Made from traditional palm sap. An unrefined alternative to white refined sugar, rich in iron, magnesium, and potassium.</p>
+                        <a href="palm-jaggery.php" class="v-dk-cta">Explore Jaggery <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>
