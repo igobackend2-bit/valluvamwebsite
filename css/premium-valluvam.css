@@ -1335,80 +1335,288 @@ a:hover {
 }
 
 /* ==========================================================================
-   WHY VALLUVAM
+   WHY VALLUVAM - PREMIUM BRAND STORY
    ========================================================================== */
 .v-why-section {
-  padding: 80px 0;
-  background: #ffffff;
+  position: relative;
+  padding: 100px 0;
+  background-color: #fdfbf7; /* Warm cream / ivory */
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Subtle background shapes */
+.v-why-bg-leaf {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="%23e8efe6" d="M50,0 C80,0 100,20 100,50 C100,80 80,100 50,100 C20,100 0,80 0,50 C0,20 20,0 50,0 Z" opacity="0.4"/></svg>');
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.v-why-leaf-left {
+  top: -50px;
+  left: -100px;
+  transform: rotate(-15deg);
+}
+
+.v-why-leaf-right {
+  bottom: 100px;
+  right: -120px;
+  transform: rotate(45deg);
+}
+
+.v-why-bg-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  background: radial-gradient(ellipse at center, rgba(234, 241, 233, 0.5) 0%, transparent 70%);
+  z-index: -1;
+}
+
+.relative-z {
+  position: relative;
+  z-index: 2;
+}
+
+.v-eyebrow-pale {
+  background: #eaf1e9;
+  color: var(--v-forest-deep);
+  border: 1px solid #d4e3d1;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5);
+}
+
+/* Responsive Wrapper (Swipe on Mobile) */
+.v-why-wrapper {
+  margin-top: 50px;
 }
 
 .v-why-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
+  align-items: center;
 }
 
 @media (max-width: 1199.98px) {
   .v-why-grid {
     grid-template-columns: repeat(3, 1fr);
+    row-gap: 40px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .v-why-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 767.98px) {
+  /* Mobile Swipe Carousel */
+  .v-why-wrapper {
+    margin-right: -15px; /* Bleed to edge */
+    padding-right: 15px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+  }
+  .v-why-wrapper::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
+  }
   .v-why-grid {
-    grid-template-columns: 1fr;
+    display: flex;
     gap: 16px;
+    padding-bottom: 20px;
+  }
+  .v-why-card {
+    flex: 0 0 280px;
+    scroll-snap-align: center;
   }
 }
 
+/* Premium Card Design */
 .v-why-card {
-  background: var(--v-cream);
-  border: 1px solid var(--v-border-light);
+  position: relative;
+  background: var(--v-cream-surface);
+  border: 1px solid var(--v-border);
   border-radius: var(--v-radius-lg);
-  padding: 30px 22px;
-  text-align: center;
-  transition: var(--v-trans);
+  overflow: hidden;
+  box-shadow: var(--v-shadow-sm);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.v-why-card:hover {
+.v-why-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e8e3d8;
+}
+
+.v-why-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.v-why-icon-badge {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
   background: #ffffff;
-  border-color: var(--v-forest);
-  transform: translateY(-5px);
-  box-shadow: var(--v-shadow-md);
-}
-
-.v-why-icon-box {
-  width: 60px;
-  height: 60px;
   border-radius: 50%;
-  background: #ffffff;
-  color: var(--v-forest);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  margin: 0 auto 18px;
-  box-shadow: var(--v-shadow-xs);
-  transition: var(--v-trans);
+  color: var(--v-forest);
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(19, 56, 38, 0.15);
+  border: 2px solid var(--v-cream-surface);
+  z-index: 2;
+  transition: transform 0.4s ease;
 }
 
-.v-why-card:hover .v-why-icon-box {
-  background: var(--v-forest);
-  color: #ffffff;
+.v-why-content {
+  padding: 40px 20px 30px;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .v-why-title {
-  font-size: 17px;
+  font-family: var(--v-font-serif);
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--v-ink);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.v-why-divider {
+  width: 30px;
+  height: 2px;
+  background: var(--v-leaf);
+  margin: 0 auto 16px;
+  border-radius: 1px;
 }
 
 .v-why-desc {
-  font-size: 13px;
-  color: var(--v-muted);
-  line-height: 1.5;
-  margin: 0;
+  font-size: 0.85rem;
+  color: var(--v-text);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+
+.v-why-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--v-forest);
+  text-decoration: none !important;
+  transition: color 0.3s ease;
+}
+
+.v-why-cta i {
+  transition: transform 0.3s ease;
+}
+
+.v-why-decor {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="%238fa88b" d="M100,100 L100,50 C70,50 50,70 50,100 Z" opacity="0.1"/></svg>');
+  background-size: cover;
+  pointer-events: none;
+}
+
+/* Hover Interactions */
+.v-why-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--v-shadow-lg);
+  border-color: var(--v-sage);
+}
+
+.v-why-card:hover .v-why-img {
+  transform: scale(1.08);
+}
+
+.v-why-card:hover .v-why-icon-badge {
+  transform: translateX(-50%) rotate(10deg) scale(1.1);
+  color: var(--v-leaf);
+}
+
+.v-why-card:hover .v-why-cta i {
+  transform: translateX(4px);
+}
+
+/* Highlighted Center Card */
+.v-why-highlight {
+  background: var(--v-forest-deep);
+  border-color: var(--v-forest-deep);
+  transform: scale(1.03);
+  box-shadow: var(--v-shadow-md);
+}
+
+.v-why-highlight .v-why-icon-badge {
+  background: var(--v-gold);
+  color: var(--v-forest-deep);
+  border-color: var(--v-forest-deep);
+}
+
+.v-why-highlight .v-why-title {
+  color: #ffffff;
+}
+
+.v-why-highlight .v-why-divider {
+  background: var(--v-gold-light);
+}
+
+.v-why-highlight .v-why-desc {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.v-why-highlight .v-why-cta {
+  color: var(--v-gold-light);
+}
+
+.v-why-highlight .v-why-decor {
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="%23dfbc77" d="M100,100 L100,50 C70,50 50,70 50,100 Z" opacity="0.15"/></svg>');
+}
+
+.v-why-highlight:hover {
+  transform: scale(1.05) translateY(-8px);
+  border-color: var(--v-gold-dark);
+}
+
+@media (max-width: 1199.98px) {
+  .v-why-highlight {
+    transform: none;
+  }
+  .v-why-highlight:hover {
+    transform: translateY(-8px);
+  }
 }
 
 /* ==========================================================================

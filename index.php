@@ -523,52 +523,97 @@ include "header.php";
          9. WHY VALLUVAM (Brand Story & Pillars)
          ==================================================================== -->
     <section class="v-why-section">
-        <div class="container">
+        <!-- Subtle background shapes -->
+        <div class="v-why-bg-leaf v-why-leaf-left"></div>
+        <div class="v-why-bg-leaf v-why-leaf-right"></div>
+        <div class="v-why-bg-wave"></div>
+
+        <div class="container relative-z">
             <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-gem"></i> The Valluvam Promise</span>
+                <span class="v-eyebrow v-eyebrow-pale">◆ THE VALLUVAM PROMISE</span>
                 <h2 class="v-section-title">WHY VALLUVAM?</h2>
                 <p class="v-section-subtitle">We honor the purity of traditional Indian food wisdom with modern transparency.</p>
             </div>
 
-            <div class="v-why-grid">
-                <div class="v-why-card">
-                    <div class="v-why-icon-box">
-                        <i class="fa-solid fa-map-location-dot"></i>
+            <!-- Swipe carousel on mobile, grid on desktop -->
+            <div class="v-why-wrapper">
+                <div class="v-why-grid">
+                    
+                    <!-- Card 1 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/sourced.jpg" alt="Carefully Sourced" class="v-why-img">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-seedling"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Carefully Sourced</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Sourced directly from verified farming regions known for authentic native soil and heritage harvesting.</p>
+                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
                     </div>
-                    <h3 class="v-why-title">Carefully Sourced</h3>
-                    <p class="v-why-desc">Sourced directly from verified farming regions known for authentic native soil and heritage harvesting.</p>
-                </div>
 
-                <div class="v-why-card">
-                    <div class="v-why-icon-box">
-                        <i class="fa-solid fa-bowl-rice"></i>
+                    <!-- Card 2 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/traditional.jpg" alt="Traditional Products" class="v-why-img">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-bowl-rice"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Traditional Products</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Time-honored techniques including wood cold-pressing (Marachekku) and slow stone processing.</p>
+                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
                     </div>
-                    <h3 class="v-why-title">Traditional Products</h3>
-                    <p class="v-why-desc">Time-honored techniques including wood cold-pressing (Marachekku) and slow stone processing.</p>
-                </div>
 
-                <div class="v-why-card">
-                    <div class="v-why-icon-box">
-                        <i class="fa-solid fa-circle-check"></i>
+                    <!-- Card 3 (Center Highlighted) -->
+                    <div class="v-why-card v-why-highlight">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/quality.jpg" alt="Quality Focused" class="v-why-img">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-award"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Quality Focused</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Zero artificial chemicals, synthetic food colorings, or industrial preservatives in any batch.</p>
+                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
                     </div>
-                    <h3 class="v-why-title">Quality Focused</h3>
-                    <p class="v-why-desc">Zero artificial chemicals, synthetic food colorings, or industrial preservatives in any batch.</p>
-                </div>
 
-                <div class="v-why-card">
-                    <div class="v-why-icon-box">
-                        <i class="fa-solid fa-box-open"></i>
+                    <!-- Card 4 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/packaging.jpg" alt="Thoughtful Packaging" class="v-why-img">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-box-open"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Thoughtful Packaging</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Hygienic, aroma-preserving food-grade packaging that protects vital nutrients to your door.</p>
+                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
                     </div>
-                    <h3 class="v-why-title">Thoughtful Packaging</h3>
-                    <p class="v-why-desc">Hygienic, aroma-preserving food-grade packaging that protects vital nutrients to your door.</p>
-                </div>
 
-                <div class="v-why-card">
-                    <div class="v-why-icon-box">
-                        <i class="fa-solid fa-heart-circle-check"></i>
+                    <!-- Card 5 -->
+                    <div class="v-why-card">
+                        <div class="v-why-image-wrap">
+                            <img src="images/why-valluvam/customer.jpg" alt="Customer First" class="v-why-img">
+                            <div class="v-why-icon-badge"><i class="fa-solid fa-heart"></i></div>
+                        </div>
+                        <div class="v-why-content">
+                            <h3 class="v-why-title">Customer First</h3>
+                            <div class="v-why-divider"></div>
+                            <p class="v-why-desc">Pan-India delivery with real-time tracking, transparent communication, and dedicated support.</p>
+                            <a href="#" class="v-why-cta">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                            <div class="v-why-decor"></div>
+                        </div>
                     </div>
-                    <h3 class="v-why-title">Customer First</h3>
-                    <p class="v-why-desc">Pan-India delivery with real-time tracking, transparent communication, and dedicated support.</p>
+
                 </div>
             </div>
         </div>
