@@ -987,7 +987,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
             <a href="index.php" class="nav-link">Home</a>
           </li>
           <li class="nav-item dropdown <?php echo (in_array($currentPage, ['shop.php', 'dryfruits.php', 'nuts.php', 'combo.php', 'spices.php', 'oils.php', 'millets.php', 'rice.php', 'palm-jaggery.php', 'seeds.php', 'dal.php', 'honey.php', 'ghee.php', 'pulses.php'])) ? 'active' : ''; ?>">
-            <a class="nav-link dropdown-toggle" href="shop.php" id="dropdownShop" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link dropdown-toggle v-hover-dropdown" href="shop.php" id="dropdownShop" aria-haspopup="true" aria-expanded="false">
               Shop <i class="fa-solid fa-chevron-down ml-1" style="font-size:11px;"></i>
             </a>
             <!-- Premium Mega Menu with All 13 Categories + All Products -->

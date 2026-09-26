@@ -343,6 +343,18 @@ a:hover {
   display: block;
 }
 
+@media (min-width: 992px) {
+  #ftco-navbar .nav-item.dropdown:hover .dropdown-menu.v-mega-menu {
+    display: block;
+    animation: fadeInMega 0.25s ease-out forwards;
+  }
+}
+
+@keyframes fadeInMega {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .v-mega-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

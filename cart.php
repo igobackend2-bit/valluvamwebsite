@@ -49,7 +49,7 @@ include 'header.php' ?>
 			"openingHours": "Mo-Su 10:00-07:30"
 		}
 	</script>
-
+	<link rel="stylesheet" href="css/supporting-pages.css?v=2">
 </head>
 
 
@@ -64,75 +64,83 @@ include 'header.php' ?>
 			</div>
 		</div>
 	</div>
-	<section class="ftco-section ftco-cart">
+	<section class="ftco-section v-cart-section">
 		<div class="container">
 			<div class="row">
-				<div class="col-md-12 ftco-animate">
-					<div class="cart-list">
-						<table class="table">
-							<thead class="thead-primary">
-								<tr class="text-center">
-									<th>Remove</th>
-									<th>Image</th>
-									<th>Product Name</th>
-									<!-- <th>Category</th> -->
-									<th>Price</th>
-									<th>Quantity</th>
-									<th>Total</th>
-								</tr>
-							</thead>
-							<tbody id="cartTable"></tbody>
-						</table>
+				<!-- Cart Items Column -->
+				<div class="col-lg-8 mb-5 mb-lg-0 ftco-animate">
+					<div class="v-cart-list-card">
+						<h2 class="v-cart-title">Shopping Cart</h2>
+						<div class="table-responsive">
+							<table class="table v-cart-table">
+								<thead>
+									<tr>
+										<th>Action</th>
+										<th>Product</th>
+										<th>Details</th>
+										<th>Price</th>
+										<th>Qty</th>
+										<th>Total</th>
+									</tr>
+								</thead>
+								<tbody id="cartTable">
+									<!-- Injected by cart.js -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- Cart Summary Column -->
+				<div class="col-lg-4 ftco-animate">
+					<div class="v-cart-summary-card">
+						<h3 class="v-summary-title">Order Summary</h3>
+						
+						<div class="v-summary-row">
+							<span>Subtotal</span>
+							<span id="subtotal">₹0.00</span>
+						</div>
+						<div class="v-summary-row">
+							<span>Delivery</span>
+							<span>Free</span>
+						</div>
+						<div class="v-summary-row">
+							<span>Discount</span>
+							<span class="v-discount-text">-₹3.00</span>
+						</div>
+						
+						<hr class="v-summary-divider">
+						
+						<div class="v-summary-row v-total-row">
+							<span>Total</span>
+							<span id="total">₹0.00</span>
+						</div>
+						
+						<div class="v-coupon-wrap mt-4 mb-4">
+							<p class="v-coupon-label">Have a coupon code?</p>
+							<div class="input-group">
+								<input type="text" class="form-control" placeholder="Enter code">
+								<div class="input-group-append">
+									<button class="btn v-btn-apply" type="button">Apply</button>
+								</div>
+							</div>
+						</div>
+
+						<button type="button" id="checkoutBtn" class="btn v-btn-checkout w-100">
+							Proceed to Checkout <ion-icon name="arrow-forward-outline"></ion-icon>
+						</button>
+						
+						<div class="v-trust-badges mt-4 text-center">
+							<p><ion-icon name="shield-checkmark-outline"></ion-icon> Secure Checkout</p>
+							<div class="v-payment-icons">
+								<ion-icon name="card-outline"></ion-icon>
+								<ion-icon name="wallet-outline"></ion-icon>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-
 		</div>
-		<div class="row justify-content-end">
-			<div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-				<div class="cart-total mb-3">
-					<h3>Coupon Code</h3>
-					<p>Enter your coupon code if you have one</p>
-					<form action="#" class="info">
-						<div class="form-group">
-							<label for="">Coupon code</label>
-							<input type="text" class="form-control text-left px-3" placeholder="">
-						</div>
-					</form>
-				</div>
-				<p><a href="checkout.php" class="btn btn-primary py-3 px-4">Apply Coupon</a></p>
-			</div>
-
-			<div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-				<div class="cart-total mb-3">
-					<h3>Cart Totals</h3>
-					<p class="d-flex">
-						<span>Subtotal</span>
-						<span id="subtotal">00.00</span>
-					</p>
-					<p class="d-flex">
-						<span>Delivery</span>
-						<span>&#8377;0.00</span>
-					</p>
-					<p class="d-flex">
-						<span>Discount</span>
-						<span>&#8377;3.00</span>
-					</p>
-					<hr>
-					<p class="d-flex total-price">
-						<span>Total</span>
-						<span id="total">00.00</span>
-					</p>
-				</div>
-				<button type="button" id="checkoutBtn" class="btn btn-primary py-3 px-4">
-					Proceed to Checkout
-				</button>
-
-
-
-			</div>
-		</div>
-
 	</section>
 
 	<?php include 'footer.php' ?>
