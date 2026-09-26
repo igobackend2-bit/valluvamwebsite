@@ -791,56 +791,100 @@ include "header.php";
     </section>
 
     <!-- ====================================================================
-         13. SHOP BY LIFESTYLE
+         13. SHOP BY LIFESTYLE (Premium Redesign)
          ==================================================================== -->
-    <section class="v-lifestyle-section">
-        <div class="container">
+    <section class="v-lifestyle-section v-lifestyle-premium">
+        <!-- Botanical leaf decorations -->
+        <div class="v-ls-leaf v-ls-leaf-tl"></div>
+        <div class="v-ls-leaf v-ls-leaf-br"></div>
+        <div class="v-ls-leaf v-ls-leaf-tr"></div>
+
+        <div class="container position-relative">
             <div class="v-section-header">
-                <span class="v-eyebrow"><i class="fa-solid fa-heart"></i> Daily Living</span>
-                <h2 class="v-section-title">SHOP FOR EVERYDAY LIFE</h2>
+                <span class="v-eyebrow v-ls-badge"><i class="fa-solid fa-heart"></i> DAILY LIVING</span>
+                <h2 class="v-section-title v-ls-heading">SHOP FOR <span class="v-ls-accent">EVERYDAY LIFE</span> <span class="v-ls-leaf-icon">🌿</span></h2>
                 <p class="v-section-subtitle">Tailored categories designed around your household rhythms and culinary habits.</p>
+                <!-- Decorative divider -->
+                <div class="v-ls-divider"><span></span><i class="fa-solid fa-leaf"></i><span></span></div>
             </div>
 
-            <div class="v-lifestyle-grid">
-                <a href="shop.php" class="v-lifestyle-card">
-                    <div class="v-lifestyle-icon">
-                        <i class="fa-solid fa-kitchen-set"></i>
+            <div class="v-ls-grid">
+
+                <!-- Card 1: Everyday Pantry -->
+                <a href="shop.php" class="v-ls-card" style="--ls-bg: #fef9f0;">
+                    <div class="v-ls-img-wrap">
+                        <img src="images/lifestyle/pantry.jpg" alt="Everyday Pantry" class="v-ls-img" loading="lazy">
+                        <div class="v-ls-icon-float">
+                            <i class="fa-solid fa-kitchen-set"></i>
+                        </div>
                     </div>
-                    <h4 class="v-lifestyle-name">Everyday Pantry</h4>
-                    <p class="v-lifestyle-sub">Rice, dal, salt, cold-pressed oils</p>
+                    <div class="v-ls-body">
+                        <h4 class="v-ls-name">Everyday Pantry</h4>
+                        <p class="v-ls-sub">Rice, dal, salt, cold-pressed oils</p>
+                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
                 </a>
 
-                <a href="millets.php" class="v-lifestyle-card">
-                    <div class="v-lifestyle-icon">
-                        <i class="fa-solid fa-mortar-pestle"></i>
+                <!-- Card 2: Traditional Kitchen -->
+                <a href="millets.php" class="v-ls-card" style="--ls-bg: #f5f5ef;">
+                    <div class="v-ls-img-wrap">
+                        <img src="assets/thumbnail/spice.jpg" alt="Traditional Kitchen" class="v-ls-img" loading="lazy">
+                        <div class="v-ls-icon-float">
+                            <i class="fa-solid fa-mortar-pestle"></i>
+                        </div>
                     </div>
-                    <h4 class="v-lifestyle-name">Traditional Kitchen</h4>
-                    <p class="v-lifestyle-sub">Native spices, millets &amp; jaggery</p>
+                    <div class="v-ls-body">
+                        <h4 class="v-ls-name">Traditional Kitchen</h4>
+                        <p class="v-ls-sub">Native spices, millets &amp; jaggery</p>
+                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
                 </a>
 
-                <a href="nuts.php" class="v-lifestyle-card">
-                    <div class="v-lifestyle-icon">
-                        <i class="fa-solid fa-person-running"></i>
+                <!-- Card 3: Healthy Choices (center, highlighted) -->
+                <a href="nuts.php" class="v-ls-card v-ls-card-center" style="--ls-bg: #f2f7f2;">
+                    <div class="v-ls-img-wrap">
+                        <img src="assets/thumbnail/nuts.jpg" alt="Healthy Choices" class="v-ls-img" loading="lazy">
+                        <div class="v-ls-icon-float">
+                            <i class="fa-solid fa-person-running"></i>
+                        </div>
                     </div>
-                    <h4 class="v-lifestyle-name">Healthy Choices</h4>
-                    <p class="v-lifestyle-sub">Almonds, chia seeds &amp; walnuts</p>
+                    <div class="v-ls-body">
+                        <h4 class="v-ls-name">Healthy Choices</h4>
+                        <p class="v-ls-sub">Almonds, chia seeds &amp; walnuts</p>
+                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
                 </a>
 
-                <a href="honey.php" class="v-lifestyle-card">
-                    <div class="v-lifestyle-icon">
-                        <i class="fa-solid fa-people-roof"></i>
+                <!-- Card 4: Family Essentials -->
+                <a href="honey.php" class="v-ls-card" style="--ls-bg: #fef6f0;">
+                    <div class="v-ls-img-wrap">
+                        <img src="assets/thumbnail/dryfruits.jpg" alt="Family Essentials" class="v-ls-img" loading="lazy">
+                        <div class="v-ls-icon-float">
+                            <i class="fa-solid fa-people-roof"></i>
+                        </div>
                     </div>
-                    <h4 class="v-lifestyle-name">Family Essentials</h4>
-                    <p class="v-lifestyle-sub">Pure ghee, raw honey &amp; dry fruits</p>
+                    <div class="v-ls-body">
+                        <h4 class="v-ls-name">Family Essentials</h4>
+                        <p class="v-ls-sub">Pure ghee, raw honey &amp; dry fruits</p>
+                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
                 </a>
 
-                <a href="combo.php" class="v-lifestyle-card">
-                    <div class="v-lifestyle-icon">
-                        <i class="fa-solid fa-gift"></i>
+                <!-- Card 5: Gifting -->
+                <a href="combo.php" class="v-ls-card" style="--ls-bg: #f8f2f8;">
+                    <div class="v-ls-img-wrap">
+                        <img src="images/combo4.jpg" alt="Gifting" class="v-ls-img" loading="lazy">
+                        <div class="v-ls-icon-float">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
                     </div>
-                    <h4 class="v-lifestyle-name">Gifting</h4>
-                    <p class="v-lifestyle-sub">Festive boxes &amp; wellness packs</p>
+                    <div class="v-ls-body">
+                        <h4 class="v-ls-name">Gifting</h4>
+                        <p class="v-ls-sub">Festive boxes &amp; wellness packs</p>
+                        <span class="v-ls-cta">Shop Now <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
                 </a>
+
             </div>
         </div>
     </section>

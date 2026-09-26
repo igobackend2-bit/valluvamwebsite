@@ -2,6 +2,286 @@
    REDESIGN - NEW HOMEPAGE STYLES
    ========================================================================== */
 
+/* ==========================================================================
+   SHOP FOR EVERYDAY LIFE — PREMIUM REDESIGN
+   ========================================================================== */
+
+.v-lifestyle-premium {
+    position: relative;
+    padding: 90px 0 100px;
+    background: #f8f5ef;
+    overflow: hidden;
+}
+
+/* Botanical leaf background elements */
+.v-ls-leaf {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.v-ls-leaf-tl {
+    top: -40px;
+    left: -60px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%234a7c59" d="M10,100 Q50,10 190,10 Q190,150 10,100Z" opacity="0.18"/><path fill="%234a7c59" d="M5,80 Q40,5 160,20 Q150,130 5,80Z" opacity="0.1"/></svg>');
+    transform: rotate(0deg);
+}
+
+.v-ls-leaf-tr {
+    top: -20px;
+    right: -80px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%234a7c59" d="M190,100 Q150,10 10,10 Q10,150 190,100Z" opacity="0.18"/></svg>');
+    transform: rotate(0deg);
+}
+
+.v-ls-leaf-br {
+    bottom: -60px;
+    right: -40px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%234a7c59" d="M190,190 Q150,90 10,190 Q10,50 190,190Z" opacity="0.15"/></svg>');
+}
+
+/* Badge */
+.v-ls-badge {
+    background: #fff;
+    border: 1px solid #c8ddc4;
+    color: #2d6a4f !important;
+    border-radius: 50px;
+    padding: 6px 18px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(45, 106, 79, 0.08);
+}
+
+/* Heading */
+.v-ls-heading {
+    font-family: var(--v-font-serif) !important;
+    font-size: clamp(30px, 4vw, 50px) !important;
+    color: #1b3d2a !important;
+    line-height: 1.2 !important;
+}
+
+.v-ls-accent {
+    color: #2d6a4f;
+}
+
+.v-ls-leaf-icon {
+    font-size: 0.7em;
+    vertical-align: middle;
+}
+
+/* Decorative divider */
+.v-ls-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px auto 50px;
+    max-width: 200px;
+}
+
+.v-ls-divider span {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #a8c5a0);
+}
+
+.v-ls-divider span:last-child {
+    background: linear-gradient(to left, transparent, #a8c5a0);
+}
+
+.v-ls-divider i {
+    color: #4a7c59;
+    font-size: 16px;
+}
+
+/* Grid layout */
+.v-ls-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 1199.98px) {
+    .v-ls-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .v-ls-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 14px;
+        padding-bottom: 16px;
+        scrollbar-width: none;
+    }
+    .v-ls-grid::-webkit-scrollbar { display: none; }
+}
+
+/* Card */
+.v-ls-card {
+    background: var(--ls-bg, #fef9f0);
+    border-radius: 20px;
+    overflow: hidden;
+    text-decoration: none !important;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(168, 197, 160, 0.4);
+    box-shadow: 0 4px 16px rgba(30, 60, 40, 0.06);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s ease;
+    position: relative;
+}
+
+@media (max-width: 767.98px) {
+    .v-ls-card {
+        flex: 0 0 240px;
+        scroll-snap-align: center;
+    }
+}
+
+.v-ls-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 18px 40px rgba(30, 60, 40, 0.14);
+    text-decoration: none !important;
+}
+
+/* Image area */
+.v-ls-img-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 18px 18px 0 0;
+    background: #e8e3d8;
+}
+
+.v-ls-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.v-ls-card:hover .v-ls-img {
+    transform: scale(1.07);
+}
+
+/* Floating icon badge */
+.v-ls-icon-float {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 42px;
+    height: 42px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2d6a4f;
+    font-size: 17px;
+    box-shadow: 0 4px 14px rgba(30, 60, 40, 0.15);
+    border: 2px solid rgba(168, 197, 160, 0.5);
+    z-index: 2;
+    transition: transform 0.35s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.v-ls-card:hover .v-ls-icon-float {
+    background: #2d6a4f;
+    color: #fff;
+    transform: translateX(-50%) scale(1.12);
+}
+
+/* Card body */
+.v-ls-body {
+    padding: 34px 18px 22px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.v-ls-name {
+    font-family: var(--v-font-serif, Georgia, serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1b3d2a;
+    margin-bottom: 6px;
+}
+
+.v-ls-sub {
+    font-size: 0.8rem;
+    color: #5a6e5f;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    flex-grow: 1;
+}
+
+.v-ls-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #2d6a4f;
+    border: 1.5px solid #b8d4b4;
+    border-radius: 50px;
+    padding: 7px 18px;
+    background: transparent;
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    text-decoration: none !important;
+}
+
+.v-ls-cta i {
+    transition: transform 0.3s ease;
+}
+
+.v-ls-card:hover .v-ls-cta {
+    background: #2d6a4f;
+    border-color: #2d6a4f;
+    color: #fff;
+}
+
+.v-ls-card:hover .v-ls-cta i {
+    transform: translateX(4px);
+}
+
+/* Center highlight card slightly larger */
+.v-ls-card-center {
+    transform: scale(1.0);
+    border-color: rgba(45, 106, 79, 0.3);
+    box-shadow: 0 8px 24px rgba(30, 60, 40, 0.1);
+}
+
+.v-ls-card-center:hover {
+    transform: translateY(-10px) scale(1.02);
+}
+
+@media (max-width: 1199.98px) {
+    .v-ls-card-center {
+        transform: none;
+    }
+    .v-ls-card-center:hover {
+        transform: translateY(-10px);
+    }
+}
+
 /* 1. Our Collections */
 .v-collections-section {
     padding: 80px 0;
