@@ -3,8 +3,11 @@
 if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
-$status = isset($_SESSION['status']) ? $_SESSION['status'] : 0;
+$status = (!empty($_SESSION['status']) || !empty($_SESSION['user_id'])) ? 1 : 0;
 $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
+if (empty($user_name) && !empty($_SESSION['email'])) {
+  $user_name = explode('@', $_SESSION['email'])[0];
+}
 
 ?>
 
@@ -81,7 +84,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
   <link rel="stylesheet" href="css/productdet.css">
   <link rel="stylesheet" href="css/products.css?v=3">
   <link rel="stylesheet" href="css/login.css?v=20260911b">
-  <link rel="stylesheet" href="css/premium-valluvam.css?v=20260926">
+  <link rel="stylesheet" href="css/premium-valluvam.css?v=20260926b">
   <link rel="stylesheet" href="css/redesign.css?v=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.css">
@@ -198,32 +201,36 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
     section.ftco-section>.row {
       margin-left: auto;
       margin-right: auto;
-      max-width: 1110px;
+      max-width: 1340px;
+    }
+
+    @media (min-width: 1440px) {
+      section.ftco-section>.row {
+        max-width: 1480px;
+      }
+    }
+
+    @media (min-width: 1680px) {
+      section.ftco-section>.row {
+        max-width: 1560px;
+      }
+    }
+
+    @media (min-width: 1920px) {
+      section.ftco-section>.row {
+        max-width: 1620px;
+      }
     }
 
     @media (max-width: 1199.98px) {
       section.ftco-section>.row {
-        max-width: 930px;
+        max-width: 1140px;
       }
     }
 
     @media (max-width: 991.98px) {
       section.ftco-section>.row {
-        max-width: 690px;
-      }
-    }
-
-    @media (max-width: 767.98px) {
-      section.ftco-section>.row {
-        max-width: 510px;
-      }
-    }
-
-    @media (max-width: 575.98px) {
-      section.ftco-section>.row {
         max-width: 100%;
-        margin-left: 0;
-        margin-right: 0;
       }
     }
 
@@ -737,7 +744,7 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
       left: 15px !important;
       right: 15px !important;
       width: calc(100% - 30px) !important;
-      max-width: 1140px !important;
+      max-width: 1560px !important;
       margin: 8px auto 0 !important;
       transform: none !important;
       padding: 22px 24px !important;
@@ -927,11 +934,57 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
         display: none !important;
       }
     }
+
+    /* Customer Name Navbar Action Pill */
+    #ftco-navbar .v-action-btn.login-nav.dropdown-toggle,
+    #ftco-navbar .v-action-btn.login-nav.is-logged-in {
+      width: auto !important;
+      min-width: 42px !important;
+      height: 42px !important;
+      padding: 0 14px 0 12px !important;
+      border-radius: 24px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+    }
+
+    #ftco-navbar .v-action-btn.login-nav .v-user-name {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      max-width: 130px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      display: inline-block !important;
+      vertical-align: middle !important;
+      line-height: 1.2 !important;
+      color: inherit !important;
+    }
+
+    #ftco-navbar .v-action-btn.login-nav.dropdown-toggle::after {
+      margin-left: 2px !important;
+      vertical-align: middle !important;
+    }
+
+    @media (max-width: 575.98px) {
+      #ftco-navbar .v-action-btn.login-nav.dropdown-toggle,
+      #ftco-navbar .v-action-btn.login-nav.is-logged-in {
+        padding: 0 8px !important;
+        gap: 4px !important;
+      }
+      #ftco-navbar .v-action-btn.login-nav .v-user-name {
+        max-width: 75px !important;
+        font-size: 12px !important;
+      }
+    }
   </style>
 
   <!-- Site-wide motion/smoothness layer - loaded last so it refines
        (never fights) every redesign stylesheet above. -->
   <link rel="stylesheet" href="css/motion-system.css?v=1">
+
+  <!-- Progressive Wide Desktop Layout & Responsive Container System -->
+  <link rel="stylesheet" href="css/wide-desktop-layout.css?v=20260926">
 </head>
 
 <body>
@@ -1099,10 +1152,10 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
 
         <!-- Account / User Dropdown -->
         <div class="dropdown d-inline-block">
-          <a class="v-action-btn login-nav <?php echo ($status == 1) ? 'dropdown-toggle' : ''; ?>"
+          <a class="v-action-btn login-nav <?php echo ($status == 1) ? 'dropdown-toggle is-logged-in' : ''; ?>"
              href="#"
              id="userIcon"
-             title="Account"
+             title="<?php echo ($status == 1 && !empty($user_name)) ? htmlspecialchars($user_name) : 'Account'; ?>"
              aria-label="Account"
              <?php if ($status == 1): ?>
              data-toggle="dropdown"
@@ -1112,13 +1165,23 @@ $user_name = isset($_SESSION['username']) ? $_SESSION['username'] : '';
             <i class="fa-regular fa-user"></i>
             <?php if ($status == 1): ?>
               <?php
+                // Clean and extract display name professionally
+                $display_name = trim($user_name);
+                if (empty($display_name) && !empty($_SESSION['email'])) {
+                    $display_name = explode('@', trim($_SESSION['email']))[0];
+                }
+                if (strpos($display_name, '@') !== false) {
+                    $display_name = explode('@', $display_name)[0];
+                }
                 // Show first name only so even long names fit cleanly in the nav bar
-                $first_name = explode(' ', trim($user_name))[0];
+                $first_name = explode(' ', $display_name)[0];
+                if (empty($first_name)) {
+                    $first_name = 'Account';
+                }
               ?>
               <span class="v-user-name ml-1 font-weight-bold"
-                    title="<?php echo htmlspecialchars($user_name); ?>"
-                    style="font-size:12px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;">
-                <?php echo htmlspecialchars($first_name); ?>
+                    title="<?php echo htmlspecialchars($user_name); ?>">
+                <?php echo htmlspecialchars(ucfirst($first_name)); ?>
               </span>
             <?php endif; ?>
           </a>

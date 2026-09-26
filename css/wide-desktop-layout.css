@@ -1,0 +1,622 @@
+/* ==========================================================================
+   VALLUVAM PRODUCTS — LUXURY WIDE DESKTOP RESPONSIVE LAYOUT ENGINE
+   Eliminates excessive empty side margins on desktop (1366px - 2560px+)
+   Balances container widths, section grids, hero proportions, and spacing
+   without changing any backend, database, data, or APIs.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. UNIVERSAL RESPONSIVE CONTAINER SYSTEM
+   Replaces the narrow 1140px Bootstrap constraint with a progressive,
+   proportional layout scaling cleanly from mobile up to 2560px ultra-wide.
+   -------------------------------------------------------------------------- */
+
+html, body {
+  overflow-x: hidden;
+}
+
+.container,
+.v-top-bar .container,
+#ftco-navbar > .container,
+.v-footer-modern .container,
+.hero-wrap.hero-bread .container,
+.v-page-hero .container {
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Mobile Screens (320px - 575px): clean 16px side breathing room */
+@media (max-width: 575.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Phablets & Large Mobiles (576px - 767px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Standard Desktop (1024px - 1199px) */
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+    max-width: 1180px !important;
+  }
+}
+
+/* Desktop (1200px - 1439px) — wider canvas than standard 1140px */
+@media (min-width: 1200px) and (max-width: 1439.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+    max-width: 1340px !important;
+  }
+}
+
+/* Large Desktop (1440px - 1679px) — naturally wide, eliminates empty side space */
+@media (min-width: 1440px) and (max-width: 1679.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+    max-width: 1480px !important;
+  }
+}
+
+/* Extra-Large Desktop (1680px - 1919px) */
+@media (min-width: 1680px) and (max-width: 1919.98px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+    max-width: 1560px !important;
+  }
+}
+
+/* Ultra-Wide Displays (1920px - 2560px+) */
+@media (min-width: 1920px) {
+  .container,
+  .v-top-bar .container,
+  #ftco-navbar > .container,
+  .v-footer-modern .container {
+    padding-left: 56px !important;
+    padding-right: 56px !important;
+    max-width: 1620px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. HEADER & MEGA-MENU PROPORTIONS
+   -------------------------------------------------------------------------- */
+#ftco-navbar {
+  transition: all 0.3s ease;
+}
+
+#ftco-navbar .container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+@media (min-width: 992px) {
+  #ftco-navbar .navbar-brand {
+    margin-right: 24px !important;
+  }
+
+  #ftco-navbar .dropdown-menu.v-mega-menu {
+    max-width: 1560px !important;
+    width: calc(100% - 30px) !important;
+  }
+
+  .v-mega-grid {
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 12px 14px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. HERO SECTION — LUXURY DESKTOP COMPOSITION (45% text / 55% visual)
+   -------------------------------------------------------------------------- */
+.v-hero-section {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 68px 0 80px;
+}
+
+@media (min-width: 1200px) {
+  .v-hero-section {
+    min-height: 660px;
+    padding: 80px 0 96px;
+  }
+
+  .v-hero-grid {
+    display: grid !important;
+    grid-template-columns: 0.95fr 1.05fr !important;
+    gap: 56px !important;
+    align-items: center !important;
+  }
+
+  .v-hero-content {
+    padding-right: 0 !important;
+  }
+
+  .v-hero-heading {
+    font-size: clamp(38px, 3.5vw, 54px) !important;
+    line-height: 1.14 !important;
+    margin-bottom: 22px !important;
+  }
+
+  .v-hero-subtext {
+    font-size: 17px !important;
+    line-height: 1.65 !important;
+    max-width: 560px !important;
+    margin-bottom: 34px !important;
+  }
+
+  .v-hero-frame {
+    aspect-ratio: 16 / 10 !important;
+    min-height: 480px !important;
+    max-height: 560px !important;
+    border-radius: 24px !important;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42) !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  .v-hero-grid {
+    grid-template-columns: 0.9fr 1.1fr !important; /* ~45% text, 55% visual */
+    gap: 64px !important;
+  }
+
+  .v-hero-frame {
+    min-height: 520px !important;
+    max-height: 600px !important;
+  }
+
+  .v-hero-subtext {
+    max-width: 580px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. SHOP BY CATEGORY — WIDE BALANCED GRID
+   Evenly distributes all 12 categories on desktop; smooth swipe on mobile.
+   -------------------------------------------------------------------------- */
+.v-cat-circle-section {
+  padding: 72px 0 64px !important;
+}
+
+@media (min-width: 1200px) {
+  .v-cat-circle-grid {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 30px 18px !important;
+    overflow: visible !important;
+    padding: 16px 0 !important;
+    justify-content: stretch !important;
+  }
+
+  .v-cat-circle-card {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 190px !important;
+    margin: 0 auto !important;
+  }
+
+  .v-cat-image-wrap {
+    width: 145px !important;
+    height: 145px !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .v-cat-circle-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 26px 16px !important;
+    overflow: visible !important;
+  }
+
+  .v-cat-circle-card {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 180px !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .v-cat-circle-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 16px !important;
+    padding: 14px 4px 20px !important;
+    justify-content: flex-start !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .v-cat-circle-card {
+    flex: 0 0 140px !important;
+    scroll-snap-align: center !important;
+  }
+
+  .v-cat-image-wrap {
+    width: 120px !important;
+    height: 120px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. PRODUCT SECTIONS (BEST SELLERS, HEALTHY CHOICES, TRADITIONAL, GIFTING, ESSENTIALS)
+   Dynamic column sizing:
+   1680px+: 5-6 cards
+   1440px - 1679px: 5 cards
+   1024px - 1439px: 4 cards
+   768px - 1023px (Tablet): 3 cards
+   < 768px (Mobile): 2 cards
+   -------------------------------------------------------------------------- */
+.v-products-section {
+  padding: 72px 0 !important;
+}
+
+.v-products-section .row,
+#product-container,
+#healthy-choices-container,
+#traditional-foods-container,
+#gifting-container,
+#everyday-essentials-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  margin-left: -12px !important;
+  margin-right: -12px !important;
+}
+
+.v-products-section .row > [class*="col-"] {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: all 0.25s ease;
+}
+
+.v-product-card {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+}
+
+.v-product-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-grow: 1 !important;
+}
+
+.v-product-price-row {
+  margin-top: auto !important;
+}
+
+/* Mobile (< 768px): 2 cards per row */
+@media (max-width: 767.98px) {
+  .v-products-section .row > [class*="col-"] {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+/* Tablet (768px - 1023px): 3 cards per row */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .v-products-section .row > [class*="col-"] {
+    flex: 0 0 33.333333% !important;
+    max-width: 33.333333% !important;
+    margin-bottom: 22px !important;
+  }
+}
+
+/* Standard Desktop (1024px - 1439px): 4 cards per row */
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  .v-products-section .row > [class*="col-"] {
+    flex: 0 0 25% !important;
+    max-width: 25% !important;
+    margin-bottom: 26px !important;
+  }
+}
+
+/* Large Desktop (1440px - 1679px): 5 cards per row */
+@media (min-width: 1440px) and (max-width: 1679.98px) {
+  .v-products-section .row > [class*="col-"] {
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+    margin-bottom: 26px !important;
+  }
+}
+
+/* Extra-Large Desktop (1680px+): 5 to 6 cards per row */
+@media (min-width: 1680px) {
+  .v-products-section .row > [class*="col-"] {
+    flex: 0 0 16.666667% !important;
+    max-width: 16.666667% !important;
+    margin-bottom: 26px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. SECTION HEADINGS & VIEW ALL ALIGNMENT
+   -------------------------------------------------------------------------- */
+.v-section-header {
+  margin-bottom: 38px;
+}
+
+@media (min-width: 992px) {
+  .v-section-header.text-left {
+    max-width: 720px;
+  }
+}
+
+.v-section-header:not(.text-left) {
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Right-aligned "View All" link header flex */
+.d-flex.justify-content-between.align-items-md-end {
+  margin-bottom: 32px !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. WHY VALLUVAM (5 PILLARS) & DID YOU KNOW (5 CARDS)
+   Evenly distributed 5-column layout across the wide canvas.
+   -------------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+  .v-why-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 22px !important;
+    align-items: stretch !important;
+  }
+
+  .v-why-card {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .v-why-content {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+  }
+
+  .v-why-cta {
+    margin-top: auto !important;
+  }
+
+  .v-dk-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 20px !important;
+    align-items: stretch !important;
+  }
+
+  .v-dk-card {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .v-dk-body {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-grow: 1 !important;
+  }
+
+  .v-dk-cta {
+    margin-top: auto !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199.98px) {
+  .v-why-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+  .v-dk-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. FARM TO PACK BANNER & PRODUCT CRAFT STORY
+   -------------------------------------------------------------------------- */
+.v-farm-banner {
+  margin: 40px 0 !important;
+  border-radius: var(--v-radius-xl) !important;
+}
+
+@media (min-width: 1200px) {
+  .v-farm-banner-content {
+    padding: 48px 56px !important;
+  }
+
+  .v-story-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 64px !important;
+    align-items: center !important;
+  }
+
+  .v-story-media {
+    aspect-ratio: 4 / 3 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9. REVIEWS, BLOG / KITCHEN, & MARKETPLACE STRIP
+   -------------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+  .v-reviews-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 26px !important;
+  }
+
+  .v-review-card {
+    height: 100% !important;
+  }
+
+  .v-blog-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 30px !important;
+  }
+
+  .v-blog-card {
+    height: 100% !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .v-mp-home-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 24px !important;
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   10. B2B WHOLESALE & PRIVATE LABEL
+   -------------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+  .v-b2b-grid {
+    display: grid !important;
+    grid-template-columns: 1.15fr 0.85fr !important;
+    gap: 60px !important;
+  }
+
+  .v-privatelabel-grid {
+    display: grid !important;
+    grid-template-columns: 0.95fr 1.05fr !important;
+    gap: 60px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   11. NEWSLETTER & FINAL CTA
+   -------------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+  .v-newsletter-box {
+    grid-template-columns: 1.15fr 0.85fr !important;
+    padding: 52px 60px !important;
+    gap: 48px !important;
+  }
+}
+
+.v-final-cta-content {
+  max-width: 820px !important;
+  margin: 0 auto !important;
+}
+
+/* --------------------------------------------------------------------------
+   12. FOOTER MODERN WIDE GRID
+   -------------------------------------------------------------------------- */
+@media (min-width: 1200px) {
+  .v-footer-grid {
+    display: grid !important;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.4fr !important;
+    gap: 48px 36px !important;
+    margin-bottom: 52px !important;
+  }
+
+  .v-footer-bio {
+    max-width: 360px !important;
+  }
+}
+
+@media (min-width: 1680px) {
+  .v-footer-grid {
+    grid-template-columns: 2.2fr 1.1fr 1.1fr 1.1fr 1.5fr !important;
+    gap: 56px 44px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   13. SUPPORTING & CATALOG PAGES COMPATIBILITY
+   Ensures shop.php, productdetail.php, cart.php, about.php benefit from
+   the wider canvas seamlessly.
+   -------------------------------------------------------------------------- */
+section.ftco-section > .row {
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.hero-wrap.hero-bread .slider-text {
+  max-width: 100% !important;
+}
+
+@media (min-width: 1440px) {
+  /* Catalog product list on shop.php */
+  .ftco-section .col-md-6.col-lg-3 {
+    flex: 0 0 20% !important;
+    max-width: 20% !important;
+  }
+}
+
+@media (min-width: 1680px) {
+  .ftco-section .col-md-6.col-lg-3 {
+    flex: 0 0 16.666667% !important;
+    max-width: 16.666667% !important;
+  }
+}

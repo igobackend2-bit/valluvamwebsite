@@ -536,6 +536,32 @@ a:hover {
   font-size: 20px;
 }
 
+.v-action-btn.login-nav.dropdown-toggle,
+.v-action-btn.login-nav.is-logged-in {
+  width: auto;
+  min-width: 42px;
+  padding: 0 14px 0 12px;
+  border-radius: var(--v-radius-pill, 24px);
+  gap: 6px;
+}
+
+.v-action-btn.login-nav .v-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+
+.v-action-btn.login-nav.dropdown-toggle::after {
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
 .v-badge-count {
   position: absolute;
   top: 3px;
