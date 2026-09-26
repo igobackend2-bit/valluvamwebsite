@@ -163,7 +163,7 @@ include "header.php";
             <div class="v-cat-circle-grid">
                 <a href="nuts.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/nuts.jpg" alt="Nuts" loading="lazy">
+                        <img src="images/Categories/Nuts.jpeg" alt="Nuts" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Nuts</div>
@@ -173,7 +173,7 @@ include "header.php";
                 
                 <a href="dryfruits.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/dryfruits.jpg" alt="Dry Fruits" loading="lazy">
+                        <img src="images/Categories/Dry%20Fruits.jpeg" alt="Dry Fruits" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Dry Fruits</div>
@@ -183,7 +183,7 @@ include "header.php";
 
                 <a href="oils.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/oil.jpg" alt="Cold Pressed Oils" loading="lazy">
+                        <img src="images/Categories/Cold%20pressed%20oil.jpeg" alt="Cold Pressed Oils" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Cold Pressed Oils</div>
@@ -193,7 +193,7 @@ include "header.php";
 
                 <a href="spices.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/spice.jpg" alt="Spices" loading="lazy">
+                        <img src="images/Categories/Spices.jpeg" alt="Spices" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Spices</div>
@@ -203,7 +203,7 @@ include "header.php";
 
                 <a href="millets.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/millets.jpg" alt="Millets" loading="lazy">
+                        <img src="images/Categories/Millets.jpeg" alt="Millets" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Millets</div>
@@ -213,7 +213,7 @@ include "header.php";
 
                 <a href="rice.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="assets/thumbnail/rice.jpg" alt="Rice" loading="lazy">
+                        <img src="images/Categories/Rice.jpeg" alt="Rice" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Rice</div>
@@ -223,7 +223,7 @@ include "header.php";
 
                 <a href="pulses.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="images/bg-product-1.jpg" alt="Dals &amp; Pulses" loading="lazy">
+                        <img src="images/Categories/Dals.jpeg" alt="Dals &amp; Pulses" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Dals &amp; Pulses</div>
@@ -233,7 +233,7 @@ include "header.php";
 
                 <a href="seeds.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="images/bg-product-8.jpg" alt="Seeds" loading="lazy">
+                        <img src="images/Categories/Seeds.jpeg" alt="Seeds" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Seeds</div>
@@ -243,7 +243,7 @@ include "header.php";
 
                 <a href="palm-jaggery.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="images/palm-jaggery.jpg" alt="Palm Jaggery" loading="lazy">
+                        <img src="images/Categories/Jaggery.jpeg" alt="Palm Jaggery" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Palm Jaggery</div>
@@ -253,7 +253,7 @@ include "header.php";
 
                 <a href="ghee.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="images/bg-product-10.jpg" alt="Desi Ghee" loading="lazy">
+                        <img src="images/Categories/Ghee.jpeg" alt="Desi Ghee" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Desi Ghee</div>
@@ -263,7 +263,7 @@ include "header.php";
 
                 <a href="honey.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="images/bg-product-12.jpg" alt="Raw Honey" loading="lazy">
+                        <img src="images/Categories/Honey.jpeg" alt="Raw Honey" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-leaf"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Raw Honey</div>
@@ -273,7 +273,7 @@ include "header.php";
 
                 <a href="combo.php" class="v-cat-circle-card">
                     <div class="v-cat-image-wrap">
-                        <img src="images/combo1.jpg" alt="Combo Packs" loading="lazy">
+                        <img src="images/Categories/cobo%20packs.jpeg" alt="Combo Packs" loading="lazy">
                         <div class="v-cat-icon-sm"><i class="fa-solid fa-gift"></i></div>
                     </div>
                     <div class="v-cat-circle-title">Combo Packs</div>
