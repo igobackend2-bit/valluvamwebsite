@@ -6,6 +6,30 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config.php'; // your PDO connection file
 $action = $_GET['action'] ?? '';
 
+// Homepage CMS selections are stored in the existing admin_settings key/value
+// store. This is optional: when no selection has been saved, every current
+// homepage query below retains its present default behaviour.
+function homepage_collection_ids(PDO $pdo, string $collection): array {
+    try {
+        $stmt = $pdo->prepare("SELECT setting_value FROM admin_settings WHERE setting_key = ? LIMIT 1");
+        $stmt->execute(['homepage_content_v1']);
+        $content = json_decode((string)$stmt->fetchColumn(), true);
+        $ids = $content['collections'][$collection] ?? [];
+        return is_array($ids) ? array_values(array_filter(array_map('intval', $ids), fn($id) => $id > 0)) : [];
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+function homepage_selected_products(PDO $pdo, array $ids): array {
+    if (!$ids) return [];
+    $marks = implode(',', array_fill(0, count($ids), '?'));
+    $order = implode(',', array_map('intval', $ids));
+    $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, category, image, quantity, rating FROM product_details WHERE id IN ($marks) AND image IS NOT NULL AND TRIM(image) <> '' ORDER BY FIELD(id, $order)");
+    $stmt->execute($ids);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 if ($action == 'category_slider') {
     try {
@@ -20,6 +44,11 @@ if ($action == 'category_slider') {
     }
 } elseif ($action == 'product_catelog') {
     try {
+        $selected = homepage_collection_ids($pdo, 'best_sellers');
+        if ($selected) {
+            echo json_encode(['status' => 'success', 'data' => homepage_selected_products($pdo, $selected)]);
+            exit;
+        }
         $stmt = $pdo->query("
             SELECT id, product_name, price, dis_price, category, image, quantity
             FROM product_details
@@ -47,6 +76,11 @@ if ($action == 'category_slider') {
     // change, no new table. Products with no rating set (NULL or 0) are
     // excluded rather than shown with a fabricated score.
     try {
+        $selected = homepage_collection_ids($pdo, 'trending');
+        if ($selected) {
+            echo json_encode(['status' => 'success', 'data' => homepage_selected_products($pdo, $selected)]);
+            exit;
+        }
         $stmt = $pdo->query("
             SELECT id, product_name, price, dis_price, category, image, quantity, rating
             FROM product_details
@@ -108,6 +142,11 @@ if ($action == 'category_slider') {
     else { echo json_encode(['status'=>'error','message'=>'Invalid collection type']); exit; }
     
     try {
+        $selected = homepage_collection_ids($pdo, $type);
+        if ($selected) {
+            echo json_encode(['status' => 'success', 'data' => homepage_selected_products($pdo, $selected)]);
+            exit;
+        }
         $placeholders = str_repeat('?,', count($cats) - 1) . '?';
         $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, category, image, quantity, rating FROM product_details WHERE image IS NOT NULL AND TRIM(image) <> '' AND category IN ($placeholders) ORDER BY id DESC LIMIT 8");
         $stmt->execute($cats);

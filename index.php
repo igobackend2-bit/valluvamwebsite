@@ -1141,6 +1141,7 @@ include "header.php";
     <script src="js/aos.js"></script>
     <script src="js/main.js"></script>
     <script src="assets/js/index/index.js?v=<?php echo @filemtime(__DIR__ . "/assets/js/index/index.js"); ?>"></script>
+    <script src="assets/js/index/homepage-cms.js?v=<?php echo @filemtime(__DIR__ . "/assets/js/index/homepage-cms.js"); ?>"></script>
 
     <!-- ====================================================================
          16. FOOTER INCLUSION
