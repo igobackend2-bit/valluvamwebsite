@@ -652,7 +652,7 @@ include "header.php";
                 <p class="v-section-subtitle">Carefully matched combinations designed for complete kitchen health and thoughtful gifting.</p>
             </div>
 
-            <div class="row">
+            <div class="row" id="curated-combos-default">
                 <div class="col-6 col-lg-3 mb-4">
                     <a href="combo.php" class="v-category-card">
                         <div class="v-category-img-wrap">
@@ -705,6 +705,7 @@ include "header.php";
                     </a>
                 </div>
             </div>
+            <div class="row" id="curated-combos-container" style="display:none;"></div>
         </div>
     </section>
 

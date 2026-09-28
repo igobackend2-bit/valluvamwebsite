@@ -55,7 +55,7 @@ if ($action === 'save') {
         $sections[$key] = ['enabled'=>!empty($s['enabled']),'order'=>max(0,(int)($s['order']??0)),'heading'=>trim((string)($s['heading']??'')),'description'=>trim((string)($s['description']??'')),'image'=>trim((string)($s['image']??'')),'cta_text'=>trim((string)($s['cta_text']??'')),'cta_url'=>trim((string)($s['cta_url']??''))];
     }
     $collections = [];
-    foreach (($input['collections'] ?? []) as $key => $ids) if (in_array($key, ['best_sellers','healthy','traditional','gifting','everyday','trending'], true)) $collections[$key] = array_values(array_unique(array_filter(array_map('intval', is_array($ids)?$ids:[]), fn($id)=>$id>0)));
+    foreach (($input['collections'] ?? []) as $key => $ids) if (in_array($key, ['best_sellers','healthy','traditional','gifting','curated_combos','everyday','trending'], true)) $collections[$key] = array_values(array_unique(array_filter(array_map('intval', is_array($ids)?$ids:[]), fn($id)=>$id>0)));
     $content = ['sections'=>$sections,'collections'=>$collections];
     try {
         $stmt = $pdo->prepare('INSERT INTO admin_settings (setting_key, setting_value, description) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)');

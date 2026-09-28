@@ -138,6 +138,7 @@ if ($action == 'category_slider') {
     if ($type === 'healthy') $cats = ['Dry Fruits','Nuts','Honey','Millets'];
     elseif ($type === 'traditional') $cats = ['Millets','Rice','Palm Jaggery'];
     elseif ($type === 'gifting') $cats = ['Combo','Combos','Gifting'];
+    elseif ($type === 'curated_combos') $cats = [];
     elseif ($type === 'everyday') $cats = ['Oils','Spices','Dal','Pulses','Ghee'];
     else { echo json_encode(['status'=>'error','message'=>'Invalid collection type']); exit; }
     
@@ -145,6 +146,12 @@ if ($action == 'category_slider') {
         $selected = homepage_collection_ids($pdo, $type);
         if ($selected) {
             echo json_encode(['status' => 'success', 'data' => homepage_selected_products($pdo, $selected)]);
+            exit;
+        }
+        // Curated Combos keeps its existing editorial cards until an admin
+        // explicitly selects products for it in the Homepage editor.
+        if ($type === 'curated_combos') {
+            echo json_encode(['status' => 'success', 'data' => []]);
             exit;
         }
         $placeholders = str_repeat('?,', count($cats) - 1) . '?';

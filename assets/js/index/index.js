@@ -39,6 +39,7 @@ $(document).ready(function () {
     loadCollection('healthy', 'healthy-choices-container', 'healthy-choices-section');
     loadCollection('traditional', 'traditional-foods-container', 'traditional-foods-section');
     loadCollection('gifting', 'gifting-container', 'gifting-section');
+    loadCuratedCombos();
     loadCollection('everyday', 'everyday-essentials-container', 'everyday-essentials-section');
 });
 
@@ -162,6 +163,29 @@ function loadCollection(type, containerId, sectionId) {
         },
         error: function () {
             if(sectionId) $('#' + sectionId).hide();
+        }
+    });
+}
+
+// Curated Combos retains the website's existing four editorial cards until
+// the administrator chooses products in Homepage. Once chosen, those exact
+// products replace the default cards in the saved checkbox order.
+function loadCuratedCombos() {
+    const $container = $('#curated-combos-container');
+    if (!$container.length) return;
+
+    $.ajax({
+        url: 'assets/db_query/index/index_product_query.php?action=collection&type=curated_combos',
+        method: 'GET',
+        dataType: 'json',
+        success: function (res) {
+            if (res.status !== 'success' || !res.data || !res.data.length) return;
+            let html = '';
+            res.data.forEach(function (product, idx) {
+                html += renderValluvamProductCard(product, idx);
+            });
+            $('#curated-combos-default').hide();
+            $container.html(html).show();
         }
     });
 }
