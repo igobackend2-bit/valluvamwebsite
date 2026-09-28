@@ -92,6 +92,44 @@ try {
         error_log('Error fetching stock-out movements: ' . $e->getMessage());
     }
 
+    // Older Inventory adjustments and Manual Sales entries use stock_history
+    // instead of stock_movements. Include its stock-out rows in this page.
+    if ($reference_type === '' || $reference_type === 'other') {
+        try {
+            $legacySql = "SELECT sh.id, sh.quantity_change, sh.reason, sh.admin_username, sh.created_at
+                          FROM stock_history sh
+                          WHERE sh.change_type = 'stock_out'";
+            $legacyParams = [];
+            if ($date_from !== '') { $legacySql .= " AND DATE(sh.created_at) >= ?"; $legacyParams[] = $date_from; }
+            if ($date_to !== '') { $legacySql .= " AND DATE(sh.created_at) <= ?"; $legacyParams[] = $date_to; }
+            $legacySql .= " ORDER BY sh.created_at DESC";
+
+            $legacyStmt = $pdo->prepare($legacySql);
+            $legacyStmt->execute($legacyParams);
+            foreach ($legacyStmt->fetchAll(PDO::FETCH_ASSOC) as $legacy) {
+                $stock_outs[] = [
+                    'id' => 'legacy-' . $legacy['id'],
+                    'stock_out_number' => 'Stock adjustment #' . $legacy['id'],
+                    'stock_out_date' => substr($legacy['created_at'], 0, 10),
+                    'reference_type' => 'other',
+                    'reference_number' => null,
+                    'warehouse_id' => 1,
+                    'warehouse_name' => 'Main Warehouse',
+                    'vehicle_number' => null,
+                    'customer_name' => null,
+                    'reason' => $legacy['reason'] ?: 'Recorded from inventory adjustment',
+                    'authorized_by' => null,
+                    'created_by' => $legacy['admin_username'],
+                    'created_at' => $legacy['created_at'],
+                    'item_count' => 1,
+                    'total_quantity' => abs((int)$legacy['quantity_change']),
+                ];
+            }
+        } catch (PDOException $e) {
+            error_log('Error fetching legacy stock-outs: ' . $e->getMessage());
+        }
+    }
+
     usort($stock_outs, static function ($a, $b) {
         return strcmp($b['created_at'] ?? '', $a['created_at'] ?? '');
     });

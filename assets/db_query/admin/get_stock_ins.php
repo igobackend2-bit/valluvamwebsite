@@ -94,6 +94,45 @@ try {
         error_log('Error fetching stock-in movements: ' . $e->getMessage());
     }
 
+    // The long-standing Inventory adjustment screen stores its records in
+    // stock_history. Include its positive adjustments too, so pre-ledger
+    // stock-ins remain visible here.
+    try {
+        $legacySql = "SELECT sh.id, sh.quantity_change, sh.reason, sh.admin_username, sh.created_at
+                      FROM stock_history sh
+                      WHERE sh.change_type = 'stock_in'";
+        $legacyParams = [];
+        if ($date_from !== '') { $legacySql .= " AND DATE(sh.created_at) >= ?"; $legacyParams[] = $date_from; }
+        if ($date_to !== '') { $legacySql .= " AND DATE(sh.created_at) <= ?"; $legacyParams[] = $date_to; }
+        $legacySql .= " ORDER BY sh.created_at DESC";
+
+        $legacyStmt = $pdo->prepare($legacySql);
+        $legacyStmt->execute($legacyParams);
+        foreach ($legacyStmt->fetchAll(PDO::FETCH_ASSOC) as $legacy) {
+            $stock_ins[] = [
+                'id' => 'legacy-' . $legacy['id'],
+                'stock_in_number' => 'Stock adjustment #' . $legacy['id'],
+                'stock_in_date' => substr($legacy['created_at'], 0, 10),
+                'supplier_id' => null,
+                'supplier_name' => null,
+                'purchase_reference' => null,
+                'warehouse_id' => 1,
+                'warehouse_name' => 'Main Warehouse',
+                'received_by' => null,
+                'vehicle_number' => null,
+                'remarks' => $legacy['reason'] ?: 'Recorded from inventory adjustment',
+                'attachment_note' => null,
+                'status' => 'completed',
+                'created_by' => $legacy['admin_username'],
+                'created_at' => $legacy['created_at'],
+                'item_count' => 1,
+                'total_quantity' => $legacy['quantity_change'],
+            ];
+        }
+    } catch (PDOException $e) {
+        error_log('Error fetching legacy stock-ins: ' . $e->getMessage());
+    }
+
     usort($stock_ins, static function ($a, $b) {
         return strcmp($b['created_at'] ?? '', $a['created_at'] ?? '');
     });
