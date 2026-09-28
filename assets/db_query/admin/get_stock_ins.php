@@ -44,8 +44,62 @@ try {
     $stmt->execute($params);
     $stock_ins = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Not every stock receipt has a stock_ins document. Imports and older
+    // inventory actions are recorded directly in the stock_movements ledger.
+    // Include those rows so the history page shows all stock received, not
+    // only receipts created from the newer Stock In form.
+    $documentNumbers = array_flip(array_filter(array_column($stock_ins, 'stock_in_number')));
+    try {
+        $movementSql = "SELECT sm.id, sm.reference_number, sm.warehouse_id, w.name AS warehouse_name,
+                               sm.quantity, sm.created_by, sm.created_at
+                        FROM stock_movements sm
+                        LEFT JOIN warehouses w ON w.id = sm.warehouse_id
+                        WHERE sm.movement_type = 'stock_in'";
+        $movementParams = [];
+        if ($warehouse_id !== '') { $movementSql .= " AND sm.warehouse_id = ?"; $movementParams[] = $warehouse_id; }
+        if ($date_from !== '') { $movementSql .= " AND DATE(sm.created_at) >= ?"; $movementParams[] = $date_from; }
+        if ($date_to !== '') { $movementSql .= " AND DATE(sm.created_at) <= ?"; $movementParams[] = $date_to; }
+        $movementSql .= " ORDER BY sm.created_at DESC";
+
+        $movementStmt = $pdo->prepare($movementSql);
+        $movementStmt->execute($movementParams);
+        foreach ($movementStmt->fetchAll(PDO::FETCH_ASSOC) as $movement) {
+            // A completed Stock In already appears above as its document.
+            if ($movement['reference_number'] && isset($documentNumbers[$movement['reference_number']])) {
+                continue;
+            }
+            $stock_ins[] = [
+                'id' => 'movement-' . $movement['id'],
+                'stock_in_number' => $movement['reference_number'] ?: 'Stock movement #' . $movement['id'],
+                'stock_in_date' => substr($movement['created_at'], 0, 10),
+                'supplier_id' => null,
+                'supplier_name' => null,
+                'purchase_reference' => null,
+                'warehouse_id' => $movement['warehouse_id'],
+                'warehouse_name' => $movement['warehouse_name'],
+                'received_by' => null,
+                'vehicle_number' => null,
+                'remarks' => 'Recorded from inventory movement',
+                'attachment_note' => null,
+                'status' => 'completed',
+                'created_by' => $movement['created_by'],
+                'created_at' => $movement['created_at'],
+                'item_count' => 1,
+                'total_quantity' => $movement['quantity'],
+            ];
+        }
+    } catch (PDOException $e) {
+        // The document list remains usable on databases that predate the
+        // movement ledger.
+        error_log('Error fetching stock-in movements: ' . $e->getMessage());
+    }
+
+    usort($stock_ins, static function ($a, $b) {
+        return strcmp($b['created_at'] ?? '', $a['created_at'] ?? '');
+    });
+
     echo json_encode(['status' => 'success', 'stock_ins' => $stock_ins]);
 } catch (PDOException $e) {
     error_log("Error fetching stock ins: " . $e->getMessage());
-    echo json_encode(['status' => 'success', 'stock_ins' => []]);
+    echo json_encode(['status' => 'error', 'message' => 'Unable to load stock ins. Please check the inventory database migration.']);
 }
