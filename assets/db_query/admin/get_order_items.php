@@ -34,7 +34,18 @@ try {
     $stmt->execute([$order_id]);
     $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode(['status' => 'success', 'items' => $items]);
+    // FIX (30 Sep 2026): also return who placed the order + delivery address +
+    // payment info so the admin "Products in order" popup can show them.
+    // SELECT * + whitelist keeps this working even if an older DB lacks a column;
+    // razorpay_signature is deliberately never sent to the browser.
+    $orderStmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? LIMIT 1");
+    $orderStmt->execute([$order_id]);
+    $orderRow = $orderStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    $orderKeys = ['receipt', 'first_name', 'last_name', 'email', 'phone', 'street_address', 'apartment', 'city', 'state', 'postcode',
+                  'amount', 'payment_method', 'payment_status', 'order_status', 'razorpay_order_id', 'razorpay_payment_id', 'created_at'];
+    $order = array_intersect_key($orderRow, array_flip($orderKeys));
+
+    echo json_encode(['status' => 'success', 'items' => $items, 'order' => $order]);
 } catch (PDOException $e) {
     error_log("Error fetching order items for order {$order_id}: " . $e->getMessage());
     echo json_encode(['status' => 'error', 'message' => 'Failed to fetch order items']);

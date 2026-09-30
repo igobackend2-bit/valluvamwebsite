@@ -167,7 +167,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                         Swal.fire({ title: 'Could not load items', text: data.message || 'Please try again.', icon: 'error', confirmButtonColor: '#1c5034' });
                         return;
                     }
-                    renderOrderItemsModal(receipt, data.items);
+                    renderOrderItemsModal(receipt, data.items, data.order || {}); // FIX (30 Sep 2026): pass customer/address/payment info
                 },
                 error: function() {
                     Swal.fire({ title: 'Could not load items', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' });
@@ -175,11 +175,33 @@ require_once __DIR__ . '/includes/check_admin.php';
             });
         }
 
-        function renderOrderItemsModal(receipt, items) {
+        function renderOrderItemsModal(receipt, items, order) {
+            // FIX (30 Sep 2026): customer, delivery address and payment details block
+            order = order || {};
+            const infoRow = (label, value) => (value === undefined || value === null || String(value).trim() === '') ? '' :
+                `<tr><td style="width:34%;color:#6b6459;padding:4px 8px;vertical-align:top;">${label}</td><td style="padding:4px 8px;font-weight:600;word-break:break-word;">${value}</td></tr>`;
+            const custName = [order.first_name, order.last_name].filter(Boolean).join(' ');
+            const addrParts = [order.street_address, order.apartment, order.city, order.state].filter(v => v && String(v).trim() !== '').map(escapeHtml).join(', ');
+            const address = addrParts + (order.postcode ? (addrParts ? ' - ' : '') + escapeHtml(order.postcode) : '');
+            const payTxt = [order.payment_method === 'RZP' ? 'Online (Razorpay)' : order.payment_method, order.payment_status ? '(' + order.payment_status + ')' : ''].filter(Boolean).join(' ');
+            const detailsHtml = Object.keys(order).length === 0 ? '' : `<div style="text-align:left;margin-bottom:14px;">
+                <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                    ${infoRow('Customer', escapeHtml(custName))}
+                    ${infoRow('Email', order.email ? '<a href="mailto:' + escapeHtml(order.email) + '">' + escapeHtml(order.email) + '</a>' : '')}
+                    ${infoRow('Phone', order.phone ? '<a href="tel:' + escapeHtml(order.phone) + '">' + escapeHtml(order.phone) + '</a>' : '')}
+                    ${infoRow('Delivery address', address)}
+                    ${infoRow('Order date', order.created_at ? escapeHtml(formatDate(order.created_at)) : '')}
+                    ${infoRow('Order status', escapeHtml(order.order_status || ''))}
+                    ${infoRow('Payment', escapeHtml(payTxt))}
+                    ${infoRow('Razorpay payment ID', escapeHtml(order.razorpay_payment_id || ''))}
+                    ${infoRow('Amount charged', (order.amount !== undefined && order.amount !== null && order.amount !== '') ? '₹' + parseFloat(order.amount).toFixed(2) : '')}
+                </table>
+            </div>`;
+
             if (!items || items.length === 0) {
                 Swal.fire({
                     title: 'Order ' + escapeHtml(receipt),
-                    html: '<div class="adm-empty"><i class="fas fa-box-open"></i><p><strong>No product lines found</strong></p><p>This order has no recorded items.</p></div>',
+                    html: detailsHtml + '<div class="adm-empty"><i class="fas fa-box-open"></i><p><strong>No product lines found</strong></p><p>This order has no recorded items.</p></div>',
                     confirmButtonColor: '#1c5034',
                     confirmButtonText: 'Close',
                     width: 480
@@ -209,7 +231,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                 </tr>`;
             });
 
-            const html = `<div class="adm-table-wrap" style="text-align:left;">
+            const html = detailsHtml + `<div class="adm-table-wrap" style="text-align:left;">
                 <table class="adm-table">
                     <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
                     <tbody>${rows}</tbody>
