@@ -21,7 +21,10 @@ window.ERP = (function ($) {
         draft: 'neutral', submitted: 'amber', pending_approval: 'amber', approved: 'info', rejected: 'red', converted: 'green', cancelled: 'red', closed: 'neutral',
         partially_received: 'amber', fully_received: 'green', posted: 'green', pending: 'amber', completed: 'green',
         unpaid: 'red', partially_paid: 'amber', paid: 'green', overdue: 'red', credit_note: 'info', refund: 'info', replacement: 'neutral',
-        passed: 'green', failed: 'red', partial: 'amber', active: 'green', inactive: 'neutral', expired: 'red', expiring: 'amber', ok: 'green', none: 'neutral'
+        passed: 'green', failed: 'red', partial: 'amber', active: 'green', inactive: 'neutral', expired: 'red', expiring: 'amber', ok: 'green', none: 'neutral',
+        sent: 'info', quoted: 'amber', awarded: 'green', received: 'green', accepted: 'green', partially_accepted: 'amber', in_transit: 'amber', arrived: 'green', planned: 'neutral',
+        partially_passed: 'amber', under_review: 'amber', issued: 'info', adjusted: 'green', refunded: 'green', reversed: 'neutral', open: 'amber', critical: 'red', warning: 'amber', info: 'info',
+        matched: 'green', unmatched: 'amber', ignored: 'neutral', empty: 'neutral', critical_: 'red', picked: 'info', packed: 'info', dispatched: 'amber', delivered: 'green', returned: 'red'
     };
     function badge(s, label) { if (!s) return '—'; return `<span class="adm-badge is-${STATUS[s] || 'neutral'}">${esc(label || String(s).replace(/_/g, ' '))}</span>`; }
 
@@ -128,6 +131,7 @@ window.ERP = (function ($) {
         const $tb = $el.find('tbody');
         (cfg.lines && cfg.lines.length ? cfg.lines : [{}]).forEach(l => $tb.append(rowHtml(l)));
         function recalc() {
+            if (!cols.includes('rate')) { $el.find('[data-f=totals]').empty(); return; }   // quantity-only lists (transfers, counts)
             let gross = 0, disc = 0, tax = 0;
             $tb.find('tr').each(function () {
                 const $r = $(this);
@@ -197,46 +201,95 @@ window.ERP = (function ($) {
             .then(r => r.isConfirmed ? (r.value === true ? '' : (r.value || '')) : Promise.reject('cancelled'));
     }
 
-    /** Documents panel for a saved record. */
-    function docs($el, entityType, entityId) {
-        if (!entityId) { $el.html('<div class="erp-docs erp-muted">Save the record first, then attach documents.</div>'); return; }
-        const types = [['vendor_invoice', 'Vendor invoice / bill'], ['purchase_receipt', 'Purchase receipt'], ['delivery_challan', 'Delivery challan'], ['eway_bill', 'E-way bill'],
-                       ['qc_document', 'QC document'], ['payment_proof', 'Payment proof'], ['credit_note', 'Credit note'], ['expense_receipt', 'Expense receipt'], ['other', 'Other']];
-        $el.html(`<div class="erp-docs"><strong style="font-size:13px;"><i class="fas fa-paperclip"></i> Documents</strong><div data-f="list" class="erp-muted">Loading…</div>
-            <div class="erp-docs-upload"><select class="adm-select" data-f="type">${types.map(t => `<option value="${t[0]}">${t[1]}</option>`).join('')}</select>
-            <input type="file" data-f="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.xlsx,.xls,.docx,.csv" class="adm-input" style="max-width:260px;">
-            <button type="button" class="adm-btn adm-btn-primary" data-f="up"><i class="fas fa-upload"></i> Upload</button></div>
-            <div class="erp-note">PDF, images, Excel, Word or CSV · up to 10 MB <span data-f="msg" style="margin-left:8px;font-weight:600;"></span></div></div>`);
+    /**
+     * Documents panel for a saved record (v2, 1 Oct 2026): category, description, upload from this computer,
+     * view / download, new version, archive / restore, version history, and documents of LINKED records
+     * (e.g. the supplier bill shows on its PO, GRN and payment). defaultCat preselects the category.
+     */
+    function docs($el, entityType, entityId, defaultCat) {
+        if (!entityId && entityType !== 'company') { $el.html('<div class="erp-docs erp-muted">Save the record first, then attach documents.</div>'); return; }
+        let replaces = null, showArchived = false, CATS = {};
+        $el.html(`<div class="erp-docs"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+              <strong style="font-size:13px;"><i class="fas fa-paperclip"></i> Documents</strong>
+              <label class="erp-muted" style="cursor:pointer;"><input type="checkbox" data-f="arch"> show archived</label></div>
+            <div data-f="list" class="erp-muted">Loading…</div><div data-f="rel"></div>
+            <div class="erp-docs-upload" data-f="upbox"><select class="adm-select" data-f="cat" style="max-width:220px;"></select>
+              <input type="file" data-f="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.xlsx,.xls,.docx,.doc,.csv" class="adm-input" style="max-width:250px;">
+              <input class="adm-input" data-f="desc" placeholder="Description (optional)" style="max-width:220px;">
+              <button type="button" class="adm-btn adm-btn-primary" data-f="up"><i class="fas fa-upload"></i> Upload</button></div>
+            <div class="erp-note"><span data-f="hint">PDF, JPG, PNG, WEBP, Excel, Word or CSV · up to 10 MB · stored privately (only logged-in admins can open them)</span>
+              <span data-f="msg" style="margin-left:8px;font-weight:600;"></span></div></div>`);
         // inline status (a SweetAlert toast would close the record window this panel lives in)
         const say = (m, bad) => $el.find('[data-f=msg]').css('color', bad ? '#a8442f' : '#1c5034').text(m);
-        const load = () => api('erp_docs.php', { action: 'list', entity_type: entityType, entity_id: entityId }, { silent: true }).then(r => {
-            $el.find('[data-f=list]').html(r.rows.length ? r.rows.map(d => `<div class="erp-docs-row"><i class="fas fa-file"></i>
+        const row = (d, rel) => `<div class="erp-docs-row"><i class="fas ${/image/.test(d.mime_type) ? 'fa-file-image' : /pdf/.test(d.mime_type) ? 'fa-file-pdf' : /sheet|excel|csv/.test(d.mime_type) ? 'fa-file-excel' : 'fa-file'}"></i>
                 <a class="erp-link" href="${BASE}erp_docs.php?action=download&id=${d.id}" target="_blank" rel="noopener">${esc(d.original_name)}</a>
-                ${badge('none', d.doc_type.replace(/_/g, ' '))}<span class="erp-muted">${date(d.created_at)} · ${esc(d.uploaded_by || '')}</span>
-                <button type="button" class="adm-icon-btn is-danger" data-del="${d.id}" title="Remove"><i class="fas fa-trash"></i></button></div>`).join('') : '<span class="erp-muted">No documents attached yet.</span>');
+                ${badge(d.status === 'archived' ? 'cancelled' : 'none', (CATS[d.category] || d.category || 'Other') + (d.version > 1 ? ' · v' + d.version : ''))}
+                ${d.description ? '<span class="erp-muted">' + esc(d.description) + '</span>' : ''}
+                <span class="erp-muted">${date(d.created_at)} · ${esc(d.uploaded_by || '')}${rel ? ' · on <a class="erp-link" href="' + esc(d.from_link) + '">' + esc(d.from_label) + '</a>' : ''}</span>
+                <a class="adm-icon-btn" href="${BASE}erp_docs.php?action=download&id=${d.id}&dl=1" title="Download"><i class="fas fa-download"></i></a>
+                ${!rel && d.status !== 'archived' ? `<button type="button" class="adm-icon-btn" data-ver="${d.id}" title="Upload a new version"><i class="fas fa-code-branch"></i></button>
+                   <button type="button" class="adm-icon-btn is-danger" data-arch="${d.id}" title="Archive (kept, can be restored)"><i class="fas fa-box-archive"></i></button>` : ''}
+                ${!rel && d.status === 'archived' ? `<button type="button" class="adm-icon-btn" data-rest="${d.id}" title="Restore"><i class="fas fa-rotate-left"></i></button><span class="erp-muted">${esc(d.archive_reason || '')}</span>` : ''}
+                ${!rel && d.version > 1 ? `<button type="button" class="adm-icon-btn" data-hist="${d.id}" title="Version history"><i class="fas fa-clock-rotate-left"></i></button>` : ''}</div>
+                <div data-histbox="${d.id}"></div>`;
+        const load = () => api('erp_docs.php', { action: 'list', entity_type: entityType, entity_id: entityId || 0, archived: showArchived ? 1 : 0 }, { silent: true }).then(r => {
+            CATS = r.categories || {};
+            const $c = $el.find('[data-f=cat]');
+            if (!$c.children().length) $c.html(Object.keys(CATS).map(k => `<option value="${k}" ${k === (defaultCat || 'OTHER') ? 'selected' : ''}>${esc(CATS[k])}</option>`).join(''));
+            if (!r.can_upload) $el.find('[data-f=upbox]').hide();
+            $el.find('[data-f=list]').html(r.rows.length ? r.rows.map(d => row(d, false)).join('') : '<span class="erp-muted">No documents attached yet.</span>');
+            $el.find('[data-f=rel]').html(r.related.length ? '<div class="erp-muted" style="margin-top:8px;font-weight:700;">From linked records</div>' + r.related.map(d => row(d, true)).join('') : '');
         }).catch(m => $el.find('[data-f=list]').text(m));
         $el.off('.erpdocs');
+        $el.on('change.erpdocs', '[data-f=arch]', function () { showArchived = this.checked; load(); });
+        $el.on('click.erpdocs', '[data-ver]', function () { replaces = $(this).data('ver'); say('Choose the new file, then Upload (replaces the selected document; the old version is kept).'); $el.find('[data-f=file]').trigger('click'); });
         $el.on('click.erpdocs', '[data-f=up]', () => {
             const f = $el.find('[data-f=file]')[0].files[0];
             if (!f) return say('Choose a file first', true);
-            const fd = new FormData(); fd.append('action', 'upload'); fd.append('entity_type', entityType); fd.append('entity_id', entityId); fd.append('doc_type', $el.find('[data-f=type]').val()); fd.append('file', f);
+            if (f.size > 50 * 1024 * 1024) return say('That file is too large.', true);
+            const fd = new FormData(); fd.append('action', 'upload'); fd.append('entity_type', entityType); fd.append('entity_id', entityId || 0);
+            fd.append('category', $el.find('[data-f=cat]').val()); fd.append('description', $el.find('[data-f=desc]').val()); if (replaces) fd.append('replaces_id', replaces); fd.append('file', f);
             const $b = $el.find('[data-f=up]').prop('disabled', true).text('Uploading…');
             $.ajax({ url: BASE + 'erp_docs.php', type: 'POST', data: fd, processData: false, contentType: false, dataType: 'json' })
-                .done(r => { if (r.status === 'success') { say('Document attached ✓'); $el.find('[data-f=file]').val(''); load(); } else say(r.message, true); })
-                .fail(() => say('Upload failed — check the file size and try again.', true))
+                .done(r => { if (r.status === 'success') { say(r.message + ' ✓'); replaces = null; $el.find('[data-f=file]').val(''); $el.find('[data-f=desc]').val(''); load(); } else say(r.message, true); })
+                .fail(x => say(x.status === 413 ? 'The file is too large for the server.' : 'Upload failed — check the file and your connection.', true))
                 .always(() => $b.prop('disabled', false).html('<i class="fas fa-upload"></i> Upload'));
         });
-        $el.on('click.erpdocs', '[data-del]', function () {
-            const id = $(this).data('del');
-            post('erp_docs.php', { action: 'delete', id }, { silent: true }).then(() => { say('Document removed'); load(); }).catch(m => say(m, true));
+        $el.on('click.erpdocs', '[data-arch]', function () {
+            const id = $(this).data('arch');
+            post('erp_docs.php', { action: 'archive', id, reason: 'Archived from ' + entityType }, { silent: true }).then(r => { say(r.message); load(); }).catch(m => say(m, true));
+        });
+        $el.on('click.erpdocs', '[data-rest]', function () { post('erp_docs.php', { action: 'restore', id: $(this).data('rest') }, { silent: true }).then(r => { say(r.message); load(); }).catch(m => say(m, true)); });
+        $el.on('click.erpdocs', '[data-hist]', function () {
+            const id = $(this).data('hist'), $box = $el.find(`[data-histbox="${id}"]`);
+            if ($box.html()) return $box.html('');
+            api('erp_docs.php', { action: 'history', id }, { silent: true }).then(r => $box.html('<div style="margin-left:24px">' + r.versions.map(v => `<div class="erp-muted">v${v.version} · <a class="erp-link" href="${BASE}erp_docs.php?action=download&id=${v.id}" target="_blank" rel="noopener">${esc(v.original_name)}</a> · ${date(v.created_at)} · ${esc(v.uploaded_by || '')} · ${esc(v.status)}</div>`).join('') + '</div>')).catch(m => say(m, true));
         });
         load();
     }
+
+    /** Server-side paging bar. onPage(page) is called with the new page number. */
+    function pager($el, total, page, per, onPage) {
+        const pages = Math.max(1, Math.ceil(total / per));
+        if (pages <= 1) { $el.html(total ? `<div class="erp-muted" style="margin-top:8px;">${total} record(s)</div>` : ''); return; }
+        $el.html(`<div class="erp-filters" style="justify-content:flex-end;margin-top:10px;"><span class="erp-muted">${total} records · page ${page} of ${pages}</span>
+            <button class="adm-btn adm-btn-ghost" data-pg="${page - 1}" ${page <= 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+            <button class="adm-btn adm-btn-ghost" data-pg="${page + 1}" ${page >= pages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button></div>`);
+        $el.off('.pg').on('click.pg', '[data-pg]', function () { onPage(+$(this).data('pg')); });
+    }
+    /** Tabs: <div class="erp-tabs"> with .erp-tab[data-tab]. */
+    function tabs($el, onChange, initial) {
+        $el.on('click', '.erp-tab', function () { $el.find('.erp-tab').removeClass('active'); $(this).addClass('active'); onChange($(this).data('tab')); });
+        if (initial) { $el.find('.erp-tab').removeClass('active').filter(`[data-tab="${initial}"]`).addClass('active'); }
+    }
+    function kpi(label, value, cls, link) { const h = `<div class="adm-stat ${cls || 'is-neutral'}"><h3>${value}</h3><p>${esc(label)}</p></div>`; return link ? `<a href="${link}">${h}</a>` : h; }
+    function itemLabel(x) { return esc(x.item_name || x.name || ('#' + (x.item_id || x.id))); }
 
     function chain(links) { return '<div class="erp-chain">' + links.filter(Boolean).map(l => `<a href="${l[1]}">${esc(l[0])}</a>`).join('') + '</div>'; }
     function kv(pairs) { return '<div class="erp-detail-head">' + pairs.filter(Boolean).map(p => `<div><span>${esc(p[0])}</span>${p[1]}</div>`).join('') + '</div>'; }
     function param(name) { return new URLSearchParams(location.search).get(name); }
 
     return { esc, num, r2, money, qty, date, today, monthStart, badge, toast, alertError, api, post, loading, errorBox, table, csv,
-             suppliers, warehouses, items, options, itemOptions, field, input, select, textarea, lineEditor, form, view, confirmAction, docs, chain, kv, param };
+             suppliers, warehouses, items, options, itemOptions, field, input, select, textarea, lineEditor, form, view, confirmAction, docs, chain, kv, param,
+             pager, tabs, kpi, itemLabel, BASE };
 })(jQuery);

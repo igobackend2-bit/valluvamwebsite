@@ -85,7 +85,7 @@ function openView(id) {
             + `<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th>Item</th><th class="erp-num">Qty</th><th class="erp-num">Rate</th><th class="erp-num">Value</th></tr></thead><tbody>` +
               x.items.map(i => `<tr><td>${E.esc(i.item_name)}</td><td class="erp-num">${E.qty(i.quantity, i.unit)}</td><td class="erp-num">${E.money(i.rate)}</td><td class="erp-num">${E.money(i.line_value)}</td></tr>`).join('') +
               '</tbody></table></div><div id="vDocs"></div>';
-        E.view(x.return_number, html, [], { didOpen: () => E.docs($('#vDocs'), 'purchase_return', x.id) });
+        E.view(x.return_number, html, [{ label: 'Debit note', icon: 'fa-file-invoice', run: () => location.href = 'debit_notes.php' }], { didOpen: () => E.docs($('#vDocs'), 'purchase_return', x.id, 'CREDIT_DEBIT_NOTE') });
     }).catch(() => {});
 }
 JS

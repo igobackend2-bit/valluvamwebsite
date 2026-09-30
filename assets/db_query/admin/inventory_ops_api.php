@@ -9,6 +9,7 @@
 // ============================================================================
 require_once __DIR__ . '/erp_helper.php';
 require_once __DIR__ . '/costing_engine.php';
+require_once __DIR__ . '/erp_ext.php';   // complete-ERP hooks: approvals, credit notes (1 Oct 2026)
 
 $action = (string) erp_input('action', '');
 $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -213,6 +214,8 @@ try {
             $aid = (int)$pdo->lastInsertId();
             $pdo->commit();
             log_audit($pdo, 'create', 'stock_adjustments', $aid, null, ['adj_number' => $num, 'item' => $item['name'], 'change' => $delta, 'reason' => $reason]);
+            if (erpx_installed($pdo)) apr_open($pdo, 'stock_adjustment', (string)$aid, $aid, $num, "Stock adjustment {$num}: {$item['name']} {$delta} {$item['unit']} — {$reason}", null, 'inventory_ops_api.php',
+                                               ['action' => 'adj_approve', 'id' => $aid], ['action' => 'adj_reject', 'id' => $aid]);
             erp_out(['status' => 'success', 'id' => $aid, 'message' => "{$num} requested ({$delta} {$item['unit']}). Stock changes after approval."]);
 
         case 'adj_approve':
@@ -226,6 +229,7 @@ try {
                 $pdo->prepare("UPDATE stock_adjustments SET status = 'rejected', approved_by = ?, approved_at = NOW() WHERE id = ?")->execute([erp_user(), $id]);
                 $pdo->commit();
                 log_audit($pdo, 'reject', 'stock_adjustments', $id, ['status' => 'pending'], ['status' => 'rejected']);
+                if (erpx_installed($pdo)) apr_close($pdo, 'stock_adjustment', (string)$id, 'rejected', erp_input('_approval_remarks') ?: null);
                 erp_out(['status' => 'success', 'message' => "{$a['adj_number']} rejected."]);
             }
             $delta = (float)$a['quantity'];
@@ -241,6 +245,7 @@ try {
             $pdo->prepare("UPDATE stock_adjustments SET status = 'approved', quantity = ?, approved_by = ?, approved_at = NOW() WHERE id = ?")->execute([$delta, erp_user(), $id]);
             $pdo->commit();
             log_audit($pdo, 'approve', 'stock_adjustments', $id, ['status' => 'pending'], ['status' => 'approved', 'applied_change' => $delta]);
+            if (erpx_installed($pdo)) apr_close($pdo, 'stock_adjustment', (string)$id, 'approved', erp_input('_approval_remarks') ?: null);
             erp_out(['status' => 'success', 'message' => "{$a['adj_number']} approved and applied ({$delta})."]);
 
         // ---------------------------------------------------------------- sales returns
@@ -292,6 +297,9 @@ try {
             $refund = $settlement === 'replacement' ? 0.0 : erp_m(erp_num(erp_input('refund_amount', $total), $settlement === 'refund' ? 'Refund amount' : 'Credit note amount'));
             if ($refund > $src['max_refund'] + 0.005) erp_invalid('Refund / credit cannot be more than the amount billed (₹' . number_format($src['max_refund'], 2) . ').');
             $mode = (string)erp_input('refund_mode', 'cash');
+            if (erpx_installed($pdo))   // approval rule for sales returns / refunds (1 Oct 2026; off unless enabled)
+                apr_gate($pdo, 'sales_return', sha1($src['source_type'] . '|' . $src['source_id'] . '|' . json_encode(erp_json_input('items')) . '|' . $date), max($refund, $total),
+                         'Sales return on ' . $src['source_number'] . ' — refund/credit ₹' . number_format($refund, 2), $src['source_number'], 'inventory_ops_api.php', apr_payload());
 
             $pdo->beginTransaction();
             $num = next_document_number($pdo, 'sales_return', 'SRET');
@@ -316,6 +324,7 @@ try {
             if ($refund > 0 && $settlement === 'refund') erp_cash_entry($pdo, 'refund', 'Sales Return Refund', $refund, $date, $mode, $src['customer_name'], 'sales_return', $num, "Refund for {$src['source_number']}");
             $pdo->commit();
             log_audit($pdo, 'create', 'sales_returns', $rid, null, ['return_number' => $num, 'source' => $src['source_number'], 'value' => $total, 'refund' => $refund, 'lines' => $lines]);
+            if (erpx_installed($pdo)) cn_issue_for_return($pdo, $rid);   // credit note (1 Oct 2026)
             erp_out(['status' => 'success', 'id' => $rid, 'message' => "{$num} posted. {$stockMsg}" . ($refund > 0 ? ($settlement === 'refund' ? ' Refund ₹' . number_format($refund, 2) . ' recorded in Transactions.' : ' Credit note ₹' . number_format($refund, 2) . ' reduces the customer balance.') : '')]);
 
         // ---------------------------------------------------------------- opening cost

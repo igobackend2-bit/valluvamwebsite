@@ -144,7 +144,20 @@ function openView(id) {
             g.status === 'posted' && { label: 'Enter vendor bill', cls: 'adm-btn-primary', icon: 'fa-file-invoice', run: () => location.href = 'purchase_invoices.php?grn_id=' + g.id },
             g.status === 'posted' && { label: 'Return to supplier', icon: 'fa-rotate-left', run: () => location.href = 'purchase_returns.php?grn_id=' + g.id },
             g.status === 'draft' && { label: 'Cancel draft', icon: 'fa-ban', run: run('grn_cancel', 'Cancel ' + g.grn_number + '?') },
-        ], { width: 1180, didOpen: () => E.docs($('#vDocs'), 'grn', g.id) });
+            { label: 'Transport', icon: 'fa-truck', run: () => location.href = 'shipments.php?grn_id=' + g.id + (g.po_id ? '&po_id=' + g.po_id : '') },
+        ], { width: 1180, didOpen: () => {
+            E.docs($('#vDocs'), 'grn', g.id, 'GRN');
+            // quality check + transport for this receipt (1 Oct 2026)
+            $('#vDocs').before('<div id="vQc"></div>');
+            E.api('procurement_api.php', { action: 'qc_for_grn', grn_id: g.id }, { silent: true }).then(q => {
+                let h = '';
+                if (q.qc) h += `<div class="erp-docs-row"><i class="fas fa-microscope"></i> Quality check <a class="erp-link" href="quality_checks.php?id=${q.qc.id}">${E.esc(q.qc.qc_number)}</a> ${E.badge(q.qc.status)}</div>`;
+                else if (g.status === 'draft') h += `<div class="${q.required ? 'erp-warn' : 'erp-docs-row'}">${q.required ? 'A quality check is required before posting. ' : ''}<button class="adm-btn adm-btn-ghost" id="vQcBtn"><i class="fas fa-microscope"></i> Start quality check</button> — goods stay in quarantine until checked.</div>`;
+                q.shipments.forEach(s => { h += `<div class="erp-docs-row"><i class="fas fa-truck"></i> Transport <a class="erp-link" href="shipments.php?id=${s.id}">${E.esc(s.shipment_number)}</a> ${E.badge(s.status)} ${E.money(s.total_cost)} ${s.cost_applied == 1 ? '· in stock cost' : ''}</div>`; });
+                $('#vQc').html(h);
+                $('#vQcBtn').on('click', () => E.post('procurement_api.php', { action: 'qc_create', grn_id: g.id }).then(x => location.href = 'quality_checks.php?id=' + x.id).catch(() => {}));
+            }).catch(() => {});
+        } });
     }).catch(() => {});
 }
 JS

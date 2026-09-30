@@ -72,6 +72,7 @@ function openView(id) {
                 preConfirm: () => $('#cvS').val() || (Swal.showValidationMessage('Choose a supplier'), false) })
                 .then(x => x.isConfirmed ? E.post('purchase_api.php', { action: 'pr_to_po', id: p.id, supplier_id: x.value }) : Promise.reject())
                 .then(x => { E.toast(x.message); location.href = 'purchase_orders.php?id=' + x.id; }).catch(() => {}) },
+            PR_PERMS.backend && p.status === 'approved' && { label: 'Ask for quotations (RFQ)', icon: 'fa-envelope-open-text', run: () => location.href = 'rfqs.php?pr_id=' + p.id },
             !['converted', 'cancelled'].includes(p.status) && { label: 'Cancel', icon: 'fa-ban', run: act('pr_cancel', 'Cancel ' + p.pr_number + '?', { danger: true }) },
         ]);
     }).catch(() => {});

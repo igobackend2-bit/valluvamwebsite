@@ -167,6 +167,15 @@ require_once __DIR__ . '/includes/check_admin.php';
                 <a href="profit_loss.php" class="adm-stat-link"><div class="adm-stat is-green"><div class="adm-stat-icon"><i class="fas fa-scale-balanced"></i></div><h3 id="erpNet">—</h3><p id="erpNetLabel">Net profit / loss</p></div></a>
                 <a href="inventory_overview.php" class="adm-stat-link"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-triangle-exclamation"></i></div><h3 id="erpLow">—</h3><p>Low stock items</p></div></a>
                 <a href="purchase_orders.php" class="adm-stat-link"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-file-signature"></i></div><h3 id="erpPos">—</h3><p>Pending purchase orders</p></div></a>
+                <!-- complete ERP (1 Oct 2026): shown only when the new tables are installed -->
+                <a href="erp_reports_center.php" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-primary"><div class="adm-stat-icon"><i class="fas fa-sun"></i></div><h3 id="erpToday">—</h3><p>Sales today</p></div></a>
+                <a href="erp_reports_center.php?r=customer_payments" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-green"><div class="adm-stat-icon"><i class="fas fa-hand-holding-dollar"></i></div><h3 id="erpColl">—</h3><p>Collections</p></div></a>
+                <a href="purchase_payments.php" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-money-bill-wave"></i></div><h3 id="erpSupPay">—</h3><p>Supplier payments</p></div></a>
+                <a href="erp_reports_center.php?r=cogs_report" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-boxes-stacked"></i></div><h3 id="erpCogs">—</h3><p>COGS</p></div></a>
+                <a href="batches.php?status=expiring" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-hourglass-end"></i></div><h3 id="erpExp">—</h3><p>Expiring batches</p></div></a>
+                <a href="purchase_requests.php" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-clipboard-list"></i></div><h3 id="erpPendPur">—</h3><p>Pending purchases</p></div></a>
+                <a href="purchase_invoices.php?status=unpaid" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-file-invoice-dollar"></i></div><h3 id="erpDue">—</h3><p>Bills due (7 days)</p></div></a>
+                <a href="approvals.php" class="adm-stat-link erp-x" style="display:none"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-stamp"></i></div><h3 id="erpApr">—</h3><p>Pending approvals</p></div></a>
             </div>
             </div>
 
@@ -480,6 +489,10 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#erpReceivables').text(m(k.receivables)); $('#erpPayables').text(m(k.payables)); $('#erpGross').text(m(k.gross_profit));
             $('#erpExpenses').text(m(k.expenses)); $('#erpNet').text(m(k.net_profit)); $('#erpNetLabel').text(k.net_profit < 0 ? 'Net loss' : 'Net profit');
             $('#erpLow').text(k.low_stock); $('#erpPos').text(k.pending_pos);
+            if (k.collections !== undefined) {
+                $('#erpToday').text(m(k.sales_today)); $('#erpColl').text(m(k.collections)); $('#erpSupPay').text(m(k.supplier_payments)); $('#erpCogs').text(m(k.cogs));
+                $('#erpExp').text(k.expiring_batches); $('#erpPendPur').text(k.pending_purchases); $('#erpDue').text(k.bills_due); $('#erpApr').text(k.pending_approvals); $('.erp-x').show();
+            }
             $('#erpKpiBlock').show();
         });
     });

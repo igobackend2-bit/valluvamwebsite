@@ -28,6 +28,7 @@ const CE_SALE_REFS = ['website_order', 'credit_sale', 'manual_sale', 'manual_sal
 /** Classifies a ledger row into a costing bucket. */
 function ce_bucket(string $itemType, float $delta, string $movementType, string $refType): string {
     $refType = strtolower($refType);
+    if ($refType === 'stock_transfer') return $delta > 0 ? 'transfer_in' : 'transfer_out';   // between warehouses (1 Oct 2026)
     if ($itemType === 'raw_material') {
         if ($delta > 0) return in_array($movementType, ['purchase'], true) ? 'purchase' : 'adjust_in';
         if ($movementType === 'repack_consume') return 'repack_consume';
@@ -59,7 +60,11 @@ function ce_bucket(string $itemType, float $delta, string $movementType, string 
  * $from/$to: 'Y-m-d' or null (null $from = beginning of time, null $to = now).
  * $itemIds: optional list to limit the run.
  */
-function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = null, ?array $itemIds = null): array {
+function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = null, ?array $itemIds = null, ?array &$trail = null): array {
+    // $trail (optional, added 1 Oct 2026): when passed, receives one row per valued event in the period
+    // (movement id, date, bucket, direction, qty, value) for journals, channel COGS and the transaction trace.
+    $wantTrail = func_num_args() >= 6;
+    if ($wantTrail) $trail = [];
     $fromTs = $from ? $from . ' 00:00:00' : null;
     $toTs = $to ? $to . ' 23:59:59' : null;
     $idFilter = '';
@@ -88,7 +93,7 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
     $moves = erp_rows_ce($pdo, $sql, $toTs ? array_merge($params, [$toTs]) : $params);
 
     // ---- cost entries (receipts + value-only + opening)
-    $ceSql = "SELECT item_id, entry_date, entry_type, quantity, value, COALESCE(reference_number,'') AS reference_number, after_movement_id
+    $ceSql = "SELECT item_id, entry_date, entry_type, quantity, value, COALESCE(reference_number,'') AS reference_number, COALESCE(reference_type,'') AS reference_type, after_movement_id
               FROM inventory_cost_entries WHERE status = 'active' AND item_type = ?" .
              ($idFilter ? sprintf($idFilter, 'item_id') : '') . ($toTs ? " AND entry_date <= ?" : '') . " ORDER BY entry_date, id";
     $ceParams = array_merge([$itemType], $params, $toTs ? [$toTs] : []);
@@ -102,7 +107,8 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
         } elseif ($c['entry_type'] === 'opening') {
             if ((float)$c['quantity'] > 0) $opening[$iid] = (float)$c['value'] / (float)$c['quantity']; // latest wins
         } else {
-            $valueOnly[] = ['item_id' => $iid, 'date' => $c['entry_date'], 'value' => (float)$c['value'], 'after' => $c['after_movement_id'] === null ? null : (int)$c['after_movement_id']];
+            $valueOnly[] = ['item_id' => $iid, 'date' => $c['entry_date'], 'value' => (float)$c['value'], 'after' => $c['after_movement_id'] === null ? null : (int)$c['after_movement_id'],
+                             'ref_type' => $c['reference_type'], 'ref_no' => $c['reference_number']];
         }
     }
 
@@ -162,6 +168,7 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
             $v = $e['v']['value'];
             if ($st['_qty'] > 0.0005) { $st['_val'] += $v; $st['_avg'] = $st['_val'] / $st['_qty']; if ($inPeriod) $st['landed_to_stock'] += $v; }
             else { if ($inPeriod) $st['landed_to_cogs'] += $v; }
+            if ($wantTrail && $inPeriod) $trail[] = ['kind' => 'value', 'id' => null, 'item_id' => $iid, 'date' => $e['t'], 'bucket' => $st['_qty'] > 0.0005 ? 'landed_stock' : 'landed_cogs', 'qty' => 0.0, 'value' => round($v, 2), 'ref_type' => $e['v']['ref_type'] ?? '', 'ref_no' => $e['v']['ref_no'] ?? ''];
             unset($st); continue;
         }
 
@@ -179,6 +186,8 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
                 else { $st['_pending_open'] = $prev; $st['opening_estimated'] = true; }
                 $st['_val'] = $st['_qty'] * $st['_avg'];
                 if (!$st['_snap'] && $inPeriod) { $st['opening_qty'] = $st['_qty']; $st['opening_value'] = $st['_val']; $st['_snap'] = true; }
+                // stock that existed before the ledger started, first seen inside the period (journals need it)
+                if ($wantTrail && $inPeriod && $st['_val'] > 0.005) $trail[] = ['kind' => 'open_est', 'id' => (int)$m['id'], 'item_id' => $iid, 'date' => $m['created_at'], 'bucket' => 'opening_estimate', 'qty' => round($prev, 3), 'value' => round($st['_val'], 2), 'ref_type' => '', 'ref_no' => '', 'in_period' => true, 'retro' => false];
             }
         } elseif (abs($prev - $st['_qty']) > 0.0005) {
             // A stock change happened that was never written to the ledger
@@ -187,6 +196,7 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
             $st['_qty'] = $prev; $st['_val'] += $gapVal;
             if ($st['_qty'] <= 0.0005) { $st['_qty'] = max(0.0, $st['_qty']); $st['_val'] = 0.0; }
             if ($inPeriod) { $st['unrecorded_qty'] += $gap; $add($st, $gap > 0 ? 'in' : 'out', 'unrecorded', abs($gap), abs($gapVal), true); }
+            if ($wantTrail && $inPeriod) $trail[] = ['kind' => 'gap', 'id' => (int)$m['id'], 'item_id' => $iid, 'date' => $m['created_at'], 'bucket' => 'unrecorded', 'qty' => round($gap, 3), 'value' => round($gapVal, 2), 'ref_type' => '', 'ref_no' => ''];
         }
         if (abs($delta) < 0.0005) { unset($st); continue; }
 
@@ -203,14 +213,17 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
             // An opening balance with unknown cost takes the first known purchase cost
             if ($st['_pending_open'] > 0 && $unit > 0) {
                 $st['_val'] += $st['_pending_open'] * $unit;
+                $retro = false;
                 if ($st['_snap'] && !$inPeriod) {} // snapshot not yet taken — fine
-                elseif ($st['_snap'] && abs($st['opening_value']) < 0.005 && $st['opening_qty'] > 0) $st['opening_value'] = $st['opening_qty'] * $unit;
+                elseif ($st['_snap'] && abs($st['opening_value']) < 0.005 && $st['opening_qty'] > 0) { $st['opening_value'] = $st['opening_qty'] * $unit; $retro = true; }
+                if ($wantTrail) $trail[] = ['kind' => 'open_est', 'id' => (int)$m['id'], 'item_id' => $iid, 'date' => $m['created_at'], 'bucket' => 'opening_estimate', 'qty' => round($st['_pending_open'], 3), 'value' => round($st['_pending_open'] * $unit, 2), 'ref_type' => '', 'ref_no' => '', 'in_period' => $inPeriod, 'retro' => $retro];
                 $st['_pending_open'] = 0.0;
             }
             $val = $delta * $unit;
             $st['_qty'] += $delta; $st['_val'] += $val;
             if ($st['_qty'] > 0.0005) $st['_avg'] = $st['_val'] / $st['_qty'];
             $add($st, 'in', $bucket, $delta, $val, $inPeriod);
+            if ($wantTrail && $inPeriod) $trail[] = ['kind' => 'move', 'id' => (int)$m['id'], 'item_id' => $iid, 'date' => $m['created_at'], 'bucket' => $bucket, 'qty' => round($delta, 3), 'value' => round($val, 2), 'ref_type' => $m['reference_type'], 'ref_no' => $m['reference_number'], 'unit_cost' => round($unit, 4)];
         } else {
             $out = -$delta;
             $cost = $out * $st['_avg'];
@@ -218,6 +231,7 @@ function ce_run(PDO $pdo, string $itemType, ?string $from = null, ?string $to = 
             $st['_qty'] -= $out; $st['_val'] -= $cost;
             if ($st['_qty'] <= 0.0005) { $st['_qty'] = 0.0; $st['_val'] = 0.0; }
             $add($st, 'out', $bucket, $out, $cost, $inPeriod);
+            if ($wantTrail && $inPeriod) $trail[] = ['kind' => 'move', 'id' => (int)$m['id'], 'item_id' => $iid, 'date' => $m['created_at'], 'bucket' => $bucket, 'qty' => round(-$out, 3), 'value' => round(-$cost, 2), 'ref_type' => $m['reference_type'], 'ref_no' => $m['reference_number'], 'unit_cost' => $out > 0 ? round($cost / $out, 4) : 0.0];
         }
         unset($st);
     }

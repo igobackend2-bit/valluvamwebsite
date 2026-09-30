@@ -8,6 +8,7 @@
 // Stock In / Stock Out tables. All money math goes through erp_line().
 // ============================================================================
 require_once __DIR__ . '/erp_helper.php';
+require_once __DIR__ . '/erp_ext.php';   // complete-ERP hooks: approvals, QC, debit notes (1 Oct 2026)
 
 $action = (string) erp_input('action', '');
 $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -88,6 +89,10 @@ try {
             foreach ($clean as $c) $ins->execute(array_merge([$id], $c));
             $pdo->commit();
             log_audit($pdo, isset($old) ? 'update' : 'create', 'purchase_requests', $id, $old ?? null, ['status' => $status, 'items' => $clean]);
+            if ($status === 'submitted' && erpx_installed($pdo)) {   // approvals inbox (1 Oct 2026)
+                $prNo = erp_val($pdo, "SELECT pr_number FROM purchase_requests WHERE id = ?", [$id]);
+                apr_open($pdo, 'purchase_request', (string)$id, $id, $prNo, "Purchase request {$prNo} (" . count($clean) . ' item(s)) — manager approval', null, 'purchase_api.php', ['action' => 'pr_manager_approve', 'id' => $id], ['action' => 'pr_manager_reject', 'id' => $id]);
+            }
             erp_out(['status' => 'success', 'id' => $id, 'message' => $status === 'submitted' ? 'Request submitted for approval.' : 'Request saved.']);
 
         case 'pr_manager_approve':
@@ -106,6 +111,16 @@ try {
             elseif ($action === 'pr_backend_approve') $pdo->prepare('UPDATE purchase_requests SET status=?, backend_approved_by=?, backend_approved_at=NOW(), approved_by=?, approved_at=NOW() WHERE id=?')->execute([$to, erp_user(), erp_user(), $id]);
             else $pdo->prepare('UPDATE purchase_requests SET status=? WHERE id=?')->execute([$to, $id]);
             log_audit($pdo, str_contains($action, 'approve') ? 'approve' : 'update', 'purchase_requests', $id, ['status' => $pr['status']], ['status' => $to, 'note' => erp_input('note')]);
+            if (erpx_installed($pdo)) {   // approvals inbox mirrors the Manager -> Backend chain (1 Oct 2026)
+                $rem = erp_input('_approval_remarks') ?: erp_input('note') ?: null;
+                if ($action === 'pr_manager_approve') {
+                    apr_close($pdo, 'purchase_request', (string)$id, 'approved', $rem);
+                    apr_open($pdo, 'purchase_request_final', (string)$id, $id, $pr['pr_number'], "Purchase request {$pr['pr_number']} — backend / final approval", null, 'purchase_api.php', ['action' => 'pr_backend_approve', 'id' => $id], ['action' => 'pr_backend_reject', 'id' => $id]);
+                } elseif ($action === 'pr_manager_reject') apr_close($pdo, 'purchase_request', (string)$id, 'rejected', $rem);
+                elseif ($action === 'pr_backend_approve') apr_close($pdo, 'purchase_request_final', (string)$id, 'approved', $rem);
+                elseif ($action === 'pr_backend_reject') apr_close($pdo, 'purchase_request_final', (string)$id, 'rejected', $rem);
+                else { apr_close($pdo, 'purchase_request', (string)$id, 'cancelled', $rem); apr_close($pdo, 'purchase_request_final', (string)$id, 'cancelled', $rem); }
+            }
             erp_out(['status' => 'success', 'message' => "Request {$to}."]);
 
         case 'pr_to_po':
@@ -217,6 +232,9 @@ try {
             foreach ($lines as $l) $ins->execute(array_merge([$id], $l));
             $pdo->commit();
             log_audit($pdo, $old ? 'update' : 'create', 'purchase_orders', $id, $old, ['po_number' => $num, 'status' => $status, 'grand_total' => $grand, 'items' => $lines]);
+            if ($status === 'pending_approval' && erpx_installed($pdo))   // approvals inbox (1 Oct 2026)
+                apr_open($pdo, 'purchase_order', (string)$id, $id, $num, "Purchase order {$num} — " . erp_supplier_name($pdo, $supplierId), $grand, 'purchase_api.php',
+                         ['action' => 'po_approve', 'id' => $id], ['action' => 'po_reject', 'id' => $id, '_endpoint' => 'procurement_api.php']);
             erp_out(['status' => 'success', 'id' => $id, 'po_number' => $num, 'message' => $status === 'pending_approval' ? "{$num} sent for approval." : "{$num} saved as draft."]);
 
         case 'po_approve':
@@ -226,6 +244,7 @@ try {
             if (!in_array($po['status'], ['draft', 'pending_approval'], true)) erp_invalid("A {$po['status']} purchase order cannot be approved.");
             $pdo->prepare("UPDATE purchase_orders SET status = 'approved', approved_by = ?, approved_at = NOW() WHERE id = ?")->execute([erp_user(), $id]);
             log_audit($pdo, 'approve', 'purchase_orders', $id, ['status' => $po['status']], ['status' => 'approved']);
+            if (erpx_installed($pdo)) apr_close($pdo, 'purchase_order', (string)$id, 'approved', erp_input('_approval_remarks') ?: null);
             erp_out(['status' => 'success', 'message' => "{$po['po_number']} approved. Goods can now be received against it."]);
 
         case 'po_cancel':
@@ -244,6 +263,7 @@ try {
             }
             $pdo->prepare("UPDATE purchase_orders SET status = ? WHERE id = ?")->execute([$to, $id]);
             log_audit($pdo, 'update', 'purchase_orders', $id, ['status' => $po['status']], ['status' => $to, 'reason' => erp_input('reason')]);
+            if (erpx_installed($pdo)) apr_close($pdo, 'purchase_order', (string)$id, 'cancelled', erp_input('reason') ?: null);
             erp_out(['status' => 'success', 'message' => "{$po['po_number']} {$to}."]);
 
         // ================================================================ GOODS RECEIPTS
@@ -292,6 +312,7 @@ try {
         case 'grn_save':
         case 'grn_post':
             $id = (int)erp_input('id', 0);
+            qc_grn_hook($pdo, $action, $id);   // quality check: pending blocks, completed result is used (1 Oct 2026)
             $poId = (int)erp_input('po_id', 0) ?: null;
             $po = $poId ? erp_row($pdo, "SELECT * FROM purchase_orders WHERE id = ?", [$poId]) : null;
             if ($poId && !$po) erp_invalid('Purchase order not found.');
@@ -511,6 +532,11 @@ try {
                 $chargesTotal += $amt; if ($toCost) $costCharges += $amt;
             }
             $grand = erp_m($net + $chargesTotal);
+            $billForApproval = false;   // approval rule for bills (1 Oct 2026; off unless enabled in Approvals)
+            if ($action === 'pinv_post' && erpx_installed($pdo)
+                && apr_intercept($pdo, 'purchase_invoice', 'sup:' . $supplierId . ':' . mb_strtolower($supInv), $grand, 'Purchase bill ' . $supInv . ' — ' . erp_supplier_name($pdo, $supplierId), $supInv, 'purchase_api.php', $id ?: null)) {
+                $action = 'pinv_save'; $billForApproval = true;
+            }
 
             // Allocate direct charges to lines by net value → landed unit cost
             $taxInCost = erp_tax_in_cost($pdo);
@@ -567,6 +593,11 @@ try {
             $pdo->commit();
             log_audit($pdo, $action === 'pinv_post' ? 'post' : ($old ? 'update' : 'create'), 'purchase_invoices', $id, $old,
                       ['pinv_number' => $num, 'supplier_invoice_no' => $supInv, 'grand_total' => $grand, 'charges' => $charges]);
+            if ($billForApproval) {
+                $apr = apr_open($pdo, 'purchase_invoice', 'sup:' . $supplierId . ':' . mb_strtolower($supInv), $id, $supInv, 'Purchase bill ' . $supInv . ' — ' . erp_supplier_name($pdo, $supplierId), $grand,
+                                'purchase_api.php', array_merge(apr_payload(), ['action' => 'pinv_post', 'id' => $id]));
+                $message = "{$num} saved as draft and sent for approval ({$apr}). The payable is recorded when it is approved.";
+            }
             erp_out(['status' => 'success', 'id' => $id, 'pinv_number' => $num, 'message' => $message]);
 
         case 'pinv_cancel':
@@ -609,6 +640,13 @@ try {
             $mode = (string)erp_input('payment_mode', 'bank_transfer');
             if (!in_array($mode, ['cash', 'bank_transfer', 'upi', 'cheque', 'card', 'other'], true)) erp_invalid('Choose a payment mode.');
             if (in_array($mode, ['bank_transfer', 'upi', 'cheque'], true) && trim((string)erp_input('reference_number', '')) === '') erp_invalid('Enter the reference / UTR / cheque number.');
+            // never post the same payment twice (1 Oct 2026): same supplier + same reference / UTR / cheque no.
+            $payRef = trim((string)erp_input('reference_number', ''));
+            if ($payRef !== '' && erp_val($pdo, "SELECT id FROM purchase_payments WHERE supplier_id = ? AND reference_number = ? AND status = 'completed'", [$supplierId, $payRef]))
+                erp_invalid("A payment with reference {$payRef} is already recorded for this supplier.");
+            if (erpx_installed($pdo))
+                apr_gate($pdo, 'purchase_payment', sha1($supplierId . '|' . $pinvId . '|' . $amount . '|' . $date . '|' . $payRef), $amount, 'Pay ₹' . number_format($amount, 2) . ' to ' . $sname,
+                         $payRef ?: null, 'purchase_api.php', apr_payload());
             $pdo->beginTransaction();
             $pinv = null;
             if ($pinvId) {
@@ -712,6 +750,9 @@ try {
             if (!$lines) erp_invalid('Enter a return quantity for at least one item.');
             $refund = $settlement === 'refund' ? erp_m(erp_num(erp_input('refund_received', 0), 'Refund received')) : 0.0;
             if ($refund > $total + 0.005) erp_invalid('Refund received cannot be more than the return value.');
+            if (erpx_installed($pdo))   // approval rule for purchase returns (1 Oct 2026; off unless enabled)
+                apr_gate($pdo, 'purchase_return', sha1($grnId . '|' . json_encode(erp_json_input('items')) . '|' . $date), $total, 'Purchase return on ' . $g['grn_number'] . ' (₹' . number_format($total, 2) . ')',
+                         $g['grn_number'], 'purchase_api.php', apr_payload());
 
             $pdo->beginTransaction();
             $num = next_document_number($pdo, 'purchase_return', 'PRET');
@@ -741,6 +782,7 @@ try {
                                             erp_supplier_name($pdo, (int)$g['supplier_id']), 'purchase_return', $num, "Refund for purchase return {$num}");
             $pdo->commit();
             log_audit($pdo, 'create', 'purchase_returns', $rid, null, ['return_number' => $num, 'grn' => $g['grn_number'], 'value' => $total, 'settlement' => $settlement, 'refund' => $refund]);
+            if (erpx_installed($pdo)) dn_issue_for_return($pdo, $rid);   // debit note (1 Oct 2026)
             erp_out(['status' => 'success', 'id' => $rid, 'return_number' => $num,
                      'message' => "{$num} posted: stock reduced, ₹" . number_format($total, 2) . ($settlement === 'replacement' ? ' to be replaced by the supplier.' : ' credited against the supplier.')]);
 

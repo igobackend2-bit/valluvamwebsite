@@ -29,8 +29,10 @@ function rep_sales(PDO $pdo, string $from, string $to): array {
                        WHERE m.sales_date BETWEEN ? AND ? GROUP BY mi.product_id",
         'credit_sales' => "SELECT ci.product_id, SUM(ci.quantity) q, SUM(ci.rate*ci.quantity - ci.discount) v FROM credit_sale_items ci JOIN credit_sales c ON c.id = ci.credit_sale_id
                        WHERE c.sale_date BETWEEN ? AND ? GROUP BY ci.product_id",
+        // FIX (1 Oct 2026): online orders whose payment never completed are not sales (paid online, or cash on delivery)
         'website' => "SELECT oi.product_id, SUM(oi.quantity) q, SUM(oi.price*oi.quantity) v FROM order_items oi JOIN orders o ON o.id = oi.order_id
-                       WHERE COALESCE(o.order_status,'ordered') <> 'cancelled' AND DATE(o.created_at) BETWEEN ? AND ? GROUP BY oi.product_id",
+                       WHERE COALESCE(o.order_status,'ordered') <> 'cancelled' AND (o.payment_status = 'paid' OR UPPER(o.payment_method) = 'COD')
+                         AND DATE(o.created_at) BETWEEN ? AND ? GROUP BY oi.product_id",
     ];
     $tables = ['invoices' => 'invoices', 'manual_sales' => 'manual_sales', 'credit_sales' => 'credit_sales', 'website' => 'orders'];
     foreach ($sets as $ch => $sql) {
@@ -95,7 +97,7 @@ function rep_pnl(PDO $pdo, string $from, string $to): array {
     // Website order totals include delivery charge / order-level discount beyond the item lines
     $webAdj = 0.0;
     if (tbl_exists($pdo, 'orders')) {
-        $webTotal = (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM orders WHERE COALESCE(order_status,'ordered') <> 'cancelled' AND DATE(created_at) BETWEEN ? AND ?", [$from, $to]);
+        $webTotal = (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM orders WHERE COALESCE(order_status,'ordered') <> 'cancelled' AND (payment_status = 'paid' OR UPPER(payment_method) = 'COD') AND DATE(created_at) BETWEEN ? AND ?", [$from, $to]);
         $webAdj = round($webTotal - $channels['website'], 2);
     }
     $returns = (float)erp_val($pdo, "SELECT COALESCE(SUM(total_value),0) FROM sales_returns WHERE status = 'posted' AND return_date BETWEEN ? AND ?", [$from, $to]);
@@ -108,7 +110,7 @@ function rep_pnl(PDO $pdo, string $from, string $to): array {
 
     // Inventory movement (products + raw materials) — reconciles opening to closing
     $inv = ['opening' => 0, 'purchases' => 0, 'landed' => 0, 'purchase_returns' => 0, 'repack_net' => 0, 'sales_returns_restocked' => 0,
-            'cogs_ledger' => 0, 'waste' => 0, 'adjustments_net' => 0, 'unrecorded_net' => 0, 'closing' => 0];
+            'cogs_ledger' => 0, 'waste' => 0, 'adjustments_net' => 0, 'unrecorded_net' => 0, 'transfers_in_transit' => 0, 'closing' => 0];
     foreach (['product', 'raw_material'] as $t) {
         $run = ce_run($pdo, $t, $from, $to);
         foreach ($run as $r) {
@@ -122,11 +124,19 @@ function rep_pnl(PDO $pdo, string $from, string $to): array {
             $inv['waste'] += $r['out']['waste'][1] ?? 0;
             $inv['adjustments_net'] += ($r['in']['adjust_in'][1] ?? 0) - ($r['out']['adjust_out'][1] ?? 0);
             $inv['unrecorded_net'] += ($r['in']['unrecorded'][1] ?? 0) - ($r['out']['unrecorded'][1] ?? 0);
+            $inv['transfers_in_transit'] += ($r['in']['transfer_in'][1] ?? 0) - ($r['out']['transfer_out'][1] ?? 0);   // between warehouses (1 Oct 2026)
         }
     }
     foreach ($inv as $k => $v) $inv[$k] = round($v, 2);
 
     // Operating expenses & other income: existing Accounts → Transactions (completed)
+    if (tbl_exists($pdo, 'expenses')) {
+        // expenses from the Expenses module (1 Oct 2026): unpaid ones count on their date too, and claimable GST is not an expense
+        $exp = erp_rows($pdo, "SELECT t.category, ROUND(SUM(t.amount - IF(t.reference_type = 'expense' AND ? = 0, COALESCE(e.tax_amount,0), 0)),2) amount
+                               FROM accounts_transactions t LEFT JOIN expenses e ON t.reference_type = 'expense' AND e.expense_number = t.reference_number
+                               WHERE t.type = 'expense' AND (t.status = 'completed' OR (t.status = 'pending' AND t.reference_type = 'expense')) AND t.date BETWEEN ? AND ?
+                               GROUP BY t.category ORDER BY amount DESC", [erp_tax_in_cost($pdo) ? 1 : 0, $from, $to]);
+    } else
     $exp = erp_rows($pdo, "SELECT category, ROUND(SUM(amount),2) amount FROM accounts_transactions WHERE type = 'expense' AND status = 'completed' AND date BETWEEN ? AND ? GROUP BY category ORDER BY amount DESC", [$from, $to]);
     $inc = erp_rows($pdo, "SELECT category, ROUND(SUM(amount),2) amount FROM accounts_transactions WHERE type = 'income' AND status = 'completed' AND date BETWEEN ? AND ? GROUP BY category ORDER BY amount DESC", [$from, $to]);
     $expTotal = round(array_sum(array_column($exp, 'amount')), 2);
@@ -186,6 +196,10 @@ function rep_batches(PDO $pdo, int $days): array {
                             LEFT JOIN warehouses w ON w.id = b.warehouse_id LEFT JOIN goods_receipts g ON g.id = b.source_id AND b.source_type = 'grn'
                             ORDER BY b.item_type, b.item_id, b.received_date DESC, b.id DESC");
     $remaining = [];
+    $fefo = [];
+    if (tbl_exists($pdo, 'batch_allocations') && function_exists('batch_remaining_rows')) {
+        try { fefo_sync($pdo); foreach (batch_remaining_rows($pdo) as $b) $fefo[(int)$b['id']] = (float)$b['remaining']; } catch (Throwable $e) { $fefo = []; }
+    }
     $rows = erp_attach_item_names($pdo, $rows);
     foreach ($rows as &$r) {
         $k = $r['item_type'] . ':' . $r['item_id'];
@@ -193,6 +207,7 @@ function rep_batches(PDO $pdo, int $days): array {
         $net = max(0, (float)$r['qty_received'] - (float)$r['qty_returned']);
         $alloc = min($net, $remaining[$k]);
         $remaining[$k] -= $alloc;
+        if (isset($fefo[(int)$r['id']])) $alloc = $fefo[(int)$r['id']];   // exact FEFO allocation (1 Oct 2026) when available
         $r['qty_available_est'] = round($alloc, 3);
         $r['value_est'] = round($alloc * $r['unit_cost'], 2);
         $r['days_to_expiry'] = $r['expiry_date'] ? (int)floor((strtotime($r['expiry_date']) - strtotime(date('Y-m-d'))) / 86400) : null;
@@ -209,8 +224,10 @@ function rep_supplier_totals(PDO $pdo, int $sid): array {
     $received = (float)erp_val($pdo, "SELECT COALESCE(SUM(gi.accepted_qty * gi.rate),0) FROM goods_receipt_items gi JOIN goods_receipts g ON g.id = gi.grn_id WHERE g.supplier_id = ? AND g.status = 'posted'", [$sid]);
     $billedGrn = (float)erp_val($pdo, "SELECT COALESCE(SUM(pii.quantity * gi.rate),0) FROM purchase_invoice_items pii JOIN purchase_invoices pi ON pi.id = pii.pinv_id
                                       JOIN goods_receipt_items gi ON gi.id = pii.grn_item_id WHERE pi.supplier_id = ? AND pi.status = 'posted'", [$sid]);
-    $outstanding = erp_m($inv - $paid - $ret['v'] + $ret['rf']);
-    return ['total_invoiced' => erp_m($inv), 'total_paid' => erp_m($paid), 'returns_credit' => erp_m($ret['v']), 'refunds_received' => erp_m($ret['rf']),
+    // opening balance from the supplier profile (added 1 Oct 2026; 0 when not set)
+    $opening = tbl_exists($pdo, 'supplier_profiles') ? (float)erp_val($pdo, "SELECT COALESCE(opening_balance,0) FROM supplier_profiles WHERE supplier_id = ?", [$sid]) : 0.0;
+    $outstanding = erp_m($opening + $inv - $paid - $ret['v'] + $ret['rf']);
+    return ['opening_balance' => erp_m($opening), 'total_invoiced' => erp_m($inv), 'total_paid' => erp_m($paid), 'returns_credit' => erp_m($ret['v']), 'refunds_received' => erp_m($ret['rf']),
             'outstanding' => $outstanding, 'received_not_invoiced' => erp_m(max(0, $received - $billedGrn))];
 }
 
@@ -242,6 +259,10 @@ function rep_supplier_ledger(PDO $pdo, int $sid): array {
         if ((float)$r['rf'] > 0) $entries[] = ['date' => $r['d'], 'type' => 'Refund received', 'ref' => $r['n'], 'ref2' => '', 'link' => ['purchase_returns.php', $r['id']], 'debit' => 0, 'credit' => (float)$r['rf']];
     }
     usort($entries, function ($a, $b) { return strcmp($a['date'], $b['date']); });
+    $op = tbl_exists($pdo, 'supplier_profiles') ? erp_row($pdo, "SELECT opening_balance, opening_balance_date FROM supplier_profiles WHERE supplier_id = ?", [$sid]) : null;
+    if ($op && abs((float)$op['opening_balance']) >= 0.005)
+        array_unshift($entries, ['date' => $op['opening_balance_date'] ?: '2000-01-01', 'type' => 'Opening balance', 'ref' => 'Opening', 'ref2' => '', 'link' => ['supplier_360.php', $sid],
+                                 'debit' => (float)$op['opening_balance'] < 0 ? -(float)$op['opening_balance'] : 0, 'credit' => (float)$op['opening_balance'] > 0 ? (float)$op['opening_balance'] : 0]);
     $bal = 0;
     foreach ($entries as &$e) { $bal += $e['credit'] - $e['debit']; $e['balance'] = erp_m($bal); }
     unset($e);
@@ -321,7 +342,7 @@ function rep_pending(PDO $pdo): array {
         'draft_grns' => erp_rows($pdo, "SELECT g.id, g.grn_number, g.received_date, s.supplier_name FROM goods_receipts g JOIN suppliers s ON s.id = g.supplier_id WHERE g.status = 'draft' ORDER BY g.id"),
         'unbilled_grns' => erp_rows($pdo, "SELECT g.id, g.grn_number, g.received_date, s.supplier_name FROM goods_receipts g JOIN suppliers s ON s.id = g.supplier_id
                                           WHERE g.status = 'posted' AND NOT EXISTS (SELECT 1 FROM purchase_invoices pi WHERE pi.grn_id = g.id AND pi.status <> 'cancelled') ORDER BY g.id"),
-        'pending_requests' => erp_rows($pdo, "SELECT id, pr_number, request_date, status FROM purchase_requests WHERE status IN ('submitted','approved') ORDER BY id"),
+        'pending_requests' => erp_rows($pdo, "SELECT id, pr_number, request_date, status FROM purchase_requests WHERE status IN ('submitted','manager_approved','approved') ORDER BY id"),
         'pending_adjustments' => (int)erp_val($pdo, "SELECT COUNT(*) FROM stock_adjustments WHERE status = 'pending'"),
     ];
 }

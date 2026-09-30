@@ -47,7 +47,7 @@ function load() {
           <div class="erp-section-title">Inventory roll-forward (checks the cost figures)</div>
           <table class="erp-pl">${row('Opening inventory', inv.opening)}${row('+ Purchases received (GRN / Stock In)', inv.purchases, 'sub', 'purchase_history.php')}${row('+ Freight, landed cost & price differences', inv.landed, 'sub', 'purchase_invoices.php')}
             ${row('− Purchase returns', -inv.purchase_returns, 'sub', 'purchase_returns.php')}${row('+ Repacking (packing cost added)', inv.repack_net, 'sub', 'repacking.php')}${row('+ Sales returns put back in stock', inv.sales_returns_restocked, 'sub')}
-            ${row('− Cost of stock sold', -inv.cogs_ledger, 'sub')}${row('− Waste', -inv.waste, 'sub', 'waste.php')}${row('± Adjustments (net)', inv.adjustments_net, 'sub', 'stock_adjustments.php')}${row('± Unrecorded stock changes', inv.unrecorded_net, 'sub')}
+            ${row('− Cost of stock sold', -inv.cogs_ledger, 'sub')}${row('− Waste', -inv.waste, 'sub', 'waste.php')}${row('± Adjustments (net)', inv.adjustments_net, 'sub', 'stock_adjustments.php')}${row('± Unrecorded stock changes', inv.unrecorded_net, 'sub')}${inv.transfers_in_transit ? row('− Transfers in transit between warehouses', inv.transfers_in_transit, 'sub', 'stock_transfers.php') : ''}
             ${row('Closing inventory', inv.closing, 'total', 'stock_valuation.php')}</table>
           ${r.notes.map(n => `<p class="erp-note">${E.esc(n)}</p>`).join('')}`);
     }).catch(m => E.errorBox($p, m, load));
