@@ -14,8 +14,9 @@ $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
 
 $perms = [
     'pr_save' => 'purchase.create', 'pr_submit' => 'purchase.create', 'pr_cancel' => 'purchase.create',
-    'pr_approve' => 'purchase.approve', 'pr_reject' => 'purchase.approve', 'pr_to_po' => 'purchase.create',
-    'po_save' => 'purchase.create', 'po_submit' => 'purchase.create', 'po_approve' => 'purchase.approve',
+    'pr_manager_approve' => 'purchase.manager_approve', 'pr_manager_reject' => 'purchase.manager_approve',
+    'pr_backend_approve' => 'purchase.backend_approve', 'pr_backend_reject' => 'purchase.backend_approve', 'pr_to_po' => 'purchase.backend_approve',
+    'po_save' => 'purchase.backend_approve', 'po_submit' => 'purchase.backend_approve', 'po_approve' => 'purchase.backend_approve',
     'po_cancel' => 'purchase.approve', 'po_close' => 'purchase.approve',
     'grn_save' => 'grn.create', 'grn_post' => 'grn.create', 'grn_cancel' => 'grn.create',
     'pinv_save' => 'purchase_invoice.create', 'pinv_post' => 'purchase_invoice.create', 'pinv_cancel' => 'purchase_invoice.create',
@@ -28,10 +29,14 @@ if (isset($perms[$action]) && !$isWrite) erp_fail('Invalid request method.');
 try {
     switch ($action) {
         // ================================================================ PURCHASE REQUESTS
+        case 'pr_permissions':
+            erp_out(['status' => 'success', 'manager' => erp_can($pdo, 'purchase.manager_approve'), 'backend' => erp_can($pdo, 'purchase.backend_approve')]);
+
         case 'pr_list':
             $w = []; $p = [];
             if ($s = erp_input('status')) { $w[] = 'pr.status = ?'; $p[] = $s; }
             if ($q = trim((string)erp_input('q', ''))) { $w[] = '(pr.pr_number LIKE ? OR pr.requested_by LIKE ? OR pr.notes LIKE ?)'; array_push($p, "%$q%", "%$q%", "%$q%"); }
+            if (!erp_can($pdo, 'purchase.manager_approve') && !erp_can($pdo, 'purchase.backend_approve')) { $w[] = 'pr.created_by = ?'; $p[] = erp_user(); }
             $rows = erp_rows($pdo, "SELECT pr.*, w.name AS warehouse_name,
                                            (SELECT COUNT(*) FROM purchase_request_items i WHERE i.pr_id = pr.id) AS item_count
                                     FROM purchase_requests pr LEFT JOIN warehouses w ON w.id = pr.warehouse_id" .
@@ -42,6 +47,7 @@ try {
             $id = (int)erp_input('id');
             $pr = erp_row($pdo, "SELECT pr.*, w.name AS warehouse_name FROM purchase_requests pr LEFT JOIN warehouses w ON w.id = pr.warehouse_id WHERE pr.id = ?", [$id]);
             if (!$pr) erp_fail('Purchase request not found.');
+            if (!erp_can($pdo, 'purchase.manager_approve') && !erp_can($pdo, 'purchase.backend_approve') && $pr['created_by'] !== erp_user()) erp_fail('You can view only your own purchase requests.', 403);
             $pr['items'] = erp_attach_item_names($pdo, erp_rows($pdo, "SELECT * FROM purchase_request_items WHERE pr_id = ? ORDER BY id", [$id]));
             $pr['purchase_orders'] = erp_rows($pdo, "SELECT id, po_number, status, grand_total FROM purchase_orders WHERE pr_id = ?", [$id]);
             erp_out(['status' => 'success', 'record' => $pr]);
@@ -67,14 +73,15 @@ try {
             if ($id) {
                 $old = erp_row($pdo, "SELECT * FROM purchase_requests WHERE id = ? FOR UPDATE", [$id]);
                 if (!$old) erp_invalid('Purchase request not found.');
+                if (!erp_can($pdo, 'purchase.manager_approve') && !erp_can($pdo, 'purchase.backend_approve') && $old['created_by'] !== erp_user()) erp_invalid('You can edit only your own purchase requests.');
                 if (!in_array($old['status'], ['draft', 'rejected'], true)) erp_invalid('Only draft or rejected requests can be edited.');
                 $pdo->prepare("UPDATE purchase_requests SET request_date=?, required_by=?, warehouse_id=?, requested_by=?, notes=?, status=? WHERE id=?")
-                    ->execute([$date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, erp_input('requested_by') ?: erp_user(), erp_input('notes') ?: null, $status, $id]);
+                    ->execute([$date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, erp_user(), erp_input('notes') ?: null, $status, $id]);
                 $pdo->prepare("DELETE FROM purchase_request_items WHERE pr_id = ?")->execute([$id]);
             } else {
                 $num = next_document_number($pdo, 'purchase_request', 'PR');
                 $pdo->prepare("INSERT INTO purchase_requests (pr_number, request_date, required_by, warehouse_id, requested_by, notes, status, created_by) VALUES (?,?,?,?,?,?,?,?)")
-                    ->execute([$num, $date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, erp_input('requested_by') ?: erp_user(), erp_input('notes') ?: null, $status, erp_user()]);
+                    ->execute([$num, $date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, erp_user(), erp_input('notes') ?: null, $status, erp_user()]);
                 $id = (int)$pdo->lastInsertId();
             }
             $ins = $pdo->prepare("INSERT INTO purchase_request_items (pr_id, item_type, item_id, quantity, unit, estimated_rate, notes) VALUES (?,?,?,?,?,?,?)");
@@ -83,18 +90,22 @@ try {
             log_audit($pdo, isset($old) ? 'update' : 'create', 'purchase_requests', $id, $old ?? null, ['status' => $status, 'items' => $clean]);
             erp_out(['status' => 'success', 'id' => $id, 'message' => $status === 'submitted' ? 'Request submitted for approval.' : 'Request saved.']);
 
-        case 'pr_approve':
-        case 'pr_reject':
+        case 'pr_manager_approve':
+        case 'pr_manager_reject':
+        case 'pr_backend_approve':
+        case 'pr_backend_reject':
         case 'pr_cancel':
             $id = (int)erp_input('id');
             $pr = erp_row($pdo, "SELECT * FROM purchase_requests WHERE id = ?", [$id]);
             if (!$pr) erp_invalid('Purchase request not found.');
-            $to = ['pr_approve' => 'approved', 'pr_reject' => 'rejected', 'pr_cancel' => 'cancelled'][$action];
-            $allowed = ['pr_approve' => ['submitted'], 'pr_reject' => ['submitted'], 'pr_cancel' => ['draft', 'submitted', 'approved', 'rejected']][$action];
+            if ($action === 'pr_cancel' && !erp_can($pdo, 'purchase.manager_approve') && !erp_can($pdo, 'purchase.backend_approve') && $pr['created_by'] !== erp_user()) erp_invalid('You can cancel only your own purchase requests.');
+            $to = ['pr_manager_approve' => 'manager_approved', 'pr_manager_reject' => 'manager_rejected', 'pr_backend_approve' => 'approved', 'pr_backend_reject' => 'backend_rejected', 'pr_cancel' => 'cancelled'][$action];
+            $allowed = ['pr_manager_approve' => ['submitted'], 'pr_manager_reject' => ['submitted'], 'pr_backend_approve' => ['manager_approved'], 'pr_backend_reject' => ['manager_approved'], 'pr_cancel' => ['draft', 'submitted', 'manager_approved', 'approved', 'manager_rejected', 'backend_rejected']][$action];
             if (!in_array($pr['status'], $allowed, true)) erp_invalid("A {$pr['status']} request cannot be {$to}.");
-            $pdo->prepare("UPDATE purchase_requests SET status = ?, approved_by = IF(? = 'approved', ?, approved_by), approved_at = IF(? = 'approved', NOW(), approved_at) WHERE id = ?")
-                ->execute([$to, $to, erp_user(), $to, $id]);
-            log_audit($pdo, $to === 'approved' ? 'approve' : 'update', 'purchase_requests', $id, ['status' => $pr['status']], ['status' => $to, 'note' => erp_input('note')]);
+            if ($action === 'pr_manager_approve') $pdo->prepare('UPDATE purchase_requests SET status=?, manager_approved_by=?, manager_approved_at=NOW() WHERE id=?')->execute([$to, erp_user(), $id]);
+            elseif ($action === 'pr_backend_approve') $pdo->prepare('UPDATE purchase_requests SET status=?, backend_approved_by=?, backend_approved_at=NOW(), approved_by=?, approved_at=NOW() WHERE id=?')->execute([$to, erp_user(), erp_user(), $id]);
+            else $pdo->prepare('UPDATE purchase_requests SET status=? WHERE id=?')->execute([$to, $id]);
+            log_audit($pdo, str_contains($action, 'approve') ? 'approve' : 'update', 'purchase_requests', $id, ['status' => $pr['status']], ['status' => $to, 'note' => erp_input('note')]);
             erp_out(['status' => 'success', 'message' => "Request {$to}."]);
 
         case 'pr_to_po':

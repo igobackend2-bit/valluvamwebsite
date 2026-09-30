@@ -20,6 +20,14 @@ function erp_out(array $data) { echo json_encode($data); exit; }
 function erp_fail(string $msg, int $http = 200) { if ($http !== 200) http_response_code($http); erp_out(['status' => 'error', 'message' => $msg]); }
 function erp_user(): string { return $_SESSION['admin_username'] ?? 'Admin'; }
 
+/** Non-throwing permission lookup for workflow visibility and record ownership. */
+function erp_can(PDO $pdo, string $perm): bool {
+    if ((int)($_SESSION['admin_role_id'] ?? 0) === 1) return true;
+    $s = $pdo->prepare('SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = ?');
+    $s->execute([(int)($_SESSION['admin_role_id'] ?? 0), $perm]);
+    return (bool)$s->fetchColumn();
+}
+
 /** Admin session + permission (existing role system) + ERP tables present. */
 function erp_guard(PDO $pdo, ?string $perm = null) {
     require_admin_session();

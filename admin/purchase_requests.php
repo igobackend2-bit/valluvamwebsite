@@ -7,8 +7,8 @@ erp_page_start('Purchase Requests', 'Ask for stock to be bought — approved req
     <div class="adm-card-head">
         <h2>Requests</h2>
         <div class="erp-filters">
-            <select class="adm-select" id="fStatus"><option value="">All status</option><option value="draft">Draft</option><option value="submitted">Waiting approval</option>
-                <option value="approved">Approved</option><option value="converted">Converted to PO</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option></select>
+            <select class="adm-select" id="fStatus"><option value="">All status</option><option value="draft">Draft</option><option value="submitted">Waiting for Manager</option>
+                <option value="manager_approved">Waiting for Backend</option><option value="approved">Backend approved</option><option value="converted">Converted to PO</option><option value="manager_rejected">Rejected by Manager</option><option value="backend_rejected">Rejected by Backend</option><option value="cancelled">Cancelled</option></select>
             <input type="text" class="adm-input" id="fQ" placeholder="Search">
         </div>
     </div>
@@ -16,8 +16,8 @@ erp_page_start('Purchase Requests', 'Ask for stock to be bought — approved req
 </section>
 <?php erp_page_end(<<<'JS'
 const E = ERP;
-let SUP = [], WH = [], ITEMS = [];
-Promise.all([E.suppliers(), E.warehouses(), E.items()]).then(([s, w, i]) => { SUP = s; WH = w; ITEMS = i; load(); if (E.param('id')) openView(E.param('id')); });
+let SUP = [], WH = [], ITEMS = [], PR_PERMS = { manager: false, backend: false };
+Promise.all([E.suppliers(), E.warehouses(), E.items(), E.api('purchase_api.php', { action: 'pr_permissions' }, { silent: true })]).then(([s, w, i, p]) => { SUP = s; WH = w; ITEMS = i; PR_PERMS = p; load(); if (E.param('id')) openView(E.param('id')); });
 $('#fStatus').on('change', load);
 let t; $('#fQ').on('input', () => { clearTimeout(t); t = setTimeout(load, 300); });
 $('#newBtn').on('click', () => openForm({}));
@@ -41,7 +41,7 @@ function openForm(pr) {
         ${E.field('Request date *', E.input('qD', pr.request_date || E.today(), 'type="date"'))}
         ${E.field('Needed by', E.input('qN', pr.required_by || '', 'type="date"'))}
         ${E.field('Warehouse', E.select('qW', E.options(WH, 'id', w => w.name, pr.warehouse_id || 1, false)))}
-        ${E.field('Requested by', E.input('qB', pr.requested_by || ''))}
+        ${E.field('Requested by', E.input('qB', pr.requested_by || '', 'readonly'))}
         ${E.field('Notes', E.textarea('qNotes', pr.notes || ''), 'span-all')}
       </div><div class="erp-section-title">Items needed</div><div id="qLines"></div>`;
     E.form(pr.id ? 'Edit ' + pr.pr_number : 'New purchase request', html, btn => E.post('purchase_api.php', { action: btn === 'deny' ? 'pr_save' : 'pr_submit', id: pr.id || '',
@@ -55,17 +55,19 @@ function openView(id) {
     E.api('purchase_api.php', { action: 'pr_get', id }).then(r => {
         const p = r.record;
         const html = E.kv([['Date', E.date(p.request_date)], ['Needed by', E.date(p.required_by)], ['Warehouse', E.esc(p.warehouse_name || '—')], ['Requested by', E.esc(p.requested_by || '—')], ['Status', E.badge(p.status)],
-                           p.approved_by ? ['Approved by', E.esc(p.approved_by)] : null])
+                           p.manager_approved_by ? ['Manager approved by', E.esc(p.manager_approved_by)] : null, p.backend_approved_by ? ['Backend approved by', E.esc(p.backend_approved_by)] : null])
             + E.chain(p.purchase_orders.map(o => ['PO ' + o.po_number, 'purchase_orders.php?id=' + o.id]))
             + `<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th>Item</th><th class="erp-num">Qty</th><th class="erp-num">Est. rate</th><th class="erp-num">Est. value</th></tr></thead><tbody>` +
               p.items.map(i => `<tr><td>${E.esc(i.item_name)}</td><td class="erp-num">${E.qty(i.quantity, i.unit)}</td><td class="erp-num">${E.money(i.estimated_rate, true)}</td><td class="erp-num">${E.money(i.quantity * (i.estimated_rate || 0))}</td></tr>`).join('') +
               `</tbody></table></div>${p.notes ? '<p class="erp-note">' + E.esc(p.notes) + '</p>' : ''}`;
         const act = (a, msg, o) => () => E.confirmAction(msg, '', o).then(note => E.post('purchase_api.php', { action: a, id: p.id, note })).then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
         E.view(p.pr_number, html, [
-            ['draft', 'rejected'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
-            p.status === 'submitted' && { label: 'Approve', cls: 'adm-btn-primary', icon: 'fa-check', run: act('pr_approve', 'Approve ' + p.pr_number + '?') },
-            p.status === 'submitted' && { label: 'Reject', icon: 'fa-xmark', run: act('pr_reject', 'Reject ' + p.pr_number + '?', { danger: true, reason: 'Reason' }) },
-            p.status === 'approved' && { label: 'Create purchase order', cls: 'adm-btn-primary', icon: 'fa-file-signature', run: () => Swal.fire({ title: 'Which supplier?', customClass: { popup: 'erp-modal' },
+            ['draft', 'manager_rejected', 'backend_rejected'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
+            PR_PERMS.manager && p.status === 'submitted' && { label: 'Manager approve', cls: 'adm-btn-primary', icon: 'fa-check', run: act('pr_manager_approve', 'Manager approve ' + p.pr_number + '?') },
+            PR_PERMS.manager && p.status === 'submitted' && { label: 'Manager reject', icon: 'fa-xmark', run: act('pr_manager_reject', 'Reject ' + p.pr_number + '?', { danger: true, reason: 'Reason' }) },
+            PR_PERMS.backend && p.status === 'manager_approved' && { label: 'Backend approve', cls: 'adm-btn-primary', icon: 'fa-check-double', run: act('pr_backend_approve', 'Final backend approval for ' + p.pr_number + '?') },
+            PR_PERMS.backend && p.status === 'manager_approved' && { label: 'Backend reject', icon: 'fa-xmark', run: act('pr_backend_reject', 'Reject ' + p.pr_number + '?', { danger: true, reason: 'Reason' }) },
+            PR_PERMS.backend && p.status === 'approved' && { label: 'Create purchase order', cls: 'adm-btn-primary', icon: 'fa-file-signature', run: () => Swal.fire({ title: 'Which supplier?', customClass: { popup: 'erp-modal' },
                 html: E.field('Supplier', E.select('cvS', E.options(SUP.filter(s => s.status === 'active'), 'id', s => s.supplier_name, '', 'Choose supplier'))), showCancelButton: true, confirmButtonColor: '#1c5034',
                 preConfirm: () => $('#cvS').val() || (Swal.showValidationMessage('Choose a supplier'), false) })
                 .then(x => x.isConfirmed ? E.post('purchase_api.php', { action: 'pr_to_po', id: p.id, supplier_id: x.value }) : Promise.reject())
