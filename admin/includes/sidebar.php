@@ -7,6 +7,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
 $role_id = $_SESSION['admin_role_id'] ?? null; // 1 = Super Admin
 function nav_active($page, $current) { return $page === $current ? ' active' : ''; }
 ?>
+<style>
+.adm-nav-combined summary { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: var(--adm-radius-sm); color: rgba(238,244,239,0.72); cursor: pointer; font-size: 14px; font-weight: 500; list-style: none; }
+.adm-nav-combined summary::-webkit-details-marker { display: none; }
+.adm-nav-combined summary::after { content: '\f107'; margin-left: auto; font: var(--fa-font-solid); font-size: 12px; transition: transform 160ms ease; }
+.adm-nav-combined details[open] summary::after { transform: rotate(180deg); }
+.adm-nav-combined summary:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.adm-nav-combined-links { padding-left: 12px; }
+.adm-nav-combined-links a { font-size: 13px; }
+</style>
 <nav class="adm-sidebar" aria-label="Admin navigation">
     <div class="adm-brand">
         <img src="../images/logo.png" alt="">
@@ -19,8 +28,15 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="index.php" class="<?= nav_active('index.php', $current_page) ?>"><i class="fas fa-gauge-high"></i> Dashboard</a></li>
 
         <li class="adm-nav-section">Sales</li>
-        <li><a href="sales_orders.php" class="<?= nav_active('sales_orders.php', $current_page) ?>"><i class="fas fa-file-lines"></i> Sales Orders</a></li>
-        <li><a href="manual_sales.php" class="<?= nav_active('manual_sales.php', $current_page) ?>"><i class="fas fa-cash-register"></i> Manual Sales Entry</a></li>
+        <li class="adm-nav-combined">
+            <details<?= in_array($current_page, ['sales_orders.php', 'manual_sales.php'], true) ? ' open' : '' ?>>
+                <summary><i class="fas fa-file-lines"></i> Sales Orders &amp; Manual Sales</summary>
+                <div class="adm-nav-combined-links">
+                    <a href="sales_orders.php" class="<?= nav_active('sales_orders.php', $current_page) ?>"><i class="fas fa-file-lines"></i> Sales Orders</a>
+                    <a href="manual_sales.php" class="<?= nav_active('manual_sales.php', $current_page) ?>"><i class="fas fa-cash-register"></i> Manual Sales Entry</a>
+                </div>
+            </details>
+        </li>
         <li><a href="credit_sale.php" class="<?= nav_active('credit_sale.php', $current_page) ?>"><i class="fas fa-hand-holding-dollar"></i> Credit Sale</a></li>
         <li><a href="invoices.php" class="<?= nav_active('invoices.php', $current_page) ?>"><i class="fas fa-file-invoice"></i> Invoices</a></li>
         <li><a href="orders.php" class="<?= nav_active('orders.php', $current_page) ?>"><i class="fas fa-basket-shopping"></i> Website Orders</a></li>
