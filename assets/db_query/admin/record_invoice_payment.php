@@ -56,9 +56,11 @@ try {
     // has already committed) so a missing table never affects the payment
     // that was just recorded.
     try {
-        $tx = $pdo->prepare("INSERT INTO accounts_transactions (type, reference_type, reference_number, amount, payment_mode, created_by, created_at)
-                              VALUES ('payment_received', 'invoice', ?, ?, ?, ?, NOW())");
-        $tx->execute([$invoice['invoice_number'], $amount, $payment_mode ?: null, $adminUsername]);
+        // FIX (30 Sep 2026): the insert was missing the required transaction_id, date and
+        // category columns, so it always failed silently and payments never reached Transactions.
+        $tx = $pdo->prepare("INSERT INTO accounts_transactions (transaction_id, date, type, category, reference_type, reference_number, party_name, amount, payment_mode, status, created_by, created_at)
+                              VALUES (?, CURDATE(), 'payment_received', 'Invoice Payment', 'invoice', ?, ?, ?, ?, 'completed', ?, NOW())");
+        $tx->execute([next_document_number($pdo, 'accounts_txn', 'TXN'), $invoice['invoice_number'], $invoice['customer_name'] ?? null, $amount, in_array($payment_mode, ['cash', 'upi', 'bank_transfer', 'card', 'cheque'], true) ? $payment_mode : 'other', $adminUsername]);
     } catch (PDOException $e) {
         error_log('accounts_transactions integration skipped (table not ready): ' . $e->getMessage());
     }

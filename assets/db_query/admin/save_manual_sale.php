@@ -62,9 +62,17 @@ if ($id && $confirm) {
             $pdo->prepare("UPDATE product_details SET stock = ? WHERE id = ?")->execute([$newStock, $item['product_id']]);
 
             $reason = 'Manual sale ' . $sale['sale_number'];
-            $insHist = $pdo->prepare("INSERT INTO stock_history (product_id, change_type, quantity_change, resulting_stock, reason, admin_username, created_at)
-                                       VALUES (?, 'stock_out', ?, ?, ?, ?, NOW())");
-            $insHist->execute([$item['product_id'], -abs($qty), $newStock, $reason, $adminUsername]);
+            // FIX (30 Sep 2026): record the deduction in the stock_movements ledger (like every other
+            // stock change). The old stock_history insert is kept but no longer allowed to fail the sale
+            // (that table isn't part of the schema, so the whole deduction used to roll back).
+            $pdo->prepare("INSERT INTO stock_movements (movement_type, product_id, sku, warehouse_id, quantity, previous_stock, new_stock, reference_type, reference_number, reason, created_by, created_at)
+                           VALUES ('stock_out', ?, ?, ?, ?, ?, ?, 'manual_sale', ?, ?, ?, NOW())")
+                ->execute([$item['product_id'], 'PRD-' . $item['product_id'], $sale['warehouse_id'] ?: 1, $newStock - (int)$product['stock'], (int)$product['stock'], $newStock, $sale['sale_number'], $reason, $adminUsername]);
+            try {
+                $insHist = $pdo->prepare("INSERT INTO stock_history (product_id, change_type, quantity_change, resulting_stock, reason, admin_username, created_at)
+                                           VALUES (?, 'stock_out', ?, ?, ?, ?, NOW())");
+                $insHist->execute([$item['product_id'], -abs($qty), $newStock, $reason, $adminUsername]);
+            } catch (PDOException $e) { /* legacy table not present — ledger row above is the record */ }
         }
 
         $pdo->prepare("UPDATE manual_sales SET stock_deducted = 1 WHERE id = ?")->execute([$id]);

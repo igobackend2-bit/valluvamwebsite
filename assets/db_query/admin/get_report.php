@@ -139,22 +139,37 @@ try {
 
         case 'customer_outstanding_report':
         case 'supplier_payable_report':
-            // Aging logic belongs to the Accounts module and isn't wired
-            // up here yet — see build summary.
-            echo json_encode([
-                'status' => 'success',
-                'rows' => [],
-                'note' => 'Not yet available — requires the Accounts module\'s aging logic, planned for a future pass.'
-            ]);
+            // FIX (30 Sep 2026): these were empty placeholders. Now calculated by the shared
+            // purchase/receivables report library (same numbers as Purchases → Supplier Ledger
+            // and Reports → Receivables).
+            try {
+                require_once __DIR__ . '/erp_helper.php';
+                require_once __DIR__ . '/costing_engine.php';
+                require_once __DIR__ . '/erp_report_lib.php';
+                if ($type === 'supplier_payable_report') {
+                    $rows = array_values(array_filter(array_map(function ($s) {
+                        return ['supplier_name' => $s['supplier_name'], 'company_name' => $s['company_name'], 'mobile' => $s['mobile'],
+                                'total_invoiced' => $s['total_invoiced'], 'total_paid' => $s['total_paid'], 'returns_credit' => $s['returns_credit'], 'outstanding' => $s['outstanding']];
+                    }, rep_supplier_summary($pdo)), function ($r) { return abs($r['outstanding']) > 0.005; }));
+                } else {
+                    $rows = rep_receivables($pdo)['customers'];
+                }
+                echo json_encode(['status' => 'success', 'rows' => $rows]);
+            } catch (Throwable $e) {
+                error_log('outstanding report: ' . $e->getMessage());
+                not_installed_response('Run erp_purchase_migration.sql to enable this report.');
+            }
             break;
 
         case 'expense_report':
             try {
-                $sql = "SELECT id, category, amount, description, transaction_date, created_at
-                        FROM accounts_transactions WHERE transaction_type = 'expense'";
+                // FIX (30 Sep 2026): real columns are `type` and `date` (was transaction_type /
+                // transaction_date, so this report always showed "not installed"). Cancelled rows excluded.
+                $sql = "SELECT id, transaction_id AS reference, category, party_name, amount, payment_mode AS method, description, date AS transaction_date, created_at
+                        FROM accounts_transactions WHERE type = 'expense' AND status <> 'cancelled'";
                 $params = [];
-                if ($dateFromTs) { $sql .= " AND transaction_date >= ?"; $params[] = $date_from; }
-                if ($dateToTs)   { $sql .= " AND transaction_date <= ?"; $params[] = $date_to; }
+                if ($dateFromTs) { $sql .= " AND date >= ?"; $params[] = $date_from; }
+                if ($dateToTs)   { $sql .= " AND date <= ?"; $params[] = $date_to; }
                 $sql .= " ORDER BY id DESC LIMIT 1000";
                 echo json_encode(['status' => 'success', 'rows' => run_report_query($pdo, $sql, $params)]);
             } catch (PDOException $e) {
@@ -164,11 +179,13 @@ try {
 
         case 'income_report':
             try {
-                $sql = "SELECT id, category, amount, description, transaction_date, created_at
-                        FROM accounts_transactions WHERE transaction_type = 'income'";
+                // FIX (30 Sep 2026): real columns are `type` and `date` (was transaction_type /
+                // transaction_date, so this report always showed "not installed"). Cancelled rows excluded.
+                $sql = "SELECT id, transaction_id AS reference, category, party_name, amount, payment_mode AS method, description, date AS transaction_date, created_at
+                        FROM accounts_transactions WHERE type = 'income' AND status <> 'cancelled'";
                 $params = [];
-                if ($dateFromTs) { $sql .= " AND transaction_date >= ?"; $params[] = $date_from; }
-                if ($dateToTs)   { $sql .= " AND transaction_date <= ?"; $params[] = $date_to; }
+                if ($dateFromTs) { $sql .= " AND date >= ?"; $params[] = $date_from; }
+                if ($dateToTs)   { $sql .= " AND date <= ?"; $params[] = $date_to; }
                 $sql .= " ORDER BY id DESC LIMIT 1000";
                 echo json_encode(['status' => 'success', 'rows' => run_report_query($pdo, $sql, $params)]);
             } catch (PDOException $e) {

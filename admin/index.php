@@ -152,6 +152,24 @@ require_once __DIR__ . '/includes/check_admin.php';
                 </div></a>
             </div>
 
+            <!-- Purchases, stock value & profit (added 30 Sep 2026). Hidden unless the purchase
+                 module is installed and this admin may view P&L; every number comes from erp_reports.php. -->
+            <div id="erpKpiBlock" style="display:none;">
+            <h2 style="font-size:14px;color:#6b6459;margin:22px 0 8px;text-transform:uppercase;letter-spacing:.04em;">Purchases, stock &amp; profit · <span id="erpKpiPeriod">this month</span></h2>
+            <div class="adm-stats" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));">
+                <a href="profit_loss.php" class="adm-stat-link"><div class="adm-stat is-primary"><div class="adm-stat-icon"><i class="fas fa-indian-rupee-sign"></i></div><h3 id="erpNetSales">—</h3><p>Net sales</p></div></a>
+                <a href="purchase_history.php" class="adm-stat-link"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-cart-flatbed"></i></div><h3 id="erpPurchases">—</h3><p>Purchases</p></div></a>
+                <a href="stock_valuation.php" class="adm-stat-link"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-coins"></i></div><h3 id="erpStockValue">—</h3><p>Inventory value</p></div></a>
+                <a href="receivables.php" class="adm-stat-link"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-hand-holding-dollar"></i></div><h3 id="erpReceivables">—</h3><p>Receivables</p></div></a>
+                <a href="supplier_ledger.php" class="adm-stat-link"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-scale-unbalanced"></i></div><h3 id="erpPayables">—</h3><p>Payables</p></div></a>
+                <a href="product_profitability.php" class="adm-stat-link"><div class="adm-stat is-green"><div class="adm-stat-icon"><i class="fas fa-chart-pie"></i></div><h3 id="erpGross">—</h3><p>Gross profit</p></div></a>
+                <a href="expenses.php" class="adm-stat-link"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-receipt"></i></div><h3 id="erpExpenses">—</h3><p>Expenses</p></div></a>
+                <a href="profit_loss.php" class="adm-stat-link"><div class="adm-stat is-green"><div class="adm-stat-icon"><i class="fas fa-scale-balanced"></i></div><h3 id="erpNet">—</h3><p id="erpNetLabel">Net profit / loss</p></div></a>
+                <a href="inventory_overview.php" class="adm-stat-link"><div class="adm-stat is-amber"><div class="adm-stat-icon"><i class="fas fa-triangle-exclamation"></i></div><h3 id="erpLow">—</h3><p>Low stock items</p></div></a>
+                <a href="purchase_orders.php" class="adm-stat-link"><div class="adm-stat is-neutral"><div class="adm-stat-icon"><i class="fas fa-file-signature"></i></div><h3 id="erpPos">—</h3><p>Pending purchase orders</p></div></a>
+            </div>
+            </div>
+
             <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:18px;align-items:start;">
                 <section class="adm-card">
                     <div class="adm-card-head">
@@ -450,6 +468,21 @@ require_once __DIR__ . '/includes/check_admin.php';
             const date = new Date(dateString);
             return date.toLocaleDateString('en-IN') + ' · ' + date.toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
         }
+    </script>
+    <script>
+    // Purchases / stock value / profit KPIs (added 30 Sep 2026) — silent if not available.
+    $(function () {
+        $.getJSON('../assets/db_query/admin/erp_reports.php', { report: 'dashboard' }).done(function (r) {
+            if (!r || r.status !== 'success') return;
+            var k = r.kpi, m = function (v) { var n = +v || 0; return (n < 0 ? '-₹' : '₹') + Math.abs(n).toLocaleString('en-IN', { maximumFractionDigits: 0 }); };
+            $('#erpKpiPeriod').text(r.period);
+            $('#erpNetSales').text(m(k.net_sales)); $('#erpPurchases').text(m(k.purchases)); $('#erpStockValue').text(m(k.inventory_value));
+            $('#erpReceivables').text(m(k.receivables)); $('#erpPayables').text(m(k.payables)); $('#erpGross').text(m(k.gross_profit));
+            $('#erpExpenses').text(m(k.expenses)); $('#erpNet').text(m(k.net_profit)); $('#erpNetLabel').text(k.net_profit < 0 ? 'Net loss' : 'Net profit');
+            $('#erpLow').text(k.low_stock); $('#erpPos').text(k.pending_pos);
+            $('#erpKpiBlock').show();
+        });
+    });
     </script>
 </body>
 </html>

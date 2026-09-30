@@ -58,9 +58,10 @@ try {
 
     // ── Integration point: Accounts (best-effort, same pattern as invoices) ──
     try {
-        $tx = $pdo->prepare("INSERT INTO accounts_transactions (type, reference_type, reference_number, amount, payment_mode, created_by, created_at)
-                              VALUES ('payment_received', 'credit_sale', ?, ?, ?, ?, NOW())");
-        $tx->execute([$sale['credit_number'], $amount, $payment_mode ?: null, $adminUsername]);
+        // FIX (30 Sep 2026): same missing transaction_id/date/category as invoices — payments never reached Transactions.
+        $tx = $pdo->prepare("INSERT INTO accounts_transactions (transaction_id, date, type, category, reference_type, reference_number, party_name, amount, payment_mode, status, created_by, created_at)
+                              VALUES (?, CURDATE(), 'payment_received', 'Credit Sale Payment', 'credit_sale', ?, ?, ?, ?, 'completed', ?, NOW())");
+        $tx->execute([next_document_number($pdo, 'accounts_txn', 'TXN'), $sale['credit_number'], $sale['customer_name'] ?? null, $amount, in_array($payment_mode, ['cash', 'upi', 'bank_transfer', 'card', 'cheque'], true) ? $payment_mode : 'other', $adminUsername]);
     } catch (PDOException $e) {
         error_log('accounts_transactions integration skipped (table not ready): ' . $e->getMessage());
     }

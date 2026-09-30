@@ -1,0 +1,70 @@
+/* Purchase / costing / P&L pages (added 30 Sep 2026).
+   Scoped erp-* classes only — builds on admin.css tokens, changes nothing global. */
+
+.erp-top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.erp-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.erp-filters .adm-input, .erp-filters .adm-select { min-width: 0; }
+.erp-filters label { font-size: 12px; color: var(--adm-ink-soft); font-weight: 600; }
+
+.erp-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.erp-tab { border: 1px solid var(--adm-line); background: #fff; border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--adm-ink-soft); font-family: inherit; }
+.erp-tab.active { background: var(--adm-green); border-color: var(--adm-green); color: #fff; }
+
+.erp-link { color: var(--adm-green); cursor: pointer; font-weight: 600; text-decoration: none; }
+.erp-link:hover { text-decoration: underline; }
+.erp-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.erp-neg { color: var(--adm-red); }
+.erp-pos { color: var(--adm-green); }
+.erp-muted { color: var(--adm-ink-soft); font-size: 12.5px; }
+.erp-warn { background: var(--adm-amber-soft); color: #7a4a17; border-radius: var(--adm-radius-sm); padding: 10px 14px; font-size: 13px; margin-bottom: 10px; }
+.erp-note { color: var(--adm-ink-soft); font-size: 12.5px; margin: 6px 0 0; }
+.adm-badge.is-red { background: var(--adm-red-soft); color: var(--adm-red); }
+
+/* KPI grid: same look as .adm-stat, flexible count */
+.erp-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.erp-kpis .adm-stat h3 { font-size: 22px; }
+.erp-kpis a { text-decoration: none; color: inherit; }
+
+/* forms inside SweetAlert modals */
+.swal2-popup.erp-modal { max-width: 96vw; text-align: left; }
+.swal2-popup.erp-modal .swal2-html-container { text-align: left; margin: 12px 8px 0; overflow-x: hidden; }
+.erp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 14px; }
+.erp-grid .adm-field { margin-bottom: 0; }
+.erp-grid .adm-field.span-2 { grid-column: span 2; }
+.erp-grid .adm-field.span-all { grid-column: 1 / -1; }
+.erp-grid .adm-input, .erp-grid .adm-select, .erp-grid textarea { width: 100%; }
+.adm-field textarea.adm-input { min-height: 64px; resize: vertical; }
+@media (max-width: 560px) { .erp-grid .adm-field.span-2 { grid-column: 1 / -1; } }
+
+.erp-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--adm-ink-soft); margin: 18px 0 8px; }
+
+/* line-item editor */
+.erp-lines { width: 100%; border-collapse: collapse; font-size: 13px; }
+.erp-lines th { text-align: left; font-size: 11.5px; color: var(--adm-ink-soft); font-weight: 700; padding: 6px 4px; border-bottom: 1px solid var(--adm-line); white-space: nowrap; }
+.erp-lines td { padding: 5px 4px; vertical-align: middle; border-bottom: 1px solid #f1ede3; }
+.erp-lines .adm-input, .erp-lines .adm-select { width: 100%; padding: 7px 8px; font-size: 13px; }
+.erp-lines td.erp-num { padding-right: 8px; }
+.erp-lines .w-num { width: 92px; }
+.erp-lines .w-sm { width: 70px; }
+.erp-totals { display: flex; justify-content: flex-end; gap: 22px; flex-wrap: wrap; margin-top: 10px; font-size: 13.5px; }
+.erp-totals strong { font-variant-numeric: tabular-nums; }
+
+/* detail view */
+.erp-detail-head { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 12px; font-size: 13.5px; }
+.erp-detail-head div span { display: block; font-size: 11.5px; color: var(--adm-ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.erp-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.erp-chain { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.erp-chain a { font-size: 12.5px; border: 1px solid var(--adm-line); border-radius: 999px; padding: 3px 10px; text-decoration: none; color: var(--adm-green-dark); background: var(--adm-green-soft); }
+
+/* documents */
+.erp-docs { border: 1px dashed var(--adm-line); border-radius: var(--adm-radius-md); padding: 12px; margin-top: 12px; }
+.erp-docs-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; flex-wrap: wrap; }
+.erp-docs-upload { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+
+/* P&L statement */
+.erp-pl { width: 100%; max-width: 720px; border-collapse: collapse; font-size: 14px; }
+.erp-pl td { padding: 7px 10px; border-bottom: 1px solid #f1ede3; }
+.erp-pl td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.erp-pl tr.sub td:first-child { padding-left: 28px; color: var(--adm-ink-soft); }
+.erp-pl tr.total td { font-weight: 800; border-top: 2px solid var(--adm-line); }
+.erp-pl tr.head td { font-weight: 700; background: #faf8f2; }

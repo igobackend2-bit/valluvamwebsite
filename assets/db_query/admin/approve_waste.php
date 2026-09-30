@@ -47,9 +47,12 @@ try {
             $updProd->execute([$newStock, $waste['product_id']]);
 
             try {
-                $mv = $pdo->prepare("INSERT INTO stock_movements (product_id, warehouse_id, movement_type, quantity, reference_type, reference_number, created_by, created_at)
-                                      VALUES (?, ?, 'waste', ?, 'waste', ?, ?, NOW())");
-                $mv->execute([$waste['product_id'], $waste['warehouse_id'], -(int)$waste['quantity'], $waste['waste_id'], $adminUsername]);
+                // FIX (30 Sep 2026): previous_stock / new_stock are required columns, so this insert always
+                // failed and approved waste never appeared in the Stock Movement ledger.
+                $mv = $pdo->prepare("INSERT INTO stock_movements (product_id, sku, warehouse_id, movement_type, quantity, previous_stock, new_stock, reference_type, reference_number, reason, created_by, created_at)
+                                      VALUES (?, ?, ?, 'waste', ?, ?, ?, 'waste', ?, ?, ?, NOW())");
+                $mv->execute([$waste['product_id'], 'PRD-' . $waste['product_id'], $waste['warehouse_id'], $newStock - (int)$product['stock'], (int)$product['stock'], $newStock,
+                              $waste['waste_id'], mb_substr('Waste: ' . $waste['reason'], 0, 255), $adminUsername]);
             } catch (PDOException $e) {
                 // stock_movements may not exist yet (owned by another agent's
                 // migration) — never block waste approval on this.

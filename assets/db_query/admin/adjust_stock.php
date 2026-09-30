@@ -7,6 +7,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
+// FIX (30 Sep 2026): any logged-in admin could change stock here — now needs the existing inventory.adjust permission.
+require_once __DIR__ . '/auth_helper.php';
+require_permission($pdo, 'inventory.adjust');
 
 $product_id = $_POST['product_id'] ?? 0;
 $quantity_change = isset($_POST['quantity_change']) ? (int)$_POST['quantity_change'] : 0;
@@ -44,8 +47,15 @@ try {
     $changeType = $quantity_change > 0 ? 'stock_in' : 'stock_out';
     $adminUsername = $_SESSION['admin_username'] ?? 'Admin';
 
-    $insert = $pdo->prepare("INSERT INTO stock_history (product_id, change_type, quantity_change, resulting_stock, reason, admin_username, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-    $insert->execute([$product_id, $changeType, $quantity_change, $newStock, $reason ?: null, $adminUsername]);
+    // FIX (30 Sep 2026): adjustments now go to the stock_movements ledger; the legacy stock_history
+    // insert is kept but can no longer fail the adjustment.
+    $pdo->prepare("INSERT INTO stock_movements (movement_type, product_id, sku, warehouse_id, quantity, previous_stock, new_stock, reference_type, reference_number, reason, created_by, created_at)
+                   VALUES ('adjustment', ?, ?, 1, ?, ?, ?, 'adjustment', NULL, ?, ?, NOW())")
+        ->execute([$product_id, 'PRD-' . $product_id, $newStock - (int)$product['stock'], (int)$product['stock'], $newStock, $reason !== '' ? mb_substr($reason, 0, 255) : 'Manual stock adjustment', $adminUsername]);
+    try {
+        $insert = $pdo->prepare("INSERT INTO stock_history (product_id, change_type, quantity_change, resulting_stock, reason, admin_username, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        $insert->execute([$product_id, $changeType, $quantity_change, $newStock, $reason ?: null, $adminUsername]);
+    } catch (PDOException $e) { /* legacy table not present — ledger row above is the record */ }
 
     $pdo->commit();
 

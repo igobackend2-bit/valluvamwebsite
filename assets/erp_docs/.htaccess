@@ -1,0 +1,7 @@
+# Purchase / expense documents (added 30 Sep 2026).
+# Never served directly - only through assets/db_query/admin/erp_docs.php,
+# which checks the admin login. Scripts can never run from here.
+Require all denied
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>

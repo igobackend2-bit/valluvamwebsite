@@ -24,6 +24,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="credit_sale.php" class="<?= nav_active('credit_sale.php', $current_page) ?>"><i class="fas fa-hand-holding-dollar"></i> Credit Sale</a></li>
         <li><a href="invoices.php" class="<?= nav_active('invoices.php', $current_page) ?>"><i class="fas fa-file-invoice"></i> Invoices</a></li>
         <li><a href="orders.php" class="<?= nav_active('orders.php', $current_page) ?>"><i class="fas fa-basket-shopping"></i> Website Orders</a></li>
+        <li><a href="sales_returns.php" class="<?= nav_active('sales_returns.php', $current_page) ?>"><i class="fas fa-rotate-left"></i> Sales Returns</a></li>
 
         <li class="adm-nav-section">Inventory</li>
         <li><a href="products.php" class="<?= nav_active('products.php', $current_page) ?>"><i class="fas fa-box-open"></i> Products</a></li>
@@ -34,9 +35,26 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="stock_out.php" class="<?= nav_active('stock_out.php', $current_page) ?>"><i class="fas fa-hand-holding-box"></i> Stock Out</a></li>
         <li><a href="stock_movements.php" class="<?= nav_active('stock_movements.php', $current_page) ?>"><i class="fas fa-arrow-right-arrow-left"></i> Stock Movement</a></li>
         <li><a href="warehouses.php" class="<?= nav_active('warehouses.php', $current_page) ?>"><i class="fas fa-building"></i> Warehouses</a></li>
+        <li><a href="raw_materials.php" class="<?= nav_active('raw_materials.php', $current_page) ?>"><i class="fas fa-sack"></i> Raw Materials</a></li>
+        <li><a href="repacking.php" class="<?= nav_active('repacking.php', $current_page) ?>"><i class="fas fa-box"></i> Repacking</a></li>
+        <li><a href="stock_adjustments.php" class="<?= nav_active('stock_adjustments.php', $current_page) ?>"><i class="fas fa-scale-balanced"></i> Stock Adjustments</a></li>
+        <li><a href="stock_valuation.php" class="<?= nav_active('stock_valuation.php', $current_page) ?>"><i class="fas fa-coins"></i> Stock Valuation</a></li>
+
+        <!-- Purchases (added 30 Sep 2026) -->
+        <li class="adm-nav-section">Purchases</li>
+        <li><a href="purchase_dashboard.php" class="<?= nav_active('purchase_dashboard.php', $current_page) ?>"><i class="fas fa-cart-flatbed"></i> Purchase Dashboard</a></li>
+        <li><a href="purchase_requests.php" class="<?= nav_active('purchase_requests.php', $current_page) ?>"><i class="fas fa-clipboard-list"></i> Purchase Requests</a></li>
+        <li><a href="purchase_orders.php" class="<?= nav_active('purchase_orders.php', $current_page) ?>"><i class="fas fa-file-signature"></i> Purchase Orders</a></li>
+        <li><a href="goods_receipts.php" class="<?= nav_active('goods_receipts.php', $current_page) ?>"><i class="fas fa-dolly"></i> Goods Receipts</a></li>
+        <li><a href="purchase_invoices.php" class="<?= nav_active('purchase_invoices.php', $current_page) ?>"><i class="fas fa-file-invoice-dollar"></i> Purchase Invoices</a></li>
+        <li><a href="purchase_returns.php" class="<?= nav_active('purchase_returns.php', $current_page) ?>"><i class="fas fa-arrow-rotate-left"></i> Purchase Returns</a></li>
+        <li><a href="purchase_payments.php" class="<?= nav_active('purchase_payments.php', $current_page) ?>"><i class="fas fa-money-bill-wave"></i> Purchase Payments</a></li>
+        <li><a href="purchase_history.php" class="<?= nav_active('purchase_history.php', $current_page) ?>"><i class="fas fa-clock-rotate-left"></i> Purchase History</a></li>
 
         <li class="adm-nav-section">Accounts</li>
         <li><a href="accounts.php" class="<?= nav_active('accounts.php', $current_page) ?>"><i class="fas fa-wallet"></i> Transactions</a></li>
+        <li><a href="expenses.php" class="<?= nav_active('expenses.php', $current_page) ?>"><i class="fas fa-receipt"></i> Expenses</a></li>
+        <li><a href="receivables.php" class="<?= nav_active('receivables.php', $current_page) ?>"><i class="fas fa-hand-holding-dollar"></i> Receivables</a></li>
 
         <li class="adm-nav-section">Assets</li>
         <li><a href="assets.php" class="<?= nav_active('assets.php', $current_page) ?>"><i class="fas fa-boxes-stacked"></i> Assets</a></li>
@@ -54,9 +72,12 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
 
         <li class="adm-nav-section">Suppliers</li>
         <li><a href="suppliers.php" class="<?= nav_active('suppliers.php', $current_page) ?>"><i class="fas fa-truck-field"></i> Suppliers</a></li>
+        <li><a href="supplier_ledger.php" class="<?= nav_active('supplier_ledger.php', $current_page) ?>"><i class="fas fa-book"></i> Supplier Ledger</a></li>
 
         <li class="adm-nav-section">Reports &amp; admin</li>
         <li><a href="reports.php" class="<?= nav_active('reports.php', $current_page) ?>"><i class="fas fa-chart-line"></i> Reports</a></li>
+        <li><a href="profit_loss.php" class="<?= nav_active('profit_loss.php', $current_page) ?>"><i class="fas fa-scale-unbalanced"></i> Profit &amp; Loss</a></li>
+        <li><a href="product_profitability.php" class="<?= nav_active('product_profitability.php', $current_page) ?>"><i class="fas fa-chart-pie"></i> Product Profitability</a></li>
         <li><a href="audit_logs.php" class="<?= nav_active('audit_logs.php', $current_page) ?>"><i class="fas fa-clipboard-list"></i> Audit Logs</a></li>
         <?php if ((int)$role_id === 1): ?>
         <li><a href="admin_users.php" class="<?= nav_active('admin_users.php', $current_page) ?>"><i class="fas fa-user-shield"></i> Admin Users</a></li>

@@ -71,7 +71,7 @@ if ($id && $confirm) {
                                                   VALUES ('stock_out', ?, ?, ?, ?, ?, ?, 'credit_sale', ?, ?, ?, NOW())");
                 $movementInsert->execute([
                     $item['product_id'], $product['sku'], $sale['warehouse_id'],
-                    abs($qty), $previousStock, $newStock,
+                    -abs($qty), $previousStock, $newStock,   // FIX (30 Sep 2026): stock decrease is negative in stock_movements
                     $sale['credit_number'], 'Credit sale ' . $sale['credit_number'], $adminUsername,
                 ]);
             } catch (PDOException $e) {
@@ -174,9 +174,10 @@ try {
     // Best-effort Accounts integration, same pattern as record_invoice_payment.php.
     if ($amount_received > 0) {
         try {
-            $tx = $pdo->prepare("INSERT INTO accounts_transactions (type, reference_type, reference_number, amount, payment_mode, created_by, created_at)
-                                  VALUES ('payment_received', 'credit_sale', ?, ?, ?, ?, NOW())");
-            $tx->execute([$creditNumber, $amount_received, $payment_mode ?: null, $adminUsername]);
+            // FIX (30 Sep 2026): same missing transaction_id/date/category — the amount received at sale never reached Transactions.
+            $tx = $pdo->prepare("INSERT INTO accounts_transactions (transaction_id, date, type, category, reference_type, reference_number, party_name, amount, payment_mode, status, created_by, created_at)
+                                  VALUES (?, ?, 'payment_received', 'Credit Sale Payment', 'credit_sale', ?, ?, ?, ?, 'completed', ?, NOW())");
+            $tx->execute([next_document_number($pdo, 'accounts_txn', 'TXN'), $sale_date, $creditNumber, $customer_name, $amount_received, in_array($payment_mode, ['cash', 'upi', 'bank_transfer', 'card', 'cheque'], true) ? $payment_mode : 'other', $adminUsername]);
         } catch (PDOException $e) {
             error_log('accounts_transactions integration skipped (table not ready): ' . $e->getMessage());
         }

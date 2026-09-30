@@ -134,17 +134,51 @@ try {
     // reference_number=dc_number (+ product_id/quantity per item, warehouse_id,
     // created_by). Do NOT create/alter `stock_outs` from this file.
     $justDispatched = ($delivery_status === 'dispatched') && !$wasDispatchedBefore;
+    // FIX (30 Sep 2026): the old insert used columns stock_outs doesn't have (product_id,
+    // quantity), so it always failed silently and a dispatched DC never reduced stock. Now it
+    // creates a proper Stock Out (stock_outs + stock_out_items + stock_movements, same as the
+    // Stock Out page). Guards: skipped if a Stock Out already references this DC number (no
+    // double deduction), and skipped — without blocking the DC — if any item lacks stock.
     if ($justDispatched) {
         try {
-            foreach ($cleanItems as $ci) {
-                $so = $pdo->prepare("INSERT INTO stock_outs (reference_type, reference_number, product_id, quantity, warehouse_id, created_by, created_at)
-                                      VALUES ('delivery_challan', ?, ?, ?, ?, ?, NOW())");
-                $so->execute([$dcNumber, $ci['product_id'], $ci['quantity'], $warehouse_id, $adminUsername]);
+            $already = $pdo->prepare("SELECT COUNT(*) FROM stock_outs WHERE reference_type = 'delivery_challan' AND reference_number = ?");
+            $already->execute([$dcNumber]);
+            if ((int)$already->fetchColumn() === 0 && $cleanItems) {
+                $pdo->exec("SAVEPOINT dc_stock_out");
+                $lock = $pdo->prepare("SELECT stock FROM product_details WHERE id = ? FOR UPDATE");
+                $stocks = [];
+                foreach ($cleanItems as $ci) {
+                    $lock->execute([$ci['product_id']]);
+                    $cur = $lock->fetchColumn();
+                    $need = (int)ceil((float)$ci['quantity']) + ($stocks[$ci['product_id']]['need'] ?? 0);
+                    if ($cur === false || (int)$cur < $need) throw new RuntimeException("insufficient stock for product {$ci['product_id']}");
+                    $stocks[$ci['product_id']] = ['cur' => (int)$cur, 'need' => $need];
+                }
+                $soNumber = next_document_number($pdo, 'stock_out', 'SOUT');
+                $pdo->prepare("INSERT INTO stock_outs (stock_out_number, stock_out_date, reference_type, reference_number, warehouse_id, vehicle_number, customer_name, reason, authorized_by, created_by)
+                               VALUES (?, ?, 'delivery_challan', ?, ?, ?, ?, ?, ?, ?)")
+                    ->execute([$soNumber, $dispatch_date ?: date('Y-m-d'), $dcNumber, $warehouse_id, $vehicle_number ?: null, $customer_name ?: null, 'Dispatched on ' . $dcNumber, $adminUsername, $adminUsername]);
+                $soId = (int)$pdo->lastInsertId();
+                $soItem = $pdo->prepare("INSERT INTO stock_out_items (stock_out_id, product_id, sku, quantity, unit) VALUES (?,?,?,?,?)");
+                $upd = $pdo->prepare("UPDATE product_details SET stock = ? WHERE id = ?");
+                $mv = $pdo->prepare("INSERT INTO stock_movements (movement_type, product_id, sku, warehouse_id, quantity, previous_stock, new_stock, reference_type, reference_number, reason, created_by, created_at)
+                                     VALUES ('stock_out', ?, ?, ?, ?, ?, ?, 'delivery_challan', ?, ?, ?, NOW())");
+                $running = [];
+                foreach ($cleanItems as $ci) {
+                    $q = (int)ceil((float)$ci['quantity']);
+                    $prev = $running[$ci['product_id']] ?? $stocks[$ci['product_id']]['cur'];
+                    $newS = $prev - $q;
+                    $running[$ci['product_id']] = $newS;
+                    $soItem->execute([$soId, $ci['product_id'], $ci['sku'] ?: null, $q, $ci['unit'] ?: 'pcs']);
+                    $upd->execute([$newS, $ci['product_id']]);
+                    $mv->execute([$ci['product_id'], $ci['sku'] ?: ('PRD-' . $ci['product_id']), $warehouse_id, -$q, $prev, $newS, $dcNumber, 'Delivery challan ' . $dcNumber, $adminUsername]);
+                }
+                $pdo->exec("RELEASE SAVEPOINT dc_stock_out");
             }
-        } catch (PDOException $e) {
-            // stock_outs doesn't exist yet (or its schema differs) — ignore.
-            // This DC's own status update still commits below.
-            error_log('stock_outs integration skipped (table not ready): ' . $e->getMessage());
+        } catch (Throwable $e) {
+            try { $pdo->exec("ROLLBACK TO SAVEPOINT dc_stock_out"); } catch (PDOException $e2) { /* no savepoint yet */ }
+            // The DC itself still saves; stock was not changed. Do a manual Stock Out if needed.
+            error_log('DC auto stock-out skipped for ' . $dcNumber . ': ' . $e->getMessage());
         }
     }
 
