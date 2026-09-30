@@ -54,7 +54,9 @@ $('#list').on('click', '[data-view]', function () { openView($(this).data('view'
 function openForm(po) {
     po = po || {};
     const html = `<div class="erp-grid">
-        ${E.field('Supplier *', E.select('pSup', E.options(SUP.filter(s => s.status === 'active' || String(s.id) === String(po.supplier_id)), 'id', s => s.supplier_name, po.supplier_id, 'Choose supplier')))}
+        ${E.field('Supplier *', E.select('pSup', E.options(SUP.filter(s => s.status === 'active' || String(s.id) === String(po.supplier_id)), 'id', s => s.supplier_name, po.supplier_id, 'Choose supplier')) +
+            '<button type="button" class="adm-btn adm-btn-ghost" id="pNewSup" style="margin-top:8px;"><i class="fas fa-plus"></i> Add new supplier / shop</button>' +
+            '<div id="pNewSupFields" hidden style="margin-top:10px;"><input class="adm-input" id="pNewSupName" placeholder="Supplier or shop name *"><input class="adm-input" id="pNewSupMobile" placeholder="Mobile number (optional)" style="margin-top:8px;"><button type="button" class="adm-btn adm-btn-ghost" id="pNewSupCancel" style="margin-top:8px;">Use existing supplier</button></div>')}
         ${E.field('PO date *', E.input('pDate', po.po_date || E.today(), 'type="date"'))}
         ${E.field('Expected delivery', E.input('pExp', po.expected_delivery_date || '', 'type="date"'))}
         ${E.field('Receiving warehouse', E.select('pWh', E.options(WH, 'id', w => w.name, po.warehouse_id || 1, false)))}
@@ -69,13 +71,36 @@ function openForm(po) {
         const payload = { action: btn === 'deny' ? 'po_save' : 'po_submit', id: po.id || '', supplier_id: $('#pSup').val(), po_date: $('#pDate').val(),
                           expected_delivery_date: $('#pExp').val(), warehouse_id: $('#pWh').val(), buyer: $('#pBuyer').val(), other_charges: $('#pOther').val(),
                           notes: $('#pNotes').val(), items: editor.get() };
-        if (!payload.supplier_id) return Promise.reject('Choose a supplier');
         if (!payload.items.length) return Promise.reject('Add at least one item');
-        return E.post('purchase_api.php', payload, { silent: true }).then(r => { E.toast(r.message); load(); setTimeout(() => openView(r.id), 300); });
+        return selectedSupplier().then(supplierId => {
+            if (!supplierId) return Promise.reject('Choose a supplier or add a new supplier / shop');
+            payload.supplier_id = supplierId;
+            return E.post('purchase_api.php', payload, { silent: true });
+        }).then(r => { E.toast(r.message); load(); setTimeout(() => openView(r.id), 300); });
     }, { confirmText: 'Submit for approval', denyText: 'Save draft', didOpen: () => {
         editor = E.lineEditor($('#pLines'), { items: ITEMS, lines: po.items || [], extra: () => E.num($('#pOther').val()) });
         $('#pOther').on('input', () => editor.recalc());
+        $('#pNewSup').on('click', () => { $('#pSup').val('').prop('disabled', true); $('#pNewSupFields').prop('hidden', false); $('#pNewSupName').trigger('focus'); });
+        $('#pNewSupCancel').on('click', () => { $('#pNewSupFields').prop('hidden', true); $('#pSup').prop('disabled', false); });
     }});
+}
+
+function selectedSupplier() {
+    if ($('#pNewSupFields').prop('hidden')) return Promise.resolve($('#pSup').val());
+    const name = $('#pNewSupName').val().trim();
+    const mobile = $('#pNewSupMobile').val().trim();
+    if (!name) return Promise.reject('Enter the new supplier or shop name');
+    if (SUP.some(s => String(s.supplier_name).trim().toLowerCase() === name.toLowerCase())) {
+        return Promise.reject('This supplier already exists. Choose it from the supplier list.');
+    }
+    return E.post('save_supplier.php', { supplier_name: name, mobile: mobile, status: 'active' }, { silent: true })
+        .then(() => E.api('get_suppliers.php', {}, { silent: true }))
+        .then(r => {
+            SUP = r.suppliers || [];
+            const supplier = SUP.find(s => String(s.supplier_name).trim().toLowerCase() === name.toLowerCase());
+            if (!supplier) return Promise.reject('Supplier was saved but could not be selected. Please reopen the purchase order.');
+            return supplier.id;
+        });
 }
 
 function openView(id) {
