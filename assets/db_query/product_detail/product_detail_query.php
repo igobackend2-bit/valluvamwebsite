@@ -139,8 +139,12 @@ if ($baseName !== '') {
         }
     }
     usort($variants, function ($a, $b) {
-        $qa = (int) preg_replace('/\D/', '', (string) $a['quantity']);
-        $qb = (int) preg_replace('/\D/', '', (string) $b['quantity']);
+        // FIX (30 Sep 2026): sort by real amount (kg / litres), not just the digits -
+        // digits-only sorted "1kg" before "250g"/"500g".
+        $pa = parse_quantity_info($a['quantity']);
+        $pb = parse_quantity_info($b['quantity']);
+        $qa = $pa ? ($pa['kg'] ?? $pa['litres']) : 0;
+        $qb = $pb ? ($pb['kg'] ?? $pb['litres']) : 0;
         return $qa <=> $qb;
     });
 }

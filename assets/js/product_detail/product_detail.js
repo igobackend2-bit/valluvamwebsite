@@ -206,8 +206,15 @@ function loadProduct(idOrSlug, pushSlug) {
                     }, presets[0]);
                 }
 
-                let defaultCalcTotal = (rate !== null && defaultPreset !== null) ? Math.round(rate * defaultPreset) : null;
-                let defaultPriceUnitLabel = (presets && labelFn && defaultPreset !== null) ? labelFn(defaultPreset) : p.quantity;
+                // FIX (30 Sep 2026): the "Select Weight/Volume" calculator row duplicated the
+                // real "Size" row and showed estimated prices (e.g. 25kg) for packs admin never
+                // created - while Add to Cart still added this one pack at its own price. It is
+                // no longer rendered; the price shown is always this pack's own admin price.
+                // Sizes now come only from the "Size" row (the packs admin created, each with
+                // its own price + discount price).
+                presets = null;
+                let defaultCalcTotal = null;
+                let defaultPriceUnitLabel = p.quantity;
 
                 // Stock / availability (see build_stock_info() in product_detail_query.php).
                 // p.in_stock / p.low_stock / p.physical_stock_label are computed server-side
@@ -219,7 +226,9 @@ function loadProduct(idOrSlug, pushSlug) {
                 let buyDisabledAttr = !inStock ? 'disabled aria-disabled="true"' : '';
 
                 let quantitySectionHtml;
-                if (presets) {
+                if (qInfo) {
+                    quantitySectionHtml = ''; // FIX (30 Sep 2026): fake weight calculator row removed (see above)
+                } else if (presets) {
                     quantitySectionHtml = `
                         <div class="pd-weight-row">
                             <label>${rowLabel}</label>
@@ -258,7 +267,7 @@ function loadProduct(idOrSlug, pushSlug) {
                         ${ratingBlock}
                         <div class="pd-price-row">
                             ${hasDiscount ? `<span class="pd-price-old">&#8377;${p.price}</span>` : ''}
-                            <span class="pd-price-new">&#8377;${defaultCalcTotal !== null ? defaultCalcTotal : p.dis_price}</span>
+                            <span class="pd-price-new">&#8377;${defaultCalcTotal !== null ? defaultCalcTotal : (parseFloat(p.dis_price) > 0 ? p.dis_price : p.price)}</span>
                             ${defaultPriceUnitLabel ? `<span class="pd-price-unit">/ ${defaultPriceUnitLabel}</span>` : ''}
                             ${discountBadge}
                         </div>
