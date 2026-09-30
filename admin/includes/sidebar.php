@@ -91,3 +91,16 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
     </ul>
     <div class="adm-sidebar-foot">Valluvam Products</div>
 </nav>
+<?php if ($current_page === 'purchase_history.php'): ?>
+<script>
+// Purchase History is below the longer Inventory group. Keep its active menu item visible
+// when this page opens, without changing the sidebar position on any other page.
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('.adm-sidebar');
+    const activeLink = sidebar && sidebar.querySelector('a.active');
+    if (!sidebar || !activeLink) return;
+
+    sidebar.scrollTop = Math.max(0, activeLink.offsetTop - (sidebar.clientHeight - activeLink.offsetHeight) / 2);
+});
+</script>
+<?php endif; ?>
