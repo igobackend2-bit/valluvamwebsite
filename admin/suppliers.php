@@ -83,7 +83,7 @@ require_once __DIR__ . '/includes/check_admin.php';
             let rows = '';
             suppliers.forEach(s => {
                 rows += `<tr>
-                    <td class="adm-cell-title">${escapeHtml(s.supplier_name)}${s.company_name ? '<div class="adm-cell-sub">' + escapeHtml(s.company_name) + '</div>' : ''}</td>
+                    <td class="adm-cell-title">${escapeHtml(s.supplier_name)}${s.company_name ? '<div class="adm-cell-sub">' + escapeHtml(s.company_name) + '</div>' : ''}${s.owner_name ? '<div class="adm-cell-sub">Owner: ' + escapeHtml(s.owner_name) + '</div>' : ''}</td>
                     <td>${escapeHtml(s.mobile || '—')}</td>
                     <td>${escapeHtml(s.email || '—')}</td>
                     <td>${escapeHtml(s.gst_number || '—')}</td>
@@ -111,12 +111,18 @@ require_once __DIR__ . '/includes/check_admin.php';
                 html: `
                     <input id="swal-name" class="swal2-input" placeholder="Supplier name" value="${supplier ? escapeHtml(supplier.supplier_name) : ''}">
                     <input id="swal-company" class="swal2-input" placeholder="Company name" value="${supplier ? escapeHtml(supplier.company_name || '') : ''}">
+                    <input id="swal-owner" class="swal2-input" placeholder="Shop owner / contact person" value="${supplier ? escapeHtml(supplier.owner_name || '') : ''}">
                     <input id="swal-mobile" class="swal2-input" placeholder="Mobile" value="${supplier ? escapeHtml(supplier.mobile || '') : ''}">
                     <input id="swal-email" class="swal2-input" placeholder="Email" value="${supplier ? escapeHtml(supplier.email || '') : ''}">
                     <input id="swal-address" class="swal2-input" placeholder="Address" value="${supplier ? escapeHtml(supplier.address || '') : ''}">
-                    <input id="swal-gst" class="swal2-input" placeholder="GST number" value="${supplier ? escapeHtml(supplier.gst_number || '') : ''}">
+                    <input id="swal-gst" class="swal2-input" maxlength="15" style="text-transform:uppercase" placeholder="GSTIN (leave blank if unregistered)" value="${supplier ? escapeHtml(supplier.gst_number || '') : ''}">
                     <input id="swal-terms" class="swal2-input" placeholder="Payment terms" value="${supplier ? escapeHtml(supplier.payment_terms || '') : ''}">
-                    <textarea id="swal-bank" class="swal2-textarea" placeholder="Bank details">${supplier ? escapeHtml(supplier.bank_details || '') : ''}</textarea>
+                    <input id="swal-holder" class="swal2-input" placeholder="Account holder name" value="${supplier ? escapeHtml(supplier.account_holder_name || '') : ''}">
+                    <input id="swal-bank-name" class="swal2-input" placeholder="Bank name" value="${supplier ? escapeHtml(supplier.bank_name || '') : ''}">
+                    <input id="swal-account-number" class="swal2-input" inputmode="numeric" placeholder="Account number" value="${supplier ? escapeHtml(supplier.bank_account_number || '') : ''}">
+                    <input id="swal-ifsc" class="swal2-input" maxlength="11" style="text-transform:uppercase" placeholder="IFSC code" value="${supplier ? escapeHtml(supplier.bank_ifsc || '') : ''}">
+                    <input id="swal-upi" class="swal2-input" placeholder="UPI ID (optional)" value="${supplier ? escapeHtml(supplier.upi_id || '') : ''}">
+                    <textarea id="swal-bank" class="swal2-textarea" placeholder="Additional payment instructions">${supplier ? escapeHtml(supplier.bank_details || '') : ''}</textarea>
                     <textarea id="swal-notes" class="swal2-textarea" placeholder="Notes">${supplier ? escapeHtml(supplier.notes || '') : ''}</textarea>
                     <select id="swal-status" class="swal2-input">
                         <option value="active" ${!supplier || supplier.status === 'active' ? 'selected' : ''}>Active</option>
@@ -133,16 +139,26 @@ require_once __DIR__ . '/includes/check_admin.php';
                         Swal.showValidationMessage('Supplier name is required');
                         return false;
                     }
+                    const gst = $('#swal-gst').val().trim().toUpperCase();
+                    const ifsc = $('#swal-ifsc').val().trim().toUpperCase();
+                    if (gst && !/^\d{2}[A-Z]{5}\d{4}[A-Z][A-Z\d]Z[A-Z\d]$/.test(gst)) { Swal.showValidationMessage('Enter a valid 15-character GSTIN or leave it blank for an unregistered supplier'); return false; }
+                    if (ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) { Swal.showValidationMessage('Enter a valid 11-character IFSC code'); return false; }
                     return {
                         id: supplier ? supplier.id : null,
                         supplier_name: name,
                         company_name: $('#swal-company').val().trim(),
+                        owner_name: $('#swal-owner').val().trim(),
                         mobile: $('#swal-mobile').val().trim(),
                         email: $('#swal-email').val().trim(),
                         address: $('#swal-address').val().trim(),
-                        gst_number: $('#swal-gst').val().trim(),
+                        gst_number: gst,
                         payment_terms: $('#swal-terms').val().trim(),
                         bank_details: $('#swal-bank').val().trim(),
+                        account_holder_name: $('#swal-holder').val().trim(),
+                        bank_name: $('#swal-bank-name').val().trim(),
+                        bank_account_number: $('#swal-account-number').val().trim(),
+                        bank_ifsc: ifsc,
+                        upi_id: $('#swal-upi').val().trim(),
                         notes: $('#swal-notes').val().trim(),
                         status: $('#swal-status').val()
                     };

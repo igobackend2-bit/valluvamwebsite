@@ -60,6 +60,7 @@ function openForm(supplierId, pinvId) {
         ${E.field('Reference / UTR / cheque no.', E.input('yR', ''))}
         ${E.field('Notes', E.input('yN', ''), 'span-2')}
       </div><div id="yBal" class="erp-note"></div>
+      <div id="yPayee" class="erp-note"></div>
       <p class="erp-note">Payment proof can be attached after saving. Amount cannot be more than the bill's balance (record extra as an advance).</p>`;
     let BILLS = [];
     const loadBills = (sid, sel) => {
@@ -76,9 +77,17 @@ function openForm(supplierId, pinvId) {
             payment_mode: $('#yM').val(), account: $('#yAcc').val(), reference_number: $('#yR').val(), notes: $('#yN').val() }, { silent: true })
             .then(r => { E.toast(r.message); load(); setTimeout(() => openView(r.id), 400); });
     }, { width: 820, confirmText: 'Save payment', didOpen: () => {
-        $('#yS').on('change', function () { loadBills(this.value, ''); });
+        const showPayee = sid => {
+            const s = SUP.find(x => String(x.id) === String(sid));
+            if (!s) return $('#yPayee').empty();
+            const details = [s.owner_name && `Owner: ${E.esc(s.owner_name)}`, s.account_holder_name && `Account holder: ${E.esc(s.account_holder_name)}`,
+                s.bank_name && `Bank: ${E.esc(s.bank_name)}`, s.bank_account_number && `A/c: ${E.esc(s.bank_account_number)}`,
+                s.bank_ifsc && `IFSC: ${E.esc(s.bank_ifsc)}`, s.upi_id && `UPI: ${E.esc(s.upi_id)}`].filter(Boolean);
+            $('#yPayee').html(details.length ? `<strong>Saved payee details</strong> · ${details.join(' · ')}` : 'No payee account details saved. Add them in Suppliers before making a bank or UPI payment.');
+        };
+        $('#yS').on('change', function () { loadBills(this.value, ''); showPayee(this.value); });
         $('#yI').on('change', function () { const b = BILLS.find(x => String(x.id) === this.value); $('#yBal').html(b ? `Bill total ${E.money(b.grand_total)} · paid ${E.money(b.amount_paid)} · <strong>balance ${E.money(b.balance)}</strong>` : ''); if (b) $('#yA').val(b.balance); });
-        if (supplierId) loadBills(supplierId, pinvId);
+        if (supplierId) { loadBills(supplierId, pinvId); showPayee(supplierId); }
     }});
 }
 
