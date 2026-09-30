@@ -121,7 +121,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 	<!-- SweetAlert2 -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<!-- FIX (30 Sep 2026): Unit + Size dropdowns (with add/edit/delete) for the Quantity field -->
-	<script src="assets/js/new_product/quantity-picker.js?v=20260930"></script>
+	<script src="assets/js/new_product/quantity-picker.js?v=20260930b"></script>
+	<!-- FIX (30 Sep 2026): "Sizes for this product" (add/edit/delete sizes with own price) -->
+	<script src="assets/js/new_product/product-sizes.js?v=20260930"></script>
 
 </body>
 

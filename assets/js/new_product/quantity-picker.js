@@ -70,9 +70,9 @@
 					'<select id="qp-size" class="form-control" aria-label="Size" disabled><option value="">Select size</option></select>' +
 				'</div>' +
 				'<div class="d-flex gap-2 flex-wrap">' +
-					'<button type="button" class="btn btn-sm btn-outline-success" id="qp-add"><i class="bi bi-plus-lg"></i> Add size</button>' +
-					'<button type="button" class="btn btn-sm btn-outline-secondary" id="qp-edit"><i class="bi bi-pencil"></i> Edit size</button>' +
-					'<button type="button" class="btn btn-sm btn-outline-danger" id="qp-delete"><i class="bi bi-trash3"></i> Delete size</button>' +
+					'<button type="button" class="btn btn-sm btn-outline-success" id="qp-add"><i class="bi bi-plus-lg"></i> Add option</button>' +
+					'<button type="button" class="btn btn-sm btn-outline-secondary" id="qp-edit"><i class="bi bi-pencil"></i> Edit option</button>' +
+					'<button type="button" class="btn btn-sm btn-outline-danger" id="qp-delete"><i class="bi bi-trash3"></i> Delete option</button>' +
 				'</div>' +
 				'<small class="text-muted d-block mt-1">Saved as: <strong id="qp-preview">—</strong></small>' +
 			'</div>'
