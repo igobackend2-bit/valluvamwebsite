@@ -618,6 +618,24 @@ try {
                 }
                 $pdo->prepare("UPDATE purchase_invoices SET status = 'posted', posted_by = ?, posted_at = NOW() WHERE id = ?")->execute([erp_user(), $id]);
                 $message = "{$num} posted. Payable ₹" . number_format($grand, 2) . '.';
+                // (1 Oct 2026) the PO was paid in advance (purchase flow pays before the shop bill): use that advance for this bill,
+                // so the bill shows as paid and nobody pays twice. Only the link changes — no new money entry, no new journal.
+                if ($poId) {
+                    $poNo = (string)erp_val($pdo, "SELECT po_number FROM purchase_orders WHERE id = ?", [$poId]);
+                    $flowPay = [];
+                    try { $flowPay = array_map('intval', array_column(erp_rows($pdo, "SELECT payment_id FROM purchase_flows WHERE po_id = ? AND payment_id IS NOT NULL", [$poId]), 'payment_id')); } catch (PDOException $e) {}
+                    $left = erp_m($grand - (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM purchase_payments WHERE pinv_id = ? AND status = 'completed'", [$id]));
+                    $used = 0.0;
+                    foreach (erp_rows($pdo, "SELECT id, payment_number, amount, notes FROM purchase_payments WHERE supplier_id = ? AND pinv_id IS NULL AND status = 'completed' ORDER BY payment_date, id FOR UPDATE", [$supplierId]) as $adv) {
+                        $mine = in_array((int)$adv['id'], $flowPay, true) || ($poNo !== '' && strpos((string)$adv['notes'], 'For ' . $poNo) === 0);
+                        if (!$mine || (float)$adv['amount'] > $left + 0.005) continue;
+                        $pdo->prepare("UPDATE purchase_payments SET pinv_id = ?, notes = CONCAT(COALESCE(notes,''), ?) WHERE id = ? AND pinv_id IS NULL")
+                            ->execute([$id, " [advance applied to {$num}]", $adv['id']]);
+                        $left = erp_m($left - (float)$adv['amount']); $used += (float)$adv['amount'];
+                        log_audit($pdo, 'update', 'purchase_payments', $adv['id'], ['pinv_id' => null], ['pinv_id' => $id, 'advance_applied_to' => $num]);
+                    }
+                    if ($used > 0) $message .= ' Advance ₹' . number_format($used, 2) . ' already paid for ' . $poNo . ' is set against this bill' . ($left > 0.005 ? ' — balance ₹' . number_format($left, 2) . '.' : ' — fully paid.');
+                }
             }
             $pdo->commit();
             log_audit($pdo, $action === 'pinv_post' ? 'post' : ($old ? 'update' : 'create'), 'purchase_invoices', $id, $old,
@@ -634,6 +652,9 @@ try {
             $pi = erp_row($pdo, "SELECT * FROM purchase_invoices WHERE id = ?", [$id]);
             if (!$pi) erp_invalid('Purchase invoice not found.');
             if ($pi['status'] === 'cancelled') erp_invalid('Already cancelled.');
+            // an advance that was only set against this bill goes back to being an advance (1 Oct 2026)
+            $pdo->prepare("UPDATE purchase_payments SET pinv_id = NULL, notes = REPLACE(notes, ?, '') WHERE pinv_id = ? AND notes LIKE ?")
+                ->execute([" [advance applied to {$pi['pinv_number']}]", $id, '%[advance applied to ' . $pi['pinv_number'] . ']%']);
             $paid = (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM purchase_payments WHERE pinv_id = ? AND status = 'completed'", [$id]);
             if ($paid > 0) erp_invalid('Payments are recorded against this invoice. Cancel those payments first.');
             $reason = trim((string)erp_input('reason', ''));
