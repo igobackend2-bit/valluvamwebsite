@@ -28,6 +28,11 @@ const PQ_PR = ['q' => 'pr_quotes', 'i' => 'pr_quote_items', 'fk' => 'pr_id'];
 const PF_DOC_SLOTS = ['payment_proof' => ['payment_proof_doc_id', 'SUPPLIER_PAYMENT_PROOF'], 'courier_proof' => ['courier_proof_doc_id', 'TRANSPORT_RECEIPT'],
                       'loading_dc' => ['loading_dc_doc_id', 'GRN'], 'unloading_dc' => ['unloading_dc_doc_id', 'GRN'], 'shop_bill' => ['shop_bill_doc_id', 'SUPPLIER_INVOICE']];
 
+/** Requesters (Valluvam Team Executive) see only their own requests in the flow. */
+function pf_sees_all(PDO $pdo): bool {
+    foreach (['purchase.manager_approve', 'purchase.backend_approve', 'flow.source', 'purchase_payment.create', 'po.ceo_approve'] as $p) if (erp_can($pdo, $p)) return true;
+    return false;
+}
 function pf_need_any(PDO $pdo, array $perms, string $what) {
     foreach ($perms as $p) if (erp_can($pdo, $p)) return;
     erp_fail("You do not have permission to {$what}.", 403);
@@ -135,6 +140,7 @@ try {
             $w = ["pr.status IN ('submitted','manager_approved','approved','converted')"]; $p = [];
             if (($q = trim((string)erp_input('q', ''))) !== '') { $w[] = "(pr.pr_number LIKE ? OR po.po_number LIKE ? OR s.supplier_name LIKE ?)"; array_push($p, "%$q%", "%$q%", "%$q%"); }
             if (erp_input('all') === '1') $w = $q !== '' ? [end($w)] : [];
+            if (!pf_sees_all($pdo)) { $w[] = 'pr.created_by = ?'; $p[] = erp_user(); }
             $rows = erp_rows($pdo, "SELECT pr.id, pr.pr_number, pr.request_date, pr.required_by, pr.status AS pr_status, pr.requested_by, f.quote_status, f.payment_id, f.payment_proof_doc_id,
                                            f.delivery_mode, f.tracking_number, f.unload_ok, f.grn_id, f.qc_id, po.po_number, po.status AS po_status, po.grand_total, s.supplier_name,
                                            (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status
@@ -156,6 +162,7 @@ try {
         case 'get':
             $prId = (int)erp_input('pr_id');
             $pr = pf_pr($pdo, $prId);
+            if (!pf_sees_all($pdo) && $pr['created_by'] !== erp_user()) erp_fail('You can view only your own purchase requests.', 403);
             $pr['items'] = pf_attach_units($pdo, erp_attach_item_names($pdo, erp_rows($pdo, "SELECT * FROM purchase_request_items WHERE pr_id = ? ORDER BY id", [$prId])));
             $f = pf_flow($pdo, $prId);
             $quotes = pq_load($pdo, PQ_PR, $prId);
@@ -175,15 +182,15 @@ try {
             erp_out(['status' => 'success', 'pr' => $pr, 'flow' => $f, 'quotes' => $quotes, 'po' => $po ? array_merge($po, ['items' => $poItems]) : null, 'supplier' => $safeSup,
                      'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'docs' => $docs,
                      'couriers' => erp_rows($pdo, "SELECT id, name, tracking_url FROM courier_services WHERE is_active = 1 ORDER BY sort_order, name"),
-                     'can' => ['quotes' => erp_can($pdo, 'purchase.backend_approve') || erp_can($pdo, 'rfq.manage'), 'approve' => erp_can($pdo, 'purchase.backend_approve'),
-                               'pay' => erp_can($pdo, 'purchase_payment.create'), 'transport' => erp_can($pdo, 'purchase.backend_approve') || erp_can($pdo, 'shipment.manage') || erp_can($pdo, 'grn.create'),
-                               'receive' => erp_can($pdo, 'grn.create'), 'qc' => erp_can($pdo, 'qc.manage'), 'docs' => erp_can($pdo, 'documents.upload')],
+                     'can' => ['quotes' => erp_can($pdo, 'flow.source'), 'approve' => erp_can($pdo, 'purchase.backend_approve'),
+                               'pay' => erp_can($pdo, 'purchase_payment.create'), 'transport' => erp_can($pdo, 'flow.source'),
+                               'receive' => erp_can($pdo, 'flow.source') && erp_can($pdo, 'grn.create'), 'qc' => erp_can($pdo, 'flow.source') && erp_can($pdo, 'qc.manage'), 'docs' => erp_can($pdo, 'documents.upload')],
                      'steps' => pf_steps($pdo, $pr, $f, $po, ['quote_count' => count($quotes), 'paid' => $paid, 'grn' => $grn, 'qc' => $qc])]);
 
         // ------------------------------------------------------------------ quotations
         case 'quotes_save':
         case 'quotes_submit':
-            pf_need_any($pdo, ['purchase.backend_approve', 'rfq.manage'], 'collect shop quotations');
+            pf_need_any($pdo, ['flow.source'], 'collect shop quotations (L1 sourcing)');
             $prId = (int)erp_input('pr_id');
             $pr = pf_pr($pdo, $prId);
             if ($pr['status'] !== 'approved') erp_invalid('Quotations are collected after the request is approved by Manager and Backend.');
@@ -314,7 +321,7 @@ try {
 
         // ------------------------------------------------------------------ transport
         case 'transport_save':
-            pf_need_any($pdo, ['purchase.backend_approve', 'shipment.manage', 'grn.create'], 'record transport');
+            pf_need_any($pdo, ['flow.source'], 'record transport (L1 sourcing)');
             $prId = (int)erp_input('pr_id');
             $f = pf_flow($pdo, $prId);
             $po = $f ? pf_po_for($pdo, $f) : null;
@@ -363,7 +370,7 @@ try {
             $prId = (int)erp_input('pr_id');
             $slot = (string)erp_input('slot');
             if (!isset(PF_DOC_SLOTS[$slot])) erp_invalid('Unknown document type.');
-            pf_need_any($pdo, $slot === 'payment_proof' ? ['purchase_payment.create'] : ['purchase.backend_approve', 'shipment.manage', 'grn.create'], 'attach this document');
+            pf_need_any($pdo, $slot === 'payment_proof' ? ['purchase_payment.create'] : ['flow.source'], 'attach this document');
             $f = pf_flow($pdo, $prId);
             $po = $f ? pf_po_for($pdo, $f) : null;
             if (!$po) erp_invalid('Create the purchase order first.');
@@ -381,7 +388,7 @@ try {
 
         // ------------------------------------------------------------------ unloading check → GRN → QC
         case 'unload_save':
-            pf_need_any($pdo, ['grn.create'], 'check unloading');
+            pf_need_any($pdo, ['flow.source'], 'do the unloading check (L1 sourcing)');
             $prId = (int)erp_input('pr_id');
             $f = pf_flow($pdo, $prId);
             $po = $f ? pf_po_for($pdo, $f) : null;
@@ -409,7 +416,7 @@ try {
 
         case 'grn_link':
         case 'qc_link':
-            pf_need_any($pdo, $action === 'grn_link' ? ['grn.create'] : ['qc.manage', 'grn.create'], 'link this record');
+            pf_need_any($pdo, ['flow.source'], 'link this record (L1 sourcing)');
             $prId = (int)erp_input('pr_id');
             $f = pf_flow($pdo, $prId);
             $po = $f ? pf_po_for($pdo, $f) : null;

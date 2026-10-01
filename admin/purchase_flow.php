@@ -124,8 +124,7 @@ function quotesBody() {
     h += '<div id="qView"></div>';
     if (f.quote_status === 'submitted') {
         h += `<div class="erp-warn">Waiting for approval${approval ? ' — ' + E.esc(approval.request_number) + ' sent by ' + E.esc(approval.submitted_by || '') + ' ' + E.date(approval.submitted_at) : ''}.${approval && approval.execution_error ? '<br><strong>Last try failed:</strong> ' + E.esc(approval.execution_error) : ''}</div>`;
-        if (can.approve && approval) h += `<div class="pf-actions"><button class="adm-btn adm-btn-primary" id="qApprove"><i class="fas fa-check"></i> Approve this shop & create PO</button><button class="adm-btn adm-btn-ghost" id="qReject"><i class="fas fa-xmark"></i> Reject</button></div>`;
-        else h += '<div class="erp-note">A Backend approver decides this in Approvals.</div>';
+        h += can.approve ? '<div class="pf-actions"><a class="adm-btn adm-btn-primary" href="index.php"><i class="fas fa-gauge-high"></i> Approve / reject on your Dashboard</a></div>' : '<div class="erp-note">The Admin approves the shop from the Admin dashboard.</div>';
     }
     if (f.quote_status === 'approved') h += `<div class="erp-note">Approved by ${E.esc(f.quote_decided_by || '')} · ${E.date(f.quote_decided_at)}${f.quote_remarks ? ' — ' + E.esc(f.quote_remarks) : ''}</div>`;
     if (!quotes.length) h += '<div class="erp-note">No quotations entered.</div>';
@@ -176,7 +175,7 @@ function poBody() {
         + `<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th>Item</th><th class="erp-num">Qty</th><th class="erp-num">Rate</th><th class="erp-num">GST</th><th class="erp-num">Total</th></tr></thead><tbody>${po.items.map(i => `<tr><td>${E.esc(i.item_name)}</td><td class="erp-num">${E.qty(i.quantity, i.unit)}</td><td class="erp-num">${E.money(i.rate)}</td><td class="erp-num">${E.num(i.tax_percent)}%</td><td class="erp-num">${E.money(i.line_total)}</td></tr>`).join('')}</tbody></table></div>`
         + payTo()
         + `<div class="pf-actions"><a class="adm-btn adm-btn-ghost" href="purchase_orders.php?id=${po.id}"><i class="fas fa-up-right-from-square"></i> Open PO</a><button class="adm-btn adm-btn-ghost" onclick="window.open('print_erp.php?type=po&id=${po.id}','_blank')"><i class="fas fa-print"></i> Print / PDF</button>
-           ${po.status === 'pending_approval' && can.approve ? '<button class="adm-btn adm-btn-primary" id="poApprove"><i class="fas fa-check"></i> Approve PO</button>' : ''}${po.status === 'pending_approval' && !can.approve ? '<span class="erp-note">Waiting for PO approval in Approvals.</span>' : ''}</div>`;
+           ${po.status === 'pending_approval' ? (can.approve ? '<a class="adm-btn adm-btn-primary" href="index.php"><i class="fas fa-gauge-high"></i> Approve PO on your Dashboard</a>' : '<span class="erp-note">Waiting for PO approval (Admin / CEO dashboard).</span>') : ''}</div>`;
 }
 
 // ---------------------------------------------------------------- 4. payment
@@ -189,7 +188,7 @@ function payBody() {
         if (E.num(payment.amount) + 0.005 < E.num(po.grand_total)) h += `<div class="erp-note">Balance ${E.money(E.num(po.grand_total) - E.num(payment.amount))} — record further payments in Purchase Payments.</div>`;
         return h;
     }
-    if (!can.pay) return h + '<div class="erp-note">Waiting for payment by Accounts.</div>';
+    if (!can.pay) return h + '<div class="erp-note">Waiting for payment by the Accounts Team.</div>';
     h += `<div class="erp-warn">Waiting for payment of ${E.money(po.grand_total)}.</div>
       <div class="pf-grid">${E.field('Amount ₹ *', E.input('pAmt', E.num(po.grand_total), 'type="number" min="0" step="any"'))}${E.field('Payment date *', E.input('pDate', E.today(), 'type="date"'))}
         ${E.field('Mode *', E.select('pMode', ['bank_transfer', 'upi', 'cheque', 'cash', 'card', 'other'].map(m => `<option value="${m}">${m.replace('_', ' ')}</option>`).join('')))}

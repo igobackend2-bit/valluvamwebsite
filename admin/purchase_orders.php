@@ -219,7 +219,7 @@ function openView(id) {
                                            .then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
         E.view(p.po_number, html, [
             ['draft', 'pending_approval'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
-            ['draft', 'pending_approval'].includes(p.status) && { label: 'Approve', cls: 'adm-btn-primary', icon: 'fa-check', run: act('po_approve', 'Approve ' + p.po_number + '?') },
+            p.status === 'pending_approval' && { label: 'Approve on the Dashboard', cls: 'adm-btn-primary', icon: 'fa-gauge-high', run: () => location.href = 'index.php' },   // approvals only from the Dashboard (1 Oct 2026)
             ['approved', 'partially_received'].includes(p.status) && { label: 'Receive goods (GRN)', cls: 'adm-btn-primary', icon: 'fa-dolly', run: () => location.href = 'goods_receipts.php?po_id=' + p.id },
             ['approved', 'partially_received', 'fully_received'].includes(p.status) && { label: 'Close PO', icon: 'fa-lock', run: act('po_close', 'Close ' + p.po_number + '? No more goods can be received.', { reason: 'Reason (optional)', optional: true }) },
             !['cancelled', 'closed', 'fully_received'].includes(p.status) && !p.grns.some(g => g.status === 'posted') && { label: 'Cancel PO', icon: 'fa-ban', run: act('po_cancel', 'Cancel ' + p.po_number + '?', { danger: true, reason: 'Reason' }) },

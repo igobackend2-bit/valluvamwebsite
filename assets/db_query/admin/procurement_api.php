@@ -451,6 +451,7 @@ try {
             $why = erp_input('_approval_remarks') ?: erp_input('reason') ?: '';
             $pdo->prepare("UPDATE purchase_orders SET status = 'draft', notes = CONCAT(COALESCE(notes,''), ?) WHERE id = ?")->execute(["\n[Rejected by " . erp_user() . ($why ? ": {$why}" : '') . ']', $id]);
             apr_close($pdo, 'purchase_order', (string)$id, 'rejected', $why ?: null);
+            apr_close($pdo, 'po_ceo', (string)$id, 'rejected', $why ?: null);   // a PO waiting for the CEO (1 Oct 2026)
             log_audit($pdo, 'reject', 'purchase_orders', $id, ['status' => 'pending_approval'], ['status' => 'draft', 'reason' => $why]);
             erp_out(['status' => 'success', 'message' => "{$po['po_number']} rejected and returned to draft."]);
 

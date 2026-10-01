@@ -69,7 +69,6 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li class="adm-nav-section">Purchases</li>
         <li><a href="purchase_dashboard.php" class="<?= nav_active('purchase_dashboard.php', $current_page) ?>"><i class="fas fa-cart-flatbed"></i> Purchase Dashboard</a></li>
         <li><a href="purchase_requests.php" class="<?= nav_active('purchase_requests.php', $current_page) ?>"><i class="fas fa-clipboard-list"></i> Purchase Requests</a></li>
-        <li><a href="purchase_flow.php" class="<?= nav_active('purchase_flow.php', $current_page) ?>"><i class="fas fa-route"></i> Purchase Flow</a></li>
         <li><a href="rfqs.php" class="<?= nav_active('rfqs.php', $current_page) ?>"><i class="fas fa-envelope-open-text"></i> RFQ &amp; Quotations</a></li>
         <li><a href="purchase_orders.php" class="<?= nav_active('purchase_orders.php', $current_page) ?>"><i class="fas fa-file-signature"></i> Purchase Orders</a></li>
         <li><a href="shipments.php" class="<?= nav_active('shipments.php', $current_page) ?>"><i class="fas fa-truck"></i> Transport / Logistics</a></li>
@@ -135,6 +134,33 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
     </ul>
     <div class="adm-sidebar-foot">Valluvam Products</div>
 </nav>
+<?php
+// page-limited roles (1 Oct 2026): hide menu links they cannot open
+require_once __DIR__ . '/role_access.php';
+$nav_allowed = role_access_pages((string)($_SESSION['admin_role_name'] ?? ''));
+if ($nav_allowed !== null): ?>
+<script>
+(function () {
+    var ok = <?= json_encode($nav_allowed) ?>;
+    document.querySelectorAll('.adm-sidebar a[href]').forEach(function (a) {
+        var page = (a.getAttribute('href') || '').split('?')[0];
+        if (!/^[a-z0-9_]+\.php$/.test(page) || ok.indexOf(page) !== -1) return;
+        if (a.closest('.adm-nav-combined-links')) { a.style.display = 'none'; return; }
+        var li = a.closest('li'); if (li) li.style.display = 'none';
+    });
+    document.querySelectorAll('.adm-sidebar li.adm-nav-combined').forEach(function (li) {
+        var vis = [].some.call(li.querySelectorAll('.adm-nav-combined-links a'), function (x) { return x.style.display !== 'none'; });
+        if (!vis) li.style.display = 'none';
+    });
+    var sec = null, any = false;   // hide section titles with nothing left under them
+    document.querySelectorAll('.adm-sidebar .adm-nav > li').forEach(function (li) {
+        if (li.classList.contains('adm-nav-section')) { if (sec && !any) sec.style.display = 'none'; sec = li; any = false; }
+        else if (li.style.display !== 'none' && !li.classList.contains('adm-nav-divider')) any = true;
+    });
+    if (sec && !any) sec.style.display = 'none';
+})();
+</script>
+<?php endif; ?>
 <script>
 /* approvals / notifications counters (1 Oct 2026) — silent if the ERP tables are not installed or no permission */
 (function () {

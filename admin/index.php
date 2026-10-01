@@ -39,6 +39,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                 </div>
                 <div class="adm-who">Signed in as <strong><?= htmlspecialchars($admin_full_name ?? $admin_username) ?></strong><?= $admin_role_name ? ' · ' . htmlspecialchars($admin_role_name) : '' ?></div>
             </div>
+            <div id="roleDash"></div><!-- role dashboard: my tasks + KPIs (1 Oct 2026) -->
 
             <h2 style="font-size:14px;color:#6b6459;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.04em;">Website orders &amp; catalog</h2>
             <div class="adm-stats">
@@ -497,5 +498,6 @@ require_once __DIR__ . '/includes/check_admin.php';
         });
     });
     </script>
+    <script src="assets/role_dash.js?v=<?= @filemtime(__DIR__ . '/assets/role_dash.js') ?: 1 ?>"></script>
 </body>
 </html>

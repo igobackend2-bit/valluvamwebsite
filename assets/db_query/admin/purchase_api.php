@@ -258,9 +258,22 @@ try {
             $po = erp_row($pdo, "SELECT * FROM purchase_orders WHERE id = ?", [$id]);
             if (!$po) erp_invalid('Purchase order not found.');
             if (!in_array($po['status'], ['draft', 'pending_approval'], true)) erp_invalid("A {$po['status']} purchase order cannot be approved.");
+            // Big purchase orders also need the CEO (1 Oct 2026): Admin's approval is recorded and the PO goes to the CEO.
+            if (erpx_installed($pdo) && !erp_can($pdo, 'po.ceo_approve') && apr_policy($pdo, 'po_ceo')) {
+                $ceoLimit = (float)erp_setting($pdo, 'ceo_po_limit', 0);
+                if ($ceoLimit > 0 && (float)$po['grand_total'] + 0.0001 >= $ceoLimit) {
+                    if (erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'po_ceo' AND request_key = ? AND status IN ('submitted','under_review')", [(string)$id]))
+                        erp_invalid("{$po['po_number']} is already waiting for the CEO.");
+                    apr_close($pdo, 'purchase_order', (string)$id, 'approved', erp_input('_approval_remarks') ?: 'Approved by ' . erp_user() . ' — sent to CEO');
+                    $ceoNum = apr_open($pdo, 'po_ceo', (string)$id, $id, $po['po_number'], "Purchase order {$po['po_number']} — " . erp_supplier_name($pdo, (int)$po['supplier_id']) . ' (approved by ' . erp_user() . ')',
+                                       (float)$po['grand_total'], 'purchase_api.php', ['action' => 'po_approve', 'id' => $id], ['action' => 'po_reject', 'id' => $id, '_endpoint' => 'procurement_api.php']);
+                    log_audit($pdo, 'approve', 'purchase_orders', $id, ['status' => $po['status']], ['admin_approved_by' => erp_user(), 'sent_to_ceo' => $ceoNum]);
+                    erp_out(['status' => 'success', 'ceo' => true, 'message' => "{$po['po_number']} approved by you and sent to the CEO ({$ceoNum}) — it is ₹" . number_format($ceoLimit, 0) . ' or more.']);
+                }
+            }
             $pdo->prepare("UPDATE purchase_orders SET status = 'approved', approved_by = ?, approved_at = NOW() WHERE id = ?")->execute([erp_user(), $id]);
             log_audit($pdo, 'approve', 'purchase_orders', $id, ['status' => $po['status']], ['status' => 'approved']);
-            if (erpx_installed($pdo)) apr_close($pdo, 'purchase_order', (string)$id, 'approved', erp_input('_approval_remarks') ?: null);
+            if (erpx_installed($pdo)) { apr_close($pdo, 'purchase_order', (string)$id, 'approved', erp_input('_approval_remarks') ?: null); apr_close($pdo, 'po_ceo', (string)$id, 'approved', erp_input('_approval_remarks') ?: null); }
             erp_out(['status' => 'success', 'message' => "{$po['po_number']} approved. Goods can now be received against it."]);
 
         case 'po_cancel':

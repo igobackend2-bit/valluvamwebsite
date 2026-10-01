@@ -63,17 +63,15 @@ function openView(id) {
         const act = (a, msg, o) => () => E.confirmAction(msg, '', o).then(note => E.post('purchase_api.php', { action: a, id: p.id, note })).then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
         E.view(p.pr_number, html, [
             ['draft', 'manager_rejected', 'backend_rejected'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
-            PR_PERMS.manager && p.status === 'submitted' && { label: 'Manager approve', cls: 'adm-btn-primary', icon: 'fa-check', run: act('pr_manager_approve', 'Manager approve ' + p.pr_number + '?') },
-            PR_PERMS.manager && p.status === 'submitted' && { label: 'Manager reject', icon: 'fa-xmark', run: act('pr_manager_reject', 'Reject ' + p.pr_number + '?', { danger: true, reason: 'Reason' }) },
-            PR_PERMS.backend && p.status === 'manager_approved' && { label: 'Backend approve', cls: 'adm-btn-primary', icon: 'fa-check-double', run: act('pr_backend_approve', 'Final backend approval for ' + p.pr_number + '?') },
-            PR_PERMS.backend && p.status === 'manager_approved' && { label: 'Backend reject', icon: 'fa-xmark', run: act('pr_backend_reject', 'Reject ' + p.pr_number + '?', { danger: true, reason: 'Reason' }) },
-            PR_PERMS.backend && p.status === 'approved' && { label: 'Create purchase order', cls: 'adm-btn-primary', icon: 'fa-file-signature', run: () => Swal.fire({ title: 'Which supplier?', customClass: { popup: 'erp-modal' },
+            // approvals are done only from the Dashboard (Manager → Admin), 1 Oct 2026
+            ((PR_PERMS.manager && p.status === 'submitted') || (PR_PERMS.backend && p.status === 'manager_approved')) && { label: 'Approve / reject on your Dashboard', cls: 'adm-btn-primary', icon: 'fa-gauge-high', run: () => location.href = 'index.php' },
+            false && PR_PERMS.backend && p.status === 'approved' && { label: 'Create purchase order', cls: 'adm-btn-primary', icon: 'fa-file-signature', run: () => Swal.fire({ title: 'Which supplier?', customClass: { popup: 'erp-modal' },
                 html: E.field('Supplier', E.select('cvS', E.options(SUP.filter(s => s.status === 'active'), 'id', s => s.supplier_name, '', 'Choose supplier'))), showCancelButton: true, confirmButtonColor: '#1c5034',
                 preConfirm: () => $('#cvS').val() || (Swal.showValidationMessage('Choose a supplier'), false) })
                 .then(x => x.isConfirmed ? E.post('purchase_api.php', { action: 'pr_to_po', id: p.id, supplier_id: x.value }) : Promise.reject())
                 .then(x => { E.toast(x.message); location.href = 'purchase_orders.php?id=' + x.id; }).catch(() => {}) },
             ['approved', 'converted'].includes(p.status) && { label: 'Purchase flow (quotations → PO → payment → delivery)', cls: 'adm-btn-primary', icon: 'fa-route', run: () => location.href = 'purchase_flow.php?pr_id=' + p.id },
-            PR_PERMS.backend && p.status === 'approved' && { label: 'Ask for quotations (RFQ)', icon: 'fa-envelope-open-text', run: () => location.href = 'rfqs.php?pr_id=' + p.id },
+            false && PR_PERMS.backend && p.status === 'approved' && { label: 'Ask for quotations (RFQ)', icon: 'fa-envelope-open-text', run: () => location.href = 'rfqs.php?pr_id=' + p.id },
             !['converted', 'cancelled'].includes(p.status) && { label: 'Cancel', icon: 'fa-ban', run: act('pr_cancel', 'Cancel ' + p.pr_number + '?', { danger: true }) },
         ]);
     }).catch(() => {});
