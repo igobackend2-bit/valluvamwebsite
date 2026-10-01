@@ -326,6 +326,24 @@ try {
         $ix = array_search($lk, array_column($sections, 'key'), true);
         if ($ix !== false) {
             $sections[$ix]['lists'] = rd_lists($pdo, $flows, $lk === 'ceo');
+            // purchase orders already paid, with the payment proof — Executive (own requests), Manager, Admin, CEO (1 Oct 2026)
+            try {
+                $own = $lk === 'executive' && $key !== 'super';
+                $rows = [];
+                foreach (erp_rows($pdo, "SELECT f.pr_id, pr.pr_number, pr.created_by, po.po_number, po.grand_total, s.supplier_name, pp.payment_number, pp.payment_date, pp.amount, pp.payment_mode, pp.reference_number,
+                                                pp.created_by AS paid_by, d.id AS doc_id, d.original_name
+                                         FROM purchase_flows f JOIN purchase_requests pr ON pr.id = f.pr_id JOIN purchase_payments pp ON pp.id = f.payment_id AND pp.status = 'completed'
+                                         LEFT JOIN purchase_orders po ON po.id = f.po_id LEFT JOIN suppliers s ON s.id = po.supplier_id LEFT JOIN erp_documents d ON d.id = f.payment_proof_doc_id
+                                         " . ($own ? "WHERE pr.created_by = ? " : '') . "ORDER BY pp.payment_date DESC, pp.id DESC LIMIT 15", $own ? [$me] : []) as $x)
+                    $rows[] = ['po' => $x['po_number'] . ' · ' . $x['pr_number'], 'sup' => $x['supplier_name'], 'date' => $x['payment_date'], 'amount' => $x['amount'],
+                               'how' => ucwords(str_replace('_', ' ', (string)$x['payment_mode'])) . ($x['reference_number'] ? ' · ' . $x['reference_number'] : ''), 'by' => $x['paid_by'],
+                               'st' => (float)$x['amount'] + 0.005 >= (float)$x['grand_total'] ? 'Paid' : 'Part paid',
+                               'proof' => $x['doc_id'] ? ['href' => '../assets/db_query/admin/erp_docs.php?action=download&id=' . (int)$x['doc_id'], 'text' => $x['original_name']] : null,
+                               'link' => 'purchase_flow.php?pr_id=' . (int)$x['pr_id'] . '#card-payment'];
+                $sections[$ix]['lists'][] = ['key' => 'paid', 'title' => $own ? 'My purchases — paid, with payment proof' : 'Purchases paid — with payment proof', 'empty' => 'No purchase order has been paid yet.',
+                                             'cols' => [['k' => 'po', 'l' => 'PO / request'], ['k' => 'sup', 'l' => 'Shop'], ['k' => 'date', 'l' => 'Paid on', 'f' => 'date'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'],
+                                                        ['k' => 'how', 'l' => 'Mode / UTR'], ['k' => 'by', 'l' => 'Paid by'], ['k' => 'st', 'l' => 'Status', 'f' => 'status'], ['k' => 'proof', 'l' => 'Payment proof', 'f' => 'file']], 'rows' => $rows];
+            } catch (PDOException $e) { error_log('[role dash paid] ' . $e->getMessage()); }
             // team activity from the audit trail — Manager and CEO (1 Oct 2026)
             if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
                 try {

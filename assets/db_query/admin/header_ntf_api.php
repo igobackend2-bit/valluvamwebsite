@@ -82,6 +82,19 @@ function hn_feed(PDO $pdo, int $uid): array {
         }
         if ($next) $items[] = ['id' => -((int)$a['id'] * 4 + 2), 'kind' => 'task', 'severity' => 'warning', 'title' => $next[0], 'message' => $a['summary'] . ' · approved by ' . $a['decided_by'], 'link' => $next[1], 'at' => $a['decided_at']];
     }
+    // 3a. purchase order paid (with proof) — the requester, Manager, Admin, CEO (last 7 days). Read id -(1e9 + payment id) (1 Oct 2026)
+    if (array_intersect($keys, ['super', 'executive', 'manager', 'admin', 'ceo'])) {
+        try {
+            $onlyMine = !array_intersect($keys, ['super', 'manager', 'admin', 'ceo']);
+            foreach (erp_rows($pdo, "SELECT pp.id, pp.amount, pp.payment_date, pp.reference_number, pp.created_at, f.pr_id, f.payment_proof_doc_id, po.po_number, s.supplier_name, pr.created_by
+                                     FROM purchase_flows f JOIN purchase_payments pp ON pp.id = f.payment_id AND pp.status = 'completed' JOIN purchase_requests pr ON pr.id = f.pr_id
+                                     LEFT JOIN purchase_orders po ON po.id = f.po_id LEFT JOIN suppliers s ON s.id = po.supplier_id
+                                     WHERE pp.created_at >= ?" . ($onlyMine ? " AND pr.created_by = ?" : '') . " ORDER BY pp.id DESC LIMIT 30", $onlyMine ? [$since, $me] : [$since]) as $p)
+                $items[] = ['id' => -(1000000000 + (int)$p['id']), 'kind' => 'paid', 'severity' => 'info', 'title' => 'Paid: ' . $p['po_number'] . ' · ' . $p['supplier_name'],
+                            'message' => '₹' . number_format((float)$p['amount'], 2) . ' paid ' . date('d M', strtotime((string)$p['payment_date'])) . ($p['reference_number'] ? ' · UTR ' . $p['reference_number'] : '') . ($p['payment_proof_doc_id'] ? ' · proof attached' : ' · proof missing'),
+                            'link' => 'purchase_flow.php?pr_id=' . (int)$p['pr_id'] . '#card-payment', 'at' => $p['created_at']];
+        } catch (PDOException $e) { /* purchase flow not installed */ }
+    }
     // 3b. waste records reported, for whoever approves waste (1 Oct 2026). Read id -(id*4+3): never clashes with the approval ids.
     if (in_array('super', $keys, true) || erp_can($pdo, 'waste.approve')) {
         try {
