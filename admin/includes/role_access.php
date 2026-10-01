@@ -56,6 +56,41 @@ function user_dash_has_perm(?PDO $pdo, string $perm): bool {
     foreach ($keys as $k) if (in_array($perm, $defs[$k]['perms'], true)) return true;
     return false;
 }
+/**
+ * Pages opened by the permissions the Super Admin ticked for this role in
+ * Admin Users → Roles & permissions (1 Oct 2026). Page-limited roles (Executive,
+ * Manager, L1, Admin, CEO, Accounts) get these on top of their own pages.
+ */
+function role_perm_page_map(): array {
+    return [
+        'sales_orders.' => ['sales_orders.php', 'print_sales_order.php'], 'manual_sales.' => ['manual_sales.php'], 'credit_sales.' => ['credit_sale.php'],
+        'invoices.' => ['invoices.php', 'print_invoice.php'], 'dc.' => ['delivery_challans.php', 'print_dc.php'], 'sales_return.' => ['sales_returns.php', 'credit_notes.php'],
+        'sales.fulfilment' => ['fulfilment.php'], 'sales.channels' => ['sales_channels.php'], 'customer.view' => ['customer_360.php'], 'customers.view' => ['customers.php'],
+        'inventory.view' => ['inventory_overview.php', 'stock_movements.php', 'stock_valuation.php'], 'inventory.adjust' => ['inventory_overview.php'],
+        'stock_in.' => ['stock_in.php', 'print_stock_in.php'], 'stock_out.' => ['stock_out.php', 'print_stock_out.php'], 'stock_count.' => ['stock_counts.php'], 'stock_adjust.' => ['stock_adjustments.php'],
+        'warehouse.view' => ['warehouse_stock.php', 'batches.php'], 'warehouse.transfer' => ['stock_transfers.php'], 'warehouse.locations' => ['warehouse_locations.php'], 'warehouses.' => ['warehouses.php'],
+        'raw_materials.' => ['raw_materials.php', 'repacking.php'], 'assets.' => ['assets.php'], 'waste.' => ['waste.php'],
+        'expense.' => ['expenses.php'], 'accounts.' => ['accounts.php', 'receivables.php'], 'accounting.' => ['chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php', 'gst_summary.php', 'financial_periods.php'],
+        'bank.' => ['bank_accounts.php'], 'pnl.view' => ['profit_loss.php', 'product_profitability.php'], 'reports.view' => ['reports.php'], 'reports.erp' => ['erp_reports_center.php'], 'trace.view' => ['transaction_trace.php'],
+        'approvals.' => ['approvals.php'], 'notifications.view' => ['notifications.php'], 'documents.' => ['documents.php'], 'audit_logs.view' => ['audit_logs.php'], 'settings.view' => ['settings.php'],
+        'suppliers.' => ['suppliers.php', 'supplier_360.php'], 'supplier.profile' => ['supplier_360.php'],
+        'purchase.view' => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'purchase_history.php', 'purchase_dashboard.php', 'print_erp.php'], 'purchase.create' => ['purchase_requests.php'],
+        'rfq.manage' => ['rfqs.php'], 'shipment.manage' => ['shipments.php'], 'grn.create' => ['goods_receipts.php'], 'qc.manage' => ['quality_checks.php'],
+        'purchase_invoice.' => ['purchase_invoices.php'], 'purchase_payment.' => ['purchase_payments.php', 'supplier_ledger.php'], 'purchase_return.' => ['purchase_returns.php', 'debit_notes.php'],
+    ];
+}
+function role_perm_pages(): array {
+    static $cache = null;
+    if ($cache !== null) return $cache;
+    $cache = [];
+    $pdo = $GLOBALS['pdo'] ?? null; $rid = (int)($_SESSION['admin_role_id'] ?? 0);
+    if (!$pdo instanceof PDO || $rid <= 1) return $cache;
+    try { $st = $pdo->prepare("SELECT perm_key FROM admin_role_permissions WHERE role_id = ?"); $st->execute([$rid]); $perms = $st->fetchAll(PDO::FETCH_COLUMN); }
+    catch (PDOException $e) { return $cache; }
+    foreach (role_perm_page_map() as $prefix => $pages)
+        foreach ($perms as $p) if ($p === $prefix || (substr($prefix, -1) === '.' && strpos($p, $prefix) === 0)) { $cache = array_merge($cache, $pages); break; }
+    return $cache = array_values(array_unique($cache));
+}
 /** Allowed pages for the role, or null when the role is not page-limited. */
 function role_access_pages(string $roleName, array $userDash = []): ?array {
     $common = ['index.php', 'my_account.php', 'logout.php'];
@@ -76,6 +111,13 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
     if ($base === null && $userDash && $k === '') $base = $common;   // other roles (Staff, Sales …) given dashboards: limited to those dashboards
     // extra dashboards given by the Super Admin open their pages too (only matters for page-limited roles)
     if ($base !== null && $userDash) foreach ($userDash as $d) $base = array_merge($base, role_dash_defs()[$d]['pages'] ?? []);
+    if ($base !== null) {   // + pages of the permissions ticked for the role
+        $extra = role_perm_pages();
+        if (in_array($k, ['executive', 'manager'], true))   // Executive / Manager: everything except the accounts pages
+            $extra = array_diff($extra, ['expenses.php', 'accounts.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php',
+                                         'gst_summary.php', 'financial_periods.php', 'bank_accounts.php', 'profit_loss.php', 'product_profitability.php', 'purchase_payments.php', 'supplier_ledger.php', 'purchase_invoices.php']);
+        $base = array_merge($base, $extra);
+    }
     return $base === null ? null : array_values(array_unique($base));
 }
 }
