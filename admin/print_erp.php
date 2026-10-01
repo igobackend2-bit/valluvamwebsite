@@ -41,6 +41,11 @@ try {
             $title = 'Purchase Order' . ($rev && $rev['n'] ? ' (revision ' . $rev['n'] . ')' : '');
             $meta = ['PO no.' => $doc['po_number'], 'Date' => $doc['po_date'], 'Expected' => $doc['expected_delivery_date'] ?: '—', 'Deliver to' => trim($doc['wh'] . ' ' . $doc['location']), 'Status' => $doc['status'], 'Approved by' => $doc['approved_by'] ?: '—'];
             $party = [$doc['supplier_name'], $doc['company_name'], $doc['address'], $doc['gst_number'] ? 'GSTIN ' . $doc['gst_number'] : '', $doc['mobile']];
+            // supplier bank / UPI for payment (1 Oct 2026) — shown only when saved on the supplier
+            $sb = prow($pdo, "SELECT * FROM suppliers WHERE id = ?", [$doc['supplier_id']]) ?: [];
+            $bank = array_filter(['A/c holder ' . ($sb['account_holder_name'] ?? ''), 'Bank ' . ($sb['bank_name'] ?? ''), 'A/c no. ' . ($sb['bank_account_number'] ?? ''), 'IFSC ' . ($sb['bank_ifsc'] ?? ''), 'UPI ' . ($sb['upi_id'] ?? '')],
+                                 fn($v) => !preg_match('/^(A\/c holder|Bank|A\/c no\.|IFSC|UPI) $/', $v));
+            if ($bank) $party[] = 'Pay to — ' . implode(' · ', $bank);
             $cols = ['#', 'Item', 'Qty', 'Rate', 'Discount', 'GST', 'Total'];
             foreach (prows($pdo, "SELECT * FROM purchase_order_items WHERE po_id = ? ORDER BY id", [$id]) as $i => $l) $rows[] = [$i + 1, pitem($pdo, $l['item_type'], (int)$l['item_id']), pq($l['quantity']) . ' ' . $l['unit'], pm($l['rate']), pm($l['discount_amount']), rtrim(rtrim($l['tax_percent'], '0'), '.') . '%', pm($l['line_total'])];
             $totals = ['Subtotal' => pm($doc['subtotal']), 'Discount' => pm($doc['discount_total']), 'GST' => pm($doc['tax_total']), 'Other charges' => pm($doc['other_charges']), 'Total' => pm($doc['grand_total'])];

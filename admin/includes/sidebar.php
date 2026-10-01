@@ -69,6 +69,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li class="adm-nav-section">Purchases</li>
         <li><a href="purchase_dashboard.php" class="<?= nav_active('purchase_dashboard.php', $current_page) ?>"><i class="fas fa-cart-flatbed"></i> Purchase Dashboard</a></li>
         <li><a href="purchase_requests.php" class="<?= nav_active('purchase_requests.php', $current_page) ?>"><i class="fas fa-clipboard-list"></i> Purchase Requests</a></li>
+        <li><a href="purchase_flow.php" class="<?= nav_active('purchase_flow.php', $current_page) ?>"><i class="fas fa-route"></i> Purchase Flow</a></li>
         <li><a href="rfqs.php" class="<?= nav_active('rfqs.php', $current_page) ?>"><i class="fas fa-envelope-open-text"></i> RFQ &amp; Quotations</a></li>
         <li><a href="purchase_orders.php" class="<?= nav_active('purchase_orders.php', $current_page) ?>"><i class="fas fa-file-signature"></i> Purchase Orders</a></li>
         <li><a href="shipments.php" class="<?= nav_active('shipments.php', $current_page) ?>"><i class="fas fa-truck"></i> Transport / Logistics</a></li>

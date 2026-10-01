@@ -50,6 +50,7 @@ try {
             if (!$pr) erp_fail('Purchase request not found.');
             if (!erp_can($pdo, 'purchase.manager_approve') && !erp_can($pdo, 'purchase.backend_approve') && $pr['created_by'] !== erp_user()) erp_fail('You can view only your own purchase requests.', 403);
             $pr['items'] = erp_attach_item_names($pdo, erp_rows($pdo, "SELECT * FROM purchase_request_items WHERE pr_id = ? ORDER BY id", [$id]));
+            if (is_file(__DIR__ . '/pf_lib.php')) { require_once __DIR__ . '/pf_lib.php'; $pr['items'] = pf_attach_units($pdo, $pr['items']); }   // typed unit, e.g. 50 kg (1 Oct 2026)
             $pr['purchase_orders'] = erp_rows($pdo, "SELECT id, po_number, status, grand_total FROM purchase_orders WHERE pr_id = ?", [$id]);
             erp_out(['status' => 'success', 'record' => $pr]);
 
@@ -57,7 +58,10 @@ try {
         case 'pr_submit':
             $id = (int)erp_input('id', 0);
             $items = erp_json_input('items');
+            if (!$items && !in_array(trim((string)($_POST['items'] ?? '')), ['', '[]'], true)) erp_invalid('The item list could not be read. Please refresh the page (Ctrl+F5) and try again.');
             $clean = [];
+            $units = [];   // typed quantity + unit per line (1 Oct 2026)
+            if (is_file(__DIR__ . '/pf_lib.php')) require_once __DIR__ . '/pf_lib.php';
             foreach ($items as $it) {
                 $type = erp_item_type($it['item_type'] ?? 'product');
                 $iid = (int)($it['item_id'] ?? 0);
@@ -65,6 +69,11 @@ try {
                 if (!$iid || $qty <= 0) continue;
                 $item = erp_item($pdo, $type, $iid);
                 if (!$item) erp_invalid('An item in the list no longer exists.');
+                if (trim((string)($it['input_unit'] ?? '')) !== '' && function_exists('pf_convert')) {   // g / kg / ml / L → packs
+                    $conv = pf_convert($type, $item, erp_num($it['input_qty'] ?? 0, 'Quantity'), (string)$it['input_unit']);
+                    $qty = erp_q($conv['qty']);
+                    $units[count($clean)] = $conv;
+                }
                 $clean[] = [$type, $iid, $qty, $item['unit'], ($it['estimated_rate'] ?? '') === '' ? null : erp_u(erp_num($it['estimated_rate'], 'Estimated rate')), mb_substr((string)($it['notes'] ?? ''), 0, 255)];
             }
             if (!$clean) erp_invalid('Add at least one item with a quantity.');
@@ -75,18 +84,25 @@ try {
                 $old = erp_row($pdo, "SELECT * FROM purchase_requests WHERE id = ? FOR UPDATE", [$id]);
                 if (!$old) erp_invalid('Purchase request not found.');
                 if (!erp_can($pdo, 'purchase.manager_approve') && !erp_can($pdo, 'purchase.backend_approve') && $old['created_by'] !== erp_user()) erp_invalid('You can edit only your own purchase requests.');
-                if (!in_array($old['status'], ['draft', 'rejected'], true)) erp_invalid('Only draft or rejected requests can be edited.');
+                if (!in_array($old['status'], ['draft', 'rejected', 'manager_rejected', 'backend_rejected'], true)) erp_invalid('Only draft or rejected requests can be edited.');
                 $pdo->prepare("UPDATE purchase_requests SET request_date=?, required_by=?, warehouse_id=?, requested_by=?, notes=?, status=? WHERE id=?")
-                    ->execute([$date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, erp_user(), erp_input('notes') ?: null, $status, $id]);
+                    ->execute([$date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, mb_substr(trim((string)erp_input('requested_by', '')), 0, 100) ?: erp_user(), erp_input('notes') ?: null, $status, $id]);
                 $pdo->prepare("DELETE FROM purchase_request_items WHERE pr_id = ?")->execute([$id]);
             } else {
                 $num = next_document_number($pdo, 'purchase_request', 'PR');
                 $pdo->prepare("INSERT INTO purchase_requests (pr_number, request_date, required_by, warehouse_id, requested_by, notes, status, created_by) VALUES (?,?,?,?,?,?,?,?)")
-                    ->execute([$num, $date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, erp_user(), erp_input('notes') ?: null, $status, erp_user()]);
+                    ->execute([$num, $date, erp_date(erp_input('required_by')), (int)erp_input('warehouse_id', 1) ?: 1, mb_substr(trim((string)erp_input('requested_by', '')), 0, 100) ?: erp_user(), erp_input('notes') ?: null, $status, erp_user()]);
                 $id = (int)$pdo->lastInsertId();
             }
             $ins = $pdo->prepare("INSERT INTO purchase_request_items (pr_id, item_type, item_id, quantity, unit, estimated_rate, notes) VALUES (?,?,?,?,?,?,?)");
-            foreach ($clean as $c) $ins->execute(array_merge([$id], $c));
+            $saveUnits = function_exists('pf_units_installed') && pf_units_installed($pdo);
+            if ($saveUnits) $pdo->prepare("DELETE FROM pr_item_units WHERE pr_id = ?")->execute([$id]);
+            foreach ($clean as $k => $c) {
+                $ins->execute(array_merge([$id], $c));
+                if ($saveUnits && isset($units[$k]) && $units[$k]['input_unit'] !== 'pcs')
+                    $pdo->prepare("INSERT INTO pr_item_units (pr_id, pr_item_id, input_qty, input_unit, pack_size, pack_unit, packs) VALUES (?,?,?,?,?,?,?)")
+                        ->execute([$id, (int)$pdo->lastInsertId(), $units[$k]['input_qty'], $units[$k]['input_unit'], $units[$k]['pack_size'], $units[$k]['pack_unit'], $units[$k]['qty']]);
+            }
             $pdo->commit();
             log_audit($pdo, isset($old) ? 'update' : 'create', 'purchase_requests', $id, $old ?? null, ['status' => $status, 'items' => $clean]);
             if ($status === 'submitted' && erpx_installed($pdo)) {   // approvals inbox (1 Oct 2026)

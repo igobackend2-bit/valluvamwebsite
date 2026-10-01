@@ -57,6 +57,8 @@ function erp_input(string $key, $default = null) {
 function erp_json_input(string $key): array {
     $raw = $_POST[$key] ?? '[]';
     $arr = is_array($raw) ? $raw : json_decode((string)$raw, true);
+    // some hosts escape quotes in POST data (\"…\"): try once more without the slashes (1 Oct 2026)
+    if (!is_array($arr) && is_string($raw) && strpos($raw, '\\"') !== false) $arr = json_decode(stripslashes($raw), true);
     return is_array($arr) ? $arr : [];
 }
 function erp_date($v, bool $required = false): ?string {

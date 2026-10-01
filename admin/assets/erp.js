@@ -97,7 +97,7 @@ window.ERP = (function ($) {
     function itemOptions(list, selType, selId) {
         const grp = (t, label) => {
             const g = list.filter(i => i.item_type === t);
-            return g.length ? `<optgroup label="${label}">` + g.map(i => `<option value="${t}:${i.item_id}" data-unit="${esc(i.unit)}" ${t === selType && String(i.item_id) === String(selId) ? 'selected' : ''}>${esc(i.label)}${i.category ? ' — ' + esc(i.category) : ''} · stock ${qty(i.stock)}</option>`).join('') + '</optgroup>' : '';
+            return g.length ? `<optgroup label="${label}">` + g.map(i => `<option value="${t}:${i.item_id}" data-unit="${esc(i.unit)}" data-pack="${esc(i.pack || '')}" ${t === selType && String(i.item_id) === String(selId) ? 'selected' : ''}>${esc(i.label)}${i.category ? ' — ' + esc(i.category) : ''} · stock ${qty(i.stock)}</option>`).join('') + '</optgroup>' : '';
         };
         return '<option value="">Select item…</option>' + grp('product', 'Product packs (sold on the website)') + grp('raw_material', 'Bulk raw materials (kg / L)');
     }
@@ -111,16 +111,46 @@ window.ERP = (function ($) {
      * cfg.fixedItems: lines that can't change item (from PO/GRN) — pass rows with item_type/item_id/item_name.
      * Returns { get(), recalc() }.
      */
+    // ---- units for request lines (1 Oct 2026): g / kg / ml / L are converted to packs
+    function packOf(p) {
+        const m = String(p || '').toLowerCase().trim().match(/^(\d+(?:\.\d+)?)\s*(kg|kgs|kilo|kilogram|kilograms|g|gm|gms|gram|grams|ml|mls|l|lt|ltr|ltrs|litre|litres|liter|liters)\.?$/);
+        if (!m || String(p).includes('+')) return null;
+        const n = parseFloat(m[1]), u = m[2];
+        if (!(n > 0)) return null;
+        if (/^k/.test(u)) return [n * 1000, 'g'];
+        if (/^g/.test(u)) return [n, 'g'];
+        if (/^ml/.test(u)) return [n, 'ml'];
+        return [n * 1000, 'ml'];
+    }
+    function unitBase(u) { return ({ g: ['g', 1], kg: ['g', 1000], ml: ['ml', 1], l: ['ml', 1000] })[String(u || '').toLowerCase()] || null; }
+    function unitsFor(type, unit, pack) {
+        if (type === 'product') { const p = packOf(pack); return !p ? ['pcs'] : p[1] === 'g' ? ['pcs', 'g', 'kg'] : ['pcs', 'ml', 'L']; }
+        const b = unitBase(unit); return !b ? [unit || 'unit'] : b[0] === 'g' ? ['kg', 'g'] : ['L', 'ml'];
+    }
+    /** typed qty + unit → stock qty (whole packs for products, rounded up) */
+    function toStockQty(type, unit, pack, q, u) {
+        q = num(q);
+        if (!(q > 0)) return { qty: 0, rounded: false };
+        if (type === 'product') {
+            if (u === 'pcs') return { qty: q, rounded: false };
+            const p = packOf(pack), b = unitBase(u); if (!p || !b) return { qty: q, rounded: false };
+            const exact = q * b[1] / p[0], packs = Math.ceil(Math.round(exact * 1e6) / 1e6);
+            return { qty: packs, rounded: Math.abs(packs - exact) > 1e-6 };
+        }
+        const f = unitBase(u), t = unitBase(unit);
+        return { qty: f && t ? Math.round(q * f[1] / t[1] * 1000) / 1000 : q, rounded: false };
+    }
     function lineEditor($el, cfg) {
         const cols = cfg.columns || ['item', 'qty', 'rate', 'discount', 'tax', 'total'];
         const list = cfg.items || [];
-        const head = { item: 'Item', qty: 'Qty', rate: 'Rate ₹', discount: 'Discount ₹', tax: 'GST %', total: 'Line total' };
+        const head = { item: 'Item', qty: 'Qty', uom: 'Unit', rate: 'Rate ₹', discount: 'Discount ₹', tax: 'GST %', total: 'Line total' };
         function rowHtml(l) {
             l = l || {};
             const cells = cols.map(c => {
                 if (c === 'item') return `<td style="min-width:240px">${select('', itemOptions(list, l.item_type, l.item_id), 'data-f="item"')}</td>`;
                 if (c === 'total') return '<td class="erp-num" data-f="total">₹0.00</td>';
-                const v = { qty: l.quantity, rate: l.rate, discount: l.discount_amount, tax: l.tax_percent }[c];
+                if (c === 'uom') return `<td class="w-sm" style="min-width:150px"><select class="adm-select" data-f="uom" data-init="${esc(l.input_unit || '')}"></select><div class="erp-muted" data-f="conv" style="font-size:12px;margin-top:3px"></div></td>`;
+                const v = { qty: c === 'qty' && cols.includes('uom') && l.input_qty ? l.input_qty : l.quantity, rate: l.rate, discount: l.discount_amount, tax: l.tax_percent }[c];
                 return `<td class="${c === 'tax' ? 'w-sm' : 'w-num'}"><input class="adm-input" type="number" min="0" step="any" data-f="${c}" value="${esc(v ?? (c === 'qty' ? '' : 0))}"></td>`;
             }).join('');
             return `<tr>${cells}<td><button type="button" class="adm-icon-btn is-danger" data-f="del" title="Remove line"><i class="fas fa-xmark"></i></button></td></tr>`;
@@ -130,7 +160,20 @@ window.ERP = (function ($) {
                   <div class="erp-totals" data-f="totals"></div>`);
         const $tb = $el.find('tbody');
         (cfg.lines && cfg.lines.length ? cfg.lines : [{}]).forEach(l => $tb.append(rowHtml(l)));
+        function rowItem($r) { const $o = $r.find('[data-f=item] option:selected'); const v = String($r.find('[data-f=item]').val() || ''); return v ? { type: v.split(':')[0], unit: $o.data('unit'), pack: $o.data('pack') } : null; }
+        function syncUom($r) {   // unit choices follow the item; shows the pack conversion
+            const $u = $r.find('[data-f=uom]'); if (!$u.length) return;
+            const it = rowItem($r);
+            const opts = it ? unitsFor(it.type, it.unit, it.pack) : ['pcs'];
+            const cur = $u.val() || $u.attr('data-init') || opts[0];
+            const key = opts.join('|');
+            if ($u.attr('data-opts') !== key) { $u.html(opts.map(o => `<option value="${esc(o)}">${esc(o === 'pcs' ? 'packs (pcs)' : o)}</option>`).join('')).attr('data-opts', key); }
+            $u.val(opts.includes(cur) ? cur : opts[0]); $u.removeAttr('data-init');
+            const c = it ? toStockQty(it.type, it.unit, it.pack, $r.find('[data-f=qty]').val(), $u.val()) : null;
+            $r.find('[data-f=conv]').html(c && c.qty && $u.val() !== 'pcs' && $u.val() !== it.unit ? '= ' + qty(c.qty) + (it.type === 'product' ? ' pack(s) of ' + esc(it.pack) : ' ' + esc(it.unit)) + (c.rounded ? ' (rounded up)' : '') : '');
+        }
         function recalc() {
+            if (cols.includes('uom')) $tb.find('tr').each(function () { syncUom($(this)); });
             if (!cols.includes('rate')) { $el.find('[data-f=totals]').empty(); return; }   // quantity-only lists (transfers, counts)
             let gross = 0, disc = 0, tax = 0;
             $tb.find('tr').each(function () {
@@ -159,6 +202,12 @@ window.ERP = (function ($) {
                     const it = String($r.find('[data-f=item]').val() || '');
                     if (!it) return;
                     const [type, id] = it.split(':');
+                    if (cols.includes('uom')) {   // send the typed qty + unit; quantity = converted stock qty
+                        const ri = rowItem($r), u = $r.find('[data-f=uom]').val() || 'pcs', typed = $r.find('[data-f=qty]').val();
+                        out.push({ item_type: type, item_id: id, input_qty: typed, input_unit: u, quantity: toStockQty(ri.type, ri.unit, ri.pack, typed, u).qty,
+                                   rate: $r.find('[data-f=rate]').val() ?? 0, estimated_rate: $r.find('[data-f=rate]').val() ?? '', discount_amount: 0, tax_percent: 0 });
+                        return;
+                    }
                     out.push({ item_type: type, item_id: id, quantity: $r.find('[data-f=qty]').val(), rate: $r.find('[data-f=rate]').val() ?? 0,
                                estimated_rate: $r.find('[data-f=rate]').val() ?? '', discount_amount: $r.find('[data-f=discount]').val() ?? 0, tax_percent: $r.find('[data-f=tax]').val() ?? 0 });
                 });
