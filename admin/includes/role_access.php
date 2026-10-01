@@ -40,7 +40,7 @@ function role_dash_defs(): array {
                         'perms' => ['po.ceo_approve', 'purchase.view', 'purchase.approve', 'purchase.backend_approve', 'approvals.view', 'approvals.manage', 'reports.erp', 'reports.view', 'pnl.view', 'accounting.view', 'inventory.view', 'dashboard.view', 'trace.view', 'documents.view', 'notifications.view', 'suppliers.view', 'customer.view'],
                         'pages' => ['approvals.php', 'purchase_flow.php', 'purchase_orders.php', 'purchase_dashboard.php', 'purchase_history.php', 'profit_loss.php', 'financial_statements.php', 'product_profitability.php', 'erp_reports_center.php', 'reports.php', 'transaction_trace.php', 'ap_ar_aging.php', 'stock_valuation.php', 'supplier_360.php', 'customer_360.php', 'accounts.php', 'documents.php', 'notifications.php', 'print_erp.php', 'audit_logs.php']],
         'accounts'  => ['label' => 'Accounts Team — supplier payments with proof, bills, accounts',
-                        'perms' => ['purchase.view', 'purchase_payment.create', 'purchase_invoice.create', 'documents.view', 'documents.upload', 'notifications.view', 'suppliers.view', 'accounting.view', 'accounts.view', 'accounts.create', 'expense.manage', 'pnl.view', 'reports.view', 'dashboard.view'],
+                        'perms' => ['purchase.view', 'purchase_payment.create', 'purchase_invoice.create', 'documents.view', 'documents.upload', 'notifications.view', 'suppliers.view', 'accounting.view', 'accounts.view', 'accounts.create', 'expense.manage', 'pnl.view', 'reports.view', 'dashboard.view', 'warehouses.view', 'invoices.view', 'credit_sales.view', 'customer.view'],
                         'pages' => ['purchase_flow.php', 'purchase_orders.php', 'purchase_payments.php', 'purchase_invoices.php', 'supplier_ledger.php', 'supplier_360.php', 'accounts.php', 'expenses.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php']],
     ];
 }
@@ -125,7 +125,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
             $extra = array_diff($extra, ['expenses.php', 'accounts.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php',
                                          'gst_summary.php', 'financial_periods.php', 'bank_accounts.php', 'profit_loss.php', 'product_profitability.php', 'purchase_payments.php', 'supplier_ledger.php', 'purchase_invoices.php']);
         if ($k === 'accounts')   // Accounts Team: not the request / sourcing pages — they start once a PO exists (1 Oct 2026)
-            $extra = array_diff($extra, ['purchase_requests.php', 'rfqs.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php']);
+            $extra = array_diff($extra, ['purchase_requests.php', 'rfqs.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php', 'warehouses.php']);
         $base = array_merge($base, $extra);
     }
     return $base === null ? null : array_values(array_unique($base));

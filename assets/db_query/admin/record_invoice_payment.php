@@ -6,7 +6,10 @@ require_once __DIR__ . '/auth_helper.php';
 require_once __DIR__ . '/../config.php';
 
 require_admin_session();
-require_permission($pdo, 'invoices.create');
+// FIX (1 Oct 2026): the Accounts Team records customer payments (money in) without being able to create sales documents.
+require_once __DIR__ . '/../../../admin/includes/role_access.php';
+$accountsDash = role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'accounts' || in_array('accounts', user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0)), true);
+if (!$accountsDash) require_permission($pdo, 'invoices.create');
 
 $id = (int)($_POST['id'] ?? 0);
 $amount = (float)($_POST['amount'] ?? 0);

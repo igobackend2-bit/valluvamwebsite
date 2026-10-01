@@ -7,7 +7,10 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/credit_sale_helper.php';
 
 require_admin_session();
-require_permission($pdo, 'credit_sales.create');
+// FIX (1 Oct 2026): the Accounts Team records customer payments (money in) without being able to create sales documents.
+require_once __DIR__ . '/../../../admin/includes/role_access.php';
+$accountsDash = role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'accounts' || in_array('accounts', user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0)), true);
+if (!$accountsDash) require_permission($pdo, 'credit_sales.create');
 
 ensure_credit_sale_tables($pdo);
 
@@ -66,7 +69,8 @@ try {
         error_log('accounts_transactions integration skipped (table not ready): ' . $e->getMessage());
     }
 
-    echo json_encode(['status' => 'success', 'amount_paid' => $newPaid, 'status' => $newStatus, 'balance_due' => round((float)$sale['grand_total'] - $newPaid, 2)]);
+    // FIX (1 Oct 2026): the second 'status' key overwrote 'success', so the page said "Could not record payment" after saving it (risk of paying in twice)
+    echo json_encode(['status' => 'success', 'amount_paid' => $newPaid, 'sale_status' => $newStatus, 'balance_due' => round((float)$sale['grand_total'] - $newPaid, 2)]);
 } catch (Exception $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log("Error recording credit sale payment: " . $e->getMessage());
