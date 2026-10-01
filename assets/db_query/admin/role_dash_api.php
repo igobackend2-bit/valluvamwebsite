@@ -58,6 +58,67 @@ function rd_task(array $f, string $title, string $sub, array $actions = [], stri
     return ['id' => (int)$f['id'], 'ref' => $f['pr_number'], 'title' => $title, 'sub' => $sub, 'date' => $f['request_date'], 'amount' => $f['grand_total'] ?? null,
             'stage' => $f['stage'][1], 'actions' => $actions, 'link' => $link ?: 'purchase_flow.php?pr_id=' . (int)$f['id']];
 }
+/* ---- Lists for the Admin and CEO dashboards (added 1 Oct 2026) ---- */
+/** Who approves each module: the purchase steps by their role, other modules by the roles holding the approver permission. */
+function rd_approvers(PDO $pdo): array {
+    $fixed = ['purchase_request' => 'Valluvam Team Manager', 'purchase_request_final' => 'Admin', 'pr_quotation' => 'Admin', 'purchase_order' => 'Admin', 'po_ceo' => 'CEO'];
+    $out = [];
+    try {
+        foreach (erp_rows($pdo, "SELECT p.module, p.label, GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR ', ') AS roles FROM approval_policies p
+                                 LEFT JOIN admin_role_permissions rp ON rp.perm_key = p.approver_perm LEFT JOIN admin_roles r ON r.id = rp.role_id AND r.id <> 1
+                                 GROUP BY p.module, p.label") as $p)
+            $out[$p['module']] = ['label' => $p['label'], 'who' => $fixed[$p['module']] ?? ($p['roles'] ?: 'Super Admin')];
+    } catch (PDOException $e) { error_log('[role dash approvers] ' . $e->getMessage()); }
+    return $out;
+}
+function rd_link(array $a): string {
+    $id = (int)$a['entity_id'];
+    return match ($a['module']) {
+        'purchase_request', 'purchase_request_final', 'pr_quotation' => 'purchase_flow.php?pr_id=' . $id,
+        'purchase_order', 'po_ceo', 'po_amendment' => 'purchase_orders.php?id=' . $id,
+        default => 'approvals.php',
+    };
+}
+function rd_lists(PDO $pdo, array $flows, bool $ceo): array {
+    $who = rd_approvers($pdo); $lists = [];
+    // 1. everything waiting for approval, and who must approve it
+    $rows = [];
+    foreach (erp_rows($pdo, "SELECT id, request_number, module, entity_id, reference, summary, amount, submitted_by, submitted_at FROM approval_requests
+                             WHERE status IN ('submitted','under_review') ORDER BY submitted_at, id LIMIT 50") as $a)
+        $rows[] = ['type' => $who[$a['module']]['label'] ?? ucwords(str_replace('_', ' ', $a['module'])), 'ref' => $a['reference'] ?: $a['request_number'], 'what' => $a['summary'],
+                   'amount' => $a['amount'], 'by' => $a['submitted_by'], 'since' => $a['submitted_at'], 'who' => $who[$a['module']]['who'] ?? 'Super Admin', 'link' => rd_link($a)];
+    $lists[] = ['key' => 'waiting', 'title' => 'Waiting for approval — and who approves', 'empty' => 'No approvals are waiting.',
+                'cols' => [['k' => 'type', 'l' => 'Approval'], ['k' => 'ref', 'l' => 'Reference'], ['k' => 'what', 'l' => 'Details'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'],
+                           ['k' => 'by', 'l' => 'Sent by'], ['k' => 'since', 'l' => 'Waiting since', 'f' => 'date'], ['k' => 'who', 'l' => 'Waiting for', 'f' => 'badge']], 'rows' => $rows];
+    // 2. who approved / rejected what
+    $rows = [];
+    foreach (erp_rows($pdo, "SELECT id, request_number, module, entity_id, reference, summary, amount, status, submitted_by, decided_by, decided_at, remarks FROM approval_requests
+                             WHERE status IN ('approved','rejected') ORDER BY decided_at DESC, id DESC LIMIT 15") as $a)
+        $rows[] = ['type' => $who[$a['module']]['label'] ?? ucwords(str_replace('_', ' ', $a['module'])), 'ref' => $a['reference'] ?: $a['request_number'], 'what' => $a['summary'],
+                   'amount' => $a['amount'], 'by' => $a['submitted_by'], 'dec' => $a['decided_by'], 'st' => ucfirst($a['status']), 'at' => $a['decided_at'], 'rem' => $a['remarks'], 'link' => rd_link($a)];
+    $lists[] = ['key' => 'history', 'title' => 'Approval history — who approved or rejected', 'empty' => 'No decisions yet.',
+                'cols' => [['k' => 'type', 'l' => 'Approval'], ['k' => 'ref', 'l' => 'Reference'], ['k' => 'what', 'l' => 'Details'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'],
+                           ['k' => 'by', 'l' => 'Sent by'], ['k' => 'dec', 'l' => 'Decided by'], ['k' => 'st', 'l' => 'Result', 'f' => 'status'], ['k' => 'at', 'l' => 'On', 'f' => 'date'], ['k' => 'rem', 'l' => 'Remarks']], 'rows' => $rows];
+    // 3. purchase pipeline: how many requests are at each step
+    $stages = [];
+    foreach ($flows as $f) { $s = $f['stage'][1]; $stages[$s] ??= ['stage' => $s, 'n' => 0, 'amount' => 0]; $stages[$s]['n']++; $stages[$s]['amount'] += (float)($f['grand_total'] ?? 0); }
+    $lists[] = ['key' => 'pipeline', 'title' => 'Purchase pipeline — requests at each step', 'empty' => 'No purchase requests yet.',
+                'cols' => [['k' => 'stage', 'l' => 'Step'], ['k' => 'n', 'l' => 'Requests', 'f' => 'n'], ['k' => 'amount', 'l' => 'PO value', 'f' => 'money']], 'rows' => array_values($stages)];
+    // 4. transaction history (money in / out)
+    if ($ceo) {
+        $rows = [];
+        try {
+            foreach (erp_rows($pdo, "SELECT transaction_id, date, type, category, party_name, reference_number, amount, payment_mode, status FROM accounts_transactions ORDER BY date DESC, id DESC LIMIT 15") as $t)
+                $rows[] = ['date' => $t['date'], 'txn' => $t['transaction_id'], 'type' => ucwords(str_replace('_', ' ', $t['type'])), 'cat' => $t['category'], 'party' => $t['party_name'],
+                           'ref' => $t['reference_number'], 'amount' => in_array($t['type'], ['expense', 'payment_made', 'refund'], true) ? -abs((float)$t['amount']) : (float)$t['amount'],
+                           'mode' => ucwords(str_replace('_', ' ', (string)$t['payment_mode'])), 'st' => ucfirst((string)$t['status'])];
+        } catch (PDOException $e) { error_log('[role dash txns] ' . $e->getMessage()); }
+        $lists[] = ['key' => 'txns', 'title' => 'Latest transactions (money in + / money out −)', 'empty' => 'No transactions yet.',
+                    'cols' => [['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'txn', 'l' => 'Txn no.'], ['k' => 'type', 'l' => 'Type'], ['k' => 'cat', 'l' => 'Category'], ['k' => 'party', 'l' => 'Party'],
+                               ['k' => 'ref', 'l' => 'Reference'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'signed'], ['k' => 'mode', 'l' => 'Mode'], ['k' => 'st', 'l' => 'Status', 'f' => 'status']], 'rows' => $rows];
+    }
+    return $lists;
+}
 
 try {
     if (!rd_tables($pdo)) erp_out(['status' => 'success', 'role' => '', 'sections' => [], 'note' => 'Run purchase_flow_migration.sql and roles_dashboard_migration.sql to switch on role dashboards.']);
@@ -136,7 +197,7 @@ try {
                      rd_kpi('Average final-approval time', rd_hours($pdo, "SELECT AVG(TIMESTAMPDIFF(MINUTE, manager_approved_at, backend_approved_at))/60 FROM purchase_requests WHERE backend_approved_at IS NOT NULL AND manager_approved_at IS NOT NULL"), 'h'),
                      rd_kpi('PO value approved this month', $poVal, 'money'),
                      rd_kpi('Waiting for the CEO', (int)erp_val($pdo, "SELECT COUNT(*) FROM approval_requests WHERE module = 'po_ceo' AND status IN ('submitted','under_review')"), 'n', 'POs above ₹' . number_format((float)erp_setting($pdo, 'ceo_po_limit', 0)))];
-            $sections[] = ['key' => $k, 'title' => 'Approvals (Admin)', 'role' => 'Admin', 'tasks' => $tasks, 'kpis' => $kpis];
+            $sections[] = ['key' => $k, 'title' => 'Approvals (Admin)', 'role' => 'Admin', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => in_array('ceo', $want, true) ? [] : rd_lists($pdo, $flows, false)];   // the CEO section already has these lists
         }
         if ($k === 'ceo') {
             foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.entity_id, r.submitted_by, r.submitted_at FROM approval_requests r
@@ -151,8 +212,11 @@ try {
                 $kp[] = rd_kpi('Sales this month', $p['net_sales'], 'money', '', 'green');
                 $kp[] = rd_kpi('Gross profit this month', $p['gross_profit'], 'money');
                 $kp[] = rd_kpi('Net profit this month', $p['net_profit'], 'money', '', $p['net_profit'] < 0 ? 'red' : 'green');
-                $kp[] = rd_kpi('Stock value', rep_valuation($pdo, $today)['total_value'], 'money');
-                $kp[] = rd_kpi('Payable to suppliers', array_sum(array_column(rep_supplier_summary($pdo), 'outstanding')), 'money', '', 'amber');
+                $kp[] = rd_kpi('Stock value', rep_valuation($pdo, $today)['total_value'], 'money', 'goods received and posted');
+                // owed (bills not yet paid) and advances (paid before the bill) shown apart, so the card is never a negative "payable"
+                $outs = array_map('floatval', array_column(rep_supplier_summary($pdo), 'outstanding'));
+                $kp[] = rd_kpi('Owed to suppliers', array_sum(array_filter($outs, fn($v) => $v > 0)), 'money', 'bills not yet paid', 'amber');
+                $kp[] = rd_kpi('Advance paid, bill pending', abs(array_sum(array_filter($outs, fn($v) => $v < 0))), 'money', 'paid before the shop bill was entered');
             } catch (Throwable $e) { error_log('[role dash ceo] ' . $e->getMessage()); }
             $poVal = (float)erp_val($pdo, "SELECT COALESCE(SUM(grand_total),0) FROM purchase_orders WHERE approved_at >= ?", [$m1]);
             $saved = (float)erp_val($pdo, "SELECT COALESCE(SUM(GREATEST(0, (SELECT MAX(grand_total) FROM pr_quotes q WHERE q.pr_id = f.pr_id) - (SELECT grand_total FROM pr_quotes q WHERE q.pr_id = f.pr_id AND q.is_selected = 1 LIMIT 1))),0)
@@ -160,7 +224,7 @@ try {
             $qcRec = (float)erp_val($pdo, "SELECT COALESCE(SUM(received_qty),0) FROM quality_check_items"); $qcRej = (float)erp_val($pdo, "SELECT COALESCE(SUM(rejected_qty),0) FROM quality_check_items");
             $kpis = array_merge([rd_kpi('POs waiting for me', count($tasks), 'n', '', count($tasks) ? 'amber' : 'green'), rd_kpi('Purchases approved this month', $poVal, 'money'),
                                  rd_kpi('Saved through 3 quotations', $saved, 'money', '', 'green'), rd_kpi('QC rejection', $qcRec > 0 ? round($qcRej * 100 / $qcRec, 1) : null, 'pct', 'of quantity checked')], $kp);
-            $sections[] = ['key' => $k, 'title' => 'CEO approvals & company KPIs', 'role' => 'CEO', 'tasks' => $tasks, 'kpis' => $kpis];
+            $sections[] = ['key' => $k, 'title' => 'CEO approvals & company KPIs', 'role' => 'CEO', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => rd_lists($pdo, $flows, true)];
         }
         if ($k === 'accounts') {
             foreach ($flows as $f) if ($f['stage'][0] === 'pay')

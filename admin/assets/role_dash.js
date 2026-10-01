@@ -36,13 +36,32 @@
 .rd-btn.p{background:#1c5034;border-color:#1c5034;color:#fff}.rd-btn:disabled{opacity:.6}
 .rd-stage{font-size:11.5px;background:#f6ead9;color:#7a4a17;border-radius:20px;padding:2px 9px;white-space:nowrap}
 .rd-amt{font-weight:600;white-space:nowrap}.rd-empty{color:var(--adm-ink-soft,#6b6459);font-size:13px;padding:6px 0}
-.rd-hide{display:none !important}`;
+.rd-hide{display:none !important}
+.rd-list{margin-top:14px}.rd-list h3{font-size:14.5px;margin:0 0 6px;color:var(--adm-ink,#23281f)}
+.rd-tw{overflow-x:auto;border:1px solid var(--adm-line,#e7e1d4);border-radius:10px}
+.rd-tbl{width:100%;border-collapse:collapse;font-size:12.5px;min-width:560px}.rd-tbl th{background:#f6f3ec;text-align:left;padding:7px 9px;font-weight:600;color:#4b463d;white-space:nowrap}
+.rd-tbl td{padding:7px 9px;border-top:1px solid var(--adm-line,#efeae0);vertical-align:top}.rd-tbl td.num{text-align:right;white-space:nowrap}.rd-tbl tr[data-href]{cursor:pointer}.rd-tbl tr[data-href]:hover td{background:#faf8f3}
+.rd-badge{display:inline-block;background:#e8f1eb;color:#1c5034;border-radius:20px;padding:2px 9px;font-weight:600;white-space:nowrap}
+.rd-st-approved,.rd-st-completed{color:#1c5034;font-weight:600}.rd-st-rejected,.rd-st-cancelled{color:#a8442f;font-weight:600}.rd-neg{color:#a8442f}.rd-pos{color:#1c5034}`;
     $('<style>').text(css).appendTo('head');
 
     function api(file, data, post) {
         return new Promise((ok, no) => $.ajax({ url: BASE + file, type: post ? 'POST' : 'GET', data, dataType: 'json' })
             .done(r => (r && r.status === 'success' ? ok(r) : no((r && r.message) || 'Something went wrong.'))).fail(x => no(x.status === 403 ? 'You do not have permission for this.' : 'Could not reach the server.')));
     }
+    const cell = (c, v) => {
+        if (c.f === 'money') return `<td class="num">${v === null || v === undefined || v === '' ? '—' : money(v)}</td>`;
+        if (c.f === 'signed') return `<td class="num ${v < 0 ? 'rd-neg' : 'rd-pos'}">${v < 0 ? '− ' : '+ '}${money(Math.abs(v))}</td>`;
+        if (c.f === 'n') return `<td class="num">${Number(v || 0).toLocaleString('en-IN')}</td>`;
+        if (c.f === 'date') return `<td style="white-space:nowrap">${date(v)}</td>`;
+        if (c.f === 'badge') return `<td><span class="rd-badge">${esc(v)}</span></td>`;
+        if (c.f === 'status') return `<td class="rd-st-${esc(String(v || '').toLowerCase())}">${esc(v)}</td>`;
+        return `<td>${esc(v)}</td>`;
+    };
+    const lists = s => (s.lists || []).map(l => `<div class="rd-list" data-list="${esc(l.key)}"><h3>${esc(l.title)}</h3>${l.rows.length
+        ? `<div class="rd-tw"><table class="rd-tbl"><thead><tr>${l.cols.map(c => `<th>${esc(c.l)}</th>`).join('')}</tr></thead><tbody>${l.rows.map(r => `<tr${r.link ? ` data-href="${esc(r.link)}"` : ''}>${l.cols.map(c => cell(c, r[c.k])).join('')}</tr>`).join('')}</tbody></table></div>`
+        : `<div class="rd-empty">${esc(l.empty || 'Nothing to show.')}</div>`}</div>`).join('');
+    $root.on('click', 'tr[data-href]', function () { location.href = $(this).data('href'); });
     function load() {
         api('role_dash_api.php', { action: 'get' }).then(r => {
             if (r.limited) $root.nextAll().addClass('rd-hide');   // page-limited roles see only their own dashboard
@@ -53,7 +72,7 @@
                 ${s.tasks.length ? s.tasks.map((t, i) => `<div class="rd-task" data-sec="${s.key}" data-i="${i}"><div><div class="t">${esc(t.title)}</div><div class="s">${esc(t.sub || '')}${t.date ? ' · ' + date(t.date) : ''}</div></div>
                     <div class="a">${t.amount ? `<span class="rd-amt">${money(t.amount)}</span>` : ''}<span class="rd-stage">${esc(t.stage)}</span>
                     ${(t.actions || []).map((a, j) => `<button class="rd-btn ${a.primary ? 'p' : ''}" data-act="${j}">${esc(a.label)}</button>`).join('')}
-                    <a class="rd-btn" href="${esc(t.link)}">Open</a></div></div>`).join('') : '<div class="rd-empty">Nothing waiting for you. ✓</div>'}</section>`).join(''));
+                    <a class="rd-btn" href="${esc(t.link)}">Open</a></div></div>`).join('') : '<div class="rd-empty">Nothing waiting for you. ✓</div>'}${lists(s)}</section>`).join(''));
             $root.data('sections', r.sections);
         }).catch(m => $root.html(`<div class="rd-sec"><div class="rd-empty">${esc(m)}</div></div>`));
     }

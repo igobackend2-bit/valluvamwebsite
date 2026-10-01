@@ -2,7 +2,7 @@
 // ============================================================================
 // Page access per role (added 1 Oct 2026)
 // Roles listed here may open only these admin pages; every other role (Super
-// Admin, Admin, CEO, Warehouse, Sales, …) is limited by its permissions only.
+// Admin, Warehouse, Sales, …) is limited by its permissions only.
 // The old role names are kept so users who are still logged in keep working.
 // ============================================================================
 if (!function_exists('role_access_pages')) {
@@ -30,10 +30,10 @@ function role_dash_defs(): array {
                         'pages' => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php', 'suppliers.php', 'supplier_360.php', 'documents.php', 'notifications.php', 'print_erp.php', 'rfqs.php']],
         'admin'     => ['label' => 'Admin — final approval of requests, shop choice and POs',
                         'perms' => ['purchase.view', 'purchase.create', 'purchase.approve', 'purchase.backend_approve', 'approvals.view', 'approvals.manage', 'documents.view', 'documents.upload', 'notifications.view', 'suppliers.view', 'suppliers.create', 'warehouses.view', 'warehouse.view', 'inventory.view', 'trace.view', 'reports.erp'],
-                        'pages' => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'approvals.php', 'suppliers.php', 'supplier_360.php', 'documents.php', 'notifications.php', 'print_erp.php', 'transaction_trace.php', 'erp_reports_center.php', 'purchase_dashboard.php']],
+                        'pages' => ['purchase_dashboard.php', 'purchase_requests.php', 'purchase_flow.php', 'rfqs.php', 'purchase_orders.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php', 'purchase_invoices.php', 'purchase_returns.php', 'debit_notes.php', 'purchase_payments.php', 'purchase_history.php', 'suppliers.php', 'supplier_ledger.php', 'supplier_360.php', 'approvals.php', 'documents.php', 'notifications.php', 'print_erp.php', 'transaction_trace.php', 'erp_reports_center.php']],
         'ceo'       => ['label' => 'CEO — approve big POs, company KPIs',
                         'perms' => ['po.ceo_approve', 'purchase.view', 'purchase.approve', 'purchase.backend_approve', 'approvals.view', 'approvals.manage', 'reports.erp', 'reports.view', 'pnl.view', 'accounting.view', 'inventory.view', 'dashboard.view', 'trace.view', 'documents.view', 'notifications.view', 'suppliers.view', 'customer.view'],
-                        'pages' => ['purchase_orders.php', 'purchase_flow.php', 'approvals.php', 'profit_loss.php', 'financial_statements.php', 'erp_reports_center.php', 'transaction_trace.php', 'reports.php', 'product_profitability.php', 'documents.php', 'notifications.php', 'print_erp.php', 'purchase_dashboard.php']],
+                        'pages' => ['approvals.php', 'purchase_flow.php', 'purchase_orders.php', 'purchase_dashboard.php', 'purchase_history.php', 'profit_loss.php', 'financial_statements.php', 'product_profitability.php', 'erp_reports_center.php', 'reports.php', 'transaction_trace.php', 'ap_ar_aging.php', 'stock_valuation.php', 'supplier_360.php', 'customer_360.php', 'accounts.php', 'documents.php', 'notifications.php', 'print_erp.php', 'audit_logs.php']],
         'accounts'  => ['label' => 'Accounts Team — supplier payments with proof, bills, accounts',
                         'perms' => ['purchase.view', 'purchase_payment.create', 'purchase_invoice.create', 'documents.view', 'documents.upload', 'notifications.view', 'suppliers.view', 'accounting.view', 'accounts.view', 'accounts.create', 'expense.manage', 'pnl.view', 'reports.view', 'dashboard.view'],
                         'pages' => ['purchase_flow.php', 'purchase_orders.php', 'purchase_payments.php', 'purchase_invoices.php', 'supplier_ledger.php', 'supplier_360.php', 'accounts.php', 'expenses.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php']],
@@ -64,6 +64,9 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
         'manager'   => ['purchase_requests.php', 'purchase_flow.php'],
         'l1'        => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php',
                         'suppliers.php', 'supplier_360.php', 'documents.php', 'notifications.php', 'print_erp.php', 'rfqs.php'],
+        // Admin and CEO see only their own dashboard + these pages (added 1 Oct 2026)
+        'admin'     => role_dash_defs()['admin']['pages'],
+        'ceo'       => role_dash_defs()['ceo']['pages'],
         'accounts'  => ['purchase_flow.php', 'purchase_orders.php', 'purchase_payments.php', 'purchase_invoices.php', 'supplier_ledger.php', 'supplier_360.php',
                         'accounts.php', 'expenses.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php',
                         'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php'],
