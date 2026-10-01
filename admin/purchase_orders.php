@@ -3,6 +3,7 @@ require_once __DIR__ . '/includes/erp_page.php';
 erp_page_start('Purchase Orders', 'Order stock from suppliers — stock changes only when goods are received (GRN)',
     '<button class="adm-btn adm-btn-primary" id="newBtn"><i class="fas fa-plus"></i> New purchase order</button>');
 ?>
+<div id="pqVer" data-v="<?= @filemtime(__DIR__ . '/assets/po_quotes.js') ?: 1 ?>" hidden></div>
 <section class="adm-card">
     <div class="adm-card-head">
         <h2>All purchase orders</h2>
@@ -23,6 +24,8 @@ erp_page_start('Purchase Orders', 'Order stock from suppliers — stock changes 
 <?php erp_page_end(<<<'JS'
 const E = ERP;
 let SUP = [], WH = [], ITEMS = [];
+// competitor quotations (1 Oct 2026) — separate file, the page works without it
+const POQ_LOAD = $.ajax({ url: 'assets/po_quotes.js?v=' + ($('#pqVer').data('v') || 1), dataType: 'script', cache: true }).catch(() => null);
 Promise.all([E.suppliers(), E.warehouses(), E.items()]).then(([s, w, i]) => {
     SUP = s; WH = w; ITEMS = i;
     $('#fSupplier').append(s.map(x => `<option value="${x.id}">${E.esc(x.supplier_name)}</option>`).join(''));
@@ -75,25 +78,64 @@ function openForm(po) {
         ${E.field('Other charges ₹ (expected)', E.input('pOther', po.other_charges || 0, 'type="number" min="0" step="any"'))}
         ${E.field('Notes', E.textarea('pNotes', po.notes || ''), 'span-all')}
       </div>
+      <div class="erp-section-title">Competitor quotations (compare up to 3 suppliers)</div><div id="pQuotes"></div>
       <div class="erp-section-title">Items</div><div id="pLines"></div>
       <p class="erp-note">Rates are per pack for products and per kg / L for bulk raw materials. Creating or approving a PO does not change stock.</p>`;
-    let editor;
+    let editor, quotes = null;
     E.form(po.id ? 'Edit ' + po.po_number : 'New purchase order', html, (btn) => {
         const payload = { action: btn === 'deny' ? 'po_save' : 'po_submit', id: po.id || '', supplier_id: $('#pSup').val(), po_date: $('#pDate').val(),
                           expected_delivery_date: $('#pExp').val(), warehouse_id: $('#pWh').val(), buyer: $('#pBuyer').val(), other_charges: $('#pOther').val(),
                           notes: $('#pNotes').val(), items: editor.get() };
         if (!payload.items.length) return Promise.reject('Add at least one item');
-        return selectedSupplier().then(supplierId => {
+        return (quotes ? quotes.check() : Promise.resolve()).then(() => selectedSupplier()).then(supplierId => {
             if (!supplierId) return Promise.reject('Choose a supplier or add a new supplier / shop');
             payload.supplier_id = supplierId;
             return E.post('purchase_api.php', payload, { silent: true });
-        }).then(r => { E.toast(r.message); load(); setTimeout(() => openView(r.id), 300); });
-    }, { confirmText: 'Submit for approval', denyText: 'Save draft', didOpen: () => {
+        }).then(r => (quotes ? quotes.save(r.id) : Promise.resolve([])).then(problems => {
+            E.toast(problems.length ? r.message + ' Note: ' + problems.join('; ') : r.message, problems.length ? 'warning' : 'success');
+            load(); setTimeout(() => openView(r.id), 300);
+        }));
+    }, { confirmText: 'Submit for approval', denyText: 'Save draft', width: 1180, didOpen: () => {
         editor = E.lineEditor($('#pLines'), { items: ITEMS, lines: po.items || [], extra: () => E.num($('#pOther').val()) });
         $('#pOther').on('input', () => editor.recalc());
         $('#pNewSup').on('click', () => { $('#pSup').val('').prop('disabled', true); $('#pNewSupFields').prop('hidden', false); $('#pNewSupName').trigger('focus'); });
         $('#pNewSupCancel').on('click', () => { $('#pNewSupFields').prop('hidden', true); $('#pSup').prop('disabled', false); });
+        POQ_LOAD.then(() => {
+            if (!window.POQ) { $('#pQuotes').html('<div class="erp-note">Competitor quotations could not be loaded.</div>'); return; }
+            quotes = POQ.mount($('#pQuotes'), { poId: po.id || 0, items: ITEMS, suppliers: SUP, lines: () => editor.get(), onUse: applyQuote });
+        });
     }});
+
+    /** "Use this quotation": fills the PO supplier, expected delivery, freight and item lines from the chosen quotation. */
+    function applyQuote(q) {
+        const name = String(q.supplier_name || '').trim().toLowerCase();
+        const s = SUP.find(x => (q.supplier_id && String(x.id) === String(q.supplier_id)) || String(x.supplier_name).trim().toLowerCase() === name);
+        if (s) {
+            $('#pNewSupFields').prop('hidden', true);
+            if (!$('#pSup option[value="' + s.id + '"]').length) $('#pSup').append(`<option value="${s.id}">${E.esc(s.supplier_name)}</option>`);
+            $('#pSup').prop('disabled', false).val(String(s.id));
+        } else {
+            $('#pSup').val('').prop('disabled', true); $('#pNewSupFields').prop('hidden', false);
+            $('#pNewSupName').val(q.supplier_name || ''); $('#pNewSupOwner').val(q.contact_person || ''); $('#pNewSupMobile').val(q.mobile || ''); $('#pNewSupGst').val(q.gst_number || '');
+            $('#pNewSupHolder').val(q.account_holder_name || ''); $('#pNewSupBank').val(q.bank_name || ''); $('#pNewSupAccount').val(q.bank_account_number || '');
+            $('#pNewSupIfsc').val(q.bank_ifsc || ''); $('#pNewSupUpi').val(q.upi_id || '');
+        }
+        if (q.delivery_days !== '' && q.delivery_days !== null && q.delivery_days !== undefined && $('#pDate').val()) {
+            const d = new Date($('#pDate').val() + 'T00:00:00'); d.setDate(d.getDate() + E.num(q.delivery_days));
+            $('#pExp').val(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'));
+        }
+        if (E.num(q.freight) > 0) $('#pOther').val(E.num(q.freight));
+        const lines = (q.items || []).filter(l => l.item_type && l.item_id && E.num(l.rate) > 0)
+            .map(l => ({ item_type: l.item_type, item_id: l.item_id, quantity: E.num(l.quantity) || '', rate: l.rate, discount_amount: 0, tax_percent: l.tax_percent || 0 }));
+        if (lines.length) {
+            $('#pLines').off();
+            editor = E.lineEditor($('#pLines'), { items: ITEMS, lines, extra: () => E.num($('#pOther').val()) });
+        }
+        const skipped = (q.items || []).filter(l => !(l.item_type && l.item_id)).length;
+        $('#pLines').prev('.erp-section-title').html('Items' + (lines.length ? ` <span class="adm-badge is-green">filled from ${E.esc(q.supplier_name)}</span>` : '') +
+            (skipped ? ` <span class="adm-badge is-amber">${skipped} unmatched item(s) not added</span>` : ''));
+        $('#pLines')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 /** Revisions, RFQ link, transport, approvals, credit limit (1 Oct 2026). */
@@ -172,7 +214,7 @@ function openView(id) {
                <th class="erp-num">Rate</th><th class="erp-num">Discount</th><th class="erp-num">GST</th><th class="erp-num">Total</th></tr></thead><tbody>${items}</tbody></table></div>
                <div class="erp-totals"><span>Subtotal <strong>${E.money(p.subtotal)}</strong></span><span>Discount <strong>${E.money(p.discount_total)}</strong></span>
                <span>GST <strong>${E.money(p.tax_total)}</strong></span><span>Other <strong>${E.money(p.other_charges)}</strong></span><span>Total <strong>${E.money(p.grand_total)}</strong></span></div>
-               ${p.notes ? '<p class="erp-note">' + E.esc(p.notes) + '</p>' : ''}<div id="vDocs"></div>`;
+               ${p.notes ? '<p class="erp-note">' + E.esc(p.notes) + '</p>' : ''}<div id="vQuotes"></div><div id="vDocs"></div>`;
         const act = (a, msg, extra) => () => E.confirmAction(msg, '', extra).then(reason => E.post('purchase_api.php', { action: a, id: p.id, reason }))
                                            .then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
         E.view(p.po_number, html, [
@@ -186,7 +228,7 @@ function openView(id) {
             p.status === 'pending_approval' && { label: 'Reject', icon: 'fa-xmark', run: () => E.confirmAction('Reject ' + p.po_number + '?', 'It goes back to draft.', { danger: true, reason: 'Reason' }).then(reason => E.post('procurement_api.php', { action: 'po_reject', id: p.id, reason })).then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {}) },
             !['cancelled', 'draft'].includes(p.status) && { label: 'Transport', icon: 'fa-truck', run: () => location.href = 'shipments.php?po_id=' + p.id },
             { label: 'Print', icon: 'fa-print', run: () => window.open('print_erp.php?type=po&id=' + p.id, '_blank') },
-        ], { didOpen: () => { E.docs($('#vDocs'), 'purchase_order', p.id, 'PURCHASE_ORDER'); poExtras(p); } });
+        ], { didOpen: () => { E.docs($('#vDocs'), 'purchase_order', p.id, 'PURCHASE_ORDER'); poExtras(p); POQ_LOAD.then(() => { if (window.POQ) POQ.view($('#vQuotes'), p); }); }, width: 1180 });
     }).catch(() => {});
 }
 JS
