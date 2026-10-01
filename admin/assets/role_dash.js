@@ -73,12 +73,13 @@
         if (c.f === 'signed') return `<td class="num ${v < 0 ? 'rd-neg' : 'rd-pos'}">${v < 0 ? '− ' : '+ '}${money(Math.abs(v))}</td>`;
         if (c.f === 'n') return `<td class="num">${Number(v || 0).toLocaleString('en-IN')}</td>`;
         if (c.f === 'date') return `<td class="nw muted">${date(v)}</td>`;
+        if (c.f === 'dt') { const x = new Date(String(v || '').replace(' ', 'T')); return `<td class="nw muted">${isNaN(x) ? esc(v) : x.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</td>`; }
         if (c.f === 'badge') return `<td class="nw"><span class="rd-badge">${esc(v)}</span></td>`;
         if (c.f === 'status') return `<td class="nw"><span class="rd-pill rd-st-${esc(String(v || '').toLowerCase())}">${esc(v)}</span></td>`;
         return `<td${/^[A-Z]{2,5}-\d{4}-\d+$/.test(String(v || '')) ? ' class="nw"' : (String(v || '').length > 40 ? ' class="txt"' : '')}>${esc(v === null || v === undefined || v === '' ? '—' : v)}</td>`;   // document numbers stay on one line
     };
     const isNum = c => ['money', 'signed', 'n'].includes(c.f);
-    const ORDER = ['waiting', 'pipeline', 'history', 'txns'], WIDE = ['history', 'txns'];
+    const ORDER = ['waiting', 'pipeline', 'history', 'audit', 'txns'], WIDE = ['history', 'audit', 'txns'];
     const lists = s => !(s.lists || []).length ? '' : `<div class="rd-lists">${s.lists.slice().sort((x, y) => ORDER.indexOf(x.key) - ORDER.indexOf(y.key)).map(l => `<div class="rd-block rd-list ${WIDE.includes(l.key) ? 'rd-wide' : ''}" data-list="${esc(l.key)}">
         <div class="rd-bh"><h3>${esc(l.title)} <span class="rd-n ${l.key === 'waiting' && l.rows.length ? 'is-hot' : ''}">${l.rows.length}</span></h3>${l.more ? `<a class="rd-more" href="${esc(l.more)}">View all →</a>` : ''}</div>
         ${l.rows.length ? `<div class="rd-tw"><table class="rd-tbl"><thead><tr>${l.cols.map(c => `<th class="${isNum(c) ? 'num' : ''}">${esc(c.l)}</th>`).join('')}</tr></thead><tbody>${l.rows.map(r => `<tr${r.link ? ` data-href="${esc(r.link)}" title="Open"` : ''}>${l.cols.map(c => cell(c, r[c.k])).join('')}</tr>`).join('')}</tbody></table></div>`

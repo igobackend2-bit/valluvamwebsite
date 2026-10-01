@@ -159,6 +159,14 @@ try {
             foreach ($flows as $f) if ($f['stage'][0] === 'manager')
                 $tasks[] = rd_task($f, $f['pr_number'] . ' · ' . ($f['requested_by'] ?: $f['created_by']), rd_items($pdo, (int)$f['id']),
                     [['label' => 'Approve', 'kind' => 'pr_manager_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'pr_manager_reject', 'reason' => true]], 'purchase_requests.php?id=' . $f['id']);
+            // stock adjustments / counts / returns / PO changes waiting for the Manager (approver permission; never the accounts approvals) (1 Oct 2026)
+            foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.module, r.entity_id, r.reference, r.summary, r.amount, r.submitted_by, r.submitted_at, p.label, p.approver_perm
+                                     FROM approval_requests r JOIN approval_policies p ON p.module = r.module
+                                     WHERE r.status IN ('submitted','under_review') AND r.module IN ('stock_adjustment','stock_count','sales_return','purchase_return','po_amendment') ORDER BY r.submitted_at, r.id") as $a)
+                if ($key === 'super' || erp_can($pdo, (string)$a['approver_perm']))
+                    $tasks[] = ['id' => (int)$a['entity_id'], 'ref' => $a['request_number'], 'title' => $a['label'] . ' — ' . ($a['reference'] ?: $a['request_number']), 'sub' => $a['summary'] . ' · sent by ' . $a['submitted_by'],
+                                'date' => substr((string)$a['submitted_at'], 0, 10), 'amount' => $a['amount'], 'stage' => 'Waiting for Manager', 'approval_id' => (int)$a['id'],
+                                'actions' => [['label' => 'Approve', 'kind' => 'apr_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'apr_reject', 'reason' => true]], 'link' => 'approvals.php?module=' . rawurlencode($a['module'])];
             // waste records reported by the team wait for the Manager's approval (1 Oct 2026)
             try {
                 foreach (erp_rows($pdo, "SELECT w.id, w.waste_id, w.date, w.waste_type, w.quantity, w.unit, w.reason, w.estimated_value, w.created_by, p.product_name
@@ -272,7 +280,19 @@ try {
     // Executive and Manager see them too; only the CEO also sees the money transactions.
     foreach (['ceo', 'admin', 'manager', 'executive'] as $lk) {
         $ix = array_search($lk, array_column($sections, 'key'), true);
-        if ($ix !== false) { $sections[$ix]['lists'] = rd_lists($pdo, $flows, $lk === 'ceo'); break; }
+        if ($ix !== false) {
+            $sections[$ix]['lists'] = rd_lists($pdo, $flows, $lk === 'ceo');
+            // team activity from the audit trail — Manager and CEO (1 Oct 2026)
+            if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
+                try {
+                    $rows = array_map(fn($a) => ['at' => $a['created_at'], 'who' => $a['username'] ?: '—', 'what' => ucfirst((string)$a['action']), 'module' => ucwords(str_replace('_', ' ', (string)$a['module'])), 'rec' => $a['record_id']],
+                                      erp_rows($pdo, "SELECT username, action, module, record_id, created_at FROM audit_logs ORDER BY id DESC LIMIT 20"));
+                    $sections[$ix]['lists'][] = ['key' => 'audit', 'title' => 'Team activity — audit trail (latest 20)', 'empty' => 'No activity yet.', 'more' => 'audit_logs.php',
+                                                 'cols' => [['k' => 'at', 'l' => 'When', 'f' => 'dt'], ['k' => 'who', 'l' => 'User'], ['k' => 'what', 'l' => 'Action'], ['k' => 'module', 'l' => 'Module'], ['k' => 'rec', 'l' => 'Record']], 'rows' => $rows];
+                } catch (PDOException $e) { /* audit table missing */ }
+            }
+            break;
+        }
     }
     erp_out(['status' => 'success', 'role' => $key, 'role_name' => $roleName, 'limited' => $key !== 'super' && role_access_pages($roleName, $userDash) !== null, 'sections' => $sections]);
 } catch (Throwable $e) {

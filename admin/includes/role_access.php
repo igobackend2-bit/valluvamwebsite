@@ -24,8 +24,12 @@ function role_dash_defs(): array {
         // Executive (1 Oct 2026): sales, inventory, warehouse, purchase requests/orders, assets, waste, customers, suppliers — no accounts, no approvals
         'executive' => ['label' => 'Valluvam Team Executive — sales, stock, purchase requests, assets, waste, customers, suppliers', 'perms' => ['purchase.view', 'purchase.create', 'warehouses.view', 'sales_orders.view', 'sales_orders.create', 'sales_orders.edit', 'manual_sales.create', 'credit_sales.view', 'credit_sales.create', 'invoices.view', 'dc.view', 'sales_return.create', 'sales.fulfilment', 'sales.channels', 'customer.view', 'customers.view', 'inventory.view', 'stock_in.create', 'stock_out.create', 'stock_count.create', 'stock_adjust.create', 'warehouse.view', 'warehouse.transfer', 'warehouse.locations', 'warehouses.create', 'raw_materials.manage', 'pnl.view', 'assets.view', 'assets.create', 'assets.edit', 'waste.view', 'waste.create', 'suppliers.view', 'suppliers.create', 'supplier.profile', 'documents.view', 'documents.upload', 'notifications.view', 'reports.erp'],
                         'pages' => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'print_erp.php', 'sales_orders.php', 'print_sales_order.php', 'manual_sales.php', 'credit_sale.php', 'orders.php', 'sales_returns.php', 'fulfilment.php', 'credit_notes.php', 'customer_360.php', 'sales_channels.php', 'products.php', 'categories.php', 'homepage.php', 'inventory_overview.php', 'stock_in.php', 'print_stock_in.php', 'stock_out.php', 'print_stock_out.php', 'stock_movements.php', 'warehouse_stock.php', 'stock_transfers.php', 'stock_counts.php', 'batches.php', 'warehouses.php', 'warehouse_locations.php', 'raw_materials.php', 'repacking.php', 'stock_valuation.php', 'stock_adjustments.php', 'assets.php', 'waste.php', 'customers.php', 'account_requests.php', 'leads.php', 'reviews.php', 'feedback.php', 'coupons.php', 'suppliers.php', 'supplier_ledger.php', 'supplier_360.php', 'documents.php', 'notifications.php']],
-        'manager'   => ['label' => 'Valluvam Team Manager — step 1 approval of requests', 'perms' => ['purchase.view', 'purchase.manager_approve'],
-                        'pages' => ['purchase_requests.php', 'purchase_flow.php']],
+        // Manager (1 Oct 2026): everything the Executive has + approvals, audit trail, reports, goods receipts / QC / transport — no accounts
+        'manager'   => ['label' => 'Valluvam Team Manager — everything the Executive sees + approvals, audit, reports',
+                        'perms' => ['purchase.view', 'purchase.manager_approve', 'approvals.view', 'audit_logs.view', 'trace.view', 'reports.view', 'reports.erp',
+                                    'stock_adjust.approve', 'stock_count.approve', 'waste.approve', 'sales_return.approve', 'purchase_return.approve'],
+                        'pages' => ['approvals.php', 'audit_logs.php', 'transaction_trace.php', 'erp_reports_center.php', 'reports.php', 'purchase_dashboard.php', 'purchase_history.php',
+                                    'goods_receipts.php', 'quality_checks.php', 'shipments.php', 'rfqs.php', 'invoices.php', 'print_invoice.php', 'delivery_challans.php', 'print_dc.php']],
         'l1'        => ['label' => 'L1 (Sourcing) — 3 quotations, transport, DC, unloading, QC',
                         'perms' => ['purchase.view', 'flow.source', 'rfq.manage', 'shipment.manage', 'grn.create', 'qc.manage', 'documents.view', 'documents.upload', 'suppliers.view', 'suppliers.create', 'warehouses.view', 'warehouse.view', 'inventory.view', 'notifications.view'],
                         'pages' => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php', 'suppliers.php', 'supplier_360.php', 'documents.php', 'notifications.php', 'print_erp.php', 'rfqs.php']],
@@ -54,6 +58,7 @@ function user_dash_keys(?PDO $pdo, int $userId): array {
 function user_dash_has_perm(?PDO $pdo, string $perm): bool {
     $keys = user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0));
     $defs = role_dash_defs();
+    if (in_array('manager', $keys, true)) $keys[] = 'executive';   // the Manager dashboard includes the Executive one
     foreach ($keys as $k) if (in_array($perm, $defs[$k]['perms'], true)) return true;
     return false;
 }
@@ -97,7 +102,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
     $common = ['index.php', 'my_account.php', 'logout.php'];
     $pages = [
         'executive' => role_dash_defs()['executive']['pages'],
-        'manager'   => ['purchase_requests.php', 'purchase_flow.php'],
+        'manager'   => array_merge(role_dash_defs()['executive']['pages'], role_dash_defs()['manager']['pages']),
         'l1'        => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php',
                         'suppliers.php', 'supplier_360.php', 'documents.php', 'notifications.php', 'print_erp.php', 'rfqs.php'],
         // Admin and CEO see only their own dashboard + these pages (added 1 Oct 2026)
@@ -111,7 +116,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
     $base = isset($pages[$k]) ? array_merge($common, $pages[$k]) : null;
     if ($base === null && $userDash && $k === '') $base = $common;   // other roles (Staff, Sales …) given dashboards: limited to those dashboards
     // extra dashboards given by the Super Admin open their pages too (only matters for page-limited roles)
-    if ($base !== null && $userDash) foreach ($userDash as $d) $base = array_merge($base, role_dash_defs()[$d]['pages'] ?? []);
+    if ($base !== null && $userDash) foreach ($userDash as $d) $base = array_merge($base, role_dash_defs()[$d]['pages'] ?? [], $d === 'manager' ? role_dash_defs()['executive']['pages'] : []);
     if ($base !== null) {   // + pages of the permissions ticked for the role
         $extra = role_perm_pages();
         if (in_array($k, ['executive', 'manager'], true))   // Executive / Manager: everything except the accounts pages
