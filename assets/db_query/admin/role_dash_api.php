@@ -273,7 +273,51 @@ try {
                 $kpis[] = rd_kpi('Money in this month', (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM accounts_transactions WHERE date >= ? AND status = 'completed' AND type IN ('income','payment_received')", [$m1]), 'money', '', 'green');
                 $kpis[] = rd_kpi('Money out this month', (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM accounts_transactions WHERE date >= ? AND status = 'completed' AND type IN ('expense','payment_made','refund')", [$m1]), 'money');
             } catch (Throwable $e) { error_log('[role dash accounts] ' . $e->getMessage()); }
-            $sections[] = ['key' => $k, 'title' => 'Payments (Accounts Team)', 'role' => 'Accounts Team', 'tasks' => $tasks, 'kpis' => $kpis];
+            // approvals that belong to Accounts: expenses, bills, supplier payments, journals (1 Oct 2026)
+            foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.module, r.entity_id, r.reference, r.summary, r.amount, r.submitted_by, r.submitted_at, p.label, p.approver_perm
+                                     FROM approval_requests r JOIN approval_policies p ON p.module = r.module
+                                     WHERE r.status IN ('submitted','under_review') AND r.module IN ('expense','purchase_invoice','purchase_payment','manual_journal') ORDER BY r.submitted_at, r.id") as $a)
+                if ($key === 'super' || erp_can($pdo, (string)$a['approver_perm']))
+                    $tasks[] = ['id' => (int)$a['entity_id'], 'ref' => $a['request_number'], 'title' => $a['label'] . ' — ' . ($a['reference'] ?: $a['request_number']), 'sub' => $a['summary'] . ' · sent by ' . $a['submitted_by'],
+                                'date' => substr((string)$a['submitted_at'], 0, 10), 'amount' => $a['amount'], 'stage' => 'Waiting for Accounts', 'approval_id' => (int)$a['id'],
+                                'actions' => [['label' => 'Approve', 'kind' => 'apr_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'apr_reject', 'reason' => true]], 'link' => 'approvals.php?module=' . rawurlencode($a['module'])];
+            $lists = [];
+            // goods received but the shop bill is not entered — the payable is not in the books yet
+            $rows = array_map(fn($g) => ['grn' => $g['grn_number'], 'date' => $g['received_date'], 'sup' => $g['supplier_name'], 'po' => $g['po_number'], 'link' => 'purchase_invoices.php'],
+                erp_rows($pdo, "SELECT g.grn_number, g.received_date, s.supplier_name, po.po_number FROM goods_receipts g JOIN suppliers s ON s.id = g.supplier_id LEFT JOIN purchase_orders po ON po.id = g.po_id
+                                WHERE g.status = 'posted' AND NOT EXISTS (SELECT 1 FROM purchase_invoices pi WHERE pi.grn_id = g.id AND pi.status <> 'cancelled') ORDER BY g.received_date LIMIT 20"));
+            $lists[] = ['key' => 'nobill', 'title' => 'Goods received — enter the shop bill', 'empty' => 'Every received purchase has its bill. ✓', 'more' => 'purchase_invoices.php',
+                        'cols' => [['k' => 'grn', 'l' => 'Goods receipt'], ['k' => 'date', 'l' => 'Received', 'f' => 'date'], ['k' => 'sup', 'l' => 'Supplier'], ['k' => 'po', 'l' => 'PO']], 'rows' => $rows];
+            // supplier bills still to pay, oldest due first
+            $rows = [];
+            foreach (erp_rows($pdo, "SELECT pi.id, pi.pinv_number, pi.supplier_invoice_no, pi.due_date, pi.grand_total, s.supplier_name,
+                                            pi.grand_total - COALESCE((SELECT SUM(amount) FROM purchase_payments pp WHERE pp.pinv_id = pi.id AND pp.status = 'completed'),0) AS bal
+                                     FROM purchase_invoices pi JOIN suppliers s ON s.id = pi.supplier_id WHERE pi.status = 'posted' ORDER BY pi.due_date IS NULL, pi.due_date LIMIT 60") as $b)
+                if ($b['bal'] > 0.005 && count($rows) < 15)
+                    $rows[] = ['bill' => $b['pinv_number'] . ($b['supplier_invoice_no'] ? ' · ' . $b['supplier_invoice_no'] : ''), 'sup' => $b['supplier_name'], 'due' => $b['due_date'],
+                               'st' => $b['due_date'] && $b['due_date'] < $today ? 'Overdue' : 'Due', 'bal' => $b['bal'], 'link' => 'purchase_invoices.php?id=' . $b['id']];
+            $lists[] = ['key' => 'billsdue', 'title' => 'Supplier bills to pay', 'empty' => 'No unpaid supplier bills. ✓', 'more' => 'purchase_payments.php',
+                        'cols' => [['k' => 'bill', 'l' => 'Bill'], ['k' => 'sup', 'l' => 'Supplier'], ['k' => 'due', 'l' => 'Due', 'f' => 'date'], ['k' => 'st', 'l' => 'Status', 'f' => 'status'], ['k' => 'bal', 'l' => 'Balance', 'f' => 'money']], 'rows' => $rows];
+            // money to collect from customers
+            try {
+                require_once __DIR__ . '/erp_report_lib.php';
+                $docs = rep_receivables($pdo)['documents'];
+                usort($docs, fn($x, $y) => strcmp((string)$x['date'], (string)$y['date']));
+                $lnk = ['invoice' => 'invoices.php', 'credit_sale' => 'receivables.php', 'manual_sale' => 'receivables.php'];
+                $lists[] = ['key' => 'recv', 'title' => 'Money to collect from customers (oldest first)', 'empty' => 'Nothing to collect. ✓', 'more' => 'receivables.php',
+                            'cols' => [['k' => 'number', 'l' => 'Document'], ['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'customer_name', 'l' => 'Customer'], ['k' => 'customer_mobile', 'l' => 'Mobile'], ['k' => 'outstanding', 'l' => 'To collect', 'f' => 'money']],
+                            'rows' => array_map(fn($d) => $d + ['link' => $lnk[$d['source']] ?? 'receivables.php'], array_slice($docs, 0, 15))];
+            } catch (Throwable $e) { error_log('[role dash recv] ' . $e->getMessage()); }
+            // every transaction reaches the accounts automatically — latest ones
+            $rows = [];
+            try {
+                foreach (erp_rows($pdo, "SELECT transaction_id, date, type, category, party_name, reference_number, amount, payment_mode, status FROM accounts_transactions ORDER BY date DESC, id DESC LIMIT 15") as $t)
+                    $rows[] = ['date' => $t['date'], 'txn' => $t['transaction_id'], 'type' => ucwords(str_replace('_', ' ', $t['type'])), 'cat' => $t['category'], 'party' => $t['party_name'], 'ref' => $t['reference_number'],
+                               'amount' => in_array($t['type'], ['expense', 'payment_made', 'refund'], true) ? -abs((float)$t['amount']) : (float)$t['amount'], 'mode' => ucwords(str_replace('_', ' ', (string)$t['payment_mode'])), 'link' => 'accounts.php'];
+            } catch (PDOException $e) {}
+            $lists[] = ['key' => 'txns', 'title' => 'Latest transactions (money in + / money out −)', 'empty' => 'No transactions yet.', 'more' => 'accounts.php',
+                        'cols' => [['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'txn', 'l' => 'Txn no.'], ['k' => 'type', 'l' => 'Type'], ['k' => 'cat', 'l' => 'Category'], ['k' => 'party', 'l' => 'Party'], ['k' => 'ref', 'l' => 'Reference'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'signed'], ['k' => 'mode', 'l' => 'Mode']], 'rows' => $rows];
+            $sections[] = ['key' => $k, 'title' => 'Payments & accounts (Accounts Team)', 'role' => 'Accounts Team', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => $lists];
         }
     }
     // approvals waiting / approval history / pipeline lists — shown once, on the first of these sections (1 Oct 2026).

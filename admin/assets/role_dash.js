@@ -59,7 +59,7 @@
 .rd-tbl tr[data-href]{cursor:pointer}.rd-tbl tr[data-href]:hover td{background:#f3efe6}
 .rd-badge{display:inline-block;background:#e8f1eb;color:#1c5034;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap}
 .rd-pill{display:inline-block;border-radius:20px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap;background:#f0ece3;color:#5d574d}
-.rd-st-approved,.rd-st-completed{background:#e8f1eb;color:#1c5034}.rd-st-rejected,.rd-st-cancelled{background:#fbe9e5;color:#a8442f}
+.rd-st-approved,.rd-st-completed{background:#e8f1eb;color:#1c5034}.rd-st-rejected,.rd-st-cancelled,.rd-st-overdue{background:#fbe9e5;color:#a8442f}.rd-st-due{background:#f6ead9;color:#7a4a17}
 .rd-neg{color:#a8442f;font-weight:600}.rd-pos{color:#1c5034;font-weight:600}
 @media (max-width:640px){.rd-tbl{min-width:640px}.rd-head{flex-direction:column}.rd-sec{padding:16px 14px}.rd-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.rd-kpi{min-height:0;padding:10px 11px}.rd-kpi .v{font-size:18px}.rd-head h2{font-size:17px}}`;
     $('<style>').text(css).appendTo('head');
@@ -79,7 +79,7 @@
         return `<td${/^[A-Z]{2,5}-\d{4}-\d+$/.test(String(v || '')) ? ' class="nw"' : (String(v || '').length > 40 ? ' class="txt"' : '')}>${esc(v === null || v === undefined || v === '' ? '—' : v)}</td>`;   // document numbers stay on one line
     };
     const isNum = c => ['money', 'signed', 'n'].includes(c.f);
-    const ORDER = ['waiting', 'pipeline', 'history', 'audit', 'txns'], WIDE = ['history', 'audit', 'txns'];
+    const ORDER = ['waiting', 'pipeline', 'nobill', 'billsdue', 'recv', 'history', 'audit', 'txns'], WIDE = ['history', 'audit', 'txns'];
     const lists = s => !(s.lists || []).length ? '' : `<div class="rd-lists">${s.lists.slice().sort((x, y) => ORDER.indexOf(x.key) - ORDER.indexOf(y.key)).map(l => `<div class="rd-block rd-list ${WIDE.includes(l.key) ? 'rd-wide' : ''}" data-list="${esc(l.key)}">
         <div class="rd-bh"><h3>${esc(l.title)} <span class="rd-n ${l.key === 'waiting' && l.rows.length ? 'is-hot' : ''}">${l.rows.length}</span></h3>${l.more ? `<a class="rd-more" href="${esc(l.more)}">View all →</a>` : ''}</div>
         ${l.rows.length ? `<div class="rd-tw"><table class="rd-tbl"><thead><tr>${l.cols.map(c => `<th class="${isNum(c) ? 'num' : ''}">${esc(c.l)}</th>`).join('')}</tr></thead><tbody>${l.rows.map(r => `<tr${r.link ? ` data-href="${esc(r.link)}" title="Open"` : ''}>${l.cols.map(c => cell(c, r[c.k])).join('')}</tr>`).join('')}</tbody></table></div>`

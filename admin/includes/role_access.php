@@ -110,7 +110,9 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
         'ceo'       => role_dash_defs()['ceo']['pages'],
         'accounts'  => ['purchase_flow.php', 'purchase_orders.php', 'purchase_payments.php', 'purchase_invoices.php', 'supplier_ledger.php', 'supplier_360.php',
                         'accounts.php', 'expenses.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php',
-                        'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php'],
+                        'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php',
+                        // (1 Oct 2026) money side of returns and sales: refunds / credits, customer invoices, approvals of expenses / bills / payments
+                        'purchase_returns.php', 'debit_notes.php', 'invoices.php', 'print_invoice.php', 'credit_notes.php', 'approvals.php', 'transaction_trace.php', 'erp_reports_center.php', 'reports.php'],
     ];
     $k = role_access_key($roleName);
     $base = isset($pages[$k]) ? array_merge($common, $pages[$k]) : null;
@@ -122,6 +124,8 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
         if (in_array($k, ['executive', 'manager'], true))   // Executive / Manager: everything except the accounts pages
             $extra = array_diff($extra, ['expenses.php', 'accounts.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php',
                                          'gst_summary.php', 'financial_periods.php', 'bank_accounts.php', 'profit_loss.php', 'product_profitability.php', 'purchase_payments.php', 'supplier_ledger.php', 'purchase_invoices.php']);
+        if ($k === 'accounts')   // Accounts Team: not the request / sourcing pages — they start once a PO exists (1 Oct 2026)
+            $extra = array_diff($extra, ['purchase_requests.php', 'rfqs.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php']);
         $base = array_merge($base, $extra);
     }
     return $base === null ? null : array_values(array_unique($base));
