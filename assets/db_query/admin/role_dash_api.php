@@ -117,6 +117,15 @@ function rd_lists(PDO $pdo, array $flows, bool $ceo): array {
                     'cols' => [['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'txn', 'l' => 'Txn no.'], ['k' => 'type', 'l' => 'Type'], ['k' => 'cat', 'l' => 'Category'], ['k' => 'party', 'l' => 'Party'],
                                ['k' => 'ref', 'l' => 'Reference'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'signed'], ['k' => 'mode', 'l' => 'Mode'], ['k' => 'st', 'l' => 'Status', 'f' => 'status']], 'rows' => $rows];
     }
+    // links only to pages this user may open (Executive / Manager are page-limited)
+    $ok = role_access_pages((string)($_SESSION['admin_role_name'] ?? ''), user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0)));
+    $can = fn($l) => $ok === null || (int)($_SESSION['admin_role_id'] ?? 0) === 1 || in_array(strtok(basename((string)$l), '?#'), $ok, true);
+    foreach ($lists as &$l) {
+        if (in_array($l['key'], ['waiting', 'history'], true) && $can('approvals.php')) $l['more'] = 'approvals.php';
+        foreach ($l['rows'] as &$r) if (!empty($r['link']) && !$can($r['link'])) unset($r['link']);
+        unset($r);
+    }
+    unset($l);
     return $lists;
 }
 
@@ -197,7 +206,7 @@ try {
                      rd_kpi('Average final-approval time', rd_hours($pdo, "SELECT AVG(TIMESTAMPDIFF(MINUTE, manager_approved_at, backend_approved_at))/60 FROM purchase_requests WHERE backend_approved_at IS NOT NULL AND manager_approved_at IS NOT NULL"), 'h'),
                      rd_kpi('PO value approved this month', $poVal, 'money'),
                      rd_kpi('Waiting for the CEO', (int)erp_val($pdo, "SELECT COUNT(*) FROM approval_requests WHERE module = 'po_ceo' AND status IN ('submitted','under_review')"), 'n', 'POs above ₹' . number_format((float)erp_setting($pdo, 'ceo_po_limit', 0)))];
-            $sections[] = ['key' => $k, 'title' => 'Approvals (Admin)', 'role' => 'Admin', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => in_array('ceo', $want, true) ? [] : rd_lists($pdo, $flows, false)];   // the CEO section already has these lists
+            $sections[] = ['key' => $k, 'title' => 'Approvals (Admin)', 'role' => 'Admin', 'tasks' => $tasks, 'kpis' => $kpis];
         }
         if ($k === 'ceo') {
             foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.entity_id, r.submitted_by, r.submitted_at FROM approval_requests r
@@ -226,7 +235,7 @@ try {
                                  rd_kpi('Saved through 3 quotations', $saved, 'money', '', 'green'), rd_kpi('QC rejection', $qcRec > 0 ? round($qcRej * 100 / $qcRec, 1) : null, 'pct', 'of quantity checked')], $kp);
             foreach ($kpis as $i => &$kv) $kv['group'] = $i < 4 ? 'Purchasing' : 'Money & stock';   // two labelled KPI rows on the dashboard
             unset($kv);
-            $sections[] = ['key' => $k, 'title' => 'CEO approvals & company KPIs', 'role' => 'CEO', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => rd_lists($pdo, $flows, true)];
+            $sections[] = ['key' => $k, 'title' => 'CEO approvals & company KPIs', 'role' => 'CEO', 'tasks' => $tasks, 'kpis' => $kpis];
         }
         if ($k === 'accounts') {
             foreach ($flows as $f) if ($f['stage'][0] === 'pay')
@@ -241,6 +250,12 @@ try {
                      rd_kpi('Bank lines not reconciled', (int)erp_val($pdo, "SELECT COUNT(*) FROM bank_statement_lines WHERE status = 'unmatched'"), 'n')];
             $sections[] = ['key' => $k, 'title' => 'Payments (Accounts Team)', 'role' => 'Accounts Team', 'tasks' => $tasks, 'kpis' => $kpis];
         }
+    }
+    // approvals waiting / approval history / pipeline lists — shown once, on the first of these sections (1 Oct 2026).
+    // Executive and Manager see them too; only the CEO also sees the money transactions.
+    foreach (['ceo', 'admin', 'manager', 'executive'] as $lk) {
+        $ix = array_search($lk, array_column($sections, 'key'), true);
+        if ($ix !== false) { $sections[$ix]['lists'] = rd_lists($pdo, $flows, $lk === 'ceo'); break; }
     }
     erp_out(['status' => 'success', 'role' => $key, 'role_name' => $roleName, 'limited' => $key !== 'super' && role_access_pages($roleName, $userDash) !== null, 'sections' => $sections]);
 } catch (Throwable $e) {

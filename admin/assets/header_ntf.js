@@ -121,6 +121,7 @@
     }
     function load() {
         fetch(API + '?action=feed', { credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d && d.message === 'Unauthorized') { loggedOut(); return; }
             if (!d || d.status !== 'success') return;
             user = d.user || 0; items = d.items || [];
             var key = 'hn_seen_' + user, seen = store.get(key) || [], isNew = false;
@@ -141,6 +142,21 @@
         if (tries > 0) setTimeout(function () { focusTask(tries - 1); }, 500);
     }
 
+    /* ---- login ended (logged out / logged in as someone else in another tab, or timed out) ----
+       FIX (1 Oct 2026): say so plainly instead of a bare "Unauthorized" on save. */
+    var outShown = false;
+    function loggedOut() {
+        if (outShown) return; outShown = true;
+        var b = document.createElement('div');
+        b.setAttribute('role', 'alert');
+        b.style.cssText = 'position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:3000;max-width:calc(100vw - 24px);background:#a8442f;color:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap';
+        b.innerHTML = '<span><strong>Your login has ended.</strong> You logged out (or logged in as another user) in another tab, or the session timed out. Nothing was saved.</span>' +
+            '<a href="login.php" style="background:#fff;color:#a8442f;border-radius:8px;padding:6px 12px;font-weight:700;text-decoration:none">Log in again</a>';
+        document.body.appendChild(b);
+    }
+    window.addEventListener('load', function () {   // jQuery pages: any request answered "Unauthorized" shows the same message
+        if (window.jQuery) window.jQuery(document).ajaxComplete(function (e, x) { try { var r = x.responseJSON || JSON.parse(x.responseText || '{}'); if (r && r.message === 'Unauthorized') loggedOut(); } catch (er) {} });
+    });
     function start() {
         if (!document.querySelector('.adm-shell')) return;
         build(); load(); setInterval(function () { if (!document.hidden) load(); }, POLL);

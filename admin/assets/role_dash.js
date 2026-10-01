@@ -49,7 +49,7 @@
 .rd-empty{color:var(--adm-ink-soft,#6b6459);font-size:13px;padding:14px;border:1px dashed var(--adm-line,#e2dccf);border-radius:12px;background:#fcfbf8;text-align:center}
 .rd-hide{display:none !important}
 .rd-lists{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
-@media (min-width:1400px){.rd-lists{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}.rd-lists .rd-wide{grid-column:1 / -1}}
+@media (min-width:1760px){.rd-lists{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}.rd-lists .rd-wide{grid-column:1 / -1}}
 .rd-tw{overflow-x:auto;border:1px solid var(--adm-line,#e7e1d4);border-radius:12px;background:#fff}
 .rd-tbl{width:100%;border-collapse:collapse;font-size:13px}.rd-wide .rd-tbl{min-width:820px}
 .rd-tbl th{background:#f7f4ee;text-align:left;padding:9px 12px;font-size:11.5px;font-weight:700;color:#5d574d;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;border-bottom:1px solid var(--adm-line,#e7e1d4)}
@@ -78,10 +78,9 @@
         return `<td${/^[A-Z]{2,5}-\d{4}-\d+$/.test(String(v || '')) ? ' class="nw"' : (String(v || '').length > 40 ? ' class="txt"' : '')}>${esc(v === null || v === undefined || v === '' ? '—' : v)}</td>`;   // document numbers stay on one line
     };
     const isNum = c => ['money', 'signed', 'n'].includes(c.f);
-    const MORE = { waiting: 'approvals.php', history: 'approvals.php' };
     const ORDER = ['waiting', 'pipeline', 'history', 'txns'], WIDE = ['history', 'txns'];
     const lists = s => !(s.lists || []).length ? '' : `<div class="rd-lists">${s.lists.slice().sort((x, y) => ORDER.indexOf(x.key) - ORDER.indexOf(y.key)).map(l => `<div class="rd-block rd-list ${WIDE.includes(l.key) ? 'rd-wide' : ''}" data-list="${esc(l.key)}">
-        <div class="rd-bh"><h3>${esc(l.title)} <span class="rd-n ${l.key === 'waiting' && l.rows.length ? 'is-hot' : ''}">${l.rows.length}</span></h3>${MORE[l.key] ? `<a class="rd-more" href="${MORE[l.key]}">View all →</a>` : ''}</div>
+        <div class="rd-bh"><h3>${esc(l.title)} <span class="rd-n ${l.key === 'waiting' && l.rows.length ? 'is-hot' : ''}">${l.rows.length}</span></h3>${l.more ? `<a class="rd-more" href="${esc(l.more)}">View all →</a>` : ''}</div>
         ${l.rows.length ? `<div class="rd-tw"><table class="rd-tbl"><thead><tr>${l.cols.map(c => `<th class="${isNum(c) ? 'num' : ''}">${esc(c.l)}</th>`).join('')}</tr></thead><tbody>${l.rows.map(r => `<tr${r.link ? ` data-href="${esc(r.link)}" title="Open"` : ''}>${l.cols.map(c => cell(c, r[c.k])).join('')}</tr>`).join('')}</tbody></table></div>`
         : `<div class="rd-empty">${esc(l.empty || 'Nothing to show.')}</div>`}</div>`).join('')}</div>`;
     const kpis = s => {
