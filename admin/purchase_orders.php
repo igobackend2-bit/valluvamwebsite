@@ -228,7 +228,7 @@ function openView(id) {
             p.status === 'pending_approval' && { label: 'Reject', icon: 'fa-xmark', run: () => E.confirmAction('Reject ' + p.po_number + '?', 'It goes back to draft.', { danger: true, reason: 'Reason' }).then(reason => E.post('procurement_api.php', { action: 'po_reject', id: p.id, reason })).then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {}) },
             !['cancelled', 'draft'].includes(p.status) && { label: 'Transport', icon: 'fa-truck', run: () => location.href = 'shipments.php?po_id=' + p.id },
             { label: 'Print', icon: 'fa-print', run: () => window.open('print_erp.php?type=po&id=' + p.id, '_blank') },
-        ], { didOpen: () => { E.docs($('#vDocs'), 'purchase_order', p.id, 'PURCHASE_ORDER'); poExtras(p); POQ_LOAD.then(() => { if (window.POQ) POQ.view($('#vQuotes'), p); }); }, width: 1180 });
+        ], { didOpen: () => { E.docs($('#vDocs'), 'purchase_order', p.id, 'PURCHASE_ORDER'); poExtras(p); POQ_LOAD.then(() => { if (window.POQ) /* only the shop we buy from — comparison is on RFQ & Quotations (1 Oct 2026) */ (POQ.chosen || POQ.view)($('#vQuotes'), p); }); }, width: 1180 });
     }).catch(() => {});
 }
 JS

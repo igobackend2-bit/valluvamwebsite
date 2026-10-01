@@ -31,6 +31,7 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
     <div class="pf-steps" id="steps"></div>
     <div id="cards"></div>
 </div>
+<script src="assets/pf_extra.js?v=<?= @filemtime(__DIR__ . '/assets/pf_extra.js') ?: 1 ?>"></script><!-- photos, bill quantity, signature, quality report, all proofs (1 Oct 2026) -->
 <?php erp_page_end(<<<'JS'
 const E = ERP;
 const POQ_LOAD = $.ajax({ url: 'assets/po_quotes.js?v=' + ($('#pqVer').data('v') || 1), dataType: 'script', cache: true }).catch(() => null);

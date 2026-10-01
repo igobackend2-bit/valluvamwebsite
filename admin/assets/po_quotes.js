@@ -643,5 +643,66 @@
         }
     }
 
-    window.POQ = { mount, view, show, _parse: parseWorkbook, _analyse: analyse };
+    // ------------------------------------------------------------ PO detail: only the shop we buy from (1 Oct 2026)
+    // The full comparison of the 3 shops lives on RFQ & Quotations; the PO shows the chosen shop in full.
+    function chosen($el, po) {
+        css();
+        E.api(API, { action: 'get', po_id: po.id }, { silent: true }).then(r => {
+            const quotes = r.quotes || [], s = r.supplier || {};
+            let q = quotes.find(x => +x.is_selected) || quotes.find(x => (x.supplier_id && String(x.supplier_id) === String(po.supplier_id)) || normName(x.supplier_name) === normName(po.supplier_name)) || null;
+            const pick = (a, b) => (a !== undefined && a !== null && String(a).trim() !== '' ? a : b);
+            const d = {
+                name: pick(q && q.supplier_name, s.supplier_name || po.supplier_name), contact: pick(q && q.contact_person, s.owner_name), mobile: pick(q && q.mobile, s.mobile || po.supplier_mobile),
+                email: pick(q && q.email, s.email), gst: pick(q && q.gst_number, s.gst_number || po.supplier_gst), holder: pick(q && q.account_holder_name, s.account_holder_name), bank: pick(q && q.bank_name, s.bank_name),
+                acno: pick(q && q.bank_account_number, s.bank_account_number), ifsc: pick(q && q.bank_ifsc, s.bank_ifsc), upi: pick(q && q.upi_id, s.upi_id), terms: pick(q && q.payment_terms, s.payment_terms),
+                days: q ? q.delivery_days : null, valid: q ? q.valid_till : null, notes: q ? q.notes : null, addr: [s.address, s.city].filter(Boolean).join(', '),
+            };
+            const t = v => (v !== undefined && v !== null && String(v).trim() !== '' ? E.esc(v) : '<span class="erp-muted">—</span>');
+            const kv = rows => rows.map(([k, v]) => `<div class="pq-kv"><span>${k}</span><strong>${v}</strong></div>`).join('');
+            let saving = '';
+            if (quotes.length > 1) {
+                const rows = []; quotes.forEach(x => (x.items || []).forEach(l => { const k = itemKey(l); if (!rows.includes(k)) rows.push(k); }));
+                const a = analyse(quotes, rows), me = q ? a.rows.find(o => o.q === q) : null;
+                if (me && a.highest && a.highest.total > me.total + 0.004) saving = `<span class="adm-badge is-green">Saves ${E.money(a.highest.total - me.total)} vs the highest of ${quotes.length} quotations</span>`;
+                if (me && a.lowest && a.lowest.i !== me.i) saving += ` <span class="adm-badge is-amber">${E.money(me.total - a.lowest.total)} above the lowest (${E.esc(a.lowest.q.supplier_name)})</span>`;
+            }
+            const bankOk = d.acno || d.upi;
+            $el.html(`<style>.pq-buy{border:1px solid var(--adm-line);border-left:4px solid var(--adm-green);border-radius:var(--adm-radius-md);background:var(--adm-surface);padding:14px 16px;margin:12px 0;text-align:left}
+                .pq-buy-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:10px}.pq-buy-h h3{margin:0;font-size:17px}.pq-buy-k{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--adm-ink-soft)}
+                .pq-buy-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.pq-buy-g section{background:var(--adm-cream);border-radius:var(--adm-radius-sm);padding:10px 12px}
+                .pq-buy-g h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--adm-green-dark)}.pq-kv{display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:13px;border-bottom:1px dashed var(--adm-line)}
+                .pq-kv:last-child{border-bottom:0}.pq-kv span{color:var(--adm-ink-soft)}.pq-kv strong{font-weight:600;text-align:right;overflow-wrap:anywhere}</style>
+              <div class="pq-buy"><div class="pq-buy-h"><div><div class="pq-buy-k">Purchasing from</div><h3>${E.esc(d.name || '')}</h3>${d.addr ? `<div class="erp-muted">${E.esc(d.addr)}</div>` : ''}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${saving}${quotes.length ? `<a class="adm-btn adm-btn-ghost" href="rfqs.php#cmpCard"><i class="fas fa-scale-balanced"></i> Compare ${quotes.length} quotation(s)</a>` : ''}</div></div>
+                <div class="pq-buy-g"><section><h4><i class="fas fa-address-card"></i> Shop & contact</h4>${kv([['Contact person', t(d.contact)], ['Phone', d.mobile ? `<a class="erp-link" href="tel:${E.esc(d.mobile)}">${E.esc(d.mobile)}</a>` : t('')], ['E-mail', t(d.email)], ['GSTIN', t(d.gst)]])}</section>
+                  <section><h4><i class="fas fa-building-columns"></i> Bank & payment</h4>${kv([['Account holder', t(d.holder)], ['Bank', t(d.bank)], ['Account number', t(d.acno)], ['IFSC', t(d.ifsc)], ['UPI ID', t(d.upi)], ['Payment terms', t(d.terms)]])}
+                    ${bankOk ? '' : '<div class="erp-warn" style="margin-top:6px">No bank account or UPI saved for this shop — add it in Suppliers before payment.</div>'}</section>
+                  <section><h4><i class="fas fa-truck-fast"></i> Delivery & quotation</h4>${kv([['Delivery', d.days !== null && d.days !== '' && d.days !== undefined ? E.esc(d.days) + ' day(s)' : t('')], ['Quotation valid till', d.valid ? E.date(d.valid) : t('')], ['Notes', t(d.notes)]])}</section></div></div>`);
+        }).catch(() => $el.empty());
+    }
+    // ------------------------------------------------------------ RFQ & Quotations page: every set of shop quotations compared (1 Oct 2026)
+    function compareAll($el) {
+        css(); E.loading($el);
+        E.api(API, { action: 'compare_list' }, { silent: true }).then(r => {
+            const g = r.groups || [];
+            if (!g.length) { $el.html('<div class="adm-empty"><i class="fas fa-scale-balanced"></i><p><strong>No shop quotations yet</strong></p><p>They appear here when L1 enters the 3 shop quotations in the Purchase Flow.</p></div>'); return; }
+            $el.html(g.map((x, i) => {
+                const n = (x.quotes || []).length, sel = (x.quotes || []).find(q => +q.is_selected);
+                return `<div class="pq-grp" data-i="${i}"><button type="button" class="pq-grp-h" data-tg="${i}"><span><strong>${E.esc(x.ref)}</strong> <span class="erp-muted">${E.date(x.date)}${x.by ? ' · ' + E.esc(x.by) : ''}</span></span>
+                    <span class="pq-grp-m">${n} quotation(s)${sel ? ` · chosen <strong>${E.esc(sel.supplier_name)}</strong>` : ''} ${E.badge(x.status)}${x.po_number ? ` · <a class="erp-link" href="purchase_orders.php?id=${x.po_id}">${E.esc(x.po_number)}</a>` : ''} <i class="fas fa-chevron-down"></i></span></button>
+                    <div class="pq-grp-b" hidden>${x.kind === 'pr' ? `<div class="erp-note"><a class="erp-link" href="purchase_flow.php?pr_id=${x.id}#card-quotes">Open in Purchase Flow</a></div>` : ''}<div data-cmp="${i}"></div></div></div>`;
+            }).join('') + `<style>.pq-grp{border:1px solid var(--adm-line);border-radius:var(--adm-radius-md);margin-bottom:8px;background:var(--adm-surface);overflow:hidden}
+                .pq-grp-h{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px;background:none;border:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+                .pq-grp-h:hover{background:var(--adm-cream)}.pq-grp-m{font-size:13px;color:var(--adm-ink-soft);display:flex;gap:6px;align-items:center;flex-wrap:wrap}.pq-grp-b{padding:0 14px 12px}</style>`);
+            $el.off('click.pqg').on('click.pqg', '[data-tg]', function (e) {
+                if ($(e.target).closest('a').length) return;
+                const i = +$(this).data('tg'), $b = $(this).next('.pq-grp-b');
+                if ($b.prop('hidden')) { $b.prop('hidden', false); const $c = $b.find(`[data-cmp="${i}"]`); if (!$c.children().length) show($c, g[i].quotes, { title: 'Quotations compared — lowest price and fastest delivery highlighted', po: g[i].po_supplier ? { supplier_id: null, supplier_name: g[i].po_supplier } : null }); }
+                else $b.prop('hidden', true);
+            });
+            const first = $el.find('[data-tg]').first(); if (first.length) first.trigger('click');
+        }).catch(m => $el.html(`<div class="adm-error">${E.esc(m)}</div>`));
+    }
+
+    window.POQ = { mount, view, show, chosen, compareAll, _parse: parseWorkbook, _analyse: analyse };
 })();

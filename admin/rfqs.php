@@ -12,6 +12,12 @@ erp_page_start('RFQ & Quotations', 'Ask suppliers for prices, record their quota
         </div></div>
     <div class="adm-card-body" id="list"></div>
 </section>
+<!-- every set of shop quotations compared — lowest price / fastest delivery highlighted (1 Oct 2026) -->
+<section class="adm-card" id="cmpCard">
+    <div class="adm-card-head"><h2>Shop quotations compared</h2><span class="erp-muted">From the purchase flow — click a request to see its 3 shops side by side</span></div>
+    <div class="adm-card-body" id="cmpList"></div>
+</section>
+<script>window.addEventListener('load', function () { if (!window.ERP || !window.jQuery) return; jQuery.ajax({ url: 'assets/po_quotes.js?v=<?= @filemtime(__DIR__ . '/assets/po_quotes.js') ?: 1 ?>', dataType: 'script', cache: true }).then(function () { if (window.POQ && POQ.compareAll) POQ.compareAll(jQuery('#cmpList')); }); });</script>
 <?php erp_page_end(<<<'JS'
 const E = ERP;
 let SUP = [], WH = [], ITEMS = [];
