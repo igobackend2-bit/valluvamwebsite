@@ -182,3 +182,4 @@ document.addEventListener('DOMContentLoaded', function () {
     sidebar.scrollTop = Math.max(0, activeLink.offsetTop - (sidebar.clientHeight - activeLink.offsetHeight) / 2);
 });
 </script>
+<script src="assets/header_ntf.js?v=<?= @filemtime(__DIR__ . '/../assets/header_ntf.js') ?: 1 ?>"></script><!-- header notification bell (1 Oct 2026) -->
