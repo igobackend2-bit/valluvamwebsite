@@ -183,3 +183,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script src="assets/header_ntf.js?v=<?= @filemtime(__DIR__ . '/../assets/header_ntf.js') ?: 1 ?>"></script><!-- header notification bell (1 Oct 2026) -->
+<script src="assets/admin_mobile.js?v=<?= @filemtime(__DIR__ . '/../assets/admin_mobile.js') ?: 1 ?>"></script><!-- phone layout: ☰ menu (1 Oct 2026) -->

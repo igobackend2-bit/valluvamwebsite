@@ -224,6 +224,8 @@ try {
             $qcRec = (float)erp_val($pdo, "SELECT COALESCE(SUM(received_qty),0) FROM quality_check_items"); $qcRej = (float)erp_val($pdo, "SELECT COALESCE(SUM(rejected_qty),0) FROM quality_check_items");
             $kpis = array_merge([rd_kpi('POs waiting for me', count($tasks), 'n', '', count($tasks) ? 'amber' : 'green'), rd_kpi('Purchases approved this month', $poVal, 'money'),
                                  rd_kpi('Saved through 3 quotations', $saved, 'money', '', 'green'), rd_kpi('QC rejection', $qcRec > 0 ? round($qcRej * 100 / $qcRec, 1) : null, 'pct', 'of quantity checked')], $kp);
+            foreach ($kpis as $i => &$kv) $kv['group'] = $i < 4 ? 'Purchasing' : 'Money & stock';   // two labelled KPI rows on the dashboard
+            unset($kv);
             $sections[] = ['key' => $k, 'title' => 'CEO approvals & company KPIs', 'role' => 'CEO', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => rd_lists($pdo, $flows, true)];
         }
         if ($k === 'accounts') {
