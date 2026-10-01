@@ -50,6 +50,26 @@
         '.pp-menu a{display:flex;gap:10px;align-items:center;padding:10px 14px;color:var(--adm-ink,#23281f);text-decoration:none;font-size:13.5px}.pp-menu a:hover{background:#f7f4ee}.pp-menu a.out{color:#a8442f;border-top:1px solid #eee8dc}' +
         '@media (max-width:640px){.pp-pn{display:none}.pp-prof-btn{padding:3px}}');
 
+    /* ---------------------------------------------------------------- tidy forms in pop-ups (1 Oct 2026) */
+    css('.swal2-popup.pp-pop{padding:22px 26px 20px;border-radius:16px}.swal2-popup.pp-pop .swal2-title{font-size:21px;font-weight:700;color:var(--adm-ink,#23281f);padding:0 0 4px}' +
+        '.swal2-popup.pp-pop .swal2-html-container{margin:8px 0 0;overflow:visible}.pp-sub{font-size:13px;color:#8b857a;text-align:center;margin:-2px 0 14px}' +
+        '.pp-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px;text-align:left}.pp-form .full{grid-column:1/-1}' +
+        '.pp-form .sec{grid-column:1/-1;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#1c5034;border-bottom:1px solid #eee8dc;padding:6px 0 4px;margin-top:4px}' +
+        '.pp-f{display:flex;flex-direction:column;gap:5px;min-width:0}.pp-f>span{font-size:12.5px;font-weight:600;color:#4b463d}.pp-f>span i{font-style:normal;font-weight:400;color:#8b857a}.pp-f>span b{color:#a8442f}' +
+        '.pp-in{width:100%;box-sizing:border-box;height:42px;padding:0 12px;border:1px solid #d8d1c2;border-radius:10px;background:#fff;font:inherit;font-size:14px;color:var(--adm-ink,#23281f);transition:border-color .15s,box-shadow .15s}' +
+        'textarea.pp-in{height:auto;min-height:76px;padding:10px 12px;resize:vertical}select.pp-in{padding-right:30px}' +
+        '.pp-in:focus{outline:0;border-color:#1c5034;box-shadow:0 0 0 3px rgba(28,80,52,.15)}.pp-in::placeholder{color:#a8a296}' +
+        '.pp-pop .swal2-actions{margin-top:20px;gap:8px}.pp-pop .swal2-styled{border-radius:10px;padding:10px 22px;font-weight:600;font-size:14px;margin:0}' +
+        '.pp-pop .swal2-validation-message{border-radius:10px;margin:12px 0 0;font-size:13px}' +
+        '@media (max-width:560px){.pp-form{grid-template-columns:1fr}.swal2-popup.pp-pop{padding:18px 16px}}');
+    var F = function (label, control, opt) { opt = opt || {}; return '<label class="pp-f' + (opt.full ? ' full' : '') + '"><span>' + label + (opt.req ? ' <b>*</b>' : '') + (opt.hint ? ' <i>' + opt.hint + '</i>' : '') + '</span>' + control + '</label>'; };
+    var I = function (id, val, attrs) { return '<input id="' + id + '" class="pp-in" value="' + esc(val == null ? '' : val) + '" ' + (attrs || '') + '>'; };
+    var SEL = function (id, opts, cur) { return '<select id="' + id + '" class="pp-in">' + opts.map(function (o) { var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + esc(l) + '</option>'; }).join('') + '</select>'; };
+    var TA = function (id, val, ph) { return '<textarea id="' + id + '" class="pp-in" placeholder="' + esc(ph || '') + '">' + esc(val || '') + '</textarea>'; };
+    var SEC = function (t) { return '<div class="sec">' + t + '</div>'; };
+    var POP = { customClass: { popup: 'pp-pop' }, confirmButtonColor: '#1c5034', cancelButtonColor: '#8b857a', showCancelButton: true, focusConfirm: false };
+    var today = function () { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
     /* ---------------------------------------------------------------- profile chip */
     function profile() {
         var top = document.querySelector('.adm-main .adm-topbar'); if (!top) return;
@@ -101,26 +121,51 @@
         };
         function assign(a, to) {
             var opts = TEAM.map(function (u) { return '<option value="' + esc(u.name) + '">' + esc(u.name) + (u.role ? ' — ' + esc(u.role) : '') + '</option>'; }).join('');
-            Swal.fire({ title: to ? 'I\'m using ' + a.asset_id + '?' : 'Assign ' + a.asset_id, width: 520, confirmButtonText: to ? 'Yes, it\'s with me' : 'Assign', confirmButtonColor: '#1c5034', showCancelButton: true,
-                html: '<div style="text-align:left"><div style="margin-bottom:6px"><strong>' + esc(a.asset_name) + '</strong> <span class="pp-muted">' + esc(a.asset_category) + (a.assigned_employee ? ' · now with ' + esc(a.assigned_employee) : '') + '</span></div>' +
-                    (to ? '' : '<label>Team member</label><select id="ppTo" class="swal2-select" style="width:100%;margin:6px 0 10px"><option value="">Choose…</option>' + opts + '</select>') +
-                    '<label>Date</label><input id="ppDate" type="date" class="swal2-input" style="margin:6px 0 10px;width:100%" value="' + new Date().toISOString().substring(0, 10) + '"><label>Notes (condition, accessories…)</label><textarea id="ppNotes" class="swal2-textarea" style="margin:6px 0;width:100%"></textarea></div>',
+            Swal.fire($.extend({}, POP, { title: to ? 'I\'m using ' + a.asset_id : 'Assign ' + a.asset_id, width: 560, confirmButtonText: to ? 'Yes, it\'s with me' : 'Assign',
+                html: '<div class="pp-sub">' + esc(a.asset_name) + ' · ' + esc(a.asset_category) + (a.assigned_employee ? ' · now with ' + esc(a.assigned_employee) : '') + '</div><div class="pp-form">' +
+                    (to ? '' : F('Team member', '<select id="ppTo" class="pp-in"><option value="">Choose…</option>' + opts + '</select>', { full: true, req: true })) +
+                    F('Date', I('ppDate', today(), 'type="date"'), { full: true }) + F('Notes', TA('ppNotes', '', 'Condition, accessories given with it…'), { full: true }) + '</div>',
                 preConfirm: function () {
                     var who = to || $('#ppTo').val(); if (!who) { Swal.showValidationMessage('Choose the team member'); return false; }
                     return post('assign_asset.php', { asset_id: a.id, assigned_to: who, assigned_date: $('#ppDate').val(), notes: $('#ppNotes').val() }).catch(function (m) { Swal.showValidationMessage(esc(m)); return false; });
-                } }).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: 'Assigned', timer: 1200, showConfirmButton: false }); summary(); window.loadAssets(); } });
+                } })).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: 'Assigned', timer: 1200, showConfirmButton: false }); summary(); window.loadAssets(); } });
         }
         $(document).on('click', '#ppMine', function () {
-            Swal.fire({ title: 'Add an asset I\'m using', width: 560, confirmButtonText: 'Add', confirmButtonColor: '#1c5034', showCancelButton: true,
-                html: '<input id="ppN" class="swal2-input" placeholder="Asset name (e.g. Laptop, Weighing scale)"><select id="ppC" class="swal2-select" style="width:80%"><option>Electronics</option><option>Machinery</option><option>Vehicle</option><option>Furniture</option><option>Other</option></select>' +
-                    '<input id="ppS" class="swal2-input" placeholder="Serial / model number (optional)"><input id="ppL" class="swal2-input" placeholder="Where is it kept (optional)"><select id="ppK" class="swal2-select" style="width:80%"><option value="good">Good</option><option value="new">New</option><option value="fair">Fair</option><option value="damaged">Damaged</option></select><textarea id="ppT" class="swal2-textarea" placeholder="Notes"></textarea>',
+            Swal.fire($.extend({}, POP, { title: 'Add an asset I\'m using', width: 620, confirmButtonText: 'Add & assign to me',
+                html: '<div class="pp-sub">It is added to the asset list and assigned to you.</div><div class="pp-form">' +
+                    F('Asset name', I('ppN', '', 'placeholder="e.g. Laptop, Weighing scale"'), { full: true, req: true }) +
+                    F('Category', SEL('ppC', ['Electronics', 'Machinery', 'Vehicle', 'Furniture', 'Other'])) + F('Condition', SEL('ppK', [['good', 'Good'], ['new', 'New'], ['fair', 'Fair'], ['damaged', 'Damaged']])) +
+                    F('Serial / model number', I('ppS', '', 'placeholder="optional"')) + F('Where it is kept', I('ppL', '', 'placeholder="optional"')) + F('Notes', TA('ppT', '', 'optional'), { full: true }) + '</div>',
                 preConfirm: function () {
                     var n = $('#ppN').val().trim(); if (!n) { Swal.showValidationMessage('Enter the asset name'); return false; }
                     return post('save_asset.php', { asset_name: n, asset_category: $('#ppC').val(), serial_number: $('#ppS').val(), location: $('#ppL').val(), asset_condition: $('#ppK').val(), notes: $('#ppT').val(), purchase_cost: 0 })
                         .then(function (r) { return post('assign_asset.php', { asset_id: r.id, assigned_to: S.me, assigned_date: new Date().toISOString().substring(0, 10), notes: 'Added by the user as in use' }); })
                         .catch(function (m) { Swal.showValidationMessage(esc(m)); return false; });
-                } }).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: 'Added and assigned to you', timer: 1400, showConfirmButton: false }); summary(); window.loadAssets(); } });
+                } })).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: 'Added and assigned to you', timer: 1400, showConfirmButton: false }); summary(); window.loadAssets(); } });
         });
+        if (typeof window.editAsset === 'function') window.editAsset = function (a) {
+            var v = function (k) { return a && a[k] != null ? a[k] : ''; }, d = function (k) { return a && a[k] ? String(a[k]).substring(0, 10) : ''; };
+            Swal.fire($.extend({}, POP, { title: a ? 'Edit ' + a.asset_id : 'New asset', width: 760, confirmButtonText: a ? 'Save changes' : 'Create asset',
+                html: (a ? '<div class="pp-sub">' + esc(a.asset_name) + (a.assigned_employee ? ' · with ' + esc(a.assigned_employee) : '') + '</div>' : '<div class="pp-sub">Vehicles, machinery, furniture, electronics and other company assets</div>') + '<div class="pp-form">' +
+                    SEC('Asset') + F('Asset name', I('fN', v('asset_name'), 'placeholder="e.g. Delivery van, Weighing scale"'), { req: true }) +
+                    F('Category', I('fC', v('asset_category') || 'Electronics', 'list="fCl"') + '<datalist id="fCl"><option value="Vehicle"><option value="Machinery"><option value="Furniture"><option value="Electronics"><option value="Other"></datalist>', { req: true }) +
+                    F('Type', I('fT', v('asset_type'), 'placeholder="e.g. Delivery van"'), { hint: 'optional' }) + F('Condition', SEL('fK', [['new', 'New'], ['good', 'Good'], ['fair', 'Fair'], ['damaged', 'Damaged'], ['critical', 'Critical']], v('asset_condition') || 'new')) +
+                    F('Serial number', I('fS', v('serial_number')), { hint: 'optional' }) + F('Model number', I('fM', v('model_number')), { hint: 'optional' }) +
+                    SEC('Purchase & value') + F('Purchase date', I('fPD', d('purchase_date'), 'type="date"')) + F('Purchase cost ₹', I('fPC', a ? v('purchase_cost') : '', 'type="number" min="0" step="0.01" placeholder="0.00"')) +
+                    F('Current value ₹', I('fCV', v('current_value'), 'type="number" min="0" step="0.01" placeholder="same as cost"'), { hint: 'optional' }) + F('Document note', I('fDN', v('document_note'), 'placeholder="e.g. invoice in file A-12"'), { hint: 'optional' }) +
+                    SEC('Where & who') + F('Location', I('fL', v('location'), 'placeholder="e.g. Main warehouse, office"'), { hint: 'optional' }) + F('Department', I('fD', v('department'), 'placeholder="e.g. Packing, Delivery"'), { hint: 'optional' }) +
+                    SEC('Warranty') + F('Warranty start', I('fWS', d('warranty_start_date'), 'type="date"')) + F('Warranty end', I('fWE', d('warranty_end_date'), 'type="date"')) +
+                    F('Notes', TA('fNo', v('notes'), 'Anything else about this asset'), { full: true }) + '</div>',
+                preConfirm: function () {
+                    var name = $('#fN').val().trim(), cat = $('#fC').val().trim();
+                    if (!name || !cat) { Swal.showValidationMessage('Asset name and category are required'); return false; }
+                    if ($('#fWS').val() && $('#fWE').val() && $('#fWE').val() < $('#fWS').val()) { Swal.showValidationMessage('Warranty end is before the start'); return false; }
+                    return { id: a ? a.id : null, asset_name: name, asset_category: cat, asset_type: $('#fT').val().trim(), purchase_date: $('#fPD').val(), purchase_cost: $('#fPC').val() || 0,
+                             current_value: $('#fCV').val(), serial_number: $('#fS').val().trim(), model_number: $('#fM').val().trim(), location: $('#fL').val().trim(), department: $('#fD').val().trim(),
+                             warranty_start_date: $('#fWS').val(), warranty_end_date: $('#fWE').val(), asset_condition: $('#fK').val(), document_note: $('#fDN').val().trim(), notes: $('#fNo').val().trim(),
+                             assigned_employee: a ? (a.assigned_employee || '') : '', supplier_id: a ? (a.supplier_id || '') : '' };   // editing keeps who has it and the supplier
+                } })).then(function (r) { if (r.isConfirmed) { window.saveAsset(r.value); setTimeout(summary, 800); } });
+        };
         summary().then(function () { window.loadAssets(); });
     }
 
@@ -163,21 +208,21 @@
                 preConfirm: function () { return post('approve_waste.php', { id: id, status: st }).catch(function (m) { Swal.showValidationMessage(esc(m)); return false; }); } })
                 .then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: 'Updated', timer: 1100, showConfirmButton: false }); meta(); window.loadWaste(); } });
         });
-        $('#addWasteBtn').off('click').on('click', function () {
+        // own form replaces the page's one: capture the click before the page's handler (bound in any order)
+        var wbtn = document.getElementById('addWasteBtn');
+        if (wbtn) wbtn.addEventListener('click', function (e) { e.stopImmediatePropagation(); e.preventDefault(); reportForm(); }, true);
+        function reportForm() {
             if (!M) return;
             if (!M.can.report) return Swal.fire({ icon: 'info', title: 'You cannot report waste', text: 'Ask the Manager to give you waste reporting.', confirmButtonColor: '#1c5034' });
-            Swal.fire({ title: 'Report waste', width: 620, confirmButtonText: 'Send for approval', confirmButtonColor: '#1c5034', showCancelButton: true,
-                html: '<div style="text-align:left;display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
-                    '<label style="grid-column:1/-1">Product <span class="pp-muted">(leave empty for non-product waste)</span><input id="wP" class="swal2-input" list="wPl" placeholder="Type to search the product" style="width:100%;margin:4px 0 0"><datalist id="wPl">' + M.products.map(function (p) { return '<option value="' + esc(p.name) + ' · #' + p.id + '">'; }).join('') + '</datalist></label>' +
-                    '<label>Type<select id="wT" class="swal2-select" style="width:100%;margin:4px 0 0">' + Object.keys(TYPES).map(function (k) { return '<option value="' + k + '">' + TYPES[k] + '</option>'; }).join('') + '</select></label>' +
-                    '<label>Date<input id="wD" type="date" class="swal2-input" style="width:100%;margin:4px 0 0" value="' + new Date().toISOString().substring(0, 10) + '"></label>' +
-                    '<label>Quantity<input id="wQ" type="number" min="1" step="1" class="swal2-input" style="width:100%;margin:4px 0 0"></label>' +
-                    '<label>Unit<input id="wU" class="swal2-input" value="pcs" style="width:100%;margin:4px 0 0"></label>' +
-                    '<label>Warehouse<select id="wW" class="swal2-select" style="width:100%;margin:4px 0 0">' + (M.warehouses.length ? M.warehouses.map(function (w) { return '<option value="' + w.id + '">' + esc(w.name) + '</option>'; }).join('') : '<option value="1">Main</option>') + '</select></label>' +
-                    '<label>Estimated value ₹<input id="wV" type="number" min="0" step="0.01" class="swal2-input" style="width:100%;margin:4px 0 0"></label>' +
-                    '<label style="grid-column:1/-1">Reason *<input id="wR" class="swal2-input" placeholder="e.g. Pack torn while unloading, rats, expired on shelf" style="width:100%;margin:4px 0 0"></label>' +
-                    '<label style="grid-column:1/-1">Disposal method (optional)<input id="wM" class="swal2-input" placeholder="e.g. Given to cattle feed, destroyed" style="width:100%;margin:4px 0 0"></label></div>',
-                didOpen: function () { $('#wP').on('change', function () { var m = String($(this).val()).match(/#(\d+)$/), p = m && M.products.find(function (x) { return String(x.id) === m[1]; }); if (p && !$('#wV').val() && $('#wQ').val()) $('#wV').val((E2(p.price) * E2($('#wQ').val())).toFixed(2)); }); },
+            Swal.fire($.extend({}, POP, { title: 'Report waste', width: 680, confirmButtonText: 'Send for approval',
+                html: '<div class="pp-sub">The Manager approves it — only then the stock goes down.</div><div class="pp-form">' +
+                    F('Product', I('wP', '', 'list="wPl" placeholder="Type to search the product"') + '<datalist id="wPl">' + M.products.map(function (p) { return '<option value="' + esc(p.name) + ' · #' + p.id + '">'; }).join('') + '</datalist>', { full: true, hint: '(leave empty for non-product waste)' }) +
+                    F('Type', SEL('wT', Object.keys(TYPES).map(function (k) { return [k, TYPES[k]]; }))) + F('Date', I('wD', today(), 'type="date"')) +
+                    F('Quantity', I('wQ', '', 'type="number" min="1" step="1" placeholder="e.g. 2"')) + F('Unit', I('wU', 'pcs')) +
+                    F('Warehouse', SEL('wW', M.warehouses.length ? M.warehouses.map(function (w) { return [w.id, w.name]; }) : [[1, 'Main']])) + F('Estimated value ₹', I('wV', '', 'type="number" min="0" step="0.01" placeholder="auto from price"')) +
+                    F('Reason', I('wR', '', 'placeholder="e.g. Pack torn while unloading, rats, expired on shelf"'), { full: true, req: true }) +
+                    F('Disposal method', I('wM', '', 'placeholder="e.g. Given to cattle feed, destroyed"'), { full: true, hint: 'optional' }) + '</div>',
+                didOpen: function () { $('#wP,#wQ').on('change', function () { var $p = $('#wP'); var m = String($p.val()).match(/#(\d+)$/), p = m && M.products.find(function (x) { return String(x.id) === m[1]; }); if (p && !$('#wV').val() && $('#wQ').val()) $('#wV').val((E2(p.price) * E2($('#wQ').val())).toFixed(2)); }); },
                 preConfirm: function () {
                     var m = String($('#wP').val()).match(/#(\d+)$/), reason = $('#wR').val().trim();
                     if ($('#wP').val() && !m) { Swal.showValidationMessage('Choose the product from the list'); return false; }
@@ -186,8 +231,8 @@
                     return post('save_waste_record.php', { date: $('#wD').val(), waste_type: $('#wT').val(), product_id: m ? m[1] : '', sku: m ? 'PRD-' + m[1] : '', quantity: $('#wQ').val(), unit: $('#wU').val() || 'pcs',
                                                           warehouse_id: $('#wW').val(), reason: reason, estimated_value: $('#wV').val(), disposal_method: $('#wM').val() })
                         .catch(function (e) { Swal.showValidationMessage(esc(e)); return false; });
-                } }).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: (r.value.waste_id || 'Waste') + ' sent for approval', timer: 1500, showConfirmButton: false }); meta(); window.loadWaste(); } });
-        });
+                } })).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: (r.value.waste_id || 'Waste') + ' sent for approval', timer: 1500, showConfirmButton: false }); meta(); window.loadWaste(); } });
+        }
         var E2 = function (v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; };
         meta().then(function () { window.loadWaste(); }).catch(function () {});
     }
