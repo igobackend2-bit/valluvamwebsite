@@ -159,6 +159,15 @@ try {
             foreach ($flows as $f) if ($f['stage'][0] === 'manager')
                 $tasks[] = rd_task($f, $f['pr_number'] . ' · ' . ($f['requested_by'] ?: $f['created_by']), rd_items($pdo, (int)$f['id']),
                     [['label' => 'Approve', 'kind' => 'pr_manager_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'pr_manager_reject', 'reason' => true]], 'purchase_requests.php?id=' . $f['id']);
+            // waste records reported by the team wait for the Manager's approval (1 Oct 2026)
+            try {
+                foreach (erp_rows($pdo, "SELECT w.id, w.waste_id, w.date, w.waste_type, w.quantity, w.unit, w.reason, w.estimated_value, w.created_by, p.product_name
+                                         FROM waste_records w LEFT JOIN product_details p ON p.id = w.product_id WHERE w.status = 'reported' ORDER BY w.date, w.id LIMIT 50") as $w)
+                    $tasks[] = ['id' => (int)$w['id'], 'ref' => $w['waste_id'], 'title' => 'Waste ' . $w['waste_id'] . ' · ' . ($w['product_name'] ?: ucwords(str_replace('_', ' ', $w['waste_type']))),
+                                'sub' => trim(($w['quantity'] ? $w['quantity'] . ' ' . $w['unit'] . ' · ' : '') . $w['reason'] . ' · reported by ' . $w['created_by']), 'date' => $w['date'],
+                                'amount' => $w['estimated_value'], 'stage' => 'Waste waiting for approval', 'waste_id' => (int)$w['id'],
+                                'actions' => [['label' => 'Approve', 'kind' => 'waste_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'waste_reject', 'reason' => true]], 'link' => 'waste.php'];
+            } catch (PDOException $e) { /* waste table not installed */ }
             $kpis = [rd_kpi('Waiting for my approval', count($tasks), 'n', '', count($tasks) ? 'amber' : 'green'),
                      rd_kpi('Approved this month', (int)erp_val($pdo, "SELECT COUNT(*) FROM purchase_requests WHERE manager_approved_at >= ?", [$m1])),
                      rd_kpi('Rejected (all time)', (int)erp_val($pdo, "SELECT COUNT(*) FROM purchase_requests WHERE status = 'manager_rejected'")),
@@ -248,6 +257,14 @@ try {
                      rd_kpi('Payments without proof', (int)erp_val($pdo, "SELECT COUNT(*) FROM purchase_flows WHERE payment_id IS NOT NULL AND payment_proof_doc_id IS NULL"), 'n', '', ''),
                      rd_kpi('Overdue supplier bills', $billsDue, 'money', '', $billsDue > 0 ? 'red' : 'green'),
                      rd_kpi('Bank lines not reconciled', (int)erp_val($pdo, "SELECT COUNT(*) FROM bank_statement_lines WHERE status = 'unmatched'"), 'n')];
+            // every transaction reaches the accounts automatically — show the totals here too (1 Oct 2026)
+            try {
+                require_once __DIR__ . '/erp_report_lib.php';
+                $kpis[] = rd_kpi('Expenses this month', (float)erp_val($pdo, "SELECT COALESCE(SUM(total),0) FROM expenses WHERE expense_date >= ? AND status IN ('approved','posted')", [$m1]), 'money');
+                $kpis[] = rd_kpi('Customer receivables', rep_receivables($pdo)['total'], 'money', 'invoices + credit / manual sales not paid', 'amber');
+                $kpis[] = rd_kpi('Money in this month', (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM accounts_transactions WHERE date >= ? AND status = 'completed' AND type IN ('income','payment_received')", [$m1]), 'money', '', 'green');
+                $kpis[] = rd_kpi('Money out this month', (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM accounts_transactions WHERE date >= ? AND status = 'completed' AND type IN ('expense','payment_made','refund')", [$m1]), 'money');
+            } catch (Throwable $e) { error_log('[role dash accounts] ' . $e->getMessage()); }
             $sections[] = ['key' => $k, 'title' => 'Payments (Accounts Team)', 'role' => 'Accounts Team', 'tasks' => $tasks, 'kpis' => $kpis];
         }
     }

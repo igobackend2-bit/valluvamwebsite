@@ -82,6 +82,16 @@ function hn_feed(PDO $pdo, int $uid): array {
         }
         if ($next) $items[] = ['id' => -((int)$a['id'] * 4 + 2), 'kind' => 'task', 'severity' => 'warning', 'title' => $next[0], 'message' => $a['summary'] . ' · approved by ' . $a['decided_by'], 'link' => $next[1], 'at' => $a['decided_at']];
     }
+    // 3b. waste records reported, for whoever approves waste (1 Oct 2026). Read id -(id*4+3): never clashes with the approval ids.
+    if (in_array('super', $keys, true) || erp_can($pdo, 'waste.approve')) {
+        try {
+            foreach (erp_rows($pdo, "SELECT w.id, w.waste_id, w.date, w.reason, w.quantity, w.unit, w.created_by, w.created_at, p.product_name FROM waste_records w
+                                     LEFT JOIN product_details p ON p.id = w.product_id WHERE w.status = 'reported' ORDER BY w.id DESC LIMIT 30") as $w)
+                $items[] = ['id' => -((int)$w['id'] * 4 + 3), 'kind' => 'approval', 'severity' => 'warning', 'title' => 'Approve: waste record ' . $w['waste_id'],
+                            'message' => trim(($w['product_name'] ? $w['product_name'] . ' · ' : '') . ($w['quantity'] ? $w['quantity'] . ' ' . $w['unit'] . ' · ' : '') . $w['reason'] . ' · reported by ' . $w['created_by']),
+                            'link' => (in_array('manager', $keys, true) ? 'index.php?focus=' . rawurlencode((string)$w['waste_id']) . '#roleDash' : 'waste.php'), 'at' => $w['created_at']];
+        } catch (PDOException $e) { /* waste table not installed */ }
+    }
     // 4. existing alerts (not the approval summaries — those are listed one by one above)
     try {
         ntf_refresh($pdo);

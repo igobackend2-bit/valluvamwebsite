@@ -115,6 +115,8 @@
             if (a.kind === 'apr_reject') return api('approvals_api.php', { action: 'reject', id: task.approval_id, remarks: a._why || '' }, true);
             if (a.kind === 'po_approve') return api('purchase_api.php', { action: 'po_approve', id: task.po_id }, true);
             if (a.kind === 'po_reject') return api('procurement_api.php', { action: 'po_reject', id: task.po_id, reason: a._why || '' }, true);
+            if (a.kind === 'waste_approve') return api('approve_waste.php', { id: task.waste_id, status: 'approved' }, true).then(r => (r.message ? r : Object.assign(r, { message: 'Waste approved — stock reduced.' })));
+            if (a.kind === 'waste_reject') return api('approve_waste.php', { id: task.waste_id, status: 'cancelled', reason: a._why || '' }, true).then(r => (r.message ? r : Object.assign(r, { message: 'Waste record rejected.' })));
             return Promise.reject('Unknown action');
         };
         Swal.fire({ title: a.label + '?', text: task.title, icon: a.reason ? 'warning' : 'question', input: 'text', inputPlaceholder: a.reason ? 'Reason (required)' : 'Remarks (optional)',

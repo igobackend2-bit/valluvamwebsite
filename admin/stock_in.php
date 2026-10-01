@@ -29,6 +29,8 @@ require_once __DIR__ . '/includes/check_admin.php';
                 <button class="adm-btn adm-btn-primary" id="newStockInBtn"><i class="fas fa-plus"></i> New stock in</button>
             </div>
 
+            <div id="grnPanel"></div><!-- received purchases → add to stock (1 Oct 2026) -->
+
             <section class="adm-card" id="stockInForm" style="display:none;">
                 <div class="adm-card-head"><h2>New stock in</h2></div>
                 <div class="adm-card-body">
@@ -366,5 +368,6 @@ require_once __DIR__ . '/includes/check_admin.php';
             return date.toLocaleDateString('en-IN');
         }
     </script>
+    <script src="assets/grn_stock.js?v=<?= @filemtime(__DIR__ . '/assets/grn_stock.js') ?: 1 ?>"></script>
 </body>
 </html>
