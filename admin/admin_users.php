@@ -68,9 +68,25 @@ if ((int)($admin_role_id ?? 0) !== 1) {
         let permissionsCache = [];
         let matrixCache = {};
         let rolesList = [];
+        // dashboards per user (1 Oct 2026)
+        let DASH = { installed: false, dashboards: [], users: {}, role_default: {} };
+        let usersCache = null;
+        const DASH_URL = '../assets/db_query/admin/user_dashboards_api.php';
+        function loadDash() {
+            return $.ajax({ url: DASH_URL, data: { action: 'list' }, dataType: 'json' }).then(d => { if (d && d.status === 'success') DASH = d; if (usersCache) displayUsers(usersCache); }, () => {});
+        }
+        function dashLabel(k) { const d = DASH.dashboards.find(x => x.key === k); return d ? d.label.split(' — ')[0] : k; }
+        function userDashText(u) {
+            if (!DASH.installed) return '';
+            const own = DASH.users[u.id] || [];
+            if (own.length) return own.map(dashLabel).join(', ');
+            const def = DASH.role_default[u.role_id];
+            return def === 'all' ? 'All dashboards' : def ? dashLabel(def) + ' (role default)' : 'No dashboard';
+        }
 
         $(document).ready(function() {
             loadUsers();
+            loadDash();
             loadRolesPermissions();
             $('#addUserBtn').on('click', function() { editUser(null); });
             $('#roleSelect').on('change', function() { renderPermissionsForRole($(this).val()); });
@@ -102,6 +118,7 @@ if ((int)($admin_role_id ?? 0) !== 1) {
         }
 
         function displayUsers(users) {
+            usersCache = users;
             if (users.length === 0) {
                 $('#usersTable').html('<div class="adm-empty"><i class="fas fa-users"></i><p><strong>No admin users yet</strong></p></div>');
                 return;
@@ -112,7 +129,7 @@ if ((int)($admin_role_id ?? 0) !== 1) {
                 rows += `<tr>
                     <td class="adm-cell-title">${escapeHtml(u.username)}${u.full_name ? '<div class="adm-cell-sub">' + escapeHtml(u.full_name) + '</div>' : ''}</td>
                     <td>${escapeHtml(u.email || '—')}</td>
-                    <td>${escapeHtml(u.role_name || '—')}</td>
+                    <td>${escapeHtml(u.role_name || '—')}${userDashText(u) ? '<div class="adm-cell-sub"><i class="fas fa-gauge-high"></i> ' + escapeHtml(userDashText(u)) + '</div>' : ''}</td>
                     <td>${u.status === 'active' ? '<span class="adm-badge is-green">Active</span>' : '<span class="adm-badge is-neutral">Inactive</span>'}</td>
                     <td>${formatDate(u.last_login_at)}</td>
                     <td>
@@ -152,6 +169,9 @@ if ((int)($admin_role_id ?? 0) !== 1) {
                         <option value="inactive" ${user && user.status === 'inactive' ? 'selected' : ''}>Inactive</option>
                     </select>
                     <input id="swal-password" type="password" class="swal2-input" placeholder="${user ? 'New password (leave blank to keep current)' : 'Password'}">
+                    ${DASH.installed ? `<div style="text-align:left;margin:14px 8px 0;"><div style="font-weight:600;margin-bottom:6px;">Dashboards this user can use</div>
+                        ${DASH.dashboards.map(d => `<label style="display:flex;gap:8px;align-items:flex-start;font-size:14px;margin:5px 0;"><input type="checkbox" class="swal-dash" value="${d.key}" ${user && (DASH.users[user.id] || []).includes(d.key) ? 'checked' : ''}> <span>${escapeHtml(d.label)}</span></label>`).join('')}
+                        <div style="font-size:12px;color:#6b6459;margin-top:6px;">Each dashboard also gives the permissions and pages it needs. Leave all unticked to use the role's normal dashboard.</div></div>` : ''}
                 `,
                 confirmButtonText: user ? 'Save' : 'Create',
                 confirmButtonColor: '#1c5034',
@@ -180,7 +200,8 @@ if ((int)($admin_role_id ?? 0) !== 1) {
                         email: $('#swal-email').val().trim(),
                         role_id: roleId,
                         status: $('#swal-status').val(),
-                        password: password
+                        password: password,
+                        dash_keys: DASH.installed ? $('.swal-dash:checked').map(function () { return this.value; }).get() : null
                     };
                 }
             }).then((result) => {
@@ -189,12 +210,19 @@ if ((int)($admin_role_id ?? 0) !== 1) {
         }
 
         function saveUser(data) {
+            const dashKeys = data.dash_keys; delete data.dash_keys;
             $.ajax({
                 url: '../assets/db_query/admin/save_admin_user.php',
                 type: 'POST',
                 data: data,
                 dataType: 'json',
                 success: function(response) {
+                    if (response.status === 'success' && dashKeys !== null && dashKeys !== undefined) {
+                        // then the dashboards chosen for this user (1 Oct 2026)
+                        $.ajax({ url: DASH_URL, type: 'POST', data: { action: 'save', user_id: data.id || '', username: data.username, keys: JSON.stringify(dashKeys) }, dataType: 'json' })
+                            .then(r => { if (r.status !== 'success') Swal.fire({ title: 'User saved, dashboards not saved', text: r.message || '', icon: 'warning', confirmButtonColor: '#1c5034' }); loadDash(); },
+                                  () => Swal.fire({ title: 'User saved, dashboards not saved', text: 'The server did not respond.', icon: 'warning', confirmButtonColor: '#1c5034' }));
+                    }
                     if (response.status === 'success') {
                         Swal.fire({ title: 'Saved', icon: 'success', confirmButtonColor: '#1c5034', timer: 1200, showConfirmButton: false });
                         loadUsers();

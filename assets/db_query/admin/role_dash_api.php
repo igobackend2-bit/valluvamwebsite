@@ -64,7 +64,8 @@ try {
     $roleName = (string)($_SESSION['admin_role_name'] ?? '');
     $key = role_access_key($roleName);
     if ((int)($_SESSION['admin_role_id'] ?? 0) === 1) $key = 'super';
-    $want = $key === 'super' ? ['executive', 'manager', 'l1', 'admin', 'ceo', 'accounts'] : ($key ? [$key] : []);
+    $userDash = user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0));   // dashboards given by the Super Admin
+    $want = $key === 'super' ? ['executive', 'manager', 'l1', 'admin', 'ceo', 'accounts'] : ($userDash ?: ($key && $key !== 'super' ? [$key] : []));
     $m1 = date('Y-m-01'); $today = date('Y-m-d'); $me = erp_user();
     $flows = rd_flows($pdo, "pr.status <> 'cancelled'");
     $sections = [];
@@ -175,7 +176,7 @@ try {
             $sections[] = ['key' => $k, 'title' => 'Payments (Accounts Team)', 'role' => 'Accounts Team', 'tasks' => $tasks, 'kpis' => $kpis];
         }
     }
-    erp_out(['status' => 'success', 'role' => $key, 'role_name' => $roleName, 'limited' => role_access_pages($roleName) !== null, 'sections' => $sections]);
+    erp_out(['status' => 'success', 'role' => $key, 'role_name' => $roleName, 'limited' => $key !== 'super' && role_access_pages($roleName, $userDash) !== null, 'sections' => $sections]);
 } catch (Throwable $e) {
     erp_db_error($e, 'role dashboard');
 }

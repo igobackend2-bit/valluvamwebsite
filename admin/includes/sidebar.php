@@ -137,7 +137,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
 <?php
 // page-limited roles (1 Oct 2026): hide menu links they cannot open
 require_once __DIR__ . '/role_access.php';
-$nav_allowed = role_access_pages((string)($_SESSION['admin_role_name'] ?? ''));
+$nav_allowed = array_key_exists('role_allowed_pages', $GLOBALS) ? $GLOBALS['role_allowed_pages'] : role_access_pages((string)($_SESSION['admin_role_name'] ?? ''));
 if ($nav_allowed !== null): ?>
 <script>
 (function () {

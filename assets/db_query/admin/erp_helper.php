@@ -25,7 +25,11 @@ function erp_can(PDO $pdo, string $perm): bool {
     if ((int)($_SESSION['admin_role_id'] ?? 0) === 1) return true;
     $s = $pdo->prepare('SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = ?');
     $s->execute([(int)($_SESSION['admin_role_id'] ?? 0), $perm]);
-    return (bool)$s->fetchColumn();
+    if ((bool)$s->fetchColumn()) return true;
+    // dashboards the Super Admin gave this user also grant their permissions (1 Oct 2026)
+    $roleAccess = __DIR__ . '/../../../admin/includes/role_access.php';
+    if (is_file($roleAccess)) { require_once $roleAccess; return user_dash_has_perm($pdo, $perm); }
+    return false;
 }
 
 /** Admin session + permission (existing role system) + ERP tables present. */

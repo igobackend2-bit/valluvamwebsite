@@ -46,6 +46,9 @@ function require_permission(PDO $pdo, string $permKey) {
         $stmt = $pdo->prepare("SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = ?");
         $stmt->execute([$_SESSION['admin_role_id'], $permKey]);
         if (!$stmt->fetchColumn()) {
+            // dashboards the Super Admin gave this user also grant their permissions (1 Oct 2026)
+            $roleAccess = __DIR__ . '/../../../admin/includes/role_access.php';
+            if (is_file($roleAccess)) { require_once $roleAccess; if (user_dash_has_perm($pdo, $permKey)) return; }
             header('Content-Type: application/json');
             http_response_code(403);
             echo json_encode(['status' => 'error', 'message' => 'You do not have permission to do this.']);
