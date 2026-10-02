@@ -406,13 +406,29 @@ try {
             if ($phone !== '' && !preg_match('/^\+?\d{10,13}$/', $phone)) erp_invalid('Enter a valid phone number (10 digits) or leave it blank.');
             $doc = (int)erp_input('proof_doc_id', 0);
             if (!$doc || !pf_doc_ok($pdo, $doc, [['purchase_order', (int)$po['id']]])) erp_invalid('Attach the courier / transport bill (proof).');
+            // FIX (2 Oct 2026): charges only after transport is entered; internal vehicle = diesel bill with from / to location
+            if (empty($f['delivery_mode'])) erp_invalid('Enter the transport (courier or internal vehicle) first.');
+            $internal = $f['delivery_mode'] === 'internal';
+            if (!$internal && $type === 'transport') $type = 'courier';
+            $from = mb_substr(trim((string)erp_input('from_location', '')), 0, 150); $to = mb_substr(trim((string)erp_input('to_location', '')), 0, 150);
+            if ($internal && ($from === '' || $to === '')) erp_invalid('Enter where the vehicle went: from location and to location.');
+            $km = trim((string)erp_input('distance_km', '')); $km = $km === '' ? null : round(erp_num($km, 'Distance (km)'), 1);
+            $veh = strtoupper(mb_substr(trim((string)erp_input('vehicle_number', $f['vehicle_number'] ?? '')), 0, 30));
             $num = next_document_number($pdo, 'transport_charge', 'TCH');
             $pdo->prepare("INSERT INTO pf_transport_charges (charge_number, pr_id, po_id, charge_type, amount, payee_name, payee_phone, account_holder, bank_name, account_number, ifsc, upi_id, notes, proof_doc_id, status, raised_by, raised_at)
                            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'manager_pending', ?, NOW())")
                 ->execute([$num, $prId, $po['id'], $type, $amount, $payee, $phone ?: null, mb_substr(trim((string)erp_input('account_holder', '')), 0, 150) ?: null, mb_substr(trim((string)erp_input('bank_name', '')), 0, 150) ?: null,
                            $acno ?: null, $ifsc ?: null, $upi ?: null, mb_substr(trim((string)erp_input('notes', '')), 0, 500) ?: null, $doc, erp_user()]);
             $tid = (int)$pdo->lastInsertId();
-            $apr = apr_open($pdo, 'transport_charge_mgr', 'tc' . $tid, $tid, $num, "{$pr['pr_number']} · {$po['po_number']}: {$type} charge ₹" . number_format($amount, 2) . " to {$payee}", $amount, 'purchase_flow_api.php',
+            $route = '';
+            try {
+                $cols = erp_rows($pdo, "SHOW COLUMNS FROM pf_transport_charges LIKE 'from_location'");
+                if ($cols) { $pdo->prepare("UPDATE pf_transport_charges SET from_location = ?, to_location = ?, vehicle_number = ?, distance_km = ? WHERE id = ?")->execute([$from ?: null, $to ?: null, $veh ?: null, $km, $tid]); }
+                elseif ($internal) $pdo->prepare("UPDATE pf_transport_charges SET notes = ? WHERE id = ?")->execute([mb_substr(trim("{$from} → {$to}" . ($veh ? " · {$veh}" : '') . ($km ? " · {$km} km" : '') . ' · ' . (string)erp_input('notes', '')), 0, 500), $tid]);
+            } catch (PDOException $e) { error_log('[tc route] ' . $e->getMessage()); }
+            if ($from !== '' && $to !== '') $route = " · {$from} → {$to}";
+            $label = $internal && $type === 'transport' ? 'diesel' : $type;
+            $apr = apr_open($pdo, 'transport_charge_mgr', 'tc' . $tid, $tid, $num, "{$pr['pr_number']} · {$po['po_number']}: {$label} ₹" . number_format($amount, 2) . " to {$payee}{$route}", $amount, 'purchase_flow_api.php',
                             ['action' => 'tc_mgr_approve', 'id' => $tid], ['action' => 'tc_mgr_reject', 'id' => $tid]);
             log_audit($pdo, 'create', 'pf_transport_charges', $tid, null, ['charge' => $num, 'pr' => $pr['pr_number'], 'amount' => $amount, 'payee' => $payee, 'approval' => $apr]);
             erp_out(['status' => 'success', 'id' => $tid, 'message' => "{$num}: ₹" . number_format($amount, 2) . " sent for Manager approval ({$apr})."]);

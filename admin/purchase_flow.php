@@ -216,7 +216,7 @@ function render() {
     h += card('payment', 4, 'Payment + payment proof', st('payment'), poOk ? payBody() : '<div class="erp-note">After the purchase order is approved it waits here for payment.</div>');
     // 5. transport
     h += card('transport', 5, 'Transport — internal vehicle or courier', st('transport'), poOk ? transportBody() : '<div class="erp-note">Available once the PO is approved.</div>');
-    if (poOk && D.tc_installed !== undefined) h += card('tcharge', 5, 'Courier / transport charges — bill → Manager → Admin → Accounts pays', tcState(), tcBody());   // FIX (2 Oct 2026)
+    if (poOk && D.tc_installed !== undefined) h += card('tcharge', 5, (f.delivery_mode === 'internal' ? 'Diesel / vehicle charges' : 'Courier charges') + ' — bill → Manager → Admin → Accounts pays', tcState(), tcBody());   // FIX (2 Oct 2026)
     // 6. docs
     h += card('docs', 6, 'Loading DC + shop bill', st('docs'), poOk ? docsBody() : '<div class="erp-note">Available once the PO is approved.</div>');
     // 7. unloading
@@ -476,7 +476,9 @@ function tcState() { const t = D.tcharges || []; if (!t.length) return 'todo'; i
 function tcBody() {
     if (!D.tc_installed) return '<div class="erp-note">Run transport_charge_migration.sql once in HeidiSQL to switch on courier / transport charges.</div>';
     const t = D.tcharges || [], can = D.tc_can || {}, dl = (id, n) => id ? `<a class="erp-link" target="_blank" rel="noopener" href="${E.BASE}erp_docs.php?action=download&id=${id}"><i class="fas fa-paperclip"></i> ${E.esc(n || 'file')}</a>` : '—';
-    let h = '<p class="erp-note" style="margin:0 0 10px">If the courier / transport has a charge: enter the amount and where to pay (bank account or UPI), attach the bill, and send it. The Manager and then the Admin approve it, and the Accounts Team checks it and pays to that account.</p>';
+    const fl = D.flow || {}, internal = fl.delivery_mode === 'internal';   // FIX (2 Oct 2026): courier → courier charge; internal vehicle → diesel bill with route
+    if (!fl.delivery_mode) return '<div class="erp-note">Enter the transport first (courier or internal vehicle) — then the courier charge or the diesel bill can be raised here.</div>';
+    let h = `<p class="erp-note" style="margin:0 0 10px">${internal ? 'Internal vehicle: raise the diesel / fuel bill — where the vehicle went (from → to), the amount and where to pay (driver / fuel station bank account or UPI), with the diesel bill.' : 'Courier: if there is a courier charge, enter the amount and where to pay (bank account or UPI) and attach the courier bill.'} The Manager and then the Admin approve it, and the Accounts Team checks it and pays to that account.</p>`;
     if (t.length) h += `<div class="adm-table-wrap"><table class="adm-table"><thead><tr><th>Charge</th><th class="erp-num">Amount</th><th>Pay to</th><th>Bill</th><th>Status</th><th>Approvals / payment</th><th></th></tr></thead><tbody>` + t.map(c => {
         const s = TC_ST[c.status] || ['neutral', c.status];
         let act = '';
@@ -484,18 +486,21 @@ function tcBody() {
         if (c.status === 'admin_pending' && can.admin && c.approval_id) act = `<button class="adm-btn adm-btn-primary" data-tca="${c.approval_id}">Approve</button> <button class="adm-btn adm-btn-ghost" data-tcr="${c.approval_id}">Reject</button>`;
         if (c.status === 'approved' && can.pay) act = `<button class="adm-btn adm-btn-primary" data-tcc="${c.id}"><i class="fas fa-clipboard-check"></i> Mark checked</button>`;
         if (c.status === 'checked' && can.pay) act = `<div class="pf-grid" style="min-width:420px">${E.field('Mode', `<select class="adm-select" data-tcm="${c.id}"><option value="bank_transfer">bank transfer</option><option value="upi">upi</option><option value="cash">cash</option><option value="cheque">cheque</option></select>`)}${E.field('UTR / reference', `<input class="adm-input" data-tcref="${c.id}">`)}${E.field('Paid on', `<input class="adm-input" type="date" data-tcd="${c.id}" value="${E.today()}">`)}${E.field('Payment proof *', `<input type="file" class="adm-input" data-tcf="${c.id}" accept=".pdf,.jpg,.jpeg,.png,.webp">`)}</div><button class="adm-btn adm-btn-primary" data-tcp="${c.id}"><i class="fas fa-indian-rupee-sign"></i> Mark as paid</button>`;
-        return `<tr><td><strong>${E.esc(c.charge_number)}</strong><div class="erp-muted">${E.esc(c.charge_type)} · ${E.date(c.raised_at)} · ${E.esc(c.raised_by)}</div>${c.notes ? '<div class="erp-muted">' + E.esc(c.notes) + '</div>' : ''}</td>
+        return `<tr><td><strong>${E.esc(c.charge_number)}</strong><div class="erp-muted">${E.esc(c.charge_type === 'transport' ? 'diesel / fuel' : c.charge_type)} · ${E.date(c.raised_at)} · ${E.esc(c.raised_by)}</div>${c.from_location ? `<div class="erp-muted"><i class="fas fa-route"></i> ${E.esc(c.from_location)} → ${E.esc(c.to_location || '')}${c.vehicle_number ? ' · ' + E.esc(c.vehicle_number) : ''}${c.distance_km ? ' · ' + E.esc(c.distance_km) + ' km' : ''}</div>` : ''}${c.notes ? '<div class="erp-muted">' + E.esc(c.notes) + '</div>' : ''}</td>
             <td class="erp-num"><strong>${E.money(c.amount)}</strong></td>
-            <td>${E.esc(c.payee_name)}${c.payee_phone ? ' · ' + E.esc(c.payee_phone) : ''}<div class="erp-muted">${c.account_number ? E.esc((c.account_holder || '') + ' · ' + (c.bank_name || '') + ' · A/c ' + c.account_number + ' · ' + (c.ifsc || '')) : ''}${c.upi_id ? '<br>UPI ' + E.esc(c.upi_id) : ''}</div></td>
+            <td>${E.esc(c.payee_name)}${c.payee_phone ? ' · ' + E.esc(c.payee_phone) : ''}<div class="erp-muted">${c.account_number ? E.esc([c.account_holder, c.bank_name, 'A/c ' + c.account_number, c.ifsc].filter(Boolean).join(' · ')) : ''}${c.upi_id ? '<br>UPI ' + E.esc(c.upi_id) : ''}</div></td>
             <td>${dl(c.proof_doc_id, c.proof_name)}</td><td><span class="adm-badge is-${s[0]}">${E.esc(s[1])}</span>${c.reject_reason ? '<div class="erp-muted">' + E.esc(c.reject_reason) + '</div>' : ''}</td>
             <td class="erp-muted">${c.manager_by ? 'Manager: ' + E.esc(c.manager_by) + ' ' + E.date(c.manager_at) + '<br>' : ''}${c.admin_by ? 'Admin: ' + E.esc(c.admin_by) + ' ' + E.date(c.admin_at) + '<br>' : ''}${c.checked_by ? 'Checked: ' + E.esc(c.checked_by) + ' ' + E.date(c.checked_at) + '<br>' : ''}${c.paid_by ? 'Paid: ' + E.esc(c.paid_by) + ' ' + E.date(c.paid_date) + ' · ' + E.esc(c.pay_mode || '') + (c.pay_reference ? ' · ' + E.esc(c.pay_reference) : '') + '<br>' + dl(c.pay_proof_doc_id, c.pay_proof_name) : ''}</td>
             <td>${act}</td></tr>`; }).join('') + '</tbody></table></div>';
     else h += '<div class="erp-note">No courier / transport charge raised.</div>';
-    if (can.raise) h += `<details style="margin-top:12px" ${t.length ? '' : 'open'}><summary style="cursor:pointer;font-weight:600">Add a courier / transport charge</summary><div class="pf-grid" style="margin-top:10px">
-        ${E.field('Charge for *', E.select('tcType', ['courier', 'transport', 'loading', 'unloading', 'other'].map(x => `<option value="${x}">${x}</option>`).join('')))}${E.field('Amount ₹ *', E.input('tcAmt', '', 'type="number" min="0" step="any"'))}
-        ${E.field('Pay to (courier company / driver) *', E.input('tcPayee', (D.flow && (D.flow.courier_name || D.flow.driver_name)) || ''))}${E.field('Phone', E.input('tcPh', (D.flow && D.flow.driver_phone) || '', 'inputmode="numeric"'))}
+    const types = internal ? [['transport', 'Diesel / fuel'], ['loading', 'Loading charge'], ['unloading', 'Unloading charge'], ['other', 'Other']] : [['courier', 'Courier charge'], ['loading', 'Loading charge'], ['unloading', 'Unloading charge'], ['other', 'Other']];
+    if (can.raise) h += `<details style="margin-top:12px" ${t.length ? '' : 'open'}><summary style="cursor:pointer;font-weight:600">${internal ? 'Add a diesel / vehicle bill' : 'Add a courier charge'}</summary><div class="pf-grid" style="margin-top:10px">
+        ${E.field('Charge for *', E.select('tcType', types.map(x => `<option value="${x[0]}">${x[1]}</option>`).join('')))}${E.field('Amount ₹ *', E.input('tcAmt', '', 'type="number" min="0" step="any"'))}
+        ${internal ? E.field('From location *', E.input('tcFrom', '', 'placeholder="e.g. Shop name, Koyambedu"')) + E.field('To location *', E.input('tcTo', (D.pr && D.pr.warehouse_name) || '', 'placeholder="e.g. Main Warehouse"'))
+                   + E.field('Vehicle number', E.input('tcVeh', fl.vehicle_number || '', 'style="text-transform:uppercase"')) + E.field('Distance (km)', E.input('tcKm', '', 'type="number" min="0" step="any"')) : ''}
+        ${E.field(internal ? 'Pay to (driver / fuel station) *' : 'Pay to (courier company) *', E.input('tcPayee', (internal ? fl.driver_name : fl.courier_name) || ''))}${E.field('Phone', E.input('tcPh', fl.driver_phone || '', 'inputmode="numeric"'))}
         ${E.field('Account holder', E.input('tcHolder', ''))}${E.field('Bank', E.input('tcBank', ''))}${E.field('Account number', E.input('tcAc', '', 'inputmode="numeric"'))}${E.field('IFSC', E.input('tcIfsc', '', 'maxlength="11" style="text-transform:uppercase"'))}
-        ${E.field('UPI ID (if no bank account)', E.input('tcUpi', ''))}${E.field('Notes', E.input('tcNotes', ''))}${E.field('Courier / transport bill (proof) *', '<input type="file" class="adm-input" id="tcFile" accept=".pdf,.jpg,.jpeg,.png,.webp">')}</div>
+        ${E.field('UPI ID (if no bank account)', E.input('tcUpi', ''))}${E.field('Notes', E.input('tcNotes', ''))}${E.field(internal ? 'Diesel / fuel bill (proof) *' : 'Courier bill (proof) *', '<input type="file" class="adm-input" id="tcFile" accept=".pdf,.jpg,.jpeg,.png,.webp">')}</div>
         <div class="pf-actions"><button class="adm-btn adm-btn-primary" id="tcSave"><i class="fas fa-paper-plane"></i> Send for approval (Manager → Admin → Accounts)</button></div></details>`;
     return h;
 }
@@ -504,11 +509,13 @@ function bindTc() {
     $('#tcSave').on('click', function () {
         const file = $('#tcFile')[0] && $('#tcFile')[0].files[0];
         if (!(E.num($('#tcAmt').val()) > 0)) return fail('Enter the charge amount.');
-        if (!file) return fail('Attach the courier / transport bill.');
+        if (!file) return fail('Attach the bill.');
+        if ($('#tcFrom').length && (!$('#tcFrom').val().trim() || !$('#tcTo').val().trim())) return fail('Enter where the vehicle went: from location and to location.');
         const $b = $(this).prop('disabled', true);
         upload('purchase_order', po.id, 'TRANSPORT_RECEIPT', file, 'Courier / transport bill ₹' + $('#tcAmt').val())
             .then(id => E.post(API, { action: 'tc_raise', pr_id: PR, charge_type: $('#tcType').val(), amount: $('#tcAmt').val(), payee_name: $('#tcPayee').val(), payee_phone: $('#tcPh').val(), account_holder: $('#tcHolder').val(),
-                                      bank_name: $('#tcBank').val(), account_number: $('#tcAc').val(), ifsc: $('#tcIfsc').val(), upi_id: $('#tcUpi').val(), notes: $('#tcNotes').val(), proof_doc_id: id }, { silent: true }))
+                                      bank_name: $('#tcBank').val(), account_number: $('#tcAc').val(), ifsc: $('#tcIfsc').val(), upi_id: $('#tcUpi').val(), notes: $('#tcNotes').val(), proof_doc_id: id,
+                                      from_location: $('#tcFrom').val() || '', to_location: $('#tcTo').val() || '', vehicle_number: $('#tcVeh').val() || '', distance_km: $('#tcKm').val() || '' }, { silent: true }))
             .then(r => reload(r.message)).catch(m => { $b.prop('disabled', false); fail(m); });
     });
     $('[data-tca]').on('click', function () { E.confirmAction('Approve this charge?', '', { reason: 'Remarks (optional)', optional: true }).then(rem => E.post('approvals_api.php', { action: 'approve', id: $(this).data('tca'), remarks: rem }, { silent: true })).then(r => reload(r.message)).catch(m => m !== 'cancelled' && fail(m)); });
