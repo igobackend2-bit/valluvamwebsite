@@ -151,7 +151,7 @@ let tq; $('#fQ').on('input', () => { clearTimeout(tq); tq = setTimeout(loadList,
 const STAGE_CLS = { 'Completed': 'green', 'Waiting for payment': 'amber', 'Quotation approval': 'amber', 'PO approval': 'amber', 'Request approval': 'neutral' };
 function loadList() {
     const $l = $('#list'); E.loading($l);
-    E.api(API, { action: 'list', q: $('#fQ').val(), all: $('#fAll').is(':checked') ? 1 : '' }, { silent: true }).then(r => E.table($l, [
+    E.api(API, { action: 'list', q: $('#fQ').val(), all: $('#fAll').is(':checked') ? 1 : '', mine: E.param('mine') || '' }, { silent: true }).then(r => E.table($l, [
         { label: 'Request', render: x => `<a class="erp-link" data-open="${x.id}">${E.esc(x.pr_number)}</a><div class="erp-muted">${E.date(x.request_date)} · ${E.esc(x.requested_by || '')}</div>` },
         { label: 'Stage', render: x => `<span class="adm-badge is-${STAGE_CLS[x.stage] || 'info'}">${E.esc(x.stage)}</span>` },
         { label: 'Quotations', render: x => E.esc(x.quote_count) + ' / 3' + (x.quote_status && x.quote_status !== 'collecting' ? ' · ' + E.esc(x.quote_status) : '') },

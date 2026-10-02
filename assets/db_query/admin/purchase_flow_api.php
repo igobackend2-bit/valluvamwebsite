@@ -164,6 +164,7 @@ try {
             if (($q = trim((string)erp_input('q', ''))) !== '') { $w[] = "(pr.pr_number LIKE ? OR po.po_number LIKE ? OR s.supplier_name LIKE ?)"; array_push($p, "%$q%", "%$q%", "%$q%"); }
             if (erp_input('all') === '1') $w = $q !== '' ? [end($w)] : [];
             if (!pf_sees_all($pdo)) { $w[] = 'pr.created_by = ?'; $p[] = erp_user(); }
+            if (erp_input('mine') === '1' && pf_role_key() === 'l1') { $w[] = "f.quote_submitted_by = ? AND f.quote_status = 'approved'"; $p[] = erp_user(); }   // FIX (2 Oct 2026): L1 — purchases I buy (loading / unloading)
             $rows = erp_rows($pdo, "SELECT pr.id, pr.pr_number, pr.request_date, pr.required_by, pr.status AS pr_status, pr.requested_by, f.quote_status, f.payment_id, f.payment_proof_doc_id,
                                            f.delivery_mode, f.tracking_number, f.unload_ok, f.grn_id, f.qc_id, po.po_number, po.status AS po_status, po.grand_total, s.supplier_name,
                                            (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status

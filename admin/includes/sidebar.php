@@ -79,6 +79,9 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="purchase_requests.php" class="<?= nav_active('purchase_requests.php', $current_page) ?>"><i class="fas fa-clipboard-list"></i> Purchase Requests</a></li>
         <li><a href="rfqs.php" class="<?= nav_active('rfqs.php', $current_page) ?>"><i class="fas fa-envelope-open-text"></i> RFQ &amp; Quotations</a></li>
         <li><a href="purchase_orders.php" class="<?= nav_active('purchase_orders.php', $current_page) ?>"><i class="fas fa-file-signature"></i> Purchase Orders</a></li>
+        <?php require_once __DIR__ . '/role_access.php'; if (role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'l1'): /* FIX (2 Oct 2026): L1 buyer — transport, loading, unloading of own purchases */ ?>
+        <li><a href="purchase_flow.php?mine=1" class="<?= nav_active('purchase_flow.php', $current_page) ?>"><i class="fas fa-truck-ramp-box"></i> Loading &amp; Unloading</a></li>
+        <?php endif; ?>
         <li><a href="shipments.php" class="<?= nav_active('shipments.php', $current_page) ?>"><i class="fas fa-truck"></i> Transport / Logistics</a></li>
         <li><a href="goods_receipts.php" class="<?= nav_active('goods_receipts.php', $current_page) ?>"><i class="fas fa-dolly"></i> Goods Receipts</a></li>
         <li><a href="quality_checks.php" class="<?= nav_active('quality_checks.php', $current_page) ?>"><i class="fas fa-microscope"></i> Quality Check</a></li>
