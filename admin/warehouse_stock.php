@@ -15,6 +15,11 @@ erp_page_start('Stock by Warehouse', 'Available, damaged, rejected and expired s
         </div></div>
     <div class="adm-card-body"><div id="list"></div></div>
 </section>
+<!-- FIX (2 Oct 2026): what is coming to / moving in each warehouse -->
+<section class="adm-card" id="wfCard" style="margin-top:16px">
+    <div class="adm-card-head"><h2>On the way &amp; movements</h2><span class="erp-muted">Purchases coming · unloaded (waiting for QC / stock) · transfers · latest stock in / out</span></div>
+    <div class="adm-card-body"><div class="erp-tabs" id="wfTabs"></div><div id="wfBody"></div></div>
+</section>
 <?php erp_page_end(<<<'JS'
 const E = ERP;
 let ROWS = [], WH = [];
@@ -37,7 +42,33 @@ $('#fQ').on('input', render);
 $('#csvBtn').on('click', () => E.csv(filtered(), COLS.filter(c => c.key), 'stock_by_warehouse.csv'));
 function filtered() { const q = ($('#fQ').val() || '').toLowerCase(); return ROWS.filter(x => !q || (x.item_name + ' ' + (x.item_sku || '')).toLowerCase().includes(q)); }
 function render() { E.table($('#list'), COLS, filtered(), { empty: 'No stock found', icon: 'fa-warehouse' }); }
+// FIX (2 Oct 2026): on the way & movements per warehouse
+let WF = null, WFT = 'coming';
+function wfLoad() {
+    E.api('warehouse_flow_api.php', { warehouse_id: $('#fWh').val() }, { silent: true }).then(r => { WF = r; wfRender(); }).catch(m => $('#wfBody').html('<div class="erp-muted">' + E.esc(m) + '</div>'));
+}
+function wfRender() {
+    const T = [['coming', 'Coming (in transit)', WF.coming.length], ['unloaded', 'Unloaded — not in stock yet', WF.unloaded.length], ['transfers', 'Transfers on the way', WF.transfers.length], ['moves', 'Latest stock movements', WF.moves.length]];
+    $('#wfTabs').html(T.map(t => `<button type="button" class="erp-tab ${t[0] === WFT ? 'active' : ''}" data-wft="${t[0]}">${E.esc(t[1])} <span class="adm-badge is-${t[2] ? 'amber' : 'neutral'}" style="margin-left:4px">${t[2]}</span></button>`).join(''));
+    const $b = $('#wfBody');
+    if (WFT === 'coming') E.table($b, [{ label: 'Purchase', render: x => `<a class="erp-link" href="purchase_flow.php?pr_id=${x.pr_id}">${E.esc(x.pr_number)}</a><div class="erp-muted">${E.esc(x.po_number)}</div>` },
+        { label: 'To warehouse', render: x => E.esc(x.warehouse_name || '—') }, { label: 'From shop', render: x => E.esc(x.supplier_name || '') }, { label: 'Qty ordered', num: true, render: x => E.qty(x.qty) },
+        { label: 'Transport', render: x => x.delivery_mode === 'courier' ? 'Courier ' + E.esc(x.courier_name || '') + (x.tracking_number ? '<div class="erp-muted">tracking ' + E.esc(x.tracking_number) + '</div>' : '') : 'Own vehicle ' + E.esc(x.vehicle_number || '') + (x.driver_name ? '<div class="erp-muted">' + E.esc(x.driver_name + ' ' + (x.driver_phone || '')) + '</div>' : '') },
+        { label: 'Dispatched', render: x => E.date(x.dispatch_date) }, { label: 'Buyer (L1)', render: x => E.esc(x.quote_submitted_by || '') }], WF.coming, { empty: 'Nothing on the way', icon: 'fa-truck' });
+    if (WFT === 'unloaded') E.table($b, [{ label: 'Goods receipt', render: x => `<a class="erp-link" href="goods_receipts.php?id=${x.grn_id}">${E.esc(x.grn_number)}</a><div class="erp-muted">${E.date(x.received_date)}</div>` },
+        { label: 'Warehouse', render: x => E.esc(x.warehouse_name || '') }, { label: 'Item', render: x => E.esc(x.item_name) }, { label: 'Received', num: true, render: x => E.qty(x.received_qty, x.unit) }, { label: 'Accepted', num: true, render: x => E.qty(x.accepted_qty) },
+        { label: 'Next', render: x => !x.qc_status ? '<span class="adm-badge is-amber">Waiting for quality check</span>' : x.qc_status === 'pending' ? '<span class="adm-badge is-amber">Quality check in progress</span>' : '<span class="adm-badge is-info">QC done — add to stock (Stock In)</span>' }],
+        WF.unloaded, { empty: 'Nothing waiting — unloaded goods are added to this stock after the quality check (Stock In)', icon: 'fa-dolly' });
+    if (WFT === 'transfers') E.table($b, [{ label: 'Transfer', render: x => `<a class="erp-link" href="stock_transfers.php?id=${x.id}">${E.esc(x.transfer_number)}</a><div class="erp-muted">${E.date(x.transfer_date)}</div>` },
+        { label: 'From → to', render: x => E.esc((x.from_name || '') + ' → ' + (x.to_name || '')) }, { label: 'Item', render: x => E.esc(x.item_name) }, { label: 'Qty', num: true, render: x => E.qty(x.quantity, x.unit) },
+        { label: 'Vehicle', render: x => E.esc(x.vehicle_number || '—') }, { label: 'Status', render: x => E.badge(x.status) }], WF.transfers, { empty: 'No transfer on the way', icon: 'fa-right-left' });
+    if (WFT === 'moves') E.table($b, [{ label: 'When', render: x => E.date(x.created_at) + ' <span class="erp-muted">' + String(x.created_at || '').slice(11, 16) + '</span>' }, { label: 'Warehouse', render: x => E.esc(x.warehouse_name || '') },
+        { label: 'Item', render: x => E.esc(x.item_name) }, { label: 'Stock', render: x => E.esc(x.bucket) }, { label: 'In / out', num: true, render: x => `<span class="${x.quantity < 0 ? 'erp-neg' : 'erp-pos'}">${x.quantity > 0 ? '+' : ''}${E.qty(x.quantity)}</span>` },
+        { label: 'Reference', render: x => E.esc([x.reference_type, x.reference_number].filter(Boolean).join(' ')) }, { label: 'Reason', render: x => E.esc(x.reason || '') }, { label: 'By', render: x => E.esc(x.created_by || '') }], WF.moves, { empty: 'No movements yet', icon: 'fa-arrows-rotate' });
+}
+$('#wfTabs').on('click', '[data-wft]', function () { WFT = $(this).data('wft'); wfRender(); });
 function load() {
+    wfLoad();
     E.loading($('#list'));
     E.api('warehouse_api.php', { action: 'stock', warehouse_id: $('#fWh').val(), item_type: $('#fType').val(), bucket: $('#fBucket').val() }, { silent: true }).then(r => {
         ROWS = r.rows; render();
