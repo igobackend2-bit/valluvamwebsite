@@ -166,7 +166,8 @@ try {
             if (!pf_sees_all($pdo)) { $w[] = 'pr.created_by = ?'; $p[] = erp_user(); }
             if (erp_input('mine') === '1' && pf_role_key() === 'l1') { $w[] = "f.quote_submitted_by = ? AND f.quote_status = 'approved'"; $p[] = erp_user(); }   // FIX (2 Oct 2026): L1 — purchases I buy (loading / unloading)
             $rows = erp_rows($pdo, "SELECT pr.id, pr.pr_number, pr.request_date, pr.required_by, pr.status AS pr_status, pr.requested_by, f.quote_status, f.payment_id, f.payment_proof_doc_id,
-                                           f.delivery_mode, f.tracking_number, f.unload_ok, f.grn_id, f.qc_id, po.po_number, po.status AS po_status, po.grand_total, s.supplier_name,
+                                           f.delivery_mode, f.tracking_number, f.unload_ok, f.grn_id, f.qc_id, f.loading_dc_doc_id, f.shop_bill_doc_id, f.vehicle_number, f.driver_name, f.courier_name,
+                                           (SELECT g2.status FROM goods_receipts g2 WHERE g2.id = f.grn_id) AS grn_status, po.po_number, po.status AS po_status, po.grand_total, s.supplier_name,
                                            (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status
                                     FROM purchase_requests pr LEFT JOIN purchase_flows f ON f.pr_id = pr.id LEFT JOIN purchase_orders po ON po.id = f.po_id
                                     LEFT JOIN suppliers s ON s.id = po.supplier_id LEFT JOIN quality_checks qc ON qc.id = f.qc_id" .
@@ -177,8 +178,12 @@ try {
                     : ($r['quote_status'] !== 'approved' ? ($r['quote_status'] === 'submitted' ? 'Quotation approval' : 'Collect quotations')
                     : (!$r['po_number'] ? 'Create PO' : (!$poDone ? 'PO approval'
                     : (!($r['payment_id'] && $r['payment_proof_doc_id']) ? 'Waiting for payment'
-                    : (!$r['delivery_mode'] ? 'Transport' : (!$r['grn_id'] ? 'Unloading check'
-                    : (!in_array($r['qc_status'], ['passed', 'partially_passed', 'rejected'], true) ? 'Quality check' : 'Completed')))))));
+                    // FIX (2 Oct 2026): clear stages for everyone — waiting for loading / in transit, waiting for unloading / QC / stock
+                    : (!$r['delivery_mode'] ? 'Waiting for loading (transport)' : (!($r['loading_dc_doc_id'] && $r['shop_bill_doc_id']) ? 'Loading — attach DC + shop bill'
+                    : (!$r['grn_id'] ? 'In transit — waiting for unloading'
+                    : (!in_array($r['qc_status'], ['passed', 'partially_passed', 'rejected'], true) ? 'Unloaded — waiting for quality check'
+                    : ($r['grn_status'] === 'draft' ? 'QC done — waiting to add to stock' : 'Added to inventory — completed')))))))));
+                $r['transport'] = $r['delivery_mode'] === 'courier' ? trim(($r['courier_name'] ?? '') . ($r['tracking_number'] ? ' · ' . $r['tracking_number'] : '')) : ($r['delivery_mode'] ? trim(($r['vehicle_number'] ?? '') . ($r['driver_name'] ? ' · ' . $r['driver_name'] : '')) : '');
             }
             unset($r);
             erp_out(['status' => 'success', 'rows' => $rows]);

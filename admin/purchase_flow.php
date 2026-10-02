@@ -148,18 +148,31 @@ Promise.all([E.items(), E.suppliers()]).then(([i, s]) => { ITEMS = i; SUP = s; i
 $('#backBtn').on('click', () => { history.replaceState(null, '', 'purchase_flow.php'); $('#detailView').addClass('pf-hide'); $('#listView').removeClass('pf-hide'); loadList(); });
 let tq; $('#fQ').on('input', () => { clearTimeout(tq); tq = setTimeout(loadList, 300); }); $('#fAll').on('change', loadList);
 
-const STAGE_CLS = { 'Completed': 'green', 'Waiting for payment': 'amber', 'Quotation approval': 'amber', 'PO approval': 'amber', 'Request approval': 'neutral' };
+const STAGE_CLS = { 'Completed': 'green', 'Waiting for payment': 'amber', 'Quotation approval': 'amber', 'PO approval': 'amber', 'Request approval': 'neutral',
+    'Added to inventory — completed': 'green', 'Waiting for loading (transport)': 'amber', 'Loading — attach DC + shop bill': 'amber', 'In transit — waiting for unloading': 'info',
+    'Unloaded — waiting for quality check': 'amber', 'QC done — waiting to add to stock': 'amber' };   // + loading / unloading stages (2 Oct 2026)
+// FIX (2 Oct 2026): counts of purchases waiting for loading / unloading / QC / stock above the list (click to filter)
+let PF_ROWS = [], PF_F = '';
+const PF_GROUPS = [['Waiting for loading', s => /^Waiting for loading|^Loading —/.test(s)], ['Waiting for unloading', s => /^In transit/.test(s)], ['Waiting for quality check', s => /^Unloaded —/.test(s)],
+                   ['Waiting to add to stock', s => /^QC done/.test(s)], ['Waiting for payment', s => s === 'Waiting for payment'], ['Completed', s => /completed|^Completed$/i.test(s)]];
+function pfChips() {
+    if (!$('#pfChips').length) $('#list').before('<div id="pfChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px"></div>');
+    $('#pfChips').html([['All', () => true]].concat(PF_GROUPS).map(([l, fn]) => { const n = PF_ROWS.filter(x => fn(x.stage)).length;
+        return `<button type="button" class="adm-btn ${PF_F === l || (!PF_F && l === 'All') ? 'adm-btn-primary' : 'adm-btn-ghost'}" data-pff="${E.esc(l)}">${E.esc(l)} <span class="adm-badge is-${n ? 'amber' : 'neutral'}" style="margin-left:6px">${n}</span></button>`; }).join(''));
+}
+$(document).on('click', '#pfChips [data-pff]', function () { PF_F = $(this).data('pff') === 'All' ? '' : $(this).data('pff'); pfChips();
+    const g = PF_GROUPS.find(x => x[0] === PF_F); $('#list tbody tr').each(function (i) { const r = PF_ROWS[i]; $(this).toggle(!g || (r && g[1](r.stage))); }); });
 function loadList() {
     const $l = $('#list'); E.loading($l);
-    E.api(API, { action: 'list', q: $('#fQ').val(), all: $('#fAll').is(':checked') ? 1 : '', mine: E.param('mine') || '' }, { silent: true }).then(r => E.table($l, [
+    E.api(API, { action: 'list', q: $('#fQ').val(), all: $('#fAll').is(':checked') ? 1 : '', mine: E.param('mine') || '' }, { silent: true }).then(r => void E.table($l, [
         { label: 'Request', render: x => `<a class="erp-link" data-open="${x.id}">${E.esc(x.pr_number)}</a><div class="erp-muted">${E.date(x.request_date)} · ${E.esc(x.requested_by || '')}</div>` },
         { label: 'Stage', render: x => `<span class="adm-badge is-${STAGE_CLS[x.stage] || 'info'}">${E.esc(x.stage)}</span>` },
         { label: 'Quotations', render: x => E.esc(x.quote_count) + ' / 3' + (x.quote_status && x.quote_status !== 'collecting' ? ' · ' + E.esc(x.quote_status) : '') },
         { label: 'PO', render: x => x.po_number ? E.esc(x.po_number) + ' ' + E.badge(x.po_status) : '—' },
         { label: 'Shop', render: x => E.esc(x.supplier_name || '—') },
         { label: 'Total', num: true, render: x => (x.grand_total ? E.money(x.grand_total) : '—') },
-        { label: 'Delivery', render: x => x.delivery_mode ? E.esc(x.delivery_mode) + (x.tracking_number ? ' · ' + E.esc(x.tracking_number) : '') : '—' },
-    ], r.rows, { empty: 'No purchase requests in progress', emptyHint: 'Requests appear here once they are submitted.', icon: 'fa-route' })).catch(m => E.errorBox($l, m, loadList));
+        { label: 'Delivery', render: x => x.delivery_mode ? (x.delivery_mode === 'courier' ? 'Courier' : 'Own vehicle') + (x.transport ? '<div class="erp-muted">' + E.esc(x.transport) + '</div>' : '') : '—' },
+    ], r.rows, { empty: 'No purchase requests in progress', emptyHint: 'Requests appear here once they are submitted.', icon: 'fa-route' }) || (PF_ROWS = r.rows, PF_F = '', pfChips())).catch(m => E.errorBox($l, m, loadList));
 }
 $('#list').on('click', '[data-open]', function () { open(+$(this).data('open')); });
 

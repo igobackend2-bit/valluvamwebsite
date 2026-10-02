@@ -44,9 +44,10 @@ function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
             !$r['po_number'] => ['po_missing', 'PO not created'],
             !$poOk => ['admin_po', 'PO waiting for approval'],
             !($r['payment_id'] && $r['payment_proof_doc_id']) => ['pay', 'Waiting for payment'],
-            !$r['delivery_mode'] => ['transport', 'Enter transport'],
-            !($r['loading_dc_doc_id'] && $r['shop_bill_doc_id']) => ['docs', 'Attach loading DC + shop bill'],
-            !$r['grn_id'] => ['unload', 'Unloading check'],
+            // FIX (2 Oct 2026): clear loading / unloading stage names for every dashboard
+            !$r['delivery_mode'] => ['transport', 'Waiting for loading (transport)'],
+            !($r['loading_dc_doc_id'] && $r['shop_bill_doc_id']) => ['docs', 'Loading — attach DC + shop bill'],
+            !$r['grn_id'] => ['unload', 'In transit — waiting for unloading'],
             !$r['qc_id'] || !$qcDone => ['qc', 'Quality check — Executive to check & report'],
             $r['grn_status'] === 'draft' => ['post', 'QC done — Executive to add to stock (Stock In sheet)'],
             default => ['done', 'Added to inventory — completed'],   // FIX (2 Oct 2026)
