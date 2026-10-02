@@ -21,7 +21,9 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
 </style>
 <?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'l1'): ?>
 <style>/* FIX (2 Oct 2026): L1 (Sourcing) sees only its own steps — request items, shop quotations, transport, loading DC + bill, unloading, QC (no PO approval / payment) */
-#card-po,#card-payment,.pf-step[data-go="po"],.pf-step[data-go="payment"]{display:none!important}</style>
+#card-po,#card-payment,.pf-step[data-go="po"],.pf-step[data-go="payment"],
+/* FIX (2 Oct 2026): L1 now only provides the shop quotations */
+#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}</style>
 <script>/* FIX (2 Oct 2026): L1 — hide the payment proof in "All proofs" */
 new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-card').forEach(function (c) { var t = c.querySelector('.px-step'); if (t && /^\s*payment\s*$/i.test(t.textContent)) { c.remove(); var b = document.querySelector('#card-proofs .adm-card-head .adm-badge'); if (b) b.textContent = document.querySelectorAll('#card-proofs .px-card').length; } }); })
     .observe(document.documentElement, { childList: true, subtree: true });</script>
@@ -235,7 +237,7 @@ function poBody() {
 
 // ---------------------------------------------------------------- 4. payment
 function payBody() {
-    const { po, payment, docs, flow, can } = D;
+    const { po, payment, docs, flow, can } = D, f = flow || {};
     let h = payTo();
     if (payment) {
         h += E.kv([['Payment', `<a class="erp-link" href="purchase_payments.php">${E.esc(payment.payment_number)}</a>`], ['Paid', E.money(payment.amount)], ['Date', E.date(payment.payment_date)], ['Mode', E.esc(payment.payment_mode)], ['Reference / UTR', E.esc(payment.reference_number || '—')], ['Status', E.badge(payment.status)]]);
@@ -243,6 +245,14 @@ function payBody() {
         if (E.num(payment.amount) + 0.005 < E.num(po.grand_total)) h += `<div class="erp-note">Balance ${E.money(E.num(po.grand_total) - E.num(payment.amount))} — record further payments in Purchase Payments.</div>`;
         return h;
     }
+    // FIX (2 Oct 2026): Accounts first checks the approved PO, then pays and attaches the proof
+    const chk = D.po_check, checked = chk && f.po_checked_at;
+    if (chk && !checked) {
+        if (!can.pay) return h + '<div class="erp-note">Waiting for the Accounts Team to check the PO.</div>';
+        return h + `<div class="erp-warn">PO ${E.esc(po.po_number)} is approved — check the supplier, bank details and amount ${E.money(po.grand_total)}, then mark it as checked.</div>
+            <div class="pf-actions"><button class="adm-btn adm-btn-primary" id="poCheckBtn"><i class="fas fa-clipboard-check"></i> Mark PO checked</button><a class="adm-btn adm-btn-ghost" href="purchase_orders.php?id=${po.id}"><i class="fas fa-file-invoice"></i> Open PO</a></div>`;
+    }
+    if (checked) h += `<div class="erp-note"><i class="fas fa-circle-check" style="color:var(--adm-green)"></i> PO checked by ${E.esc(f.po_checked_by || '')} · ${E.date(f.po_checked_at)} — waiting for payment.</div>`;
     if (!can.pay) return h + '<div class="erp-note">Waiting for payment by the Accounts Team.</div>';
     h += `<div class="erp-warn">Waiting for payment of ${E.money(po.grand_total)}.</div>
       <div class="pf-grid">${E.field('Amount ₹ *', E.input('pAmt', E.num(po.grand_total), 'type="number" min="0" step="any"'))}${E.field('Payment date *', E.input('pDate', E.today(), 'type="date"'))}
@@ -253,6 +263,7 @@ function payBody() {
 }
 function bindPay() {
     const { po, payment } = D || {};
+    $('#poCheckBtn').on('click', function () { const $b = $(this).prop('disabled', true); E.post(API, { action: 'po_check', pr_id: PR }, { silent: true }).then(r => reload(r.message)).catch(m => { $b.prop('disabled', false); fail(m); }); });   // FIX (2 Oct 2026)
     $('#payBtn').on('click', function () {
         const file = $('#pProof')[0].files[0];
         if (!file) return fail('Attach the payment proof (screenshot or receipt).');

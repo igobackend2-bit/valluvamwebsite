@@ -190,7 +190,7 @@ try {
             $sections[] = ['key' => $k, 'title' => 'Requests to approve (Manager)', 'role' => 'Valluvam Team Manager', 'tasks' => $tasks, 'kpis' => $kpis];
         }
         if ($k === 'l1') {
-            $labels = ['quotes' => 'Collect 3 shop quotations', 'transport' => 'Enter transport', 'docs' => 'Attach loading DC + shop bill', 'unload' => 'Unloading + quantity check', 'qc' => 'Quality check', 'post' => 'Post goods receipt'];
+            $labels = ['quotes' => 'Collect 3 shop quotations'];   // FIX (2 Oct 2026): L1 only provides the shop quotations
             foreach ($flows as $f) if (isset($labels[$f['stage'][0]]))
                 $tasks[] = rd_task($f, $labels[$f['stage'][0]] . ' — ' . $f['pr_number'], ($f['supplier_name'] ? $f['supplier_name'] . ' · ' : '') . rd_items($pdo, (int)$f['id']));
             $appr = erp_rows($pdo, "SELECT f.pr_id, f.quote_submitted_at, pr.backend_approved_at, (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = f.pr_id) n,
@@ -263,7 +263,7 @@ try {
         }
         if ($k === 'accounts') {
             foreach ($flows as $f) if ($f['stage'][0] === 'pay')
-                $tasks[] = rd_task($f, ($f['payment_id'] ? 'Attach payment proof — ' : 'Pay — ') . $f['po_number'] . ' · ' . $f['supplier_name'], $f['pr_number'], [], 'purchase_flow.php?pr_id=' . (int)$f['id'] . '#card-payment');
+                $tasks[] = rd_task($f, ($f['payment_id'] ? 'Attach payment proof — ' : 'Pay (check PO, pay, attach proof) — ') . $f['po_number'] . ' · ' . $f['supplier_name'], $f['pr_number'], [], 'purchase_flow.php?pr_id=' . (int)$f['id'] . '#card-payment');
             $wait = array_sum(array_map(fn($f) => (float)$f['grand_total'], array_filter($flows, fn($f) => $f['stage'][0] === 'pay' && !$f['payment_id'])));
             $billsDue = (float)erp_val($pdo, "SELECT COALESCE(SUM(pi.grand_total - COALESCE((SELECT SUM(amount) FROM purchase_payments pp WHERE pp.pinv_id = pi.id AND pp.status = 'completed'),0)),0)
                                               FROM purchase_invoices pi WHERE pi.status = 'posted' AND pi.due_date IS NOT NULL AND pi.due_date < ?", [$today]);

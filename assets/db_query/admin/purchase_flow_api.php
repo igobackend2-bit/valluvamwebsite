@@ -20,9 +20,15 @@ require_once __DIR__ . '/pf_lib.php';
 
 $action = (string)erp_input('action', '');
 $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
-$writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
+$writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'po_check', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
 $perms = ['quotes_approve' => 'purchase.backend_approve', 'quotes_reject' => 'purchase.backend_approve', 'quotes_retry_po' => 'purchase.backend_approve',
           'quotes_mgr_approve' => 'purchase.manager_approve', 'quotes_mgr_reject' => 'purchase.manager_approve'];   // FIX (2 Oct 2026): shop choice — Manager first, then Admin
+/** FIX (2 Oct 2026): Accounts "PO checked" step before payment (needs pr_po_check_migration.sql; skipped when not installed). */
+function pf_has_po_check(PDO $pdo): bool {
+    static $ok = null;
+    if ($ok === null) { try { $ok = (bool)$pdo->query("SHOW COLUMNS FROM purchase_flows LIKE 'po_checked_at'")->fetch(); } catch (Throwable $e) { $ok = false; } }
+    return $ok;
+}
 /** FIX (2 Oct 2026): the shop choice waits for the Manager first when the 'pr_quotation_mgr' rule is installed (pr_quote_manager_migration.sql). */
 function pf_mgr_open(PDO $pdo, int $prId): ?array {
     try { return erp_row($pdo, "SELECT * FROM approval_requests WHERE module = 'pr_quotation_mgr' AND request_key = ? AND status IN ('submitted','under_review') ORDER BY id DESC LIMIT 1", [(string)$prId]); }
@@ -121,7 +127,7 @@ function pf_steps(PDO $pdo, array $pr, ?array $f, ?array $po, array $ctx): array
     $paid = $ctx['paid'];
     $payDone = $f && $f['payment_id'] && $f['payment_proof_doc_id'];
     $st[] = ['key' => 'payment', 'label' => 'Payment + proof', 'state' => !$poDone ? 'todo' : ($payDone ? 'done' : 'current'),
-             'note' => $payDone ? '₹' . number_format($paid, 2) . ' paid · proof attached' : ($poDone ? ($f && $f['payment_id'] ? 'Proof missing' : 'Waiting for payment') : '')];
+             'note' => $payDone ? '₹' . number_format($paid, 2) . ' paid · proof attached' : ($poDone ? ($f && $f['payment_id'] ? 'Proof missing' : (pf_has_po_check($pdo) && empty($f['po_checked_at']) ? 'Accounts to check the PO' : (pf_has_po_check($pdo) ? 'PO checked — waiting for payment' : 'Waiting for payment'))) : '')];   // FIX (2 Oct 2026): PO checked step
     $tDone = $f && $f['delivery_mode'] && ($f['delivery_mode'] === 'internal' ? ($f['driver_name'] && $f['driver_phone']) : ($f['tracking_number'] && $f['courier_proof_doc_id']));
     $st[] = ['key' => 'transport', 'label' => 'Transport', 'state' => !$poDone ? 'todo' : ($tDone ? 'done' : 'current'),
              'note' => $f && $f['delivery_mode'] ? ($f['delivery_mode'] === 'courier' ? 'Courier · ' . ($f['courier_name'] ?: '') . ($f['tracking_number'] ? ' · ' . $f['tracking_number'] : '') . (!$f['courier_proof_doc_id'] ? ' · proof missing' : '') : 'Internal · ' . ($f['vehicle_number'] ?: $f['driver_name'] ?: '')) : ''];
@@ -188,7 +194,7 @@ try {
             $paid = $payment && $payment['status'] === 'completed' ? (float)$payment['amount'] : 0;
             $safeSup = $sup ? array_intersect_key($sup, array_flip(['id', 'supplier_name', 'mobile', 'email', 'gst_number', 'owner_name', 'account_holder_name', 'bank_name', 'bank_account_number', 'bank_ifsc', 'upi_id', 'payment_terms', 'bank_details'])) : null;
             erp_out(['status' => 'success', 'pr' => $pr, 'flow' => $f, 'quotes' => $quotes, 'po' => $po ? array_merge($po, ['items' => $poItems]) : null, 'supplier' => $safeSup,
-                     'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'approval_stage' => $aprStage, 'can_mgr' => erp_can($pdo, 'purchase.manager_approve'), 'docs' => $docs,
+                     'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'approval_stage' => $aprStage, 'po_check' => pf_has_po_check($pdo), 'can_mgr' => erp_can($pdo, 'purchase.manager_approve'), 'docs' => $docs,
                      'couriers' => erp_rows($pdo, "SELECT id, name, tracking_url FROM courier_services WHERE is_active = 1 ORDER BY sort_order, name"),
                      'can' => ['quotes' => erp_can($pdo, 'flow.source'), 'approve' => erp_can($pdo, 'purchase.backend_approve'),
                                'pay' => erp_can($pdo, 'purchase_payment.create'), 'transport' => erp_can($pdo, 'flow.source'),
@@ -334,6 +340,20 @@ try {
             exit;
 
         // ------------------------------------------------------------------ payment
+        // FIX (2 Oct 2026): Accounts Team checks the approved PO (supplier, bank details, amount) before paying
+        case 'po_check':
+            pf_need_any($pdo, ['purchase_payment.create'], 'check purchase orders for payment');
+            if (!pf_has_po_check($pdo)) erp_invalid('Run pr_po_check_migration.sql once in HeidiSQL to switch on "PO checked".');
+            $prId = (int)erp_input('pr_id');
+            $f = pf_flow($pdo, $prId);
+            $po = $f ? pf_po_for($pdo, $f) : null;
+            if (!$po) erp_invalid('There is no purchase order yet.');
+            if (!in_array($po['status'], ['approved', 'partially_received', 'fully_received', 'closed'], true)) erp_invalid('The purchase order is not approved yet.');
+            if (!empty($f['po_checked_at'])) erp_invalid('This PO is already checked.');
+            pf_set($pdo, $prId, ['po_checked_by' => erp_user(), 'po_checked_at' => date('Y-m-d H:i:s')]);
+            log_audit($pdo, 'update', 'purchase_flows', $prId, null, ['po_checked' => $po['po_number']]);
+            erp_out(['status' => 'success', 'message' => "{$po['po_number']} marked as checked — waiting for payment."]);
+
         case 'pay_link':
             pf_need_any($pdo, ['purchase_payment.create'], 'record supplier payments');
             $prId = (int)erp_input('pr_id');
