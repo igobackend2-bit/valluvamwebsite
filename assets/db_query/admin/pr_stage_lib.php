@@ -85,7 +85,7 @@ function pr_stage(PDO $pdo, array $pr): ?array {
                 case 'qc_approved': return prs_out(11, "QC checked (passed) at {$wh} — adding to inventory" . $more, 'ok', 'Warehouse');
                 case 'qc_hold': return prs_out(11, "QC on hold at {$wh}" . $more, 'wait', 'QC');
                 case 'qc_failed': return prs_out(11, "QC failed at {$wh}" . $more, 'bad', 'QC');
-                case 'received': case 'qc_pending': return prs_out(10, "Unloaded at {$wh} — waiting for QC" . $more, 'wait', 'QC');
+                case 'received': case 'qc_pending': return prs_out(10, "Unloaded at {$wh} — waiting for quality check" . $more, 'wait', 'Executive (QC)');
                 case 'delivered': return prs_out(10, "Delivered — waiting for unloading at {$wh}" . $more, 'wait', 'Warehouse');
                 case 'in_transit': case 'loaded':
                     $via = trim($c['transport_type'] === 'courier' ? 'courier ' . trim(($c['courier_name'] ?: '') . ' ' . ($c['tracking_number'] ?: '')) : ($c['vehicle_number'] ? 'vehicle ' . $c['vehicle_number'] : ''));
@@ -106,7 +106,7 @@ function pr_stage(PDO $pdo, array $pr): ?array {
             if (!$qc) $qc = erp_row($pdo, "SELECT status FROM quality_checks WHERE grn_id = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [$grn['id']]);
             if ($qc && $qc['status'] === 'rejected') return prs_out(11, "QC failed at {$wh}", 'bad', 'QC');
             if ($qc && in_array($qc['status'], ['passed', 'partially_passed'], true)) return prs_out(11, 'QC checked (' . str_replace('_', ' ', $qc['status']) . ") at {$wh} — adding to inventory", 'ok', 'Warehouse');
-            return prs_out(10, "Unloaded at {$wh} — waiting for QC", 'wait', 'QC');
+            return prs_out(10, "Unloaded at {$wh} — waiting for quality check", 'wait', 'Executive (QC)');
         }
         if (!$cons && $f && ($f['unload_check'] ?? null)) return prs_out(10, "Unloaded at {$prWh} — goods receipt / QC pending", 'wait', 'Warehouse');
 
@@ -119,8 +119,10 @@ function pr_stage(PDO $pdo, array $pr): ?array {
                                       OR pp.pinv_id IN (SELECT pi.id FROM purchase_invoices pi WHERE pi.po_id = ? AND pi.status <> 'cancelled'))", [$po['id']]);
         $isPaid = $paid > 0 && ($total <= 0 || $paid + 0.5 >= $total);
         if ($f && !$cons && $f['delivery_mode']) {
-            $via = $f['delivery_mode'] === 'courier' ? 'courier ' . trim(($f['courier_name'] ?: '') . ' ' . ($f['tracking_number'] ?: '')) : 'vehicle ' . trim(($f['vehicle_number'] ?: '') . ' ' . ($f['driver_name'] ?: ''));
-            return prs_out(9, 'Loaded — in transit to ' . ($prWh ?: 'warehouse') . ' by ' . trim($via), 'ok', 'Transport');
+            // FIX (2 Oct 2026): courier + tracking number / own vehicle + driver and phone, and who is buying
+            $via = $f['delivery_mode'] === 'courier' ? 'courier ' . trim(($f['courier_name'] ?: '') . ($f['tracking_number'] ? ' · tracking ' . $f['tracking_number'] : ''))
+                                                     : 'own vehicle ' . trim(($f['vehicle_number'] ?: '') . ($f['driver_name'] ? ' · driver ' . $f['driver_name'] . ($f['driver_phone'] ? ' ' . $f['driver_phone'] : '') : ''));
+            return prs_out(9, 'Loaded — in transit to ' . ($prWh ?: 'warehouse') . ' by ' . trim($via), 'ok', !empty($f['quote_submitted_by']) ? $f['quote_submitted_by'] . ' (L1) to unload' : 'Transport');
         }
         if ($isPaid) return prs_out(8, 'Paid ₹' . number_format($paid, 2) . ($f && !empty($f['payment_proof_doc_id']) ? ' · proof attached' : '') . " — " . (!empty($f['quote_submitted_by']) ? $f['quote_submitted_by'] . ' (L1) to buy and load' : 'waiting for loading') . ($cons ? ' (ready for loading)' : ''), 'ok', !empty($f['quote_submitted_by']) ? $f['quote_submitted_by'] . ' (L1)' : 'Purchase team');   // FIX (2 Oct 2026): the L1 who got the quotation buys
         if ($paid > 0) return prs_out(7, "{$poNo} approved — part paid ₹" . number_format($paid, 2) . ' of ₹' . number_format($total, 2) . ', balance waiting', 'wait', 'Accounts');

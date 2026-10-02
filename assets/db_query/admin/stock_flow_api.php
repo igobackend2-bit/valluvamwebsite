@@ -40,6 +40,7 @@ $PERMS = [
     'daily' => 'stockflow.view', 'out_register' => 'stockflow.view', 'location_stock' => 'stockflow.view',
     'aud_list' => 'stockflow.view', 'aud_get' => 'stockflow.view', 'aud_plan' => 'stockflow.audit', 'aud_start' => 'stockflow.audit', 'aud_save' => 'stockflow.audit',
     'aud_close' => 'stockflow.audit_approve', 'aud_cancel' => 'stockflow.audit', 'aud_report' => 'stockflow.view',
+    'aud_signoff' => 'stockflow.audit|stockflow.audit_approve',   // FIX (2 Oct 2026): auditor (external) QC report + name + signature
     'hnd_list' => 'stockflow.view', 'hnd_get' => 'stockflow.view', 'hnd_preview' => 'stockflow.handover', 'hnd_create' => 'stockflow.handover',
     'hnd_check' => 'stockflow.handover', 'hnd_ack' => 'stockflow.handover_ack', 'hnd_cancel' => 'stockflow.handover',
 ];
@@ -74,6 +75,7 @@ function sf_time($v): ?string {
     if (!preg_match('/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/', $v)) erp_invalid('Invalid time (use HH:MM).');
     return strlen($v) === 5 ? $v . ':00' : $v;
 }
+function sf_signoff_installed(PDO $pdo): bool { static $ok = null; if ($ok === null) { try { $pdo->query("SELECT 1 FROM sf_audit_signoffs LIMIT 1"); $ok = true; } catch (PDOException $e) { $ok = false; } } return $ok; }   // FIX (2 Oct 2026)
 function sf_txt($v, int $max = 255): ?string { $v = trim((string)$v); return $v === '' ? null : mb_substr($v, 0, $max); }
 function sf_whole(string $type, float $q, string $name) { if ($type === 'product' && floor($q) != $q) erp_invalid("{$name}: product packs must be whole numbers."); }
 function sf_doc_count(PDO $pdo, string $type, int $id): int {
@@ -1154,6 +1156,9 @@ try {
             $a['lines'] = erp_attach_item_names($pdo, erp_rows($pdo, "SELECT l.*, ci.counted_qty, ci.reason AS count_reason, ci.variance_value FROM sf_audit_lines l LEFT JOIN stock_count_items ci ON ci.id = l.count_item_id WHERE l.audit_id = ? ORDER BY l.id", [$a['id']]));
             $a['proofs'] = erp_rows($pdo, "SELECT d.id, d.original_name, d.uploaded_by, d.created_at, COALESCE(m.category,'') AS category FROM erp_documents d LEFT JOIN erp_document_meta m ON m.document_id = d.id WHERE d.entity_type = 'stock_audit' AND d.entity_id = ? AND COALESCE(m.status,'active') = 'active' ORDER BY d.id", [$a['id']]);
             $a['history'] = erp_rows($pdo, "SELECT action, username, created_at FROM audit_logs WHERE module = 'sf_audits' AND record_id = ? ORDER BY id", [(string)$a['id']]);
+            $a['signoff_installed'] = sf_signoff_installed($pdo);   // FIX (2 Oct 2026)
+            $a['signoff'] = $a['signoff_installed'] ? erp_row($pdo, "SELECT s.*, sd.original_name AS signature_name, rd.original_name AS report_name FROM sf_audit_signoffs s
+                                                                     LEFT JOIN erp_documents sd ON sd.id = s.signature_doc_id LEFT JOIN erp_documents rd ON rd.id = s.report_doc_id WHERE s.audit_id = ?", [$a['id']]) : null;
             erp_out(['status' => 'success', 'record' => $a]);
         case 'aud_plan':
             // the page first creates the stock count (existing warehouse_api.php cnt_create — system quantities frozen) and passes its id
@@ -1226,9 +1231,44 @@ try {
             $a = erp_row($pdo, "SELECT * FROM sf_audits WHERE id = ?", [$id]);
             if ($a) sf_audit_status_sync($pdo, $a);
             if (!$a || $a['status'] !== 'approved') erp_invalid('Only approved audits (stock count approved) can be closed.');
+            if (sf_signoff_installed($pdo) && !erp_val($pdo, "SELECT id FROM sf_audit_signoffs WHERE audit_id = ?", [$id])) erp_invalid('The auditor must add the QC report, name and signature before the audit is closed.');   // FIX (2 Oct 2026)
             $pdo->prepare("UPDATE sf_audits SET status = 'closed', closed_by = ?, closed_at = NOW(), remarks = COALESCE(?, remarks) WHERE id = ?")->execute([erp_user(), sf_txt(erp_input('remarks'), 500), $id]);
             log_audit($pdo, 'close', 'sf_audits', $id, ['status' => 'approved'], ['status' => 'closed']);
             erp_out(['status' => 'success', 'message' => "{$a['audit_number']} CLOSED."]);
+        // FIX (2 Oct 2026): monthly audit — the (external) auditor's quality check, report, name and digital signature
+        case 'aud_signoff':
+            if (!sf_signoff_installed($pdo)) erp_invalid('Run sf_audit_signoff_migration.sql once in HeidiSQL to switch on the auditor sign-off.');
+            $id = (int)erp_input('id');
+            $a = erp_row($pdo, "SELECT * FROM sf_audits WHERE id = ?", [$id]);
+            if ($a) sf_audit_status_sync($pdo, $a);
+            if (!$a || !in_array($a['status'], ['count_completed', 'verification_pending', 'approved'], true)) erp_invalid('The auditor signs after the count is completed (and before the audit is closed).');
+            $type = erp_input('auditor_type') === 'internal' ? 'internal' : 'external';
+            $name = sf_txt(erp_input('auditor_name'), 150); $org = sf_txt(erp_input('auditor_org'), 150);
+            $res = (string)erp_input('qc_result');
+            $qcf = sf_txt(erp_input('qc_findings'), 4000);
+            if (!$name) erp_invalid('Enter the auditor name.');
+            if ($type === 'external' && !$org) erp_invalid('Enter the auditor firm / organisation.');
+            if (!in_array($res, ['satisfactory', 'needs_improvement', 'unsatisfactory'], true)) erp_invalid('Choose the quality result.');
+            if (!$qcf) erp_invalid('Enter the quality check findings.');
+            $phone = preg_replace('/[^0-9+]/', '', (string)erp_input('auditor_phone', ''));
+            if ($phone !== '' && !preg_match('/^\+?\d{10,13}$/', $phone)) erp_invalid('Enter a valid phone number (10 digits) or leave it blank.');
+            $docOk = function ($d, bool $req, string $what) use ($pdo, $id) {
+                $d = (int)$d;
+                if (!$d) { if ($req) erp_invalid($what . ' is required.'); return null; }
+                if (!erp_val($pdo, "SELECT id FROM erp_documents WHERE id = ? AND entity_type = 'stock_audit' AND entity_id = ?", [$d, $id])) erp_invalid($what . ' is not attached to this audit.');
+                return $d;
+            };
+            $sig = $docOk(erp_input('signature_doc_id'), true, 'The auditor signature');
+            $repDoc = $docOk(erp_input('report_doc_id'), false, 'The report file');
+            $cols = ['auditor_type' => $type, 'auditor_name' => $name, 'auditor_org' => $org, 'auditor_designation' => sf_txt(erp_input('auditor_designation'), 100), 'auditor_phone' => $phone ?: null,
+                     'qc_result' => $res, 'stock_findings' => sf_txt(erp_input('stock_findings'), 4000), 'qc_findings' => $qcf, 'recommendations' => sf_txt(erp_input('recommendations'), 4000),
+                     'signature_doc_id' => $sig, 'report_doc_id' => $repDoc, 'signed_at' => date('Y-m-d H:i:s'), 'entered_by' => erp_user()];
+            $old = erp_row($pdo, "SELECT * FROM sf_audit_signoffs WHERE audit_id = ?", [$id]);
+            $pdo->prepare("INSERT INTO sf_audit_signoffs (audit_id, " . implode(', ', array_keys($cols)) . ") VALUES (?" . str_repeat(',?', count($cols)) . ")
+                           ON DUPLICATE KEY UPDATE " . implode(', ', array_map(fn($k) => "{$k} = VALUES({$k})", array_keys($cols))))->execute(array_merge([$id], array_values($cols)));
+            log_audit($pdo, $old ? 'update' : 'sign', 'sf_audits', $id, $old, ['auditor' => $name, 'type' => $type, 'org' => $org, 'qc_result' => $res]);
+            erp_out(['status' => 'success', 'message' => "{$a['audit_number']}: signed by {$name}" . ($org ? " ({$org})" : '') . ' — quality ' . str_replace('_', ' ', $res) . '.']);
+
         case 'aud_cancel':
             $id = (int)erp_input('id');
             $a = erp_row($pdo, "SELECT * FROM sf_audits WHERE id = ?", [$id]);

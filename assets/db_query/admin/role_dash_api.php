@@ -26,7 +26,7 @@ function rd_items(PDO $pdo, int $prId): string {
 function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
     $rows = erp_rows($pdo, "SELECT pr.id, pr.pr_number, pr.request_date, pr.required_by, pr.status AS pr_status, pr.requested_by, pr.created_by, pr.backend_approved_at,
                                    f.quote_status, f.payment_id, f.payment_proof_doc_id, f.delivery_mode, f.loading_dc_doc_id, f.shop_bill_doc_id, f.unload_check, f.unloading_dc_doc_id,
-                                   f.grn_id, f.qc_id, f.po_id, f.quote_submitted_by, po.po_number, po.status AS po_status, po.grand_total, po.expected_delivery_date, s.supplier_name,
+                                   f.grn_id, f.qc_id, f.po_id, f.quote_submitted_by, f.courier_name, f.tracking_number, f.vehicle_number, f.driver_name, f.driver_phone, po.po_number, po.status AS po_status, po.grand_total, po.expected_delivery_date, s.supplier_name,
                                    (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status, g.status AS grn_status,
                                    (SELECT COUNT(*) FROM approval_requests ar WHERE ar.module = 'pr_quotation_mgr' AND ar.request_key = pr.id AND ar.status IN ('submitted','under_review')) AS shop_mgr_open
                             FROM purchase_requests pr LEFT JOIN purchase_flows f ON f.pr_id = pr.id LEFT JOIN purchase_orders po ON po.id = f.po_id
@@ -47,11 +47,16 @@ function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
             !$r['delivery_mode'] => ['transport', 'Enter transport'],
             !($r['loading_dc_doc_id'] && $r['shop_bill_doc_id']) => ['docs', 'Attach loading DC + shop bill'],
             !$r['grn_id'] => ['unload', 'Unloading check'],
-            !$r['qc_id'] || !$qcDone => ['qc', 'Quality check'],
+            !$r['qc_id'] || !$qcDone => ['qc', 'Quality check — Executive to check & report'],
             $r['grn_status'] === 'draft' => ['post', 'Post goods receipt'],
             default => ['done', 'Completed'],
         };
     }
+    unset($r);
+    // FIX (2 Oct 2026): show how the goods are coming (courier + tracking number / own vehicle + driver) on every later stage
+    foreach ($rows as &$r) if ($r['delivery_mode'] && in_array($r['stage'][0], ['docs', 'unload', 'qc', 'post'], true))
+        $r['stage'][1] .= ' · ' . ($r['delivery_mode'] === 'courier' ? 'Courier ' . trim(($r['courier_name'] ?? '') . ($r['tracking_number'] ? ' · tracking ' . $r['tracking_number'] : ''))
+                                                                  : 'Own vehicle ' . trim(($r['vehicle_number'] ?? '') . ($r['driver_name'] ? ' · driver ' . $r['driver_name'] . ($r['driver_phone'] ? ' ' . $r['driver_phone'] : '') : '')));
     unset($r);
     return $rows;
 }
@@ -190,7 +195,7 @@ try {
             $sections[] = ['key' => $k, 'title' => 'Requests to approve (Manager)', 'role' => 'Valluvam Team Manager', 'tasks' => $tasks, 'kpis' => $kpis];
         }
         if ($k === 'l1') {
-            $labels = ['quotes' => 'Collect 3 shop quotations', 'transport' => 'Buy the goods — enter transport', 'docs' => 'Buy the goods — attach loading DC + shop bill'];   // FIX (2 Oct 2026): L1 gets the quotation; the same person buys
+            $labels = ['quotes' => 'Collect 3 shop quotations', 'transport' => 'Buy the goods — enter transport', 'docs' => 'Buy the goods — attach loading DC + shop bill', 'unload' => 'Unload at the warehouse — check the quantity'];   // + unloading by the same L1 (2 Oct 2026)   // FIX (2 Oct 2026): L1 gets the quotation; the same person buys
             foreach ($flows as $f) if (isset($labels[$f['stage'][0]]) && ($f['stage'][0] === 'quotes' || $key === 'super' || $k !== 'l1' || ($f['quote_submitted_by'] ?? '') === erp_user()))
                 $tasks[] = rd_task($f, $labels[$f['stage'][0]] . ' — ' . $f['pr_number'], ($f['supplier_name'] ? $f['supplier_name'] . ' · ' : '') . rd_items($pdo, (int)$f['id']));
             $appr = erp_rows($pdo, "SELECT f.pr_id, f.quote_submitted_at, pr.backend_approved_at, (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = f.pr_id) n,
@@ -351,6 +356,24 @@ try {
                                              'cols' => [['k' => 'po', 'l' => 'PO / request'], ['k' => 'sup', 'l' => 'Shop'], ['k' => 'date', 'l' => 'Paid on', 'f' => 'date'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'],
                                                         ['k' => 'how', 'l' => 'Mode / UTR'], ['k' => 'by', 'l' => 'Paid by'], ['k' => 'st', 'l' => 'Status', 'f' => 'status'], ['k' => 'proof', 'l' => 'Payment proof', 'f' => 'file']], 'rows' => $rows];
             } catch (PDOException $e) { error_log('[role dash paid] ' . $e->getMessage()); }
+            // FIX (2 Oct 2026): how the goods are coming — courier + tracking number or own vehicle + driver (Executive: own requests; Manager, Admin, CEO: all)
+            try {
+                $rows = [];
+                foreach (erp_rows($pdo, "SELECT f.pr_id, pr.pr_number, po.po_number, s.supplier_name, f.delivery_mode, f.courier_name, f.tracking_number, f.vehicle_number, f.driver_name, f.driver_phone,
+                                                f.dispatch_date, f.quote_submitted_by, f.grn_id, f.unload_check, cs.tracking_url
+                                         FROM purchase_flows f JOIN purchase_requests pr ON pr.id = f.pr_id LEFT JOIN purchase_orders po ON po.id = f.po_id LEFT JOIN suppliers s ON s.id = po.supplier_id
+                                         LEFT JOIN courier_services cs ON cs.id = f.courier_service_id
+                                         WHERE f.delivery_mode IS NOT NULL" . ($own ? " AND pr.created_by = ?" : '') . " ORDER BY f.dispatch_date DESC, f.id DESC LIMIT 15", $own ? [$me] : []) as $x) {
+                    $c = $x['delivery_mode'] === 'courier';
+                    $rows[] = ['po' => $x['po_number'] . ' · ' . $x['pr_number'], 'sup' => $x['supplier_name'], 'how' => $c ? 'Courier · ' . ($x['courier_name'] ?: '') : 'Own vehicle · ' . ($x['vehicle_number'] ?: ''),
+                               'track' => $c ? ($x['tracking_number'] ?: '—') : trim(($x['driver_name'] ?: '') . ' ' . ($x['driver_phone'] ?: '')),
+                               'date' => $x['dispatch_date'], 'by' => $x['quote_submitted_by'], 'st' => $x['grn_id'] || $x['unload_check'] ? 'Unloaded' : 'In transit',
+                               'link' => 'purchase_flow.php?pr_id=' . (int)$x['pr_id'] . '#card-transport'];
+                }
+                $sections[$ix]['lists'][] = ['key' => 'transit', 'title' => $own ? 'My purchases — transport & tracking' : 'Purchases on the way — transport & tracking', 'empty' => 'No goods dispatched yet.',
+                                             'cols' => [['k' => 'po', 'l' => 'PO / request'], ['k' => 'sup', 'l' => 'Shop'], ['k' => 'how', 'l' => 'Transport'], ['k' => 'track', 'l' => 'Tracking no. / driver'],
+                                                        ['k' => 'date', 'l' => 'Dispatched', 'f' => 'date'], ['k' => 'by', 'l' => 'Bought by (L1)'], ['k' => 'st', 'l' => 'Status', 'f' => 'status']], 'rows' => $rows];
+            } catch (PDOException $e) { error_log('[role dash transit] ' . $e->getMessage()); }
             // team activity from the audit trail — Manager and CEO (1 Oct 2026)
             if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
                 try {

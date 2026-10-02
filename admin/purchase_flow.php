@@ -24,8 +24,8 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
 #card-po,#card-payment,.pf-step[data-go="po"],.pf-step[data-go="payment"],
 /* FIX (2 Oct 2026): L1 provides the shop quotations; the L1 who got the quotation also buys (transport, loading DC + shop bill) */
 #card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}
-body.pf-buyer #cards #card-transport,body.pf-buyer #cards #card-docs,body.pf-buyer #cards [data-px="loading"]{display:block!important}
-body.pf-buyer #steps .pf-step[data-go="transport"],body.pf-buyer #steps .pf-step[data-go="docs"]{display:block!important}</style>
+body.pf-buyer #cards #card-transport,body.pf-buyer #cards #card-docs,body.pf-buyer #cards #card-unload,body.pf-buyer #cards [data-px="loading"],body.pf-buyer #cards [data-px="unload"]{display:block!important}
+body.pf-buyer #steps .pf-step[data-go="transport"],body.pf-buyer #steps .pf-step[data-go="docs"],body.pf-buyer #steps .pf-step[data-go="unload"]{display:block!important}</style>
 <script>(function () { var me = <?= json_encode((string)($_SESSION['admin_username'] ?? '')) ?>; new MutationObserver(function () {
     var on = typeof D !== 'undefined' && D && D.flow && D.flow.quote_submitted_by === me && D.flow.quote_status === 'approved';
     if (document.body && document.body.classList.contains('pf-buyer') !== !!on) document.body.classList.toggle('pf-buyer', !!on); }).observe(document.documentElement, { childList: true, subtree: true }); })();</script>

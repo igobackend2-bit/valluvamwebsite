@@ -23,6 +23,12 @@ $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
 $writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'po_check', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
 $perms = ['quotes_approve' => 'purchase.backend_approve', 'quotes_reject' => 'purchase.backend_approve', 'quotes_retry_po' => 'purchase.backend_approve',
           'quotes_mgr_approve' => 'purchase.manager_approve', 'quotes_mgr_reject' => 'purchase.manager_approve'];   // FIX (2 Oct 2026): shop choice — Manager first, then Admin
+/** FIX (2 Oct 2026): dashboard key of the logged-in role (executive, manager, l1, admin, ceo, accounts). */
+function pf_role_key(): string {
+    $f = __DIR__ . '/../../../admin/includes/role_access.php';
+    if (!function_exists('role_access_key') && is_file($f)) require_once $f;
+    return function_exists('role_access_key') ? role_access_key((string)($_SESSION['admin_role_name'] ?? '')) : '';
+}
 /** FIX (2 Oct 2026): after the shop is approved, only the L1 who sent the quotation buys (transport, loading DC, shop bill). */
 function pf_buyer_guard(?array $f) {
     if (($_SESSION['admin_role_name'] ?? '') !== 'L1 (Sourcing)' || !$f || empty($f['quote_submitted_by'])) return;
@@ -203,7 +209,7 @@ try {
                      'couriers' => erp_rows($pdo, "SELECT id, name, tracking_url FROM courier_services WHERE is_active = 1 ORDER BY sort_order, name"),
                      'can' => ['quotes' => erp_can($pdo, 'flow.source'), 'approve' => erp_can($pdo, 'purchase.backend_approve'),
                                'pay' => erp_can($pdo, 'purchase_payment.create'), 'transport' => erp_can($pdo, 'flow.source'),
-                               'receive' => erp_can($pdo, 'flow.source') && erp_can($pdo, 'grn.create'), 'qc' => erp_can($pdo, 'flow.source') && erp_can($pdo, 'qc.manage'), 'docs' => erp_can($pdo, 'documents.upload')],
+                               'receive' => erp_can($pdo, 'flow.source') && erp_can($pdo, 'grn.create'), 'qc' => erp_can($pdo, 'qc.manage') && (erp_can($pdo, 'flow.source') || in_array(pf_role_key(), ['executive', 'manager', 'admin'], true) || (int)($_SESSION['admin_role_id'] ?? 0) === 1), 'docs' => erp_can($pdo, 'documents.upload')],
                      'steps' => pf_steps($pdo, $pr, $f, $po, ['quote_count' => count($quotes), 'paid' => $paid, 'grn' => $grn, 'qc' => $qc])]);
 
         // ------------------------------------------------------------------ quotations
@@ -455,6 +461,7 @@ try {
             pf_need_any($pdo, ['flow.source'], 'do the unloading check (L1 sourcing)');
             $prId = (int)erp_input('pr_id');
             $f = pf_flow($pdo, $prId);
+            pf_buyer_guard($f);   // FIX (2 Oct 2026): the L1 who bought also unloads + checks the quantity
             $po = $f ? pf_po_for($pdo, $f) : null;
             if (!$po) erp_invalid('Create the purchase order first.');
             if (!in_array($po['status'], ['approved', 'partially_received', 'fully_received'], true)) erp_invalid('The purchase order must be approved before goods are received.');
@@ -480,7 +487,7 @@ try {
 
         case 'grn_link':
         case 'qc_link':
-            pf_need_any($pdo, ['flow.source'], 'link this record (L1 sourcing)');
+            pf_need_any($pdo, $action === 'qc_link' ? ['flow.source', 'qc.manage'] : ['flow.source'], 'link this record');   // FIX (2 Oct 2026): Executive does the quality check
             $prId = (int)erp_input('pr_id');
             $f = pf_flow($pdo, $prId);
             $po = $f ? pf_po_for($pdo, $f) : null;

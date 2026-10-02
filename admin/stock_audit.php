@@ -56,7 +56,7 @@ function openView(id) {
         html += `<div class="sf-sec"><h3><i class="fas fa-square-check"></i> Digital checking</h3><div class="erp-grid">${CHECKS.map(c => `<label><input type="checkbox" id="${c[0]}" ${+a[c[0]] ? 'checked' : ''} ${edit ? '' : 'disabled'}> ${c[1]}</label>`).join('')}</div>` +
             (edit ? `<div class="erp-grid">${E.field('End time', E.input('aEnd', (a.end_time || SF.now()).slice(0, 5), 'type="time"'))}${E.field('Remarks', E.input('aRem', a.confirm_remarks || ''))}</div>
                 <label><input type="checkbox" id="aConfirm"> I confirm this audit was physically counted and checked by me (digital confirmation, recorded with my login and time)</label>` : (a.confirm_remarks ? `<p>${E.esc(a.confirm_remarks)}</p>` : '')) +
-            '<p class="sf-note">Attach weight machine photos, physical stock / rack photos, the counting sheet and the signed document below (uploaded by / date / time / type are kept).</p></div><div id="vDocs"></div>';
+            '<p class="sf-note">Attach weight machine photos, physical stock / rack photos, the counting sheet and the signed document below (uploaded by / date / time / type are kept).</p></div>' + signoffHtml(a) + '<div id="vDocs"></div>';
         const lines = () => $('.swal2-popup tr[data-l]').map(function () { const $r = $(this); return { id: $r.data('l'), physical_weight: $r.find('[data-f=pw]').val(), machine_weight: $r.find('[data-f=mw]').val(), damage_qty: $r.find('[data-f=dq]').val(), batch_number: $r.find('[data-f=b]').val(), expiry_date: $r.find('[data-f=e]').val(), remarks: $r.find('[data-f=r]').val() }; }).get();
         const counts = () => $('.swal2-popup tr[data-l]').map(function () { const $r = $(this); return { id: $r.data('ci'), counted_qty: $r.find('[data-f=q]').val(), reason: $r.find('[data-f=r]').val() }; }).get();
         const save = complete => () => E.post('warehouse_api.php', { action: 'cnt_save', id: a.stock_count_id, items: counts() }, { silent: true })
@@ -72,9 +72,64 @@ function openView(id) {
         if (['planned', 'in_progress', 'count_completed'].includes(st) && SF.can('stockflow.audit')) acts.push({ label: 'Cancel', icon: 'fa-ban', run: () => E.confirmAction('Cancel ' + a.audit_number + '?', '', { danger: true, reason: 'Reason' }).then(reason => E.post(SF.API, { action: 'aud_cancel', id: a.id, reason }, { silent: true })).then(x => done(a.id, x.message)).catch(fail) });
         E.view(a.audit_number, html, acts, { width: 1300, didOpen: p => {
             E.docs($('#vDocs'), 'stock_audit', a.id, 'COUNTING_SHEET');
+            bindSignoff(p, a);   // FIX (2 Oct 2026)
             $(p).on('input', '[data-f=q]', function () { const $r = $(this).closest('tr'); $r.find('[data-f=qd]').html(this.value === '' ? '—' : SF.diff(E.num(this.value) - E.num($r.data('sys')))); });
         } });
     }).catch(() => {});
+}
+// FIX (2 Oct 2026): monthly audit — (external) auditor quality check, report, name and digital signature
+const QCR = { satisfactory: 'Satisfactory', needs_improvement: 'Needs improvement', unsatisfactory: 'Unsatisfactory' };
+function signoffHtml(a) {
+    const s = a.signoff, canSign = a.signoff_installed && (SF.can('stockflow.audit') || SF.can('stockflow.audit_approve')) && ['count_completed', 'verification_pending', 'approved'].includes(a.status);
+    const dl = id => `${E.BASE}erp_docs.php?action=download&id=${id}`;
+    let h = '<div class="sf-sec"><h3><i class="fas fa-user-check"></i> Auditor quality check, report & signature</h3>';
+    if (!a.signoff_installed) return h + '<p class="sf-note">Run sf_audit_signoff_migration.sql once in HeidiSQL to switch on the auditor sign-off.</p></div>';
+    if (s) h += E.kv([['Auditor', E.esc(s.auditor_name) + (s.auditor_designation ? ' · ' + E.esc(s.auditor_designation) : '')], ['Type', s.auditor_type === 'external' ? 'External auditor' : 'Internal'], ['Firm / organisation', E.esc(s.auditor_org || '—')],
+            ['Phone', E.esc(s.auditor_phone || '—')], ['Quality result', SF.badge(s.qc_result)], ['Signed', E.date(s.signed_at) + ' ' + String(s.signed_at).slice(11, 16) + ' · entered by ' + E.esc(s.entered_by)]])
+        + `<div class="erp-grid" style="font-size:13.5px;margin-top:10px"><div><strong>Quality check findings</strong><p style="white-space:pre-wrap">${E.esc(s.qc_findings)}</p></div>${s.stock_findings ? `<div><strong>Stock audit findings</strong><p style="white-space:pre-wrap">${E.esc(s.stock_findings)}</p></div>` : ''}${s.recommendations ? `<div><strong>Recommendations</strong><p style="white-space:pre-wrap">${E.esc(s.recommendations)}</p></div>` : ''}</div>`
+        + `<div class="erp-grid" style="font-size:13.5px"><div><strong>Signature</strong><br><img src="${dl(s.signature_doc_id)}" alt="signature" style="max-width:300px;max-height:120px;border:1px solid var(--adm-line);border-radius:8px;background:#fff"></div>${s.report_doc_id ? `<div><strong>Report file</strong><br><a class="erp-link" target="_blank" rel="noopener" href="${dl(s.report_doc_id)}"><i class="fas fa-paperclip"></i> ${E.esc(s.report_name || 'Report')}</a></div>` : ''}</div>`;
+    else h += `<p class="sf-note">${canSign ? 'Once a month an external auditor checks the stock and the quality. Enter the auditor details and findings, attach the report and let the auditor sign below.' : 'Not signed yet — the auditor signs after the count is completed.'}</p>`;
+    if (canSign) h += `<details ${s ? '' : 'open'}><summary style="cursor:pointer;font-weight:600;margin:8px 0">${s ? 'Update the sign-off' : 'Auditor sign-off'}</summary><div class="erp-grid">
+        ${E.field('Auditor type *', E.select('soType', `<option value="external" ${!s || s.auditor_type === 'external' ? 'selected' : ''}>External auditor</option><option value="internal" ${s && s.auditor_type === 'internal' ? 'selected' : ''}>Internal</option>`))}
+        ${E.field('Auditor name *', E.input('soName', s ? s.auditor_name : a.auditor_name))}${E.field('Firm / organisation *', E.input('soOrg', s ? s.auditor_org || '' : ''))}
+        ${E.field('Designation', E.input('soDes', s ? s.auditor_designation || '' : ''))}${E.field('Phone', E.input('soPh', s ? s.auditor_phone || '' : '', 'inputmode="numeric"'))}
+        ${E.field('Quality result *', E.select('soRes', '<option value="">Choose…</option>' + Object.entries(QCR).map(([k, v]) => `<option value="${k}" ${s && s.qc_result === k ? 'selected' : ''}>${v}</option>`).join('')))}
+        ${E.field('Quality check findings *', `<textarea class="adm-input" id="soQc" rows="3" placeholder="Colour, smell, moisture, insects, expiry, packing, storage, hygiene…">${E.esc(s ? s.qc_findings : '')}</textarea>`, 'span-all')}
+        ${E.field('Stock audit findings', `<textarea class="adm-input" id="soSt" rows="2" placeholder="Shortages, excess, damage, wrong location…">${E.esc(s ? s.stock_findings || '' : '')}</textarea>`, 'span-all')}
+        ${E.field('Recommendations', `<textarea class="adm-input" id="soRec" rows="2">${E.esc(s ? s.recommendations || '' : '')}</textarea>`, 'span-all')}
+        ${E.field('Report file (PDF / photo)', '<input type="file" class="adm-input" id="soFile" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx">')}</div>
+        <div><strong>Auditor signature *</strong><canvas id="soSig" width="840" height="260" style="display:block;width:100%;max-width:520px;height:160px;border:1px dashed var(--adm-line);border-radius:8px;background:#fff;touch-action:none;margin:6px 0"></canvas>
+        <button type="button" class="adm-btn adm-btn-ghost" id="soClear"><i class="fas fa-eraser"></i> Clear</button> <button type="button" class="adm-btn adm-btn-primary" id="soSave"><i class="fas fa-signature"></i> Save signed report</button></div></details>`;
+    return h + '</div>';
+}
+function bindSignoff(p, a) {
+    const cv = $(p).find('#soSig')[0]; if (!cv) return;
+    const ctx = cv.getContext('2d'); let drawing = false, drawn = false;
+    ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#1f1d1a';
+    const pos = e => { const r = cv.getBoundingClientRect(), t = e.touches ? e.touches[0] : e; return [(t.clientX - r.left) * cv.width / r.width, (t.clientY - r.top) * cv.height / r.height]; };
+    const start = e => { drawing = true; const [x, y] = pos(e); ctx.beginPath(); ctx.moveTo(x, y); e.preventDefault(); };
+    const move = e => { if (!drawing) return; const [x, y] = pos(e); ctx.lineTo(x, y); ctx.stroke(); drawn = true; e.preventDefault(); };
+    const end = () => { drawing = false; };
+    cv.addEventListener('mousedown', start); cv.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+    cv.addEventListener('touchstart', start, { passive: false }); cv.addEventListener('touchmove', move, { passive: false }); cv.addEventListener('touchend', end);
+    $(p).on('click', '#soClear', () => { ctx.clearRect(0, 0, cv.width, cv.height); drawn = false; });
+    const up = (blob, name, cat, desc) => { const fd = new FormData(); fd.append('action', 'upload'); fd.append('entity_type', 'stock_audit'); fd.append('entity_id', a.id); fd.append('category', cat); fd.append('description', desc); fd.append('file', blob, name);
+        return new Promise((ok, no) => $.ajax({ url: E.BASE + 'erp_docs.php', method: 'POST', data: fd, processData: false, contentType: false, dataType: 'json' }).done(r => r && r.status === 'success' ? ok(r.id) : no((r && r.message) || 'Upload failed')).fail(() => no('Upload failed'))); };
+    $(p).on('click', '#soSave', function () {
+        if (!SF.v('soName')) return fail('Enter the auditor name.');
+        if (SF.v('soType') === 'external' && !SF.v('soOrg')) return fail('Enter the auditor firm / organisation.');
+        if (!SF.v('soRes')) return fail('Choose the quality result.');
+        if (!String($('#soQc').val() || '').trim()) return fail('Enter the quality check findings.');
+        if (!drawn) return fail('The auditor must sign in the box.');
+        const $b = $(this).prop('disabled', true), file = $('#soFile')[0].files[0];
+        if (file && file.size > 10 * 1048576) { $b.prop('disabled', false); return fail('Files must be 10 MB or smaller.'); }
+        let sigId;
+        new Promise(ok => cv.toBlob(ok, 'image/png')).then(b => up(b, 'auditor-signature.png', 'SIGNED_DOCUMENT', 'Auditor signature — ' + SF.v('soName')))
+            .then(id => { sigId = id; return file ? up(file, file.name, 'QC_DOCUMENT', 'Audit / quality report — ' + SF.v('soName')) : null; })
+            .then(repId => E.post(SF.API, { action: 'aud_signoff', id: a.id, auditor_type: SF.v('soType'), auditor_name: SF.v('soName'), auditor_org: SF.v('soOrg'), auditor_designation: SF.v('soDes'), auditor_phone: SF.v('soPh'),
+                qc_result: SF.v('soRes'), qc_findings: $('#soQc').val(), stock_findings: $('#soSt').val(), recommendations: $('#soRec').val(), signature_doc_id: sigId, report_doc_id: repId || '' }, { silent: true }))
+            .then(x => done(a.id, x.message)).catch(m => { $b.prop('disabled', false); fail(m); });
+    });
 }
 function report(auditId) {
     E.loading($('#rep'));
