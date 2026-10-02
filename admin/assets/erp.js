@@ -337,8 +337,13 @@ window.ERP = (function ($) {
     function chain(links) { return '<div class="erp-chain">' + links.filter(Boolean).map(l => `<a href="${l[1]}">${esc(l[0])}</a>`).join('') + '</div>'; }
     function kv(pairs) { return '<div class="erp-detail-head">' + pairs.filter(Boolean).map(p => `<div><span>${esc(p[0])}</span>${p[1]}</div>`).join('') + '</div>'; }
     function param(name) { return new URLSearchParams(location.search).get(name); }
+    // FIX (2 Oct 2026): Valluvam letterhead for request / PO modal titles — brand(docType, number, statusHtml)
+    function brand(kind, no, extra) {
+        return `<div class="erp-brand"><img src="../images/logo-doc.png" alt="Valluvam" onerror="this.src='../images/logo.png'"><div class="erp-brand-co"><strong>Valluvam Products</strong><small>As Pure As Nature</small></div>` +
+            `<div class="erp-brand-doc"><small>${esc(kind)}</small><strong>${esc(no || '')}</strong>${extra || ''}</div></div>`;
+    }
 
     return { esc, num, r2, money, qty, date, today, monthStart, badge, toast, alertError, api, post, loading, errorBox, table, csv,
              suppliers, warehouses, items, options, itemOptions, field, input, select, textarea, lineEditor, form, view, confirmAction, docs, chain, kv, param,
-             pager, tabs, kpi, itemLabel, BASE };
+             pager, tabs, kpi, itemLabel, BASE, brand };
 })(jQuery);

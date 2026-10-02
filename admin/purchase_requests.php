@@ -104,12 +104,12 @@ function openForm(pr) {
             $('#qW option[value="__other"]').before(`<option value="${E.esc(x.id)}">${E.esc(x.name)}</option>`); $('#qW').val(String(x.id)).trigger('change'); return x.id; }));
     const noQty = () => $('#qLines tbody tr').filter(function () { return $(this).find('[data-f=item]').val() && !(parseFloat($(this).find('[data-f=qty]').val()) > 0); })
         .map(function () { return $(this).find('[data-f=item] option:selected').text().split(' · ')[0]; }).get();
-    E.form(pr.id ? 'Edit ' + pr.pr_number : 'New purchase request', html, btn => (noQty().length ? Promise.reject('Enter the quantity for: ' + noQty().join(', ')) : whId()).then(wid => E.post('purchase_api.php', { action: btn === 'deny' ? 'pr_save' : 'pr_submit', id: pr.id || '',
+    E.form(E.brand(pr.id ? 'Edit purchase request' : 'New purchase request', pr.id ? pr.pr_number : 'Draft'), html, btn => (noQty().length ? Promise.reject('Enter the quantity for: ' + noQty().join(', ')) : whId()).then(wid => E.post('purchase_api.php', { action: btn === 'deny' ? 'pr_save' : 'pr_submit', id: pr.id || '',
         request_date: $('#qD').val(), required_by: $('#qN').val(), warehouse_id: wid, requested_by: $('#qB').val(), notes: $('#qNotes').val(), items: ed.get() }, { silent: true }))
         .then(r => { E.toast(r.message); load(); }),
       { confirmText: 'Submit for approval', denyText: 'Save draft', didOpen: () => { ed = E.lineEditor($('#qLines'), { items: ITEMS, columns: ['item', 'qty', 'uom', 'rate'],
           lines: (pr.items || []).map(i => Object.assign({}, i, { rate: i.estimated_rate })) });
-          const $p = $(Swal.getPopup()); wirePicker($p, ed);
+          const $p = $(Swal.getPopup()).addClass('erp-doc'); wirePicker($p, ed);
           $p.on('change', '#qW', function () { const o = this.value === '__other'; $p.find('#qWOther').toggleClass('on', o); if (o) $p.find('#qWName').trigger('focus'); }); }, width: 1100 });
 }
 
@@ -123,7 +123,7 @@ function openView(id) {
               p.items.map(i => `<tr><td>${E.esc(i.item_name)}</td><td class="erp-num">${E.qty(i.quantity, i.unit)}${i.input_unit ? '<div class="erp-muted">asked: ' + E.qty(i.input_qty, i.input_unit) + '</div>' : ''}</td><td class="erp-num">${E.money(i.estimated_rate, true)}</td><td class="erp-num">${E.money(i.quantity * (i.estimated_rate || 0))}</td></tr>`).join('') +
               `</tbody></table></div>${p.notes ? '<p class="erp-note">' + E.esc(p.notes) + '</p>' : ''}`;
         const act = (a, msg, o) => () => E.confirmAction(msg, '', o).then(note => E.post('purchase_api.php', { action: a, id: p.id, note })).then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
-        E.view(p.pr_number, html, [
+        E.view(E.brand('Purchase request', p.pr_number), html, [   // FIX (2 Oct 2026): Valluvam letterhead
             ['draft', 'manager_rejected', 'backend_rejected'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
             // approvals are done only from the Dashboard (Manager → Admin), 1 Oct 2026
             ((PR_PERMS.manager && p.status === 'submitted') || (PR_PERMS.backend && p.status === 'manager_approved')) && { label: 'Approve / reject on your Dashboard', cls: 'adm-btn-primary', icon: 'fa-gauge-high', run: () => location.href = 'index.php' },
@@ -135,7 +135,7 @@ function openView(id) {
             ['approved', 'converted'].includes(p.status) && { label: 'Purchase flow (quotations → PO → payment → delivery)', cls: 'adm-btn-primary', icon: 'fa-route', run: () => location.href = 'purchase_flow.php?pr_id=' + p.id },
             false && PR_PERMS.backend && p.status === 'approved' && { label: 'Ask for quotations (RFQ)', icon: 'fa-envelope-open-text', run: () => location.href = 'rfqs.php?pr_id=' + p.id },
             !['converted', 'cancelled'].includes(p.status) && { label: 'Cancel', icon: 'fa-ban', run: act('pr_cancel', 'Cancel ' + p.pr_number + '?', { danger: true }) },
-        ]);
+        ], { width: 1100, didOpen: pop => $(pop).addClass('erp-doc') });
     }).catch(() => {});
 }
 JS

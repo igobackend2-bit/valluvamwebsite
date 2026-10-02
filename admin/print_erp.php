@@ -96,16 +96,18 @@ if (!$doc) { http_response_code(404); exit('Document not found.'); }
  th { text-align: left; background: #f4f1ea; padding: 7px 8px; font-size: 12px; } td { padding: 7px 8px; border-bottom: 1px solid #eee; } .tot { margin-top: 12px; margin-left: auto; width: 320px; font-size: 13px; }
  .tot div { display: flex; justify-content: space-between; padding: 4px 0; } .tot div:last-child { font-weight: 800; border-top: 1px solid #ccc; } .note { font-size: 12.5px; color: #444; margin-top: 16px; white-space: pre-line; }
  .sign { display: flex; justify-content: space-between; margin-top: 48px; font-size: 12px; color: #6b6459; } .btn { position: fixed; top: 12px; right: 12px; padding: 8px 14px; background: #1c5034; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
+ .brand-wrap { display: flex; align-items: center; gap: 12px; } .logo { height: 58px; width: auto; } .tag { font-size: 11.5px; color: #6b6459; } .top { align-items: center; } th.n, td.n { text-align: right; white-space: nowrap; } /* FIX (2 Oct 2026): Valluvam logo */
  @media print { body { background: #fff; } .sheet { box-shadow: none; margin: 0; } .btn { display: none; } }
  @media (max-width: 640px) { .sheet { padding: 18px; margin: 0; } .meta { grid-template-columns: 1fr 1fr; } }
 </style></head><body>
 <button class="btn" onclick="window.print()">Print</button>
 <div class="sheet">
-  <div class="top"><div><div class="brand"><?= pe($store) ?></div></div><div style="text-align:right"><h1><?= pe($title) ?></h1></div></div>
+  <div class="top"><div class="brand-wrap"><img class="logo" src="../images/logo-doc.png" alt="Valluvam" onerror="this.src='../images/logo.png'"><div><div class="brand"><?= pe($store) ?></div><div class="tag">As Pure As Nature</div></div></div><div style="text-align:right"><h1><?= pe($title) ?></h1></div></div>
   <?php if ($party): ?><div style="font-size:13px;margin-bottom:12px;"><strong><?= $type === 'rfq' ? 'To suppliers:' : 'To:' ?></strong><br><?= implode('<br>', array_map('pe', array_filter($party))) ?></div><?php endif; ?>
   <div class="meta"><?php foreach ($meta as $k => $v): ?><div><span><?= pe($k) ?></span><?= pe($v) ?></div><?php endforeach; ?></div>
-  <table><thead><tr><?php foreach ($cols as $c): ?><th><?= pe($c) ?></th><?php endforeach; ?></tr></thead>
-    <tbody><?php foreach ($rows as $r): ?><tr><?php foreach ($r as $c): ?><td><?= pe($c) ?></td><?php endforeach; ?></tr><?php endforeach; ?></tbody></table>
+  <?php $numCols = array_map(fn($c) => in_array($c, ['Qty', 'Quantity', 'Rate', 'Discount', 'GST', 'Total', 'Value', 'Debit', 'Credit'], true), $cols);   // FIX (2 Oct 2026): numbers right-aligned ?>
+  <table><thead><tr><?php foreach ($cols as $k => $c): ?><th<?= $numCols[$k] ? ' class="n"' : '' ?>><?= pe($c) ?></th><?php endforeach; ?></tr></thead>
+    <tbody><?php foreach ($rows as $r): ?><tr><?php foreach (array_values($r) as $k => $c): ?><td<?= !empty($numCols[$k]) ? ' class="n"' : '' ?>><?= pe($c) ?></td><?php endforeach; ?></tr><?php endforeach; ?></tbody></table>
   <?php if ($totals): ?><div class="tot"><?php foreach ($totals as $k => $v): ?><div><span><?= pe($k) ?></span><span><?= pe($v) ?></span></div><?php endforeach; ?></div><?php endif; ?>
   <?php if ($note): ?><div class="note"><?= pe($note) ?></div><?php endif; ?>
   <div class="sign"><span>Prepared by: <?= pe($_SESSION['admin_username'] ?? '') ?></span><span>Authorised signatory</span></div>

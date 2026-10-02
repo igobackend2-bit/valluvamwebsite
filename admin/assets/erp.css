@@ -68,3 +68,32 @@
 .erp-pl tr.sub td:first-child { padding-left: 28px; color: var(--adm-ink-soft); }
 .erp-pl tr.total td { font-weight: 800; border-top: 2px solid var(--adm-line); }
 .erp-pl tr.head td { font-weight: 700; background: #faf8f2; }
+
+/* FIX (2 Oct 2026): Valluvam letterhead on purchase request / PO screens, and a tidier document view */
+.erp-brand { display: flex; align-items: center; gap: 14px; text-align: left; padding: 0 4px 12px; border-bottom: 2px solid var(--adm-green); }
+.erp-brand img { height: 54px; width: auto; flex: none; }
+.erp-brand-co { display: flex; flex-direction: column; line-height: 1.2; }
+.erp-brand-co strong { font-size: 17px; color: var(--adm-green-dark, #1c5034); }
+.erp-brand-co small, .erp-brand-doc small { font-size: 11.5px; color: var(--adm-ink-soft); font-weight: 600; letter-spacing: .03em; }
+.erp-brand-doc { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; line-height: 1.2; }
+.erp-brand-doc small { text-transform: uppercase; }
+.erp-brand-doc strong { font-size: 20px; color: var(--adm-ink, #1f1d1a); }
+.swal2-popup.erp-modal .swal2-title:has(.erp-brand) { padding: 20px calc(8px + 1.6em) 0; font-size: inherit; }
+.swal2-popup.erp-doc .adm-table th.erp-num { text-align: right; }
+.swal2-popup.erp-doc .erp-detail-head div span.adm-badge { display: inline-block; }
+.swal2-popup.erp-doc .erp-detail-head .prs { min-width: 0; max-width: none; }
+.swal2-popup.erp-doc .erp-detail-head > div:has(.prs) { grid-column: span 2; }
+@media (max-width: 480px) { .swal2-popup.erp-doc .erp-detail-head > div:has(.prs) { grid-column: auto; } }
+.swal2-popup.erp-doc .erp-detail-head { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px 18px; background: #faf8f2; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-md, 10px); padding: 12px 14px; }
+.swal2-popup.erp-doc .erp-detail-head > div { min-width: 0; overflow-wrap: anywhere; }
+.swal2-popup.erp-doc .adm-table-wrap { border: 1px solid var(--adm-line); border-radius: var(--adm-radius-md, 10px); overflow-x: auto; }
+.swal2-popup.erp-doc .adm-table th, .swal2-popup.erp-doc .adm-table td { padding: 9px 12px; vertical-align: middle; }
+.swal2-popup.erp-doc .adm-table td:first-child { min-width: 220px; }
+.swal2-popup.erp-doc .erp-totals { justify-content: flex-end; background: #faf8f2; border: 1px solid var(--adm-line); border-radius: var(--adm-radius-md, 10px); padding: 10px 14px; gap: 10px 24px; }
+.swal2-popup.erp-doc .erp-totals span:last-child { font-size: 15px; color: var(--adm-green-dark, #1c5034); }
+.swal2-popup.erp-doc .erp-section-title { border-top: 1px solid var(--adm-line); padding-top: 14px; }
+.swal2-popup.erp-doc .erp-actions { border-top: 1px solid var(--adm-line); padding-top: 14px; }
+.swal2-popup.erp-doc .erp-docs-upload > * { flex: 1 1 180px; }
+.swal2-popup.erp-doc .erp-docs-upload > button { flex: 0 0 auto; }
+@media (max-width: 640px) { .erp-brand { flex-wrap: wrap; } .erp-brand img { height: 44px; } .erp-brand-doc { margin-left: 0; align-items: flex-start; width: 100%; } }
+@media print { .erp-brand img { height: 48px; } }

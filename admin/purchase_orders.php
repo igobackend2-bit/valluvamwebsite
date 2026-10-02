@@ -82,7 +82,7 @@ function openForm(po) {
       <div class="erp-section-title">Items</div><div id="pLines"></div>
       <p class="erp-note">Rates are per pack for products and per kg / L for bulk raw materials. Creating or approving a PO does not change stock.</p>`;
     let editor, quotes = null;
-    E.form(po.id ? 'Edit ' + po.po_number : 'New purchase order', html, (btn) => {
+    E.form(E.brand(po.id ? 'Edit purchase order' : 'New purchase order', po.id ? po.po_number : 'Draft'), html, (btn) => {   // FIX (2 Oct 2026): Valluvam letterhead
         const payload = { action: btn === 'deny' ? 'po_save' : 'po_submit', id: po.id || '', supplier_id: $('#pSup').val(), po_date: $('#pDate').val(),
                           expected_delivery_date: $('#pExp').val(), warehouse_id: $('#pWh').val(), buyer: $('#pBuyer').val(), other_charges: $('#pOther').val(),
                           notes: $('#pNotes').val(), items: editor.get() };
@@ -96,6 +96,7 @@ function openForm(po) {
             load(); setTimeout(() => openView(r.id), 300);
         }));
     }, { confirmText: 'Submit for approval', denyText: 'Save draft', width: 1180, didOpen: () => {
+        $(Swal.getPopup()).addClass('erp-doc');
         editor = E.lineEditor($('#pLines'), { items: ITEMS, lines: po.items || [], extra: () => E.num($('#pOther').val()) });
         $('#pOther').on('input', () => editor.recalc());
         $('#pNewSup').on('click', () => { $('#pSup').val('').prop('disabled', true); $('#pNewSupFields').prop('hidden', false); $('#pNewSupName').trigger('focus'); });
@@ -165,7 +166,7 @@ function amendForm(p) {
       <div class="erp-section-title">Add new lines</div><div id="aNew"></div>
       <p class="erp-note">The current PO stays in force until an approver approves the amendment in Approvals. The revision keeps the old and the new version.</p>`;
     let ed;
-    E.form('Amend ' + p.po_number, html, () => {
+    E.form(E.brand('Amend purchase order', p.po_number), html, () => {
         const items = $('.swal2-popup tr[data-id]').map(function () { const $r = $(this); return { id: $r.data('id'), quantity: $r.find('[data-f=q]').val(), rate: $r.find('[data-f=r]').val(), discount_amount: $r.find('[data-f=d]').val(), tax_percent: $r.find('[data-f=t]').val() }; }).get()
             .concat(ed.get().map(i => ({ item_type: i.item_type, item_id: i.item_id, quantity: i.quantity, rate: i.rate, discount_amount: i.discount_amount, tax_percent: i.tax_percent })));
         if (!$('#aWhy').val().trim()) return Promise.reject('Give the reason');
@@ -217,7 +218,7 @@ function openView(id) {
                ${p.notes ? '<p class="erp-note">' + E.esc(p.notes) + '</p>' : ''}<div id="vQuotes"></div><div id="vDocs"></div>`;
         const act = (a, msg, extra) => () => E.confirmAction(msg, '', extra).then(reason => E.post('purchase_api.php', { action: a, id: p.id, reason }))
                                            .then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
-        E.view(p.po_number, html, [
+        E.view(E.brand('Purchase order', p.po_number), html, [   // FIX (2 Oct 2026): Valluvam letterhead
             ['draft', 'pending_approval'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
             p.status === 'pending_approval' && { label: 'Approve on the Dashboard', cls: 'adm-btn-primary', icon: 'fa-gauge-high', run: () => location.href = 'index.php' },   // approvals only from the Dashboard (1 Oct 2026)
             ['approved', 'partially_received'].includes(p.status) && { label: 'Receive goods (GRN)', cls: 'adm-btn-primary', icon: 'fa-dolly', run: () => location.href = 'goods_receipts.php?po_id=' + p.id },
@@ -228,7 +229,7 @@ function openView(id) {
             p.status === 'pending_approval' && { label: 'Reject', icon: 'fa-xmark', run: () => E.confirmAction('Reject ' + p.po_number + '?', 'It goes back to draft.', { danger: true, reason: 'Reason' }).then(reason => E.post('procurement_api.php', { action: 'po_reject', id: p.id, reason })).then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {}) },
             !['cancelled', 'draft'].includes(p.status) && { label: 'Transport', icon: 'fa-truck', run: () => location.href = 'shipments.php?po_id=' + p.id },
             { label: 'Print', icon: 'fa-print', run: () => window.open('print_erp.php?type=po&id=' + p.id, '_blank') },
-        ], { didOpen: () => { E.docs($('#vDocs'), 'purchase_order', p.id, 'PURCHASE_ORDER'); poExtras(p); POQ_LOAD.then(() => { if (window.POQ) /* only the shop we buy from — comparison is on RFQ & Quotations (1 Oct 2026) */ (POQ.chosen || POQ.view)($('#vQuotes'), p); }); }, width: 1180 });
+        ], { didOpen: (pop) => { $(pop).addClass('erp-doc'); E.docs($('#vDocs'), 'purchase_order', p.id, 'PURCHASE_ORDER'); poExtras(p); POQ_LOAD.then(() => { if (window.POQ) /* only the shop we buy from — comparison is on RFQ & Quotations (1 Oct 2026) */ (POQ.chosen || POQ.view)($('#vQuotes'), p); }); }, width: 1180 });
     }).catch(() => {});
 }
 JS
