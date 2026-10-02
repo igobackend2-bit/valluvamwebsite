@@ -23,6 +23,11 @@ $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
 $writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'po_check', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
 $perms = ['quotes_approve' => 'purchase.backend_approve', 'quotes_reject' => 'purchase.backend_approve', 'quotes_retry_po' => 'purchase.backend_approve',
           'quotes_mgr_approve' => 'purchase.manager_approve', 'quotes_mgr_reject' => 'purchase.manager_approve'];   // FIX (2 Oct 2026): shop choice — Manager first, then Admin
+/** FIX (2 Oct 2026): after the shop is approved, only the L1 who sent the quotation buys (transport, loading DC, shop bill). */
+function pf_buyer_guard(?array $f) {
+    if (($_SESSION['admin_role_name'] ?? '') !== 'L1 (Sourcing)' || !$f || empty($f['quote_submitted_by'])) return;
+    if ($f['quote_submitted_by'] !== erp_user()) erp_invalid("Only {$f['quote_submitted_by']} (who got the quotation) buys this purchase.");
+}
 /** FIX (2 Oct 2026): Accounts "PO checked" step before payment (needs pr_po_check_migration.sql; skipped when not installed). */
 function pf_has_po_check(PDO $pdo): bool {
     static $ok = null;
@@ -381,6 +386,7 @@ try {
             pf_need_any($pdo, ['flow.source'], 'record transport (L1 sourcing)');
             $prId = (int)erp_input('pr_id');
             $f = pf_flow($pdo, $prId);
+            pf_buyer_guard($f);   // FIX (2 Oct 2026)
             $po = $f ? pf_po_for($pdo, $f) : null;
             if (!$po) erp_invalid('Create the purchase order first.');
             $mode = (string)erp_input('delivery_mode');
@@ -429,6 +435,7 @@ try {
             if (!isset(PF_DOC_SLOTS[$slot])) erp_invalid('Unknown document type.');
             pf_need_any($pdo, $slot === 'payment_proof' ? ['purchase_payment.create'] : ['flow.source'], 'attach this document');
             $f = pf_flow($pdo, $prId);
+            if ($slot !== 'payment_proof') pf_buyer_guard($f);   // FIX (2 Oct 2026)
             $po = $f ? pf_po_for($pdo, $f) : null;
             if (!$po) erp_invalid('Create the purchase order first.');
             $docId = (int)erp_input('doc_id');

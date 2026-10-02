@@ -22,8 +22,13 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
 <?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'l1'): ?>
 <style>/* FIX (2 Oct 2026): L1 (Sourcing) sees only its own steps — request items, shop quotations, transport, loading DC + bill, unloading, QC (no PO approval / payment) */
 #card-po,#card-payment,.pf-step[data-go="po"],.pf-step[data-go="payment"],
-/* FIX (2 Oct 2026): L1 now only provides the shop quotations */
-#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}</style>
+/* FIX (2 Oct 2026): L1 provides the shop quotations; the L1 who got the quotation also buys (transport, loading DC + shop bill) */
+#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}
+body.pf-buyer #cards #card-transport,body.pf-buyer #cards #card-docs,body.pf-buyer #cards [data-px="loading"]{display:block!important}
+body.pf-buyer #steps .pf-step[data-go="transport"],body.pf-buyer #steps .pf-step[data-go="docs"]{display:block!important}</style>
+<script>(function () { var me = <?= json_encode((string)($_SESSION['admin_username'] ?? '')) ?>; new MutationObserver(function () {
+    var on = typeof D !== 'undefined' && D && D.flow && D.flow.quote_submitted_by === me && D.flow.quote_status === 'approved';
+    if (document.body && document.body.classList.contains('pf-buyer') !== !!on) document.body.classList.toggle('pf-buyer', !!on); }).observe(document.documentElement, { childList: true, subtree: true }); })();</script>
 <script>/* FIX (2 Oct 2026): L1 — hide the payment proof in "All proofs" */
 new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-card').forEach(function (c) { var t = c.querySelector('.px-step'); if (t && /^\s*payment\s*$/i.test(t.textContent)) { c.remove(); var b = document.querySelector('#card-proofs .adm-card-head .adm-badge'); if (b) b.textContent = document.querySelectorAll('#card-proofs .px-card').length; } }); })
     .observe(document.documentElement, { childList: true, subtree: true });</script>

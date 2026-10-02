@@ -122,7 +122,7 @@ function pr_stage(PDO $pdo, array $pr): ?array {
             $via = $f['delivery_mode'] === 'courier' ? 'courier ' . trim(($f['courier_name'] ?: '') . ' ' . ($f['tracking_number'] ?: '')) : 'vehicle ' . trim(($f['vehicle_number'] ?: '') . ' ' . ($f['driver_name'] ?: ''));
             return prs_out(9, 'Loaded — in transit to ' . ($prWh ?: 'warehouse') . ' by ' . trim($via), 'ok', 'Transport');
         }
-        if ($isPaid) return prs_out(8, 'Paid ₹' . number_format($paid, 2) . ($f && !empty($f['payment_proof_doc_id']) ? ' · proof attached' : '') . " — waiting for loading" . ($cons ? ' (ready for loading)' : ''), 'ok', 'Purchase team');
+        if ($isPaid) return prs_out(8, 'Paid ₹' . number_format($paid, 2) . ($f && !empty($f['payment_proof_doc_id']) ? ' · proof attached' : '') . " — " . (!empty($f['quote_submitted_by']) ? $f['quote_submitted_by'] . ' (L1) to buy and load' : 'waiting for loading') . ($cons ? ' (ready for loading)' : ''), 'ok', !empty($f['quote_submitted_by']) ? $f['quote_submitted_by'] . ' (L1)' : 'Purchase team');   // FIX (2 Oct 2026): the L1 who got the quotation buys
         if ($paid > 0) return prs_out(7, "{$poNo} approved — part paid ₹" . number_format($paid, 2) . ' of ₹' . number_format($total, 2) . ', balance waiting', 'wait', 'Accounts');
         if (!empty($f['po_checked_at'])) return prs_out(7, "{$poNo} checked by Accounts — waiting for payment", 'wait', 'Accounts');   // FIX (2 Oct 2026)
         return prs_out(7, "{$poNo} approved — sent to Accounts to check the PO", 'wait', 'Accounts');

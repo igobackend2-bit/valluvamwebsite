@@ -26,7 +26,7 @@ function rd_items(PDO $pdo, int $prId): string {
 function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
     $rows = erp_rows($pdo, "SELECT pr.id, pr.pr_number, pr.request_date, pr.required_by, pr.status AS pr_status, pr.requested_by, pr.created_by, pr.backend_approved_at,
                                    f.quote_status, f.payment_id, f.payment_proof_doc_id, f.delivery_mode, f.loading_dc_doc_id, f.shop_bill_doc_id, f.unload_check, f.unloading_dc_doc_id,
-                                   f.grn_id, f.qc_id, f.po_id, po.po_number, po.status AS po_status, po.grand_total, po.expected_delivery_date, s.supplier_name,
+                                   f.grn_id, f.qc_id, f.po_id, f.quote_submitted_by, po.po_number, po.status AS po_status, po.grand_total, po.expected_delivery_date, s.supplier_name,
                                    (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status, g.status AS grn_status,
                                    (SELECT COUNT(*) FROM approval_requests ar WHERE ar.module = 'pr_quotation_mgr' AND ar.request_key = pr.id AND ar.status IN ('submitted','under_review')) AS shop_mgr_open
                             FROM purchase_requests pr LEFT JOIN purchase_flows f ON f.pr_id = pr.id LEFT JOIN purchase_orders po ON po.id = f.po_id
@@ -190,8 +190,8 @@ try {
             $sections[] = ['key' => $k, 'title' => 'Requests to approve (Manager)', 'role' => 'Valluvam Team Manager', 'tasks' => $tasks, 'kpis' => $kpis];
         }
         if ($k === 'l1') {
-            $labels = ['quotes' => 'Collect 3 shop quotations'];   // FIX (2 Oct 2026): L1 only provides the shop quotations
-            foreach ($flows as $f) if (isset($labels[$f['stage'][0]]))
+            $labels = ['quotes' => 'Collect 3 shop quotations', 'transport' => 'Buy the goods — enter transport', 'docs' => 'Buy the goods — attach loading DC + shop bill'];   // FIX (2 Oct 2026): L1 gets the quotation; the same person buys
+            foreach ($flows as $f) if (isset($labels[$f['stage'][0]]) && ($f['stage'][0] === 'quotes' || $key === 'super' || $k !== 'l1' || ($f['quote_submitted_by'] ?? '') === erp_user()))
                 $tasks[] = rd_task($f, $labels[$f['stage'][0]] . ' — ' . $f['pr_number'], ($f['supplier_name'] ? $f['supplier_name'] . ' · ' : '') . rd_items($pdo, (int)$f['id']));
             $appr = erp_rows($pdo, "SELECT f.pr_id, f.quote_submitted_at, pr.backend_approved_at, (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = f.pr_id) n,
                                            (SELECT MAX(grand_total) FROM pr_quotes q WHERE q.pr_id = f.pr_id) hi, (SELECT grand_total FROM pr_quotes q WHERE q.pr_id = f.pr_id AND q.is_selected = 1 LIMIT 1) chosen
