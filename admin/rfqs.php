@@ -227,7 +227,7 @@ function loadNeedQ() {
         const rows = (r.rows || []).filter(x => x.pr_status === 'approved' && x.quote_status !== 'approved');
         $('#needQN').text(rows.length).toggleClass('is-amber', rows.length > 0).toggleClass('is-neutral', !rows.length);
         if (!rows.length) { $b.html('<div class="adm-empty"><i class="fas fa-circle-check"></i><p><strong>No request is waiting for quotations</strong></p><p>Approved purchase requests appear here for the 3 shop quotations.</p></div>'); return; }
-        const st = x => x.quote_status === 'submitted' ? ['is-wait', 'Sent — waiting for Admin approval', 'View quotations'] : x.quote_status === 'rejected' ? ['is-bad', 'Rejected — change and send again', 'Fix quotations'] : ['', 'Quotations to collect', 'Provide quotation'];
+        const st = x => x.quote_status === 'submitted' ? ['is-wait', 'Sent — waiting for Manager / Admin approval', 'View quotations'] : x.quote_status === 'rejected' ? ['is-bad', 'Rejected — change and send again', 'Fix quotations'] : ['', 'Quotations to collect', 'Provide quotation'];
         $b.html('<div class="nq-list">' + rows.map(x => { const s = st(x), n = Math.min(3, +x.quote_count || 0);
             return `<div class="nq-row ${s[0]}" data-pr="${x.id}"><div class="nq-ref"><strong>${E.esc(x.pr_number)}</strong><span class="erp-muted">${E.date(x.request_date)}${x.required_by ? ' · needed by ' + E.date(x.required_by) : ''} · ${E.esc(x.requested_by || '')}</span></div>
                 <div class="nq-items" data-items="${x.id}"><span class="erp-muted">Loading items…</span></div>

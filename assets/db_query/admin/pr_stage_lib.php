@@ -50,7 +50,11 @@ function pr_stage(PDO $pdo, array $pr): ?array {
         if (!$po) {
             $qs = $f['quote_status'] ?? 'collecting';
             if ($qs === 'approved') return prs_out(4, 'Quotation approved — purchase order to be created', 'wait', 'Admin');
-            if ($qs === 'submitted') return prs_out(3, 'Quotation sent — waiting for shop approval', 'wait', 'Admin');
+            if ($qs === 'submitted') {   // FIX (2 Oct 2026): Manager approves the shop first, then Admin
+                $mgr = prs_has($pdo, 'approval_requests') && erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'pr_quotation_mgr' AND request_key = ? AND status IN ('submitted','under_review')", [(string)$id]);
+                return $mgr ? prs_out(3, 'Quotation submitted — waiting for Manager approval', 'wait', 'Manager') : (prs_has($pdo, 'approval_requests') && erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'pr_quotation_mgr' AND request_key = ? AND status = 'approved'", [(string)$id])
+                    ? prs_out(4, 'Quotation approved by Manager — waiting for Admin approval', 'wait', 'Admin') : prs_out(3, 'Quotation sent — waiting for Admin approval', 'wait', 'Admin'));
+            }
             $n = prs_has($pdo, 'pr_quotes') ? (int)erp_val($pdo, "SELECT COUNT(*) FROM pr_quotes WHERE pr_id = ?", [$id]) : 0;
             if ($qs === 'rejected') return prs_out(3, 'Quotation rejected — change and resend', 'bad', 'Purchase team');
             return prs_out(3, 'Admin approved — waiting for quotation (' . $n . ' of 3)', 'wait', 'Purchase team');
@@ -63,7 +67,7 @@ function pr_stage(PDO $pdo, array $pr): ?array {
             $ceo = prs_has($pdo, 'approval_requests') && erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'po_ceo' AND request_key = ? AND status IN ('submitted','under_review')", [(string)$po['id']]);
             if ($poSt === 'draft') return prs_out(5, "{$poNo} created — not yet sent for approval", 'wait', 'Admin');
             return $ceo ? prs_out(6, "{$poNo} approved by Admin — waiting for CEO approval", 'wait', 'CEO')
-                        : prs_out(5, "{$poNo} created — waiting for PO approval (Manager / Admin)", 'wait', 'Manager / Admin');
+                        : prs_out(5, "{$poNo} created — waiting for Admin PO approval", 'wait', 'Admin');
         }
 
         // ---- PO approved or later: goods side (furthest evidence wins)

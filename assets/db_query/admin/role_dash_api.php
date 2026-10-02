@@ -27,7 +27,8 @@ function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
     $rows = erp_rows($pdo, "SELECT pr.id, pr.pr_number, pr.request_date, pr.required_by, pr.status AS pr_status, pr.requested_by, pr.created_by, pr.backend_approved_at,
                                    f.quote_status, f.payment_id, f.payment_proof_doc_id, f.delivery_mode, f.loading_dc_doc_id, f.shop_bill_doc_id, f.unload_check, f.unloading_dc_doc_id,
                                    f.grn_id, f.qc_id, f.po_id, po.po_number, po.status AS po_status, po.grand_total, po.expected_delivery_date, s.supplier_name,
-                                   (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status, g.status AS grn_status
+                                   (SELECT COUNT(*) FROM pr_quotes q WHERE q.pr_id = pr.id) AS quote_count, qc.status AS qc_status, g.status AS grn_status,
+                                   (SELECT COUNT(*) FROM approval_requests ar WHERE ar.module = 'pr_quotation_mgr' AND ar.request_key = pr.id AND ar.status IN ('submitted','under_review')) AS shop_mgr_open
                             FROM purchase_requests pr LEFT JOIN purchase_flows f ON f.pr_id = pr.id LEFT JOIN purchase_orders po ON po.id = f.po_id
                             LEFT JOIN suppliers s ON s.id = po.supplier_id LEFT JOIN quality_checks qc ON qc.id = f.qc_id LEFT JOIN goods_receipts g ON g.id = f.grn_id
                             WHERE {$where} ORDER BY pr.id DESC LIMIT 200", $p);
@@ -39,7 +40,7 @@ function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
             $r['pr_status'] === 'submitted' => ['manager', 'Waiting for Manager'],
             $r['pr_status'] === 'manager_approved' => ['admin_pr', 'Waiting for Admin'],
             in_array($r['pr_status'], ['manager_rejected', 'backend_rejected', 'rejected', 'cancelled'], true) => ['closed', ucfirst(str_replace('_', ' ', $r['pr_status']))],
-            ($r['quote_status'] ?? 'collecting') !== 'approved' => (($r['quote_status'] ?? '') === 'submitted' ? ['admin_shop', 'Shop waiting for Admin'] : ['quotes', 'Collect 3 quotations']),
+            ($r['quote_status'] ?? 'collecting') !== 'approved' => (($r['quote_status'] ?? '') === 'submitted' ? ((int)$r['shop_mgr_open'] ? ['mgr_shop', 'Shop waiting for Manager'] : ['admin_shop', 'Shop waiting for Admin']) : ['quotes', 'Collect 3 quotations']),   // FIX (2 Oct 2026): Manager → Admin
             !$r['po_number'] => ['po_missing', 'PO not created'],
             !$poOk => ['admin_po', 'PO waiting for approval'],
             !($r['payment_id'] && $r['payment_proof_doc_id']) => ['pay', 'Waiting for payment'],
@@ -61,7 +62,7 @@ function rd_task(array $f, string $title, string $sub, array $actions = [], stri
 /* ---- Lists for the Admin and CEO dashboards (added 1 Oct 2026) ---- */
 /** Who approves each module: the purchase steps by their role, other modules by the roles holding the approver permission. */
 function rd_approvers(PDO $pdo): array {
-    $fixed = ['purchase_request' => 'Valluvam Team Manager', 'purchase_request_final' => 'Admin', 'pr_quotation' => 'Admin', 'purchase_order' => 'Admin', 'po_ceo' => 'CEO'];
+    $fixed = ['purchase_request' => 'Valluvam Team Manager', 'purchase_request_final' => 'Admin', 'pr_quotation' => 'Admin', 'purchase_order' => 'Admin', 'po_ceo' => 'CEO', 'pr_quotation_mgr' => 'Valluvam Team Manager'];
     $out = [];
     try {
         foreach (erp_rows($pdo, "SELECT p.module, p.label, GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR ', ') AS roles FROM approval_policies p
@@ -74,7 +75,7 @@ function rd_approvers(PDO $pdo): array {
 function rd_link(array $a): string {
     $id = (int)$a['entity_id'];
     return match ($a['module']) {
-        'purchase_request', 'purchase_request_final', 'pr_quotation' => 'purchase_flow.php?pr_id=' . $id,
+        'purchase_request', 'purchase_request_final', 'pr_quotation', 'pr_quotation_mgr' => 'purchase_flow.php?pr_id=' . $id,
         'purchase_order', 'po_ceo', 'po_amendment' => 'purchase_orders.php?id=' . $id,
         default => 'approvals.php',
     };
@@ -159,6 +160,12 @@ try {
             foreach ($flows as $f) if ($f['stage'][0] === 'manager')
                 $tasks[] = rd_task($f, $f['pr_number'] . ' · ' . ($f['requested_by'] ?: $f['created_by']), rd_items($pdo, (int)$f['id']),
                     [['label' => 'Approve', 'kind' => 'pr_manager_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'pr_manager_reject', 'reason' => true]], 'purchase_requests.php?id=' . $f['id']);
+            // FIX (2 Oct 2026): shop choice (3 quotations) waits for the Manager first, then the Admin
+            foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.entity_id, r.submitted_by, r.submitted_at, r.execution_error FROM approval_requests r
+                                     WHERE r.module = 'pr_quotation_mgr' AND r.status IN ('submitted','under_review') ORDER BY r.id") as $a)
+                $tasks[] = ['id' => (int)$a['entity_id'], 'ref' => $a['request_number'], 'title' => 'Shop choice — ' . $a['summary'], 'sub' => 'Sent by ' . $a['submitted_by'] . ' (L1) · after you it goes to the Admin',
+                            'date' => substr((string)$a['submitted_at'], 0, 10), 'amount' => $a['amount'], 'stage' => 'Shop waiting for Manager', 'approval_id' => (int)$a['id'],
+                            'actions' => [['label' => 'Approve shop', 'kind' => 'apr_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'apr_reject', 'reason' => true]], 'link' => 'purchase_flow.php?pr_id=' . (int)$a['entity_id'] . '#card-quotes'];
             // stock adjustments / counts / returns / PO changes waiting for the Manager (approver permission; never the accounts approvals) (1 Oct 2026)
             foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.module, r.entity_id, r.reference, r.summary, r.amount, r.submitted_by, r.submitted_at, p.label, p.approver_perm
                                      FROM approval_requests r JOIN approval_policies p ON p.module = r.module

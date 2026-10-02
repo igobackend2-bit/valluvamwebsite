@@ -20,8 +20,14 @@ require_once __DIR__ . '/pf_lib.php';
 
 $action = (string)erp_input('action', '');
 $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
-$writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
-$perms = ['quotes_approve' => 'purchase.backend_approve', 'quotes_reject' => 'purchase.backend_approve', 'quotes_retry_po' => 'purchase.backend_approve'];
+$writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
+$perms = ['quotes_approve' => 'purchase.backend_approve', 'quotes_reject' => 'purchase.backend_approve', 'quotes_retry_po' => 'purchase.backend_approve',
+          'quotes_mgr_approve' => 'purchase.manager_approve', 'quotes_mgr_reject' => 'purchase.manager_approve'];   // FIX (2 Oct 2026): shop choice — Manager first, then Admin
+/** FIX (2 Oct 2026): the shop choice waits for the Manager first when the 'pr_quotation_mgr' rule is installed (pr_quote_manager_migration.sql). */
+function pf_mgr_open(PDO $pdo, int $prId): ?array {
+    try { return erp_row($pdo, "SELECT * FROM approval_requests WHERE module = 'pr_quotation_mgr' AND request_key = ? AND status IN ('submitted','under_review') ORDER BY id DESC LIMIT 1", [(string)$prId]); }
+    catch (Throwable $e) { return null; }
+}
 erp_guard($pdo, $perms[$action] ?? 'purchase.view');
 if (in_array($action, $writes, true) && !$isWrite) erp_fail('Invalid request method.');
 const PQ_PR = ['q' => 'pr_quotes', 'i' => 'pr_quote_items', 'fk' => 'pr_id'];
@@ -107,7 +113,7 @@ function pf_steps(PDO $pdo, array $pr, ?array $f, ?array $po, array $ctx): array
                         'manager_rejected' => 'Rejected by Manager', 'backend_rejected' => 'Rejected by Backend', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled'][$pr['status']] ?? $pr['status']];
     $qs = $f['quote_status'] ?? 'collecting';
     $st[] = ['key' => 'quotes', 'label' => 'Shop quotations (3)', 'state' => !$prDone ? 'todo' : ($qs === 'approved' ? 'done' : ($qs === 'submitted' ? 'waiting' : 'current')),
-             'note' => $qs === 'approved' ? 'Shop approved' : ($qs === 'submitted' ? 'Waiting for approval' : ($qs === 'rejected' ? 'Rejected — change and resend' : $ctx['quote_count'] . ' of 3 collected'))];
+             'note' => $qs === 'approved' ? 'Shop approved' : ($qs === 'submitted' ? (pf_mgr_open($pdo, (int)$pr['id']) ? 'Waiting for Manager approval' : 'Waiting for Admin approval') : ($qs === 'rejected' ? 'Rejected — change and resend' : $ctx['quote_count'] . ' of 3 collected'))];
     $poSt = $po['status'] ?? null;
     $poDone = in_array($poSt, ['approved', 'partially_received', 'fully_received', 'closed'], true);
     $st[] = ['key' => 'po', 'label' => 'Purchase order', 'state' => !$po ? ($qs === 'approved' ? 'current' : 'todo') : ($poDone ? 'done' : ($poSt === 'cancelled' ? 'blocked' : 'waiting')),
@@ -175,12 +181,14 @@ try {
             if (!$qc && $grn) $qc = erp_row($pdo, "SELECT id, qc_number, status, completed_at FROM quality_checks WHERE grn_id = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [$grn['id']]);
             $apr = erp_row($pdo, "SELECT r.id, r.request_number, r.status, r.submitted_by, r.submitted_at, r.decided_by, r.decided_at, r.remarks, r.execution_error
                                   FROM approval_requests r WHERE r.module = 'pr_quotation' AND r.request_key = ? ORDER BY r.id DESC LIMIT 1", [(string)$prId]);
+            $aprStage = 'admin';   // FIX (2 Oct 2026): Manager stage of the shop choice
+            if (($f['quote_status'] ?? '') === 'submitted' && ($m = pf_mgr_open($pdo, $prId))) { $apr = array_intersect_key($m, array_flip(['id', 'request_number', 'status', 'submitted_by', 'submitted_at', 'decided_by', 'decided_at', 'remarks', 'execution_error'])); $aprStage = 'manager'; }
             $docs = [];
             foreach (PF_DOC_SLOTS as $slot => [$col]) $docs[$slot] = $f ? pf_doc_info($pdo, $f[$col]) : null;
             $paid = $payment && $payment['status'] === 'completed' ? (float)$payment['amount'] : 0;
             $safeSup = $sup ? array_intersect_key($sup, array_flip(['id', 'supplier_name', 'mobile', 'email', 'gst_number', 'owner_name', 'account_holder_name', 'bank_name', 'bank_account_number', 'bank_ifsc', 'upi_id', 'payment_terms', 'bank_details'])) : null;
             erp_out(['status' => 'success', 'pr' => $pr, 'flow' => $f, 'quotes' => $quotes, 'po' => $po ? array_merge($po, ['items' => $poItems]) : null, 'supplier' => $safeSup,
-                     'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'docs' => $docs,
+                     'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'approval_stage' => $aprStage, 'can_mgr' => erp_can($pdo, 'purchase.manager_approve'), 'docs' => $docs,
                      'couriers' => erp_rows($pdo, "SELECT id, name, tracking_url FROM courier_services WHERE is_active = 1 ORDER BY sort_order, name"),
                      'can' => ['quotes' => erp_can($pdo, 'flow.source'), 'approve' => erp_can($pdo, 'purchase.backend_approve'),
                                'pay' => erp_can($pdo, 'purchase_payment.create'), 'transport' => erp_can($pdo, 'flow.source'),
@@ -215,11 +223,38 @@ try {
             $lowest = min(array_map(fn($c) => $c['grand_total'], $clean));
             $summary = "{$pr['pr_number']}: buy from {$chosen['supplier_name']} ₹" . number_format($chosen['grand_total'], 2) . ' (' . count($clean) . ' quotations'
                      . ($chosen['grand_total'] > $lowest + 0.004 ? ', ₹' . number_format($chosen['grand_total'] - $lowest, 2) . ' above the lowest' : ', lowest price') . ')';
-            $num = apr_open($pdo, 'pr_quotation', (string)$prId, $prId, $pr['pr_number'], $summary, $chosen['grand_total'], 'purchase_flow_api.php',
+            $mgrStep = ($mp = apr_policy($pdo, 'pr_quotation_mgr')) && (int)$mp['enabled'];   // FIX (2 Oct 2026): Manager approves the shop first, then Admin
+            $num = $mgrStep
+                ? apr_open($pdo, 'pr_quotation_mgr', (string)$prId, $prId, $pr['pr_number'], $summary, $chosen['grand_total'], 'purchase_flow_api.php',
+                           ['action' => 'quotes_mgr_approve', 'pr_id' => $prId], ['action' => 'quotes_mgr_reject', 'pr_id' => $prId])
+                : apr_open($pdo, 'pr_quotation', (string)$prId, $prId, $pr['pr_number'], $summary, $chosen['grand_total'], 'purchase_flow_api.php',
                             ['action' => 'quotes_approve', 'pr_id' => $prId], ['action' => 'quotes_reject', 'pr_id' => $prId]);
             pf_set($pdo, $prId, ['quote_status' => 'submitted', 'quote_submitted_by' => erp_user(), 'quote_submitted_at' => date('Y-m-d H:i:s'), 'quote_remarks' => null]);
             log_audit($pdo, 'update', 'purchase_flows', $prId, null, ['quotes_submitted' => count($clean), 'chosen' => $chosen['supplier_name'], 'approval' => $num]);
-            erp_out(['status' => 'success', 'message' => "Sent for approval ({$num}): {$chosen['supplier_name']}."]);
+            erp_out(['status' => 'success', 'message' => "Sent for " . ($mgrStep ? 'Manager' : 'Admin') . " approval ({$num}): {$chosen['supplier_name']}."]);
+
+        // FIX (2 Oct 2026): Manager decision on the shop choice — approve sends it on to the Admin, reject sends it back to L1
+        case 'quotes_mgr_approve':
+        case 'quotes_mgr_reject':
+            $prId = (int)erp_input('pr_id');
+            $pr = pf_pr($pdo, $prId);
+            $f = pf_flow($pdo, $prId);
+            if (!$f || $f['quote_status'] !== 'submitted') erp_invalid('These quotations are not waiting for approval.');
+            $open = pf_mgr_open($pdo, $prId);
+            if (!$open && $action === 'quotes_mgr_approve') erp_invalid('These quotations are not waiting for the Manager.');   // a rejection from Approvals closes the request before this runs
+            if (!$open && erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'pr_quotation' AND request_key = ? AND status IN ('submitted','under_review')", [(string)$prId])) erp_invalid('The Manager has already approved — it is with the Admin now.');
+            $rem = erp_input('_approval_remarks') ?: erp_input('remarks') ?: null;
+            if ($action === 'quotes_mgr_reject') {
+                pf_set($pdo, $prId, ['quote_status' => 'rejected', 'quote_decided_by' => erp_user(), 'quote_decided_at' => date('Y-m-d H:i:s'), 'quote_remarks' => $rem ? mb_substr('Manager: ' . $rem, 0, 255) : 'Rejected by Manager']);
+                apr_close($pdo, 'pr_quotation_mgr', (string)$prId, 'rejected', $rem);
+                log_audit($pdo, 'reject', 'purchase_flows', $prId, null, ['shop_choice' => 'rejected by manager', 'remarks' => $rem]);
+                erp_out(['status' => 'success', 'message' => 'Quotation rejected by the Manager — it goes back to L1 for changes.']);
+            }
+            apr_close($pdo, 'pr_quotation_mgr', (string)$prId, 'approved', $rem);
+            $num = apr_open($pdo, 'pr_quotation', (string)$prId, $prId, $pr['pr_number'], mb_substr($open['summary'] . ' · Manager approved: ' . erp_user(), 0, 255), $open['amount'] !== null ? (float)$open['amount'] : null,
+                            'purchase_flow_api.php', ['action' => 'quotes_approve', 'pr_id' => $prId], ['action' => 'quotes_reject', 'pr_id' => $prId]);
+            log_audit($pdo, 'approve', 'purchase_flows', $prId, null, ['shop_choice' => 'approved by manager', 'sent_to_admin' => $num]);
+            erp_out(['status' => 'success', 'message' => "Shop approved by the Manager — sent to the Admin ({$num})."]);
 
         case 'quotes_reject':
             $prId = (int)erp_input('pr_id');
@@ -228,6 +263,7 @@ try {
             $rem = erp_input('_approval_remarks') ?: erp_input('remarks') ?: null;
             pf_set($pdo, $prId, ['quote_status' => 'rejected', 'quote_decided_by' => erp_user(), 'quote_decided_at' => date('Y-m-d H:i:s'), 'quote_remarks' => $rem ? mb_substr($rem, 0, 255) : null]);
             apr_close($pdo, 'pr_quotation', (string)$prId, 'rejected', $rem);
+            apr_close($pdo, 'pr_quotation_mgr', (string)$prId, 'rejected', $rem);   // FIX (2 Oct 2026)
             erp_out(['status' => 'success', 'message' => 'Quotation rejected — it goes back for changes.']);
 
         case 'quotes_approve':
@@ -237,6 +273,7 @@ try {
             $pr = pf_pr($pdo, $prId);
             $f = pf_flow($pdo, $prId);
             if ($action === 'quotes_approve' && (!$f || $f['quote_status'] !== 'submitted')) erp_invalid('These quotations are not waiting for approval.');
+            if ($action === 'quotes_approve' && pf_mgr_open($pdo, $prId)) erp_invalid('The Manager has not approved this shop yet — it reaches the Admin after the Manager.');   // FIX (2 Oct 2026)
             if ($action === 'quotes_retry_po' && (!$f || $f['quote_status'] !== 'approved' || $f['po_id'])) erp_invalid('A purchase order can be created only for an approved shop without a PO.');
             if (!in_array($pr['status'], ['approved', 'converted'], true)) erp_invalid('The purchase request is no longer approved.');
             $quotes = pq_load($pdo, PQ_PR, $prId);

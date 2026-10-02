@@ -176,8 +176,10 @@ function quotesBody() {
     }
     h += '<div id="qView"></div>';
     if (f.quote_status === 'submitted') {
-        h += `<div class="erp-warn">Waiting for approval${approval ? ' — ' + E.esc(approval.request_number) + ' sent by ' + E.esc(approval.submitted_by || '') + ' ' + E.date(approval.submitted_at) : ''}.${approval && approval.execution_error ? '<br><strong>Last try failed:</strong> ' + E.esc(approval.execution_error) : ''}</div>`;
-        h += can.approve ? '<div class="pf-actions"><a class="adm-btn adm-btn-primary" href="index.php"><i class="fas fa-gauge-high"></i> Approve / reject on your Dashboard</a></div>' : '<div class="erp-note">The Admin approves the shop from the Admin dashboard.</div>';
+        h += `<div class="erp-warn">Waiting for ${D.approval_stage === 'manager' ? 'Manager' : 'Admin'} approval${D.approval_stage === 'manager' ? ' (then Admin)' : ''}${approval ? ' — ' + E.esc(approval.request_number) + ' sent by ' + E.esc(approval.submitted_by || '') + ' ' + E.date(approval.submitted_at) : ''}.${approval && approval.execution_error ? '<br><strong>Last try failed:</strong> ' + E.esc(approval.execution_error) : ''}</div>`;
+        // FIX (2 Oct 2026): Manager approves the shop first, then Admin
+        const myTurn = D.approval_stage === 'manager' ? D.can_mgr : can.approve;
+        h += myTurn ? '<div class="pf-actions"><a class="adm-btn adm-btn-primary" href="index.php"><i class="fas fa-gauge-high"></i> Approve / reject on your Dashboard</a></div>' : `<div class="erp-note">The ${D.approval_stage === 'manager' ? 'Manager approves the shop first, then the Admin' : 'Admin approves the shop'} from the dashboard.</div>`;
     }
     if (f.quote_status === 'approved') h += `<div class="erp-note">Approved by ${E.esc(f.quote_decided_by || '')} · ${E.date(f.quote_decided_at)}${f.quote_remarks ? ' — ' + E.esc(f.quote_remarks) : ''}</div>`;
     if (!quotes.length) h += '<div class="erp-note">No quotations entered.</div>';

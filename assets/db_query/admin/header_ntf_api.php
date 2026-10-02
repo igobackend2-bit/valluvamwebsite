@@ -26,7 +26,7 @@ function hn_keys(PDO $pdo, int $uid): array {
 }
 /** Page that opens this approval. Dashboard approvals open the dashboard on that task. */
 function hn_link(array $a): string {
-    $onDash = ['purchase_request', 'purchase_request_final', 'pr_quotation', 'purchase_order', 'po_ceo'];
+    $onDash = ['purchase_request', 'purchase_request_final', 'pr_quotation', 'purchase_order', 'po_ceo', 'pr_quotation_mgr'];   // + Manager shop approval (2 Oct 2026)
     if (in_array($a['module'], $onDash, true)) return 'index.php?focus=' . rawurlencode((string)$a['request_number']) . ',' . rawurlencode((string)$a['reference']) . '#roleDash';
     $map = ['purchase_invoice' => 'purchase_invoices.php?id=', 'stock_adjustment' => 'stock_adjustments.php?id=', 'stock_count' => 'stock_counts.php?id=', 'expense' => 'expenses.php?id=',
             'manual_journal' => 'journals.php?id=', 'po_amendment' => 'purchase_orders.php?id='];
@@ -34,7 +34,7 @@ function hn_link(array $a): string {
 }
 function hn_doc_link(array $a): string {
     return match ($a['module']) {
-        'purchase_request', 'purchase_request_final', 'pr_quotation' => 'purchase_flow.php?pr_id=' . (int)$a['entity_id'],
+        'purchase_request', 'purchase_request_final', 'pr_quotation', 'pr_quotation_mgr' => 'purchase_flow.php?pr_id=' . (int)$a['entity_id'],
         'purchase_order', 'po_ceo', 'po_amendment' => 'purchase_orders.php?id=' . (int)$a['entity_id'],
         default => hn_link($a),
     };
@@ -42,7 +42,7 @@ function hn_doc_link(array $a): string {
 /** Is this user the one who approves the module? Purchase steps follow the role chain; others the approver permission. */
 function hn_is_approver(PDO $pdo, array $keys, string $module, ?string $perm): bool {
     if (in_array('super', $keys, true)) return true;
-    $chain = ['purchase_request' => 'manager', 'purchase_request_final' => 'admin', 'pr_quotation' => 'admin', 'purchase_order' => 'admin', 'po_ceo' => 'ceo'];
+    $chain = ['purchase_request' => 'manager', 'purchase_request_final' => 'admin', 'pr_quotation' => 'admin', 'purchase_order' => 'admin', 'po_ceo' => 'ceo', 'pr_quotation_mgr' => 'manager'];
     if (isset($chain[$module])) return in_array($chain[$module], $keys, true);
     return erp_can($pdo, $perm ?: 'purchase.approve');
 }
