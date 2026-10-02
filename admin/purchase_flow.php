@@ -31,6 +31,44 @@ new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-c
 #card-quotes,#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],
 .pf-step[data-go="quotes"],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}</style>
 <?php endif; ?>
+<style>/* FIX (2 Oct 2026): cleaner, roomier layout of the purchase flow (view only) */
+#listView,#detailView{max-width:1600px;margin-left:auto;margin-right:auto}
+#detailView .pf-steps{grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:18px}
+#detailView .pf-step{padding:12px 14px;border-radius:10px}
+#detailView .pf-step .t{font-size:14px;margin-top:2px}
+#detailView .pf-card{margin-bottom:18px;border-radius:14px}
+#detailView .pf-card > .adm-card-head{padding:16px 22px}
+#detailView .pf-card > .adm-card-head h2{font-size:16.5px}
+#detailView .pf-card > .adm-card-body{padding:18px 22px 22px}
+#detailView .pf-card .erp-note{line-height:1.5}
+#detailView .pf-actions{gap:10px;margin-top:14px}
+#detailView .pf-actions .adm-btn{padding:10px 18px}
+#detailView .pq-wrap{padding:18px;border-radius:12px}
+#detailView .pq-bar{gap:10px;margin-bottom:14px}
+#detailView .pq-scroll{border:1px solid var(--adm-line);border-radius:10px;background:var(--adm-surface)}
+#detailView .pq-tbl{border:0;border-radius:0;font-size:13.5px}
+#detailView .pq-tbl col.pq-c0{width:240px}
+#detailView .pq-tbl th,#detailView .pq-tbl td{padding:9px 14px;line-height:1.4}
+#detailView .pq-tbl td + td,#detailView .pq-tbl th + th{border-left:1px solid var(--adm-line)}
+#detailView .pq-tbl thead th{padding:13px 14px;font-size:14px;font-weight:700}
+#detailView .pq-tbl td.pq-lbl{font-size:13px;font-weight:500}
+#detailView .pq-tbl td.pq-lbl strong{color:var(--adm-ink)}
+#detailView .pq-tbl .pq-sec td{padding:10px 14px;letter-spacing:.06em;border-top:1px solid var(--adm-line);box-shadow:inset 4px 0 0 var(--adm-green)}
+#detailView .pq-tbl input,#detailView .pq-tbl select{padding:8px 10px;font-size:13.5px;min-height:38px;border-radius:8px}
+#detailView .pq-tbl .pq-rate{gap:6px}#detailView .pq-tbl .pq-rate input:last-child{flex:0 0 70px}
+#detailView .pq-tbl .pq-qty{gap:8px;margin-top:6px}
+#detailView .pq-tbl .pq-best{box-shadow:inset 0 0 0 2px #9fd0ab}
+#detailView .pq-sum{gap:12px;margin-bottom:14px}#detailView .pq-sum-card{padding:12px 16px;border-radius:10px}
+#detailView .erp-grid{gap:14px 18px}
+#detailView .erp-detail-head{gap:10px 28px}
+#detailView .adm-table th,#detailView .adm-table td{padding:10px 12px}
+@media (max-width:760px){#detailView .pf-card > .adm-card-head,#detailView .pf-card > .adm-card-body{padding:14px}#detailView .pq-wrap{padding:10px}#detailView .pq-tbl col.pq-c0{width:150px}}
+</style>
+<script>/* FIX (2 Oct 2026): number the visible steps 1, 2, 3 … when a team sees only some of them */
+(function () { var busy = false; new MutationObserver(function () { if (busy) return; busy = true;
+    var n = 0; document.querySelectorAll('#steps .pf-step').forEach(function (el) { if (el.offsetParent === null) return; var t = el.querySelector('.n'); n++; if (t && t.textContent !== 'Step ' + n) t.textContent = 'Step ' + n; });
+    n = 0; document.querySelectorAll('#cards > .pf-card').forEach(function (el) { if (el.offsetParent === null) return; var h = el.querySelector('.adm-card-head h2'); if (!h || !h.firstChild || h.firstChild.nodeType !== 3) return; n++; var v = h.firstChild.nodeValue.replace(/^\d+\.\s*/, n + '. '); if (v !== h.firstChild.nodeValue) h.firstChild.nodeValue = v; });
+    busy = false; }).observe(document.documentElement, { childList: true, subtree: true }); })();</script>
 <div id="listView">
     <section class="adm-card">
         <div class="adm-card-head"><h2>Purchases in progress</h2>
