@@ -425,20 +425,24 @@ try {
             // FIX (2 Oct 2026): how the goods are coming — courier + tracking number or own vehicle + driver (Executive: own requests; Manager, Admin, CEO: all)
             try {
                 $rows = [];
+                $pfx = true; try { $pdo->query("SELECT 1 FROM purchase_flow_extras LIMIT 1"); } catch (PDOException $e) { $pfx = false; }   // FIX (2 Oct 2026): unloading checker + signature
                 foreach (erp_rows($pdo, "SELECT f.pr_id, pr.pr_number, po.po_number, s.supplier_name, f.delivery_mode, f.courier_name, f.tracking_number, f.vehicle_number, f.driver_name, f.driver_phone,
-                                                f.dispatch_date, f.quote_submitted_by, f.grn_id, f.unload_check, cs.tracking_url
+                                                f.dispatch_date, f.quote_submitted_by, f.grn_id, f.unload_check, cs.tracking_url" . ($pfx ? ", x.unload_checker_name, x.unload_signed_at, x.unload_signature_doc_id" : '') . "
                                          FROM purchase_flows f JOIN purchase_requests pr ON pr.id = f.pr_id LEFT JOIN purchase_orders po ON po.id = f.po_id LEFT JOIN suppliers s ON s.id = po.supplier_id
-                                         LEFT JOIN courier_services cs ON cs.id = f.courier_service_id
+                                         LEFT JOIN courier_services cs ON cs.id = f.courier_service_id" . ($pfx ? " LEFT JOIN purchase_flow_extras x ON x.pr_id = f.pr_id" : '') . "
                                          WHERE f.delivery_mode IS NOT NULL" . ($own ? " AND pr.created_by = ?" : '') . " ORDER BY f.dispatch_date DESC, f.id DESC LIMIT 15", $own ? [$me] : []) as $x) {
                     $c = $x['delivery_mode'] === 'courier';
                     $rows[] = ['po' => $x['po_number'] . ' · ' . $x['pr_number'], 'sup' => $x['supplier_name'], 'how' => $c ? 'Courier · ' . ($x['courier_name'] ?: '') : 'Own vehicle · ' . ($x['vehicle_number'] ?: ''),
                                'track' => $c ? ($x['tracking_number'] ?: '—') : trim(($x['driver_name'] ?: '') . ' ' . ($x['driver_phone'] ?: '')),
                                'date' => $x['dispatch_date'], 'by' => $x['quote_submitted_by'], 'st' => $x['grn_id'] || $x['unload_check'] ? 'Unloaded' : 'In transit',
+                               'chk' => !empty($x['unload_checker_name']) ? $x['unload_checker_name'] . ' · ' . substr((string)$x['unload_signed_at'], 0, 10) : '—',
+                               'sig' => !empty($x['unload_signature_doc_id']) ? ['href' => '../assets/db_query/admin/erp_docs.php?action=download&id=' . (int)$x['unload_signature_doc_id'], 'text' => 'signature'] : null,
                                'link' => 'purchase_flow.php?pr_id=' . (int)$x['pr_id'] . '#card-transport'];
                 }
                 $sections[$ix]['lists'][] = ['key' => 'transit', 'title' => $own ? 'My purchases — transport & tracking' : 'Purchases on the way — transport & tracking', 'empty' => 'No goods dispatched yet.',
                                              'cols' => [['k' => 'po', 'l' => 'PO / request'], ['k' => 'sup', 'l' => 'Shop'], ['k' => 'how', 'l' => 'Transport'], ['k' => 'track', 'l' => 'Tracking no. / driver'],
-                                                        ['k' => 'date', 'l' => 'Dispatched', 'f' => 'date'], ['k' => 'by', 'l' => 'Bought by (L1)'], ['k' => 'st', 'l' => 'Status', 'f' => 'status']], 'rows' => $rows];
+                                                        ['k' => 'date', 'l' => 'Dispatched', 'f' => 'date'], ['k' => 'by', 'l' => 'Bought by (L1)'], ['k' => 'st', 'l' => 'Status', 'f' => 'status'],
+                                                        ['k' => 'chk', 'l' => 'Unloading checked by'], ['k' => 'sig', 'l' => 'Signature', 'f' => 'file']], 'rows' => $rows];
             } catch (PDOException $e) { error_log('[role dash transit] ' . $e->getMessage()); }
             // FIX (2 Oct 2026): external auditor reports (monthly stock audit + quality check) — Manager, Admin, CEO
             if ($lk !== 'executive' || $key === 'super') { try { $sections[$ix]['lists'][] = rd_audit_list($pdo, 'External audit & quality reports (monthly)'); } catch (PDOException $e) { error_log('[role dash audits] ' . $e->getMessage()); } }

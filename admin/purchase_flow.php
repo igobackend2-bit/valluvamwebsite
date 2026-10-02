@@ -25,6 +25,7 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
 /* FIX (2 Oct 2026): L1 provides the shop quotations; the L1 who got the quotation also buys (transport, loading DC + shop bill) */
 #card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}
 body.pf-buyer #cards #card-transport,body.pf-buyer #cards #card-docs,body.pf-buyer #cards #card-unload,body.pf-buyer #cards [data-px="loading"],body.pf-buyer #cards [data-px="unload"]{display:block!important}
+body.pf-buyer #cards #card-proofs{display:block!important}
 body.pf-buyer #steps .pf-step[data-go="transport"],body.pf-buyer #steps .pf-step[data-go="docs"],body.pf-buyer #steps .pf-step[data-go="unload"]{display:block!important}</style>
 <script>(function () { var me = <?= json_encode((string)($_SESSION['admin_username'] ?? '')) ?>; new MutationObserver(function () {
     var on = typeof D !== 'undefined' && D && D.flow && D.flow.quote_submitted_by === me && D.flow.quote_status === 'approved';
@@ -83,17 +84,23 @@ new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-c
 .pf-xall{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 12px}
 </style>
 <script>(function () {   /* FIX (2 Oct 2026): expandable cards — finished steps start closed, open ones stay open; click a header or a step to open it */
-    var user = {}, busy = false;
+    var user = {}, prev = {}, busy = false;
     function key(c) { return c.id || ''; }
     function apply() {
         if (busy) return; busy = true;
-        var tt = document.getElementById('dTitle'); if (tt && tt.textContent !== apply.t) { apply.t = tt.textContent; user = {}; }   // another purchase opened
+        var tt = document.getElementById('dTitle'); if (tt && tt.textContent !== apply.t) { apply.t = tt.textContent; user = {}; prev = {}; }   // another purchase opened
         var cards = document.querySelectorAll('#cards > .pf-card');
         cards.forEach(function (c) {
             var h = c.querySelector(':scope > .adm-card-head'); if (!h) return;
             if (!h.querySelector('.pf-tg')) { var t = document.createElement('span'); t.className = 'pf-tg'; t.innerHTML = '<i class="fas fa-chevron-down"></i>'; h.appendChild(t); }
             var b = h.querySelector('h2 .adm-badge'), done = b && /^\s*done\s*$/i.test(b.textContent);
-            var k = key(c), want = k in user ? user[k] : done;
+            var k = key(c);
+            if (k in prev && prev[k] !== done) {   // FIX (2 Oct 2026): a step just saved → close it; loading done → open + go to unloading
+                delete user[k];
+                if (done && k === 'card-docs') { user['card-unload'] = false; setTimeout(function () { var u = document.getElementById('card-unload'); if (u) u.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400); }
+            }
+            prev[k] = done;
+            var want = k in user ? user[k] : done;
             if (c.classList.contains('pf-col') !== want) c.classList.toggle('pf-col', want);
             var step = document.querySelector('#steps .pf-step[data-go="' + k.replace('card-', '') + '"] .s'), sum = h.querySelector('.pf-sum');
             var txt = step ? step.textContent : '';
@@ -117,6 +124,37 @@ new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-c
         if (s) { user['card-' + s.getAttribute('data-go')] = false; apply(); }
     }, true);
     new MutationObserver(apply).observe(document.documentElement, { childList: true, subtree: true });
+})();</script>
+<script>/* FIX (2 Oct 2026): every attached / saved proof can be seen — "View" opens it here (photo, PDF) */
+(function () {
+    var css = document.createElement('style');
+    css.textContent = '.pf-pv{margin-left:6px;border:1px solid var(--adm-line);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;cursor:pointer;color:#1c5034}.pf-pv:hover{background:#eef5ef}' +
+        '.pf-pvo{position:fixed;inset:0;background:rgba(20,24,18,.6);z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px}.pf-pvb{background:#fff;border-radius:14px;max-width:960px;width:100%;max-height:92vh;display:flex;flex-direction:column}' +
+        '.pf-pvh{padding:12px 16px;border-bottom:1px solid #ece6da;display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:700;color:#1c5034}.pf-pvc{flex:1;overflow:auto;background:#f4f1ea;display:flex;align-items:center;justify-content:center;min-height:300px}' +
+        '.pf-pvc img{max-width:100%;max-height:78vh}.pf-pvc iframe{width:100%;height:78vh;border:0;background:#fff}.pf-pvh a,.pf-pvh button{font-size:13px;border:1px solid #d9d2c3;border-radius:8px;padding:6px 12px;background:#fff;cursor:pointer;color:#23281f;text-decoration:none;font-weight:600}';
+    document.head.appendChild(css);
+    var busy = false;
+    new MutationObserver(function () {
+        if (busy) return; busy = true;
+        document.querySelectorAll('#cards a[href*="erp_docs.php?action=download"]').forEach(function (a) {
+            if (a.dataset.pv || a.closest('.px-card')) return; a.dataset.pv = 1;
+            var b = document.createElement('button'); b.type = 'button'; b.className = 'pf-pv'; b.innerHTML = '<i class="fas fa-eye"></i> View'; b.dataset.href = a.getAttribute('href'); b.dataset.name = a.textContent.trim();
+            a.insertAdjacentElement('afterend', b);
+        });
+        busy = false;
+    }).observe(document.documentElement, { childList: true, subtree: true });
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('.pf-pv'); if (!b) return; e.preventDefault(); e.stopPropagation();
+        var h = b.dataset.href, n = b.dataset.name || 'File', img = /\.(jpe?g|png|webp|gif)$/i.test(n) || /signature|photo/i.test(n);
+        var o = document.createElement('div'); o.className = 'pf-pvo';
+        o.innerHTML = '<div class="pf-pvb"><div class="pf-pvh"><span></span><span style="display:flex;gap:8px"><a target="_blank" rel="noopener">Open in new tab</a><button type="button">Close</button></span></div><div class="pf-pvc"></div></div>';
+        o.querySelector('.pf-pvh span').textContent = n; o.querySelector('a').href = h;
+        var c = o.querySelector('.pf-pvc');
+        if (img || !/\.pdf$/i.test(n)) { var im = new Image(); im.alt = n; im.onerror = function () { c.innerHTML = '<iframe title="preview"></iframe>'; c.querySelector('iframe').src = h; }; im.src = h; c.appendChild(im); }
+        else { c.innerHTML = '<iframe title="preview"></iframe>'; c.querySelector('iframe').src = h; }
+        o.addEventListener('click', function (ev) { if (ev.target === o || ev.target.closest('.pf-pvh button')) o.remove(); });
+        document.body.appendChild(o);
+    }, true);
 })();</script>
 <script>/* FIX (2 Oct 2026): opened with #card-quotes (from RFQ & Quotations) → scroll to that card once it is drawn */
 (function () { var h = location.hash; if (!/^#card-[a-z]+$/.test(h)) return; var t0 = Date.now(), mo = new MutationObserver(function () { var el = document.querySelector(h); if (el && el.offsetParent !== null) { mo.disconnect(); setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300); } else if (Date.now() - t0 > 15000) mo.disconnect(); }); mo.observe(document.documentElement, { childList: true, subtree: true }); })();</script>
