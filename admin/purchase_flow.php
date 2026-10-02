@@ -19,6 +19,13 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
 .pf-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .pf-hide{display:none}
 </style>
+<?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'l1'): ?>
+<style>/* FIX (2 Oct 2026): L1 (Sourcing) sees only its own steps — request items, shop quotations, transport, loading DC + bill, unloading, QC (no PO approval / payment) */
+#card-po,#card-payment,.pf-step[data-go="po"],.pf-step[data-go="payment"]{display:none!important}</style>
+<script>/* FIX (2 Oct 2026): L1 — hide the payment proof in "All proofs" */
+new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-card').forEach(function (c) { var t = c.querySelector('.px-step'); if (t && /^\s*payment\s*$/i.test(t.textContent)) { c.remove(); var b = document.querySelector('#card-proofs .adm-card-head .adm-badge'); if (b) b.textContent = document.querySelectorAll('#card-proofs .px-card').length; } }); })
+    .observe(document.documentElement, { childList: true, subtree: true });</script>
+<?php endif; ?>
 <?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'accounts'): ?>
 <style>/* FIX (2 Oct 2026): Accounts Team sees only the money steps — request, purchase order (bank details) and payment + proof */
 #card-quotes,#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],

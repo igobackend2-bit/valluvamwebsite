@@ -127,6 +127,9 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
                                          'gst_summary.php', 'financial_periods.php', 'bank_accounts.php', 'profit_loss.php', 'product_profitability.php', 'purchase_payments.php', 'supplier_ledger.php', 'purchase_invoices.php']);
         if ($k === 'accounts')   // Accounts Team: not the request / sourcing pages — they start once a PO exists (1 Oct 2026)
             $extra = array_diff($extra, ['purchase_requests.php', 'rfqs.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php', 'warehouses.php']);
+        if ($k === 'l1')   // FIX (2 Oct 2026): L1 (Sourcing) sees only its own work — quotations, transport, loading / unloading, GRN, QC — not inventory, audits or purchase reports
+            $extra = array_intersect($extra, ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'rfqs.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php',
+                                              'stock_flow.php', 'suppliers.php', 'supplier_360.php', 'documents.php', 'notifications.php', 'print_erp.php']);
         $base = array_merge($base, $extra);
     }
     return $base === null ? null : array_values(array_unique($base));
