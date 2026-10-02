@@ -48,8 +48,8 @@ function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
             !($r['loading_dc_doc_id'] && $r['shop_bill_doc_id']) => ['docs', 'Attach loading DC + shop bill'],
             !$r['grn_id'] => ['unload', 'Unloading check'],
             !$r['qc_id'] || !$qcDone => ['qc', 'Quality check — Executive to check & report'],
-            $r['grn_status'] === 'draft' => ['post', 'Post goods receipt'],
-            default => ['done', 'Completed'],
+            $r['grn_status'] === 'draft' => ['post', 'QC done — Executive to add to stock (Stock In sheet)'],
+            default => ['done', 'Added to inventory — completed'],   // FIX (2 Oct 2026)
         };
     }
     unset($r);
@@ -170,6 +170,11 @@ try {
         $tasks = []; $kpis = [];
         if ($k === 'executive') {
             $mine = array_values(array_filter($flows, fn($f) => $key === 'super' || $f['created_by'] === $me));
+            // FIX (2 Oct 2026): after unloading the Executive checks the quality, then adds the goods to stock (Stock In: download sheet → upload) — for every purchase
+            foreach ($flows as $f) if (in_array($f['stage'][0], ['qc', 'post'], true))
+                $tasks[] = rd_task($f, ($f['stage'][0] === 'qc' ? 'Check the quality & write the report — ' : 'Add to stock — download the sheet, upload it in Stock In — ') . $f['pr_number'] . ($f['supplier_name'] ? ' · ' . $f['supplier_name'] : ''),
+                                   rd_items($pdo, (int)$f['id']), [], $f['stage'][0] === 'qc' ? 'purchase_flow.php?pr_id=' . (int)$f['id'] . '#card-qc' : 'stock_in.php#grnPanel');
+            $mine = array_values(array_filter($mine, fn($f) => !in_array($f['stage'][0], ['qc', 'post'], true)));
             foreach ($mine as $f) if ($f['stage'][0] !== 'done' && $f['stage'][0] !== 'closed')
                 $tasks[] = rd_task($f, $f['pr_number'], rd_items($pdo, (int)$f['id']), [], $f['stage'][0] === 'draft' ? 'purchase_requests.php?id=' . $f['id'] : '');
             $mineSql = $key === 'super' ? '' : ' AND created_by = ' . $pdo->quote($me);

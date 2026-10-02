@@ -81,7 +81,7 @@ function pr_stage(PDO $pdo, array $pr): ?array {
             $more = count($cons) > 1 ? ' (' . count($cons) . ' consignments)' : '';
             $wh = prs_wh($pdo, $c['unload_warehouse_id'] ?: $c['destination_warehouse_id']) ?: $prWh;
             switch ($c['status']) {
-                case 'stocked': return prs_out(12, "Added to inventory — {$wh}" . $more, 'done');
+                case 'stocked': return prs_out(12, "Added to inventory — completed ({$wh})" . $more, 'done');
                 case 'qc_approved': return prs_out(11, "QC checked (passed) at {$wh} — adding to inventory" . $more, 'ok', 'Warehouse');
                 case 'qc_hold': return prs_out(11, "QC on hold at {$wh}" . $more, 'wait', 'QC');
                 case 'qc_failed': return prs_out(11, "QC failed at {$wh}" . $more, 'bad', 'QC');
@@ -101,7 +101,7 @@ function pr_stage(PDO $pdo, array $pr): ?array {
         if (!$cons && ($grn || in_array($poSt, ['partially_received', 'fully_received', 'closed'], true))) {
             $wh = ($grn ? prs_wh($pdo, $grn['warehouse_id']) : '') ?: $prWh;
             if (($grn && $grn['status'] === 'posted') || in_array($poSt, ['partially_received', 'fully_received', 'closed'], true))
-                return $poSt === 'partially_received' ? prs_out(12, "Partly added to inventory — {$wh} (balance pending)", 'ok', 'Warehouse') : prs_out(12, "Added to inventory — {$wh}", 'done');
+                return $poSt === 'partially_received' ? prs_out(12, "Partly added to inventory — {$wh} (balance pending)", 'ok', 'Warehouse') : prs_out(12, "Added to inventory — completed ({$wh})", 'done');
             $qc = ($f && $f['qc_id']) ? erp_row($pdo, "SELECT status FROM quality_checks WHERE id = ?", [$f['qc_id']]) : null;
             if (!$qc) $qc = erp_row($pdo, "SELECT status FROM quality_checks WHERE grn_id = ? AND status <> 'cancelled' ORDER BY id DESC LIMIT 1", [$grn['id']]);
             if ($qc && $qc['status'] === 'rejected') return prs_out(11, "QC failed at {$wh}", 'bad', 'QC');

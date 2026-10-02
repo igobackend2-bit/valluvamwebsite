@@ -38,7 +38,7 @@
         var w = D.waiting, l = D.last;
         $p.html('<section class="adm-card"><div class="adm-card-head" style="flex-wrap:wrap;gap:10px"><h2><i class="fas fa-truck-ramp-box"></i> Received purchases — add to stock</h2></div><div class="adm-card-body">' +
             '<p class="gs-help">Goods received from a purchase order wait here until they are added to stock. Download the CSV, fill <strong>warehouse_id</strong> and <strong>location_code</strong> (rack / bin), then ' +
-            (D.can_post ? 'upload it with <strong>Upload CSV &amp; add to stock</strong>.' : 'send it to the Admin — only the Admin adds them to stock.') + '</p>' +
+            (D.can_post ? 'upload it with <strong>Upload CSV &amp; add to stock</strong> (open the CSV in Excel, fill it, save as CSV). The purchase is then marked <strong>Added to inventory — completed</strong>.' : 'send it to the Executive / Admin — they add them to stock.') + '</p>' +   // FIX (2 Oct 2026)
             (w.length ? '<div class="gs-tw"><table class="gs-tbl"><thead><tr><th>Goods receipt</th><th>Supplier</th><th>PO</th><th>Received</th><th>Warehouse</th><th style="text-align:right">Accepted qty</th><th>Quality</th><th></th></tr></thead><tbody>' +
                 w.map(function (g) {
                     return '<tr><td><strong>' + esc(g.grn_number) + '</strong><div style="font-size:12px;color:#6b6459">' + g.lines_n + ' item(s)</div></td><td>' + esc(g.supplier_name) + '</td><td>' + esc(g.po_number || '—') + '</td><td>' + day(g.received_date) + '</td><td>' + esc(g.warehouse_name || '—') + '</td>' +

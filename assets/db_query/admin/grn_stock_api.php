@@ -21,7 +21,7 @@ $action = (string)erp_input('action', 'list');
 function gs_can_post(PDO $pdo): bool {
     if ((int)($_SESSION['admin_role_id'] ?? 0) === 1) return true;
     $keys = array_merge([role_access_key((string)($_SESSION['admin_role_name'] ?? ''))], user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0)));
-    return in_array('admin', $keys, true) && erp_can($pdo, 'grn.create');
+    return (bool)array_intersect(['admin', 'executive'], $keys) && erp_can($pdo, 'grn.create');   // FIX (2 Oct 2026): the Executive (after QC) also adds received goods to stock
 }
 function gs_locations(PDO $pdo): array {
     try { return erp_rows($pdo, "SELECT id, warehouse_id, code, name, level FROM warehouse_locations WHERE status = 'active' ORDER BY warehouse_id, code"); }

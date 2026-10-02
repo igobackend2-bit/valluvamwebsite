@@ -452,8 +452,8 @@ function qcBody() {
     const done = ['passed', 'partially_passed', 'rejected'].includes(qc.status);
     return E.kv([['Quality check', `<a class="erp-link" href="quality_checks.php?id=${qc.id}">${E.esc(qc.qc_number)}</a>`], ['Status', E.badge(qc.status)], qc.completed_at ? ['Completed', E.date(qc.completed_at)] : null, ['Goods receipt', E.esc(grn.grn_number) + ' · ' + E.esc(grn.status)]])
         + `<div class="pf-actions"><a class="adm-btn ${done ? 'adm-btn-ghost' : 'adm-btn-primary'}" href="quality_checks.php?id=${qc.id}"><i class="fas fa-microscope"></i> ${done ? 'View' : 'Do'} the quality check</a>
-           ${done && grn.status === 'draft' ? `<a class="adm-btn adm-btn-primary" href="goods_receipts.php?id=${grn.id}"><i class="fas fa-boxes-stacked"></i> Post goods receipt (add to stock)</a>` : ''}</div>`
-        + (done && grn.status === 'posted' ? '<div class="erp-note pf-ok" style="font-size:14px">✓ Purchase completed — goods are in stock. Record the shop bill in Purchase Invoices for accounts.</div>' : '');
+           ${done && grn.status === 'draft' ? `<a class="adm-btn adm-btn-primary" href="stock_in.php#grnPanel" title="Stock In → download the sheet (CSV / Excel) → fill warehouse + rack → upload → added to stock"><i class="fas fa-file-csv"></i> Add to stock in Stock In (download sheet → upload)</a><a class="adm-btn adm-btn-ghost" style="display:none" href="goods_receipts.php?id=${grn.id}"><i class="fas fa-boxes-stacked"></i> Post goods receipt (add to stock)</a>` : ''}</div>`
+        + (done && grn.status === 'posted' ? '<div class="erp-note pf-ok" style="font-size:14px">✓ Added to inventory — completed. Goods are in stock. Record the shop bill in Purchase Invoices for accounts.</div>' : '');
 }
 function bindQc() {
     $('#qcStart').on('click', () => E.post('procurement_api.php', { action: 'qc_create', grn_id: D.grn.id }, { silent: true })
