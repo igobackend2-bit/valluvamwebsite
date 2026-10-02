@@ -34,6 +34,12 @@ body.pf-buyer #steps .pf-step[data-go="transport"],body.pf-buyer #steps .pf-step
 new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-card').forEach(function (c) { var t = c.querySelector('.px-step'); if (t && /^\s*payment\s*$/i.test(t.textContent)) { c.remove(); var b = document.querySelector('#card-proofs .adm-card-head .adm-badge'); if (b) b.textContent = document.querySelectorAll('#card-proofs .px-card').length; } }); })
     .observe(document.documentElement, { childList: true, subtree: true });</script>
 <?php endif; ?>
+<?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'executive'): ?>
+<style>/* FIX (2 Oct 2026): Executive sees only their part — own request, how the goods come (read only), unloading result, quality check + report, proofs; no quotations / PO / payment / charges / loading */
+#card-quotes,#card-po,#card-payment,#card-tcharge,#card-docs,
+.pf-step[data-go="quotes"],.pf-step[data-go="po"],.pf-step[data-go="payment"],.pf-step[data-go="docs"],#card-transport .pf-grid,#card-transport .pf-actions{display:none!important}</style>
+<script>new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-card').forEach(function (c) { var t = c.querySelector('.px-step'); if (t && /^\s*payment\s*$/i.test(t.textContent)) c.remove(); }); }).observe(document.documentElement, { childList: true, subtree: true });</script>
+<?php endif; ?>
 <?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'accounts'): ?>
 <style>/* FIX (2 Oct 2026): Accounts Team sees only the money steps — request, purchase order (bank details) and payment + proof */
 #card-quotes,#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],
