@@ -42,7 +42,7 @@ function hn_doc_link(array $a): string {
 /** Is this user the one who approves the module? Purchase steps follow the role chain; others the approver permission. */
 function hn_is_approver(PDO $pdo, array $keys, string $module, ?string $perm): bool {
     if (in_array('super', $keys, true)) return true;
-    $chain = ['purchase_request' => 'manager', 'purchase_request_final' => 'admin', 'pr_quotation' => 'admin', 'purchase_order' => 'admin', 'po_ceo' => 'ceo', 'pr_quotation_mgr' => 'manager'];
+    $chain = ['purchase_request' => 'manager', 'purchase_request_final' => 'admin', 'pr_quotation' => 'admin', 'purchase_order' => 'admin', 'po_ceo' => 'ceo', 'pr_quotation_mgr' => 'manager', 'transport_charge_mgr' => 'manager', 'transport_charge' => 'admin'];   // + courier charges (2 Oct 2026)
     if (isset($chain[$module])) return in_array($chain[$module], $keys, true);
     return erp_can($pdo, $perm ?: 'purchase.approve');
 }

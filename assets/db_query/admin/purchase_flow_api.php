@@ -20,9 +20,14 @@ require_once __DIR__ . '/pf_lib.php';
 
 $action = (string)erp_input('action', '');
 $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
-$writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'po_check', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
+$writes = ['quotes_save', 'quotes_submit', 'quotes_approve', 'quotes_reject', 'quotes_retry_po', 'quotes_mgr_approve', 'quotes_mgr_reject', 'po_check', 'tc_raise', 'tc_mgr_approve', 'tc_mgr_reject', 'tc_approve', 'tc_reject', 'tc_check', 'tc_pay', 'pay_link', 'transport_save', 'doc_link', 'unload_save', 'grn_link', 'qc_link'];
 $perms = ['quotes_approve' => 'purchase.backend_approve', 'quotes_reject' => 'purchase.backend_approve', 'quotes_retry_po' => 'purchase.backend_approve',
-          'quotes_mgr_approve' => 'purchase.manager_approve', 'quotes_mgr_reject' => 'purchase.manager_approve'];   // FIX (2 Oct 2026): shop choice — Manager first, then Admin
+          'quotes_mgr_approve' => 'purchase.manager_approve', 'quotes_mgr_reject' => 'purchase.manager_approve',
+          'tc_mgr_approve' => 'purchase.manager_approve', 'tc_mgr_reject' => 'purchase.manager_approve', 'tc_approve' => 'purchase.backend_approve', 'tc_reject' => 'purchase.backend_approve',
+          'tc_check' => 'purchase_payment.create', 'tc_pay' => 'purchase_payment.create'];   // courier / transport charges (2 Oct 2026)
+/** FIX (2 Oct 2026): courier / transport charges table installed? (transport_charge_migration.sql) */
+function pf_tc_installed(PDO $pdo): bool { static $ok = null; if ($ok === null) { try { $pdo->query("SELECT 1 FROM pf_transport_charges LIMIT 1"); $ok = true; } catch (PDOException $e) { $ok = false; } } return $ok; }
+function pf_tc(PDO $pdo, int $id): array { $c = erp_row($pdo, "SELECT * FROM pf_transport_charges WHERE id = ?", [$id]); if (!$c) erp_invalid('Charge not found.'); return $c; }   // FIX (2 Oct 2026): shop choice — Manager first, then Admin
 /** FIX (2 Oct 2026): dashboard key of the logged-in role (executive, manager, l1, admin, ceo, accounts). */
 function pf_role_key(): string {
     $f = __DIR__ . '/../../../admin/includes/role_access.php';
@@ -211,7 +216,14 @@ try {
             $paid = $payment && $payment['status'] === 'completed' ? (float)$payment['amount'] : 0;
             $safeSup = $sup ? array_intersect_key($sup, array_flip(['id', 'supplier_name', 'mobile', 'email', 'gst_number', 'owner_name', 'account_holder_name', 'bank_name', 'bank_account_number', 'bank_ifsc', 'upi_id', 'payment_terms', 'bank_details'])) : null;
             erp_out(['status' => 'success', 'pr' => $pr, 'flow' => $f, 'quotes' => $quotes, 'po' => $po ? array_merge($po, ['items' => $poItems]) : null, 'supplier' => $safeSup,
-                     'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'approval_stage' => $aprStage, 'po_check' => pf_has_po_check($pdo), 'can_mgr' => erp_can($pdo, 'purchase.manager_approve'), 'docs' => $docs,
+                     'payment' => $payment, 'grn' => $grn, 'qc' => $qc, 'approval' => $apr, 'approval_stage' => $aprStage, 'po_check' => pf_has_po_check($pdo),
+                     // FIX (2 Oct 2026): courier / transport charges with proof and approvals
+                     'tc_installed' => pf_tc_installed($pdo),
+                     'tcharges' => pf_tc_installed($pdo) ? erp_rows($pdo, "SELECT c.*, d.original_name AS proof_name, pd.original_name AS pay_proof_name,
+                                                        (SELECT r.id FROM approval_requests r WHERE r.module IN ('transport_charge_mgr','transport_charge') AND r.request_key = CONCAT('tc', c.id) AND r.status IN ('submitted','under_review') ORDER BY r.id DESC LIMIT 1) AS approval_id
+                                                     FROM pf_transport_charges c LEFT JOIN erp_documents d ON d.id = c.proof_doc_id LEFT JOIN erp_documents pd ON pd.id = c.pay_proof_doc_id WHERE c.pr_id = ? ORDER BY c.id", [$prId]) : [],
+                     'tc_can' => ['raise' => erp_can($pdo, 'flow.source') || in_array(pf_role_key(), ['admin'], true) || (int)($_SESSION['admin_role_id'] ?? 0) === 1,
+                                  'mgr' => erp_can($pdo, 'purchase.manager_approve'), 'admin' => erp_can($pdo, 'purchase.backend_approve'), 'pay' => erp_can($pdo, 'purchase_payment.create')], 'can_mgr' => erp_can($pdo, 'purchase.manager_approve'), 'docs' => $docs,
                      'couriers' => erp_rows($pdo, "SELECT id, name, tracking_url FROM courier_services WHERE is_active = 1 ORDER BY sort_order, name"),
                      'can' => ['quotes' => erp_can($pdo, 'flow.source'), 'approve' => erp_can($pdo, 'purchase.backend_approve'),
                                'pay' => erp_can($pdo, 'purchase_payment.create'), 'transport' => erp_can($pdo, 'flow.source'),
@@ -370,6 +382,93 @@ try {
             pf_set($pdo, $prId, ['po_checked_by' => erp_user(), 'po_checked_at' => date('Y-m-d H:i:s')]);
             log_audit($pdo, 'update', 'purchase_flows', $prId, null, ['po_checked' => $po['po_number']]);
             erp_out(['status' => 'success', 'message' => "{$po['po_number']} marked as checked — waiting for payment."]);
+
+        // ------------------------------------------------------------------ courier / transport charges (2 Oct 2026)
+        case 'tc_raise':
+            if (!pf_tc_installed($pdo)) erp_invalid('Run transport_charge_migration.sql once in HeidiSQL to switch on courier / transport charges.');
+            $prId = (int)erp_input('pr_id');
+            $pr = pf_pr($pdo, $prId);
+            $f = pf_flow($pdo, $prId);
+            $po = $f ? pf_po_for($pdo, $f) : null;
+            if (!$po) erp_invalid('Create the purchase order first.');
+            if (!(erp_can($pdo, 'flow.source') || pf_role_key() === 'admin' || (int)($_SESSION['admin_role_id'] ?? 0) === 1)) erp_fail('You do not have permission to raise transport charges.', 403);
+            pf_buyer_guard($f);
+            $type = in_array(erp_input('charge_type'), ['courier', 'transport', 'loading', 'unloading', 'other'], true) ? erp_input('charge_type') : 'courier';
+            $amount = erp_m(erp_num(erp_input('amount'), 'Amount', false));
+            if ($amount <= 0) erp_invalid('Enter the charge amount.');
+            $payee = mb_substr(trim((string)erp_input('payee_name', '')), 0, 150);
+            if ($payee === '') erp_invalid('Enter who must be paid (courier company / driver).');
+            $acno = preg_replace('/\s+/', '', (string)erp_input('account_number', '')); $ifsc = strtoupper(trim((string)erp_input('ifsc', ''))); $upi = trim((string)erp_input('upi_id', ''));
+            if ($acno === '' && $upi === '') erp_invalid('Enter the bank account number (with IFSC) or the UPI ID to pay to.');
+            if ($acno !== '' && !preg_match('/^\d{6,20}$/', $acno)) erp_invalid('The account number should be 6–20 digits.');
+            if ($acno !== '' && !preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/', $ifsc)) erp_invalid('Enter a valid IFSC (e.g. HDFC0001234).');
+            $phone = preg_replace('/[^0-9+]/', '', (string)erp_input('payee_phone', ''));
+            if ($phone !== '' && !preg_match('/^\+?\d{10,13}$/', $phone)) erp_invalid('Enter a valid phone number (10 digits) or leave it blank.');
+            $doc = (int)erp_input('proof_doc_id', 0);
+            if (!$doc || !pf_doc_ok($pdo, $doc, [['purchase_order', (int)$po['id']]])) erp_invalid('Attach the courier / transport bill (proof).');
+            $num = next_document_number($pdo, 'transport_charge', 'TCH');
+            $pdo->prepare("INSERT INTO pf_transport_charges (charge_number, pr_id, po_id, charge_type, amount, payee_name, payee_phone, account_holder, bank_name, account_number, ifsc, upi_id, notes, proof_doc_id, status, raised_by, raised_at)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'manager_pending', ?, NOW())")
+                ->execute([$num, $prId, $po['id'], $type, $amount, $payee, $phone ?: null, mb_substr(trim((string)erp_input('account_holder', '')), 0, 150) ?: null, mb_substr(trim((string)erp_input('bank_name', '')), 0, 150) ?: null,
+                           $acno ?: null, $ifsc ?: null, $upi ?: null, mb_substr(trim((string)erp_input('notes', '')), 0, 500) ?: null, $doc, erp_user()]);
+            $tid = (int)$pdo->lastInsertId();
+            $apr = apr_open($pdo, 'transport_charge_mgr', 'tc' . $tid, $tid, $num, "{$pr['pr_number']} · {$po['po_number']}: {$type} charge ₹" . number_format($amount, 2) . " to {$payee}", $amount, 'purchase_flow_api.php',
+                            ['action' => 'tc_mgr_approve', 'id' => $tid], ['action' => 'tc_mgr_reject', 'id' => $tid]);
+            log_audit($pdo, 'create', 'pf_transport_charges', $tid, null, ['charge' => $num, 'pr' => $pr['pr_number'], 'amount' => $amount, 'payee' => $payee, 'approval' => $apr]);
+            erp_out(['status' => 'success', 'id' => $tid, 'message' => "{$num}: ₹" . number_format($amount, 2) . " sent for Manager approval ({$apr})."]);
+
+        case 'tc_mgr_approve': case 'tc_mgr_reject': case 'tc_approve': case 'tc_reject':
+            $c = pf_tc($pdo, (int)erp_input('id'));
+            $mgr = in_array($action, ['tc_mgr_approve', 'tc_mgr_reject'], true);
+            if ($c['status'] !== ($mgr ? 'manager_pending' : 'admin_pending')) erp_invalid("{$c['charge_number']} is not waiting for " . ($mgr ? 'the Manager' : 'the Admin') . '.');
+            $rem = erp_input('_approval_remarks') ?: erp_input('remarks') ?: null;
+            if (in_array($action, ['tc_mgr_reject', 'tc_reject'], true)) {
+                if (!$rem) erp_invalid('Give a reason for rejecting.');
+                $pdo->prepare("UPDATE pf_transport_charges SET status = 'rejected', rejected_by = ?, rejected_at = NOW(), reject_reason = ? WHERE id = ?")->execute([erp_user(), mb_substr($rem, 0, 255), $c['id']]);
+                apr_close($pdo, $mgr ? 'transport_charge_mgr' : 'transport_charge', 'tc' . $c['id'], 'rejected', $rem);
+                log_audit($pdo, 'reject', 'pf_transport_charges', $c['id'], null, ['by' => $mgr ? 'manager' : 'admin', 'reason' => $rem]);
+                erp_out(['status' => 'success', 'message' => "{$c['charge_number']} rejected."]);
+            }
+            if ($mgr) {
+                $pdo->prepare("UPDATE pf_transport_charges SET status = 'admin_pending', manager_by = ?, manager_at = NOW() WHERE id = ?")->execute([erp_user(), $c['id']]);
+                apr_close($pdo, 'transport_charge_mgr', 'tc' . $c['id'], 'approved', $rem);
+                $n = apr_open($pdo, 'transport_charge', 'tc' . $c['id'], (int)$c['id'], $c['charge_number'], "{$c['charge_type']} charge ₹" . number_format((float)$c['amount'], 2) . " to {$c['payee_name']} · Manager approved: " . erp_user(), (float)$c['amount'],
+                              'purchase_flow_api.php', ['action' => 'tc_approve', 'id' => (int)$c['id']], ['action' => 'tc_reject', 'id' => (int)$c['id']]);
+                log_audit($pdo, 'approve', 'pf_transport_charges', $c['id'], null, ['by' => 'manager', 'sent_to_admin' => $n]);
+                erp_out(['status' => 'success', 'message' => "{$c['charge_number']} approved by the Manager — sent to the Admin ({$n})."]);
+            }
+            $pdo->prepare("UPDATE pf_transport_charges SET status = 'approved', admin_by = ?, admin_at = NOW() WHERE id = ?")->execute([erp_user(), $c['id']]);
+            apr_close($pdo, 'transport_charge', 'tc' . $c['id'], 'approved', $rem);
+            log_audit($pdo, 'approve', 'pf_transport_charges', $c['id'], null, ['by' => 'admin']);
+            erp_out(['status' => 'success', 'message' => "{$c['charge_number']} approved — sent to the Accounts Team for payment."]);
+
+        case 'tc_check':
+            $c = pf_tc($pdo, (int)erp_input('id'));
+            if ($c['status'] !== 'approved') erp_invalid("{$c['charge_number']} is not approved yet.");
+            $pdo->prepare("UPDATE pf_transport_charges SET status = 'checked', checked_by = ?, checked_at = NOW() WHERE id = ?")->execute([erp_user(), $c['id']]);
+            log_audit($pdo, 'update', 'pf_transport_charges', $c['id'], null, ['checked' => true]);
+            erp_out(['status' => 'success', 'message' => "{$c['charge_number']} checked — waiting for payment."]);
+
+        case 'tc_pay':
+            $c = pf_tc($pdo, (int)erp_input('id'));
+            if ($c['status'] !== 'checked') erp_invalid("Check {$c['charge_number']} first (Mark checked).");
+            $mode = (string)erp_input('pay_mode', 'bank_transfer');
+            if (!in_array($mode, ['bank_transfer', 'upi', 'cash', 'cheque', 'other'], true)) erp_invalid('Choose the payment mode.');
+            $ref = mb_substr(trim((string)erp_input('pay_reference', '')), 0, 100);
+            if ($mode !== 'cash' && $ref === '') erp_invalid('Enter the UTR / reference number.');
+            $date = erp_date(erp_input('paid_date'), true);
+            $doc = (int)erp_input('pay_proof_doc_id', 0);
+            if (!$doc || !pf_doc_ok($pdo, $doc, [['purchase_order', (int)$c['po_id']]])) erp_invalid('Attach the payment proof.');
+            $pdo->beginTransaction();
+            $lock = erp_row($pdo, "SELECT status FROM pf_transport_charges WHERE id = ? FOR UPDATE", [$c['id']]);
+            if ($lock['status'] !== 'checked') { $pdo->rollBack(); erp_invalid("{$c['charge_number']} is already paid."); }
+            $txn = erp_cash_entry($pdo, 'expense', 'Courier / Transport', (float)$c['amount'], $date, $mode, $c['payee_name'], 'transport_charge', $c['charge_number'],
+                                  ucfirst($c['charge_type']) . ' charge ' . $c['charge_number'] . ' to ' . $c['payee_name'] . ($c['account_number'] ? ' A/c ' . $c['account_number'] : ($c['upi_id'] ? ' UPI ' . $c['upi_id'] : '')));
+            $pdo->prepare("UPDATE pf_transport_charges SET status = 'paid', paid_by = ?, paid_at = NOW(), paid_date = ?, pay_mode = ?, pay_reference = ?, pay_proof_doc_id = ?, accounts_transaction_id = ? WHERE id = ?")
+                ->execute([erp_user(), $date, $mode, $ref ?: null, $doc, $txn, $c['id']]);
+            $pdo->commit();
+            log_audit($pdo, 'pay', 'pf_transport_charges', $c['id'], null, ['amount' => $c['amount'], 'ref' => $ref, 'txn' => $txn]);
+            erp_out(['status' => 'success', 'message' => "{$c['charge_number']}: ₹" . number_format((float)$c['amount'], 2) . " paid to {$c['payee_name']}. Recorded in Transactions."]);
 
         case 'pay_link':
             pf_need_any($pdo, ['purchase_payment.create'], 'record supplier payments');

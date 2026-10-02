@@ -88,7 +88,7 @@ function rd_task(array $f, string $title, string $sub, array $actions = [], stri
 /* ---- Lists for the Admin and CEO dashboards (added 1 Oct 2026) ---- */
 /** Who approves each module: the purchase steps by their role, other modules by the roles holding the approver permission. */
 function rd_approvers(PDO $pdo): array {
-    $fixed = ['purchase_request' => 'Valluvam Team Manager', 'purchase_request_final' => 'Admin', 'pr_quotation' => 'Admin', 'purchase_order' => 'Admin', 'po_ceo' => 'CEO', 'pr_quotation_mgr' => 'Valluvam Team Manager'];
+    $fixed = ['purchase_request' => 'Valluvam Team Manager', 'purchase_request_final' => 'Admin', 'pr_quotation' => 'Admin', 'purchase_order' => 'Admin', 'po_ceo' => 'CEO', 'pr_quotation_mgr' => 'Valluvam Team Manager', 'transport_charge_mgr' => 'Valluvam Team Manager', 'transport_charge' => 'Admin'];
     $out = [];
     try {
         foreach (erp_rows($pdo, "SELECT p.module, p.label, GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR ', ') AS roles FROM approval_policies p
@@ -191,6 +191,14 @@ try {
             foreach ($flows as $f) if ($f['stage'][0] === 'manager')
                 $tasks[] = rd_task($f, $f['pr_number'] . ' · ' . ($f['requested_by'] ?: $f['created_by']), rd_items($pdo, (int)$f['id']),
                     [['label' => 'Approve', 'kind' => 'pr_manager_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'pr_manager_reject', 'reason' => true]], 'purchase_requests.php?id=' . $f['id']);
+            // FIX (2 Oct 2026): courier / transport charges waiting for the Manager
+            try {
+                foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.submitted_by, r.submitted_at, c.pr_id FROM approval_requests r JOIN pf_transport_charges c ON CONCAT('tc', c.id) = r.request_key
+                                         WHERE r.module = 'transport_charge_mgr' AND r.status IN ('submitted','under_review') ORDER BY r.id") as $a)
+                    $tasks[] = ['id' => (int)$a['pr_id'], 'ref' => $a['request_number'], 'title' => 'Courier / transport charge — ' . $a['summary'], 'sub' => 'Raised by ' . $a['submitted_by'] . ' · check the bill in the purchase flow',
+                                'date' => substr((string)$a['submitted_at'], 0, 10), 'amount' => $a['amount'], 'stage' => 'Charge waiting for Manager', 'approval_id' => (int)$a['id'],
+                                'actions' => [['label' => 'Approve', 'kind' => 'apr_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'apr_reject', 'reason' => true]], 'link' => 'purchase_flow.php?pr_id=' . (int)$a['pr_id'] . '#card-tcharge'];
+            } catch (PDOException $e) { /* transport_charge_migration.sql not run */ }
             // FIX (2 Oct 2026): shop choice (3 quotations) waits for the Manager first, then the Admin
             foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.entity_id, r.submitted_by, r.submitted_at, r.execution_error FROM approval_requests r
                                      WHERE r.module = 'pr_quotation_mgr' AND r.status IN ('submitted','under_review') ORDER BY r.id") as $a)
@@ -256,6 +264,14 @@ try {
                 $tasks[] = ['id' => (int)$po['id'], 'ref' => $po['po_number'], 'title' => 'Approve purchase order — ' . $po['po_number'] . ' · ' . $po['supplier_name'], 'sub' => $po['pr_id'] ? 'From request #' . $po['pr_id'] : '', 'date' => $po['po_date'],
                             'amount' => $po['grand_total'], 'stage' => 'PO waiting for approval', 'po_id' => (int)$po['id'],
                             'actions' => [['label' => 'Approve PO', 'kind' => 'po_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'po_reject', 'reason' => true]], 'link' => 'purchase_orders.php?id=' . $po['id']];
+            // FIX (2 Oct 2026): courier / transport charges waiting for the Admin
+            try {
+                foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.submitted_by, r.submitted_at, c.pr_id FROM approval_requests r JOIN pf_transport_charges c ON CONCAT('tc', c.id) = r.request_key
+                                         WHERE r.module = 'transport_charge' AND r.status IN ('submitted','under_review') ORDER BY r.id") as $a)
+                    $tasks[] = ['id' => (int)$a['pr_id'], 'ref' => $a['request_number'], 'title' => 'Courier / transport charge — ' . $a['summary'], 'sub' => 'Raised by ' . $a['submitted_by'] . ' · check the bill in the purchase flow',
+                                'date' => substr((string)$a['submitted_at'], 0, 10), 'amount' => $a['amount'], 'stage' => 'Charge waiting for Admin', 'approval_id' => (int)$a['id'],
+                                'actions' => [['label' => 'Approve', 'kind' => 'apr_approve', 'primary' => true], ['label' => 'Reject', 'kind' => 'apr_reject', 'reason' => true]], 'link' => 'purchase_flow.php?pr_id=' . (int)$a['pr_id'] . '#card-tcharge'];
+            } catch (PDOException $e) { /* transport_charge_migration.sql not run */ }
             $poVal = (float)erp_val($pdo, "SELECT COALESCE(SUM(grand_total),0) FROM purchase_orders WHERE approved_at >= ?", [$m1]);
             $kpis = [rd_kpi('Waiting for my approval', count($tasks), 'n', '', count($tasks) ? 'amber' : 'green'),
                      rd_kpi('Average final-approval time', rd_hours($pdo, "SELECT AVG(TIMESTAMPDIFF(MINUTE, manager_approved_at, backend_approved_at))/60 FROM purchase_requests WHERE backend_approved_at IS NOT NULL AND manager_approved_at IS NOT NULL"), 'h'),
@@ -311,6 +327,14 @@ try {
         if ($k === 'accounts') {
             foreach ($flows as $f) if ($f['stage'][0] === 'pay')
                 $tasks[] = rd_task($f, ($f['payment_id'] ? 'Attach payment proof — ' : 'Pay (check PO, pay, attach proof) — ') . $f['po_number'] . ' · ' . $f['supplier_name'], $f['pr_number'], [], 'purchase_flow.php?pr_id=' . (int)$f['id'] . '#card-payment');
+            // FIX (2 Oct 2026): approved courier / transport charges — check and pay to the courier's account
+            try {
+                foreach (erp_rows($pdo, "SELECT c.id, c.charge_number, c.pr_id, c.amount, c.payee_name, c.account_number, c.upi_id, c.status, c.raised_at, pr.pr_number FROM pf_transport_charges c JOIN purchase_requests pr ON pr.id = c.pr_id
+                                         WHERE c.status IN ('approved','checked') ORDER BY c.id") as $c)
+                    $tasks[] = ['id' => (int)$c['pr_id'], 'ref' => $c['charge_number'], 'title' => ($c['status'] === 'approved' ? 'Check courier charge — ' : 'Pay courier charge — ') . $c['charge_number'] . ' · ' . $c['payee_name'],
+                                'sub' => $c['pr_number'] . ' · ' . ($c['account_number'] ? 'A/c ' . $c['account_number'] : 'UPI ' . $c['upi_id']), 'date' => substr((string)$c['raised_at'], 0, 10), 'amount' => $c['amount'],
+                                'stage' => $c['status'] === 'approved' ? 'Approved — check it' : 'Checked — waiting for payment', 'actions' => [], 'link' => 'purchase_flow.php?pr_id=' . (int)$c['pr_id'] . '#card-tcharge'];
+            } catch (PDOException $e) { /* not installed */ }
             $wait = array_sum(array_map(fn($f) => (float)$f['grand_total'], array_filter($flows, fn($f) => $f['stage'][0] === 'pay' && !$f['payment_id'])));
             $billsDue = (float)erp_val($pdo, "SELECT COALESCE(SUM(pi.grand_total - COALESCE((SELECT SUM(amount) FROM purchase_payments pp WHERE pp.pinv_id = pi.id AND pp.status = 'completed'),0)),0)
                                               FROM purchase_invoices pi WHERE pi.status = 'posted' AND pi.due_date IS NOT NULL AND pi.due_date < ?", [$today]);

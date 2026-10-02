@@ -195,4 +195,5 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script src="assets/header_ntf.js?v=<?= @filemtime(__DIR__ . '/../assets/header_ntf.js') ?: 1 ?>"></script><!-- header notification bell (1 Oct 2026) -->
 <script src="assets/admin_mobile.js?v=<?= @filemtime(__DIR__ . '/../assets/admin_mobile.js') ?: 1 ?>"></script><!-- phone layout: ☰ menu (1 Oct 2026) -->
-<script src="assets/page_plus.js?v=<?= @filemtime(__DIR__ . '/../assets/page_plus.js') ?: 1 ?>"></script><!-- profile chip, documents layout, assets / waste / audit add-ons (1 Oct 2026) -->
+<script src="assets/page_plus.js?v=<?= @filemtime(__DIR__ . '/../assets/page_plus.js') ?: 1 ?>"></script>
+<script src="assets/upload_preview.js?v=<?= @filemtime(__DIR__ . '/../assets/upload_preview.js') ?: 1 ?>"></script><!-- preview every file before it is uploaded (2 Oct 2026) --><!-- profile chip, documents layout, assets / waste / audit add-ons (1 Oct 2026) -->
