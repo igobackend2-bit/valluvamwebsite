@@ -71,6 +71,53 @@ new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-c
 #detailView .adm-table th,#detailView .adm-table td{padding:10px 12px}
 @media (max-width:760px){#detailView .pf-card > .adm-card-head,#detailView .pf-card > .adm-card-body{padding:14px}#detailView .pq-wrap{padding:10px}#detailView .pq-tbl col.pq-c0{width:150px}}
 </style>
+<style>/* FIX (2 Oct 2026): every step card opens / closes (expandable view) */
+#cards .pf-card > .adm-card-head{cursor:pointer;user-select:none;position:relative;padding-right:56px}
+#cards .pf-card > .adm-card-head:hover{background:#faf8f2}
+#cards .pf-card > .adm-card-head .pf-tg{position:absolute;right:20px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:1px solid var(--adm-line);display:flex;align-items:center;justify-content:center;color:var(--adm-ink-soft);background:#fff;transition:transform .2s}
+#cards .pf-card.pf-col > .adm-card-body{display:none}
+#cards .pf-card.pf-col > .adm-card-head{border-bottom:0}
+#cards .pf-card.pf-col > .adm-card-head .pf-tg{transform:translateY(-50%) rotate(-90deg)}
+#cards .pf-card.pf-col .pf-sum{display:inline}
+.pf-sum{display:none;font-size:13px;font-weight:500;color:var(--adm-ink-soft);margin-left:10px}
+.pf-xall{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 12px}
+</style>
+<script>(function () {   /* FIX (2 Oct 2026): expandable cards — finished steps start closed, open ones stay open; click a header or a step to open it */
+    var user = {}, busy = false;
+    function key(c) { return c.id || ''; }
+    function apply() {
+        if (busy) return; busy = true;
+        var tt = document.getElementById('dTitle'); if (tt && tt.textContent !== apply.t) { apply.t = tt.textContent; user = {}; }   // another purchase opened
+        var cards = document.querySelectorAll('#cards > .pf-card');
+        cards.forEach(function (c) {
+            var h = c.querySelector(':scope > .adm-card-head'); if (!h) return;
+            if (!h.querySelector('.pf-tg')) { var t = document.createElement('span'); t.className = 'pf-tg'; t.innerHTML = '<i class="fas fa-chevron-down"></i>'; h.appendChild(t); }
+            var b = h.querySelector('h2 .adm-badge'), done = b && /^\s*done\s*$/i.test(b.textContent);
+            var k = key(c), want = k in user ? user[k] : done;
+            if (c.classList.contains('pf-col') !== want) c.classList.toggle('pf-col', want);
+            var step = document.querySelector('#steps .pf-step[data-go="' + k.replace('card-', '') + '"] .s'), sum = h.querySelector('.pf-sum');
+            var txt = step ? step.textContent : '';
+            if (!sum && txt) { sum = document.createElement('span'); sum.className = 'pf-sum'; h.querySelector('h2') && h.querySelector('h2').appendChild(sum); }
+            if (sum && sum.textContent !== (txt ? '— ' + txt : '')) sum.textContent = txt ? '— ' + txt : '';
+        });
+        var cardsEl = document.getElementById('cards');
+        if (cardsEl && cards.length && !document.getElementById('pfXall')) {
+            var x = document.createElement('div'); x.className = 'pf-xall'; x.id = 'pfXall';
+            x.innerHTML = '<button type="button" class="adm-btn adm-btn-ghost" data-x="open"><i class="fas fa-up-right-and-down-left-from-center"></i> Expand all</button><button type="button" class="adm-btn adm-btn-ghost" data-x="close"><i class="fas fa-down-left-and-up-right-to-center"></i> Collapse all</button>';
+            cardsEl.parentNode.insertBefore(x, cardsEl);
+        }
+        busy = false;
+    }
+    document.addEventListener('click', function (e) {
+        var x = e.target.closest('#pfXall [data-x]');
+        if (x) { document.querySelectorAll('#cards > .pf-card').forEach(function (c) { user[key(c)] = x.getAttribute('data-x') === 'close'; }); apply(); return; }
+        var h = e.target.closest('#cards > .pf-card > .adm-card-head');
+        if (h && !e.target.closest('a,button,input,select,textarea,label')) { var c = h.parentNode; user[key(c)] = !c.classList.contains('pf-col'); apply(); return; }
+        var s = e.target.closest('#steps [data-go]');
+        if (s) { user['card-' + s.getAttribute('data-go')] = false; apply(); }
+    }, true);
+    new MutationObserver(apply).observe(document.documentElement, { childList: true, subtree: true });
+})();</script>
 <script>/* FIX (2 Oct 2026): opened with #card-quotes (from RFQ & Quotations) → scroll to that card once it is drawn */
 (function () { var h = location.hash; if (!/^#card-[a-z]+$/.test(h)) return; var t0 = Date.now(), mo = new MutationObserver(function () { var el = document.querySelector(h); if (el && el.offsetParent !== null) { mo.disconnect(); setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300); } else if (Date.now() - t0 > 15000) mo.disconnect(); }); mo.observe(document.documentElement, { childList: true, subtree: true }); })();</script>
 <script>/* FIX (2 Oct 2026): number the visible steps 1, 2, 3 … when a team sees only some of them */
