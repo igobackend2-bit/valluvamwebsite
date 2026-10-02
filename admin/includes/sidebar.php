@@ -65,6 +65,14 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="stock_adjustments.php" class="<?= nav_active('stock_adjustments.php', $current_page) ?>"><i class="fas fa-scale-balanced"></i> Stock Adjustments</a></li>
         <li><a href="stock_valuation.php" class="<?= nav_active('stock_valuation.php', $current_page) ?>"><i class="fas fa-coins"></i> Stock Valuation</a></li>
 
+        <!-- Stock lifecycle (added 2 Oct 2026) -->
+        <li class="adm-nav-section">Stock Lifecycle</li>
+        <li><a href="stock_flow.php" class="<?= nav_active('stock_flow.php', $current_page) ?>"><i class="fas fa-truck-ramp-box"></i> Loading → QC → Stock In</a></li>
+        <li><a href="stock_operations.php" class="<?= nav_active('stock_operations.php', $current_page) ?>"><i class="fas fa-boxes-stacked"></i> Stock Out, Damage &amp; Returns</a></li>
+        <li><a href="daily_stock.php" class="<?= nav_active('daily_stock.php', $current_page) ?>"><i class="fas fa-calendar-day"></i> Daily Stock</a></li>
+        <li><a href="stock_audit.php" class="<?= nav_active('stock_audit.php', $current_page) ?>"><i class="fas fa-clipboard-check"></i> Monthly Stock Audit</a></li>
+        <li><a href="stock_handover.php" class="<?= nav_active('stock_handover.php', $current_page) ?>"><i class="fas fa-handshake"></i> Executive Handover</a></li>
+
         <!-- Purchases (added 30 Sep 2026) -->
         <li class="adm-nav-section">Purchases</li>
         <li><a href="purchase_dashboard.php" class="<?= nav_active('purchase_dashboard.php', $current_page) ?>"><i class="fas fa-cart-flatbed"></i> Purchase Dashboard</a></li>

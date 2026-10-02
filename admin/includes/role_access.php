@@ -81,6 +81,7 @@ function role_perm_page_map(): array {
         'approvals.' => ['approvals.php'], 'notifications.view' => ['notifications.php'], 'documents.' => ['documents.php'], 'audit_logs.view' => ['audit_logs.php'], 'settings.view' => ['settings.php'],
         'suppliers.' => ['suppliers.php', 'supplier_360.php'], 'supplier.profile' => ['supplier_360.php'],
         'purchase.view' => ['purchase_requests.php', 'purchase_flow.php', 'purchase_orders.php', 'purchase_history.php', 'purchase_dashboard.php', 'print_erp.php'], 'purchase.create' => ['purchase_requests.php'],
+        'stockflow.' => ['stock_flow.php', 'stock_operations.php', 'daily_stock.php', 'stock_audit.php', 'stock_handover.php'],   // stock lifecycle (2 Oct 2026)
         'rfq.manage' => ['rfqs.php'], 'shipment.manage' => ['shipments.php'], 'grn.create' => ['goods_receipts.php'], 'qc.manage' => ['quality_checks.php'],
         'purchase_invoice.' => ['purchase_invoices.php'], 'purchase_payment.' => ['purchase_payments.php', 'supplier_ledger.php'], 'purchase_return.' => ['purchase_returns.php', 'debit_notes.php'],
     ];

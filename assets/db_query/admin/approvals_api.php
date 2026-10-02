@@ -13,11 +13,13 @@ $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
 erpx_guard($pdo, $action === 'policies_save' ? 'approvals.manage' : 'approvals.view');
 if (in_array($action, ['approve', 'reject', 'review', 'cancel', 'policies_save'], true) && !$isWrite) erp_fail('Invalid request method.');
 
-const APR_ENDPOINTS = ['purchase_api.php', 'procurement_api.php', 'inventory_ops_api.php', 'warehouse_api.php', 'accounting_api.php', 'purchase_flow_api.php'];
+const APR_ENDPOINTS = ['purchase_api.php', 'procurement_api.php', 'inventory_ops_api.php', 'warehouse_api.php', 'accounting_api.php', 'purchase_flow_api.php', 'stock_flow_api.php'];   // + stock lifecycle (2 Oct 2026)
 const APR_LINKS = ['purchase_request' => 'purchase_requests.php?id=', 'purchase_request_final' => 'purchase_requests.php?id=', 'purchase_order' => 'purchase_orders.php?id=', 'po_amendment' => 'purchase_orders.php?id=',
                    'purchase_invoice' => 'purchase_invoices.php?id=', 'stock_adjustment' => 'stock_adjustments.php?id=', 'stock_count' => 'stock_counts.php?id=',
                    'expense' => 'expenses.php?id=', 'manual_journal' => 'journals.php?id=', 'purchase_payment' => 'purchase_payments.php', 'purchase_return' => 'purchase_returns.php',
-                   'sales_return' => 'sales_returns.php', 'pr_quotation' => 'purchase_flow.php?pr_id='];
+                   'sales_return' => 'sales_returns.php', 'pr_quotation' => 'purchase_flow.php?pr_id=',
+                   // stock lifecycle (2 Oct 2026)
+                   'stock_issue' => 'stock_operations.php?tab=issue&id=', 'stock_damage' => 'stock_operations.php?tab=damage&id=', 'opening_stock' => 'stock_operations.php?tab=opening&id=', 'return_dispatch' => 'stock_operations.php?tab=dispatch&id='];
 
 try {
     switch ($action) {

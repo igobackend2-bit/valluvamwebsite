@@ -445,6 +445,15 @@ function doc_entities(): array {
         'journal' => ['Journal entry', 'journals.php?id=', 'accounting.view'],
         'bank_account' => ['Bank account', 'bank_accounts.php?id=', 'accounting.view'],
         'company' => ['Company / general', 'documents.php?entity=company', 'documents.view'],
+        // stock lifecycle proofs (2 Oct 2026)
+        'consignment' => ['Consignment (loading / transport / unloading / QC)', 'stock_flow.php?id=', 'stockflow.view'],
+        'stock_issue' => ['Stock out', 'stock_operations.php?tab=issue&id=', 'stockflow.view'],
+        'stock_damage' => ['Damage report', 'stock_operations.php?tab=damage&id=', 'stockflow.view'],
+        'return_receipt' => ['Sales return receiving / QC', 'stock_operations.php?tab=returns&id=', 'stockflow.view'],
+        'opening_stock' => ['Opening stock', 'stock_operations.php?tab=opening&id=', 'stockflow.view'],
+        'return_dispatch' => ['Purchase return dispatch', 'stock_operations.php?tab=dispatch&id=', 'stockflow.view'],
+        'stock_audit' => ['Monthly stock audit', 'stock_audit.php?id=', 'stockflow.view'],
+        'stock_handover' => ['Executive stock handover', 'stock_handover.php?id=', 'stockflow.view'],
     ];
 }
 function doc_categories(): array {
@@ -452,7 +461,12 @@ function doc_categories(): array {
             'TRANSPORT_RECEIPT' => 'Transport receipt / LR', 'E_WAY_BILL' => 'E-way bill', 'GRN' => 'GRN / delivery challan', 'QC_DOCUMENT' => 'QC document / photo',
             'PRODUCT_DOCUMENT' => 'Product document', 'BATCH_DOCUMENT' => 'Batch document / certificate', 'SALES_INVOICE' => 'Sales invoice',
             'CUSTOMER_PAYMENT' => 'Customer payment proof', 'CUSTOMER_DOCUMENT' => 'Customer document', 'SALES_RETURN' => 'Sales return', 'CREDIT_DEBIT_NOTE' => 'Credit / debit note',
-            'REFUND_PROOF' => 'Refund proof', 'EXPENSE_RECEIPT' => 'Expense receipt', 'BANK_DOCUMENT' => 'Bank document / statement', 'TAX_DOCUMENT' => 'Tax document', 'OTHER' => 'Other'];
+            'REFUND_PROOF' => 'Refund proof', 'EXPENSE_RECEIPT' => 'Expense receipt', 'BANK_DOCUMENT' => 'Bank document / statement', 'TAX_DOCUMENT' => 'Tax document',
+            // stock lifecycle proofs (2 Oct 2026)
+            'LOADING_PHOTO' => 'Loading photo', 'WEIGHT_MACHINE_PHOTO' => 'Weight machine photo', 'PACKING_LIST' => 'Packing list', 'UNLOADING_PHOTO' => 'Unloading photo',
+            'COURIER_RECEIPT' => 'Courier receipt', 'TRACKING_PROOF' => 'Tracking proof', 'PHYSICAL_STOCK_PHOTO' => 'Physical stock photo', 'RACK_PHOTO' => 'Rack photo',
+            'COUNTING_SHEET' => 'Counting sheet', 'SIGNED_DOCUMENT' => 'Signed document', 'DAMAGE_PHOTO' => 'Damage photo', 'HANDOVER_COPY' => 'Handover copy',
+            'OTHER' => 'Other'];
 }
 /** Old doc_type (first release) → category. */
 function doc_type_category(string $t): string {
@@ -530,6 +544,12 @@ function doc_related(PDO $pdo, string $type, int $id): array {
         if ($r) { $put('sales_return', $r['id']); $put($r['source_type'], $r['source_id']); foreach ($ids("SELECT id FROM credit_notes WHERE sales_return_id = ?", [$r['id']]) as $c) $put('credit_note', $c); }
     } elseif ($type === 'expense') {
         $s = erp_val($pdo, "SELECT shipment_id FROM expenses WHERE id = ?", [$id]); if ($s) $put('shipment', $s);
+    } elseif ($type === 'consignment') {   // stock lifecycle (2 Oct 2026)
+        try { $c = erp_row($pdo, "SELECT po_id, grn_id, qc_id, shipment_id FROM sf_consignments WHERE id = ?", [$id]); } catch (PDOException $e) { $c = null; }
+        if ($c) { $put('purchase_order', $c['po_id']); $put('grn', $c['grn_id']); $put('qc', $c['qc_id']); $put('shipment', $c['shipment_id']); }
+    }
+    if (in_array($type, $purchase, true)) {   // consignments of the same purchase orders (stock lifecycle, 2 Oct 2026)
+        try { foreach ($set as [$t, $i]) if ($t === 'purchase_order') foreach ($ids("SELECT id FROM sf_consignments WHERE po_id = ?", [$i]) as $c) $put('consignment', $c); } catch (PDOException $e) {}
     }
     return array_values($set);
 }
@@ -551,6 +571,10 @@ function doc_entity_label(PDO $pdo, string $type, int $id): string {
         'credit_note' => "SELECT cn_number FROM credit_notes WHERE id = ?", 'customer_payment' => "SELECT transaction_id FROM accounts_transactions WHERE id = ?",
         'expense' => "SELECT expense_number FROM expenses WHERE id = ?", 'journal' => "SELECT journal_number FROM journal_entries WHERE id = ?",
         'bank_account' => "SELECT name FROM bank_accounts WHERE id = ?",
+        'consignment' => "SELECT consignment_number FROM sf_consignments WHERE id = ?", 'stock_issue' => "SELECT issue_number FROM sf_stock_issues WHERE id = ?",
+        'stock_damage' => "SELECT damage_number FROM sf_damage_reports WHERE id = ?", 'return_receipt' => "SELECT receipt_number FROM sf_return_receipts WHERE id = ?",
+        'opening_stock' => "SELECT opening_number FROM sf_opening_stock WHERE id = ?", 'return_dispatch' => "SELECT dispatch_number FROM sf_return_dispatches WHERE id = ?",
+        'stock_audit' => "SELECT audit_number FROM sf_audits WHERE id = ?", 'stock_handover' => "SELECT handover_number FROM sf_handovers WHERE id = ?",
     ];
     if ($type === 'company') return 'Company';
     if (!isset($q[$type])) return $type . ' #' . $id;
@@ -575,6 +599,10 @@ function doc_entity_find(PDO $pdo, string $type, string $number): ?int {
         'credit_note' => "SELECT id FROM credit_notes WHERE cn_number = ?", 'customer_payment' => "SELECT id FROM accounts_transactions WHERE transaction_id = ?",
         'expense' => "SELECT id FROM expenses WHERE expense_number = ?", 'journal' => "SELECT id FROM journal_entries WHERE journal_number = ?",
         'bank_account' => "SELECT id FROM bank_accounts WHERE name = ?",
+        'consignment' => "SELECT id FROM sf_consignments WHERE consignment_number = ?", 'stock_issue' => "SELECT id FROM sf_stock_issues WHERE issue_number = ?",
+        'stock_damage' => "SELECT id FROM sf_damage_reports WHERE damage_number = ?", 'return_receipt' => "SELECT id FROM sf_return_receipts WHERE receipt_number = ?",
+        'opening_stock' => "SELECT id FROM sf_opening_stock WHERE opening_number = ?", 'return_dispatch' => "SELECT id FROM sf_return_dispatches WHERE dispatch_number = ?",
+        'stock_audit' => "SELECT id FROM sf_audits WHERE audit_number = ?", 'stock_handover' => "SELECT id FROM sf_handovers WHERE handover_number = ?",
     ];
     if ($type === 'company') return 0;
     if (!isset($q[$type])) return null;

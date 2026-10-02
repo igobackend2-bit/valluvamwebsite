@@ -1,0 +1,16 @@
+-- ============================================================================
+-- STOCK LIFECYCLE (2 Oct 2026) — ROLLBACK. Only if you must undo the migration.
+-- !! Run ONLY before anyone has used the new pages: dropping the sf_ tables
+-- !! deletes the loading / transport / QC / audit / handover records in them.
+-- Stock already posted through the existing modules (GRN, stock in / out,
+-- sales returns …) is NOT touched by this file and stays correct.
+-- Take a backup first. The DROP lines are commented out on purpose.
+-- ============================================================================
+-- DROP TABLE IF EXISTS sf_handovers, sf_audit_lines, sf_audits, sf_return_dispatch_lines, sf_return_dispatches, sf_opening_stock,
+--                      sf_return_receipt_lines, sf_return_receipts, sf_damage_reports, sf_stock_issue_lines, sf_stock_issues, sf_qc_params,
+--                      sf_consignment_lines, sf_consignments;
+-- DELETE FROM admin_role_permissions WHERE perm_key LIKE 'stockflow.%';
+-- DELETE FROM admin_permissions WHERE perm_key LIKE 'stockflow.%';
+-- DELETE FROM approval_policies WHERE module IN ('stock_issue','stock_damage','opening_stock','return_dispatch');
+-- (roles Warehouse Manager / QC Team / Transport / Dispatch / Data Team, the Vanagram / Head Office locations and the DHL / FedEx
+--  couriers are left in place on purpose — users, stock or shipments may already point at them.)
