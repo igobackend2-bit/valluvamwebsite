@@ -511,6 +511,7 @@ function qcBody() {
     return E.kv([['Quality check', `<a class="erp-link" href="quality_checks.php?id=${qc.id}">${E.esc(qc.qc_number)}</a>`], ['Status', E.badge(qc.status)], qc.completed_at ? ['Completed', E.date(qc.completed_at)] : null, ['Goods receipt', E.esc(grn.grn_number) + ' · ' + E.esc(grn.status)]])
         + `<div class="pf-actions"><a class="adm-btn ${done ? 'adm-btn-ghost' : 'adm-btn-primary'}" href="quality_checks.php?id=${qc.id}"><i class="fas fa-microscope"></i> ${done ? 'View' : 'Do'} the quality check</a>
            ${done && grn.status === 'draft' ? `<a class="adm-btn adm-btn-primary" href="stock_in.php#grnPanel" title="Stock In → download the sheet (CSV / Excel) → fill warehouse + rack → upload → added to stock"><i class="fas fa-file-csv"></i> Add to stock in Stock In (download sheet → upload)</a><a class="adm-btn adm-btn-ghost" style="display:none" href="goods_receipts.php?id=${grn.id}"><i class="fas fa-boxes-stacked"></i> Post goods receipt (add to stock)</a>` : ''}</div>`
+        + (!done && qc.status === 'pending' && can.qc ? '<div id="qcInline" style="margin-top:12px"></div>' : '')   // FIX (2 Oct 2026): finish the quality check right here
         + (done && grn.status === 'posted' ? '<div class="erp-note pf-ok" style="font-size:14px">✓ Added to inventory — completed. Goods are in stock. Record the shop bill in Purchase Invoices for accounts.</div>' : '');
 }
 // ---------------------------------------------------------------- courier / transport charges (2 Oct 2026)
@@ -597,7 +598,33 @@ function bindTc() {
             .then(r => reload(r.message)).catch(m => { $b.prop('disabled', false); fail(m); });
     });
 }
+// FIX (2 Oct 2026): the QC stays "pending" until the quantities are completed — do it inline (accepted / rejected / damaged per item → Complete)
+function qcInline() {
+    const $b = $('#qcInline'); if (!$b.length || !D.qc) return;
+    $b.html('<div class="erp-muted">Loading the items…</div>');
+    E.api('procurement_api.php', { action: 'qc_get', id: D.qc.id }, { silent: true }).then(r => {
+        const q = r.record;
+        $b.html(`<div class="erp-warn"><strong>Step 1 — complete the quality check</strong> (the report below is step 2). Until this is completed the QC stays <strong>pending</strong> and the goods cannot be added to stock.</div>
+          <div class="adm-table-wrap"><table class="erp-lines"><thead><tr><th>Item</th><th class="erp-num">Received</th><th>Accepted</th><th>Rejected</th><th>Damaged</th><th>Reason (if rejected / damaged)</th></tr></thead><tbody>` +
+          q.items.map(i => `<tr data-qi="${i.id}" data-rec="${E.num(i.received_qty)}"><td>${E.esc(i.item_name)}</td><td class="erp-num">${E.qty(i.received_qty)}</td>
+            <td class="w-num"><input class="adm-input" type="number" min="0" step="any" data-f="a" value="${E.num(i.accepted_qty) || E.num(i.received_qty)}"></td>
+            <td class="w-num"><input class="adm-input" type="number" min="0" step="any" data-f="r" value="${E.num(i.rejected_qty)}"></td>
+            <td class="w-num"><input class="adm-input" type="number" min="0" step="any" data-f="d" value="${E.num(i.damaged_qty)}"></td>
+            <td><input class="adm-input" data-f="why" value="${E.esc(i.rejection_reason || '')}"></td></tr>`).join('') + `</tbody></table></div>
+          <div class="pf-grid" style="margin-top:8px">${E.field('Inspected by *', E.input('qiBy', q.inspected_by || ((D.flow && D.flow.qc_inspector_name) || ''), 'placeholder="Name of the person who checked"'))}${E.field('Inspection date', E.input('qiDate', q.inspection_date || E.today(), 'type="date"'))}</div>
+          <div class="pf-actions"><button class="adm-btn adm-btn-primary" id="qiDone"><i class="fas fa-check"></i> Complete quality check</button></div>`);
+        $b.on('input', '[data-f=r],[data-f=d]', function () { const $r = $(this).closest('tr'); $r.find('[data-f=a]').val(Math.max(0, E.num($r.data('rec')) - E.num($r.find('[data-f=r]').val()) - E.num($r.find('[data-f=d]').val()))); });
+        $b.on('click', '#qiDone', function () {
+            if (!String($('#qiBy').val() || '').trim()) return fail('Enter who inspected the goods.');
+            const items = $b.find('tr[data-qi]').map(function () { const $r = $(this); return { id: $r.data('qi'), accepted_qty: $r.find('[data-f=a]').val(), rejected_qty: $r.find('[data-f=r]').val(), damaged_qty: $r.find('[data-f=d]').val(), rejection_reason: $r.find('[data-f=why]').val() }; }).get();
+            const $x = $(this).prop('disabled', true);
+            E.post('procurement_api.php', { action: 'qc_complete', id: q.id, inspection_date: $('#qiDate').val(), inspected_by: $('#qiBy').val(), notes: '', items: JSON.stringify(items) }, { silent: true })
+                .then(x => reload(x.message)).catch(m => { $x.prop('disabled', false); fail(m); });
+        });
+    }).catch(m => $b.html('<div class="erp-warn">' + E.esc(m) + '</div>'));
+}
 function bindQc() {
+    qcInline();
     $('#qcStart').on('click', () => E.post('procurement_api.php', { action: 'qc_create', grn_id: D.grn.id }, { silent: true })
         .then(r => E.post(API, { action: 'qc_link', pr_id: PR, qc_id: r.id }, { silent: true }).then(() => reload(r.message))).catch(fail));
 }
