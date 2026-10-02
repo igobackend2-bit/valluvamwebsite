@@ -204,6 +204,7 @@ try {
             if ($d = erp_date(erp_input('date_from'))) { $w[] = 'po.po_date >= ?'; $p[] = $d; }
             if ($d = erp_date(erp_input('date_to'))) { $w[] = 'po.po_date <= ?'; $p[] = $d; }
             if ($q = trim((string)erp_input('q', ''))) { $w[] = '(po.po_number LIKE ? OR s.supplier_name LIKE ?)'; array_push($p, "%$q%", "%$q%"); }
+            if (po_is_l1()) { $w[] = "EXISTS (SELECT 1 FROM purchase_flows pf WHERE pf.po_id = po.id AND pf.quote_submitted_by = ?)"; $p[] = erp_user(); }   // FIX (2 Oct 2026): L1 sees only the POs they buy
             $rows = erp_rows($pdo, "SELECT po.*, s.supplier_name, w.name AS warehouse_name,
                                            (SELECT COALESCE(SUM(quantity),0) FROM purchase_order_items i WHERE i.po_id = po.id) AS ordered_qty,
                                            (SELECT COALESCE(SUM(received_qty),0) FROM purchase_order_items i WHERE i.po_id = po.id) AS received_qty
@@ -216,6 +217,7 @@ try {
             $po = erp_row($pdo, "SELECT po.*, s.supplier_name, s.mobile AS supplier_mobile, s.gst_number AS supplier_gst, w.name AS warehouse_name
                                  FROM purchase_orders po JOIN suppliers s ON s.id = po.supplier_id LEFT JOIN warehouses w ON w.id = po.warehouse_id WHERE po.id = ?", [$id]);
             if (!$po) erp_fail('Purchase order not found.');
+            if (po_is_l1() && !erp_val($pdo, "SELECT id FROM purchase_flows WHERE po_id = ? AND quote_submitted_by = ?", [$id, erp_user()])) erp_fail('You can see only the purchase orders you buy.', 403);   // FIX (2 Oct 2026)
             $po['items'] = erp_attach_item_names($pdo, erp_rows($pdo, "SELECT * FROM purchase_order_items WHERE po_id = ? ORDER BY id", [$id]));
             $po['grns'] = erp_rows($pdo, "SELECT id, grn_number, received_date, status FROM goods_receipts WHERE po_id = ? ORDER BY id", [$id]);
             $po['invoices'] = erp_rows($pdo, "SELECT id, pinv_number, supplier_invoice_no, invoice_date, grand_total, status FROM purchase_invoices WHERE po_id = ? ORDER BY id", [$id]);
@@ -874,6 +876,12 @@ try {
  * Balance = grand total − completed payments − credit notes (posted returns
  * settled as credit_note or refund) + refunds received.
  */
+/** FIX (2 Oct 2026): logged in as L1 (Sourcing)? */
+function po_is_l1(): bool {
+    $f = __DIR__ . '/../../../admin/includes/role_access.php';
+    if (!function_exists('role_access_key') && is_file($f)) require_once $f;
+    return function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'l1';
+}
 function pinv_with_balances(PDO $pdo, array $rows): array {
     foreach ($rows as &$r) {
         $paid = (float)erp_val($pdo, "SELECT COALESCE(SUM(amount),0) FROM purchase_payments WHERE pinv_id = ? AND status = 'completed'", [$r['id']]);

@@ -105,7 +105,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
     $pages = [
         'executive' => role_dash_defs()['executive']['pages'],
         'manager'   => array_merge(role_dash_defs()['executive']['pages'], role_dash_defs()['manager']['pages']),
-        'l1'        => ['rfqs.php', 'purchase_flow.php', 'notifications.php'],   // FIX (2 Oct 2026): L1 (Sourcing) only provides the shop quotations
+        'l1'        => ['rfqs.php', 'purchase_flow.php', 'purchase_orders.php', 'print_erp.php', 'notifications.php'],   // + own purchase orders (2 Oct 2026)   // FIX (2 Oct 2026): L1 (Sourcing) only provides the shop quotations
         // Admin and CEO see only their own dashboard + these pages (added 1 Oct 2026)
         'admin'     => role_dash_defs()['admin']['pages'],
         'ceo'       => role_dash_defs()['ceo']['pages'],
@@ -132,7 +132,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
         if ($k === 'accounts')   // FIX (2 Oct 2026): Accounts Team sees only accounts / payment pages — no stock, inventory, audits or purchase reports
             $extra = array_intersect($extra, $pages['accounts']);
         if ($k === 'l1')   // FIX (2 Oct 2026): L1 (Sourcing) sees only its own work — quotations, transport, loading / unloading, GRN, QC — not inventory, audits or purchase reports
-            $extra = array_intersect($extra, ['rfqs.php', 'purchase_flow.php', 'notifications.php']);   // quotations only (2 Oct 2026)
+            $extra = array_intersect($extra, ['rfqs.php', 'purchase_flow.php', 'purchase_orders.php', 'print_erp.php', 'notifications.php']);   // quotations only (2 Oct 2026)
         $base = array_merge($base, $extra);
     }
     return $base === null ? null : array_values(array_unique($base));

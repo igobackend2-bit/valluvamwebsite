@@ -21,8 +21,11 @@ erp_page_start('Purchase Orders', 'Order stock from suppliers — stock changes 
     </div>
     <div class="adm-card-body" id="list"></div>
 </section>
+<script>window.PO_L1 = <?= json_encode(function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'l1') ?>;</script>
 <?php erp_page_end(<<<'JS'
 const E = ERP;
+const PO_L1 = !!window.PO_L1;   // FIX (2 Oct 2026): L1 only views / prints the POs they buy
+if (PO_L1) $(() => $('#newBtn').remove());
 let SUP = [], WH = [], ITEMS = [];
 // competitor quotations (1 Oct 2026) — separate file, the page works without it
 const POQ_LOAD = $.ajax({ url: 'assets/po_quotes.js?v=' + ($('#pqVer').data('v') || 1), dataType: 'script', cache: true }).catch(() => null);
@@ -218,7 +221,7 @@ function openView(id) {
                ${p.notes ? '<p class="erp-note">' + E.esc(p.notes) + '</p>' : ''}<div id="vQuotes"></div><div id="vDocs"></div>`;
         const act = (a, msg, extra) => () => E.confirmAction(msg, '', extra).then(reason => E.post('purchase_api.php', { action: a, id: p.id, reason }))
                                            .then(x => { E.toast(x.message); load(); openView(p.id); }).catch(() => {});
-        E.view(E.brand('Purchase order', p.po_number), html, [   // FIX (2 Oct 2026): Valluvam letterhead
+        E.view(E.brand('Purchase order', p.po_number), html, PO_L1 ? [{ label: 'Purchase flow (transport, loading, unloading)', cls: 'adm-btn-primary', icon: 'fa-route', run: () => location.href = 'purchase_flow.php?pr_id=' + p.pr_id }, { label: 'Print', icon: 'fa-print', run: () => window.open('print_erp.php?type=po&id=' + p.id, '_blank') }] : [   // FIX (2 Oct 2026): Valluvam letterhead
             ['draft', 'pending_approval'].includes(p.status) && { label: 'Edit', icon: 'fa-pen', run: () => openForm(p) },
             p.status === 'pending_approval' && { label: 'Approve on the Dashboard', cls: 'adm-btn-primary', icon: 'fa-gauge-high', run: () => location.href = 'index.php' },   // approvals only from the Dashboard (1 Oct 2026)
             ['approved', 'partially_received'].includes(p.status) && { label: 'Receive goods (GRN)', cls: 'adm-btn-primary', icon: 'fa-dolly', run: () => location.href = 'goods_receipts.php?po_id=' + p.id },

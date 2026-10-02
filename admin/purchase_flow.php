@@ -324,7 +324,9 @@ function bindTransport() {
         E.post(API, { action: 'transport_save', pr_id: PR, delivery_mode: $('#tMode').val(), courier_service_id: $('#tCs').val(), courier_name: $('#tCname').val(), tracking_number: $('#tTrack').val(),
                       driver_name: $('#tDriver').val(), driver_phone: $('#tPhone').val(), vehicle_number: $('#tVeh').val(), dispatch_date: $('#tDate').val() }, { silent: true })
             .then(r => (courier && file ? upload('purchase_order', D.po.id, 'TRANSPORT_RECEIPT', file, 'Courier proof ' + $('#tTrack').val())
-                .then(id => E.post(API, { action: 'doc_link', pr_id: PR, slot: 'courier_proof', doc_id: id }, { silent: true })) : Promise.resolve()).then(() => reload(r.message)))
+                .then(id => E.post(API, { action: 'doc_link', pr_id: PR, slot: 'courier_proof', doc_id: id }, { silent: true })) : Promise.resolve()).then(() => { const old = D; reload(r.message);
+                    // FIX (2 Oct 2026): continue the flow — go to the loading step once the page is refreshed
+                    let n = 0; const t = setInterval(() => { const el = document.getElementById('card-docs'); if ((D !== old && el) || ++n > 40) { clearInterval(t); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 150); }))
             .catch(m => { $b.prop('disabled', false); fail(m); });
     });
 }
