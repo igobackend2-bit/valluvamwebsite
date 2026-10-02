@@ -64,6 +64,8 @@ new MutationObserver(function () { document.querySelectorAll('#card-proofs .px-c
 #detailView .adm-table th,#detailView .adm-table td{padding:10px 12px}
 @media (max-width:760px){#detailView .pf-card > .adm-card-head,#detailView .pf-card > .adm-card-body{padding:14px}#detailView .pq-wrap{padding:10px}#detailView .pq-tbl col.pq-c0{width:150px}}
 </style>
+<script>/* FIX (2 Oct 2026): opened with #card-quotes (from RFQ & Quotations) → scroll to that card once it is drawn */
+(function () { var h = location.hash; if (!/^#card-[a-z]+$/.test(h)) return; var t0 = Date.now(), mo = new MutationObserver(function () { var el = document.querySelector(h); if (el && el.offsetParent !== null) { mo.disconnect(); setTimeout(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300); } else if (Date.now() - t0 > 15000) mo.disconnect(); }); mo.observe(document.documentElement, { childList: true, subtree: true }); })();</script>
 <script>/* FIX (2 Oct 2026): number the visible steps 1, 2, 3 … when a team sees only some of them */
 (function () { var busy = false; new MutationObserver(function () { if (busy) return; busy = true;
     var n = 0; document.querySelectorAll('#steps .pf-step').forEach(function (el) { if (el.offsetParent === null) return; var t = el.querySelector('.n'); n++; if (t && t.textContent !== 'Step ' + n) t.textContent = 'Step ' + n; });

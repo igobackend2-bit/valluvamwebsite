@@ -3,6 +3,21 @@ require_once __DIR__ . '/includes/erp_page.php';
 erp_page_start('RFQ & Quotations', 'Ask suppliers for prices, record their quotations, compare landed cost and award purchase orders',
     '<button class="adm-btn adm-btn-primary" id="newBtn"><i class="fas fa-plus"></i> New RFQ</button>');
 ?>
+<!-- FIX (2 Oct 2026): approved purchase requests that still need shop quotations — click to enter them -->
+<section class="adm-card" id="needQCard">
+    <div class="adm-card-head"><h2>Requests waiting for your quotations <span class="adm-badge is-neutral" id="needQN">0</span></h2><span class="erp-muted">Approved purchase requests — click one to enter the 3 shop quotations</span></div>
+    <div class="adm-card-body" id="needQ"></div>
+</section>
+<style>#needQCard .adm-card-head{flex-wrap:wrap;gap:6px 16px}#needQCard .adm-card-head h2 .adm-badge{margin-left:8px;vertical-align:middle}
+.nq-list{display:grid;gap:12px}
+.nq-row{display:grid;grid-template-columns:minmax(180px,1.1fr) minmax(240px,2.4fr) minmax(130px,.8fr) auto;gap:14px 20px;align-items:center;padding:14px 18px;border:1px solid var(--adm-line);border-left:4px solid #2f6ea8;border-radius:12px;background:var(--adm-surface);cursor:pointer;transition:box-shadow .15s,background .15s}
+.nq-row:hover{background:#fbfaf6;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.nq-row.is-wait{border-left-color:var(--adm-amber)}.nq-row.is-bad{border-left-color:var(--adm-red)}
+.nq-ref strong{font-size:15px;color:var(--adm-green-dark)}.nq-ref .erp-muted{display:block;margin-top:3px}
+.nq-items{font-size:13px;line-height:1.5;color:var(--adm-ink)}.nq-items .erp-muted{font-size:12px}
+.nq-q{font-size:12.5px;color:var(--adm-ink-soft)}.nq-q b{display:block;font-size:14px;color:var(--adm-ink)}
+.nq-bar{height:5px;border-radius:4px;background:#ece8e1;margin-top:6px;overflow:hidden}.nq-bar span{display:block;height:100%;background:#2f6ea8}
+@media (max-width:860px){.nq-row{grid-template-columns:1fr}.nq-row .adm-btn{justify-self:start}}</style>
 <section class="adm-card">
     <div class="adm-card-head"><h2>Requests for quotation</h2>
         <div class="erp-filters">
@@ -205,5 +220,26 @@ function compare(id) {
         }, { confirmText: 'Create purchase order(s)', width: 1100 });
     }).catch(() => {});
 }
+// FIX (2 Oct 2026): requests that still need shop quotations (from the purchase flow); click → enter quotations
+function loadNeedQ() {
+    const $b = $('#needQ'); E.loading($b);
+    E.api('purchase_flow_api.php', { action: 'list' }, { silent: true }).then(r => {
+        const rows = (r.rows || []).filter(x => x.pr_status === 'approved' && x.quote_status !== 'approved');
+        $('#needQN').text(rows.length).toggleClass('is-amber', rows.length > 0).toggleClass('is-neutral', !rows.length);
+        if (!rows.length) { $b.html('<div class="adm-empty"><i class="fas fa-circle-check"></i><p><strong>No request is waiting for quotations</strong></p><p>Approved purchase requests appear here for the 3 shop quotations.</p></div>'); return; }
+        const st = x => x.quote_status === 'submitted' ? ['is-wait', 'Sent — waiting for Admin approval', 'View quotations'] : x.quote_status === 'rejected' ? ['is-bad', 'Rejected — change and send again', 'Fix quotations'] : ['', 'Quotations to collect', 'Provide quotation'];
+        $b.html('<div class="nq-list">' + rows.map(x => { const s = st(x), n = Math.min(3, +x.quote_count || 0);
+            return `<div class="nq-row ${s[0]}" data-pr="${x.id}"><div class="nq-ref"><strong>${E.esc(x.pr_number)}</strong><span class="erp-muted">${E.date(x.request_date)}${x.required_by ? ' · needed by ' + E.date(x.required_by) : ''} · ${E.esc(x.requested_by || '')}</span></div>
+                <div class="nq-items" data-items="${x.id}"><span class="erp-muted">Loading items…</span></div>
+                <div class="nq-q"><b>${n} of 3</b>quotations · ${E.esc(s[1])}<div class="nq-bar"><span style="width:${Math.round(n / 3 * 100)}%"></span></div></div>
+                <a class="adm-btn ${s[0] ? 'adm-btn-ghost' : 'adm-btn-primary'}" href="purchase_flow.php?pr_id=${x.id}#card-quotes"><i class="fas fa-pen-to-square"></i> ${E.esc(s[2])}</a></div>`; }).join('') + '</div>');
+        rows.slice(0, 25).forEach(x => E.api('purchase_flow_api.php', { action: 'get', pr_id: x.id }, { silent: true }).then(d => {
+            const it = (d.pr && d.pr.items) || [];
+            $(`[data-items="${x.id}"]`).html(it.length ? it.slice(0, 4).map(i => `${E.esc(i.item_name)} <span class="erp-muted">× ${E.qty(i.quantity, i.unit)}</span>`).join('<br>') + (it.length > 4 ? `<br><span class="erp-muted">+ ${it.length - 4} more item(s)</span>` : '') : '<span class="erp-muted">No items</span>');
+        }).catch(() => $(`[data-items="${x.id}"]`).html('<span class="erp-muted">—</span>')));
+    }).catch(m => E.errorBox($b, m, loadNeedQ));
+}
+$('#needQ').on('click', '.nq-row', function (e) { if ($(e.target).closest('a').length) return; location.href = 'purchase_flow.php?pr_id=' + $(this).data('pr') + '#card-quotes'; });
+loadNeedQ();
 JS
 );
