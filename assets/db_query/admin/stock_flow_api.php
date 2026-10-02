@@ -40,7 +40,7 @@ $PERMS = [
     'daily' => 'stockflow.view', 'out_register' => 'stockflow.view', 'location_stock' => 'stockflow.view',
     'aud_list' => 'stockflow.view', 'aud_get' => 'stockflow.view', 'aud_plan' => 'stockflow.audit', 'aud_start' => 'stockflow.audit', 'aud_save' => 'stockflow.audit',
     'aud_close' => 'stockflow.audit_approve', 'aud_cancel' => 'stockflow.audit', 'aud_report' => 'stockflow.view',
-    'aud_signoff' => 'stockflow.audit|stockflow.audit_approve',   // FIX (2 Oct 2026): auditor (external) QC report + name + signature
+    'aud_signoff' => 'stockflow.audit|stockflow.audit_approve|stockflow.audit_sign',   // + External Auditor (2 Oct 2026)   // FIX (2 Oct 2026): auditor (external) QC report + name + signature
     'hnd_list' => 'stockflow.view', 'hnd_get' => 'stockflow.view', 'hnd_preview' => 'stockflow.handover', 'hnd_create' => 'stockflow.handover',
     'hnd_check' => 'stockflow.handover', 'hnd_ack' => 'stockflow.handover_ack', 'hnd_cancel' => 'stockflow.handover',
 ];

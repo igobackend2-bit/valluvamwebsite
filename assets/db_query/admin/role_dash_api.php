@@ -60,6 +60,26 @@ function rd_flows(PDO $pdo, string $where = '1=1', array $p = []): array {
     unset($r);
     return $rows;
 }
+/** FIX (2 Oct 2026): monthly audits with the external auditor's sign-off (or waiting for it). */
+function rd_signoffs_installed(PDO $pdo): bool { static $ok = null; if ($ok === null) { try { $pdo->query("SELECT 1 FROM sf_audit_signoffs LIMIT 1"); $ok = true; } catch (PDOException $e) { $ok = false; } } return $ok; }
+function rd_audit_list(PDO $pdo, string $title): array {
+    $rows = [];
+    $sign = rd_signoffs_installed($pdo);
+    foreach (erp_rows($pdo, "SELECT a.id, a.audit_number, a.audit_month, a.status, w.name AS warehouse" . ($sign ? ", s.auditor_name, s.auditor_org, s.auditor_type, s.qc_result, s.signed_at, s.qc_findings, s.report_doc_id, rd.original_name AS report_name" : '') . "
+                             FROM sf_audits a JOIN warehouses w ON w.id = a.warehouse_id" . ($sign ? " LEFT JOIN sf_audit_signoffs s ON s.audit_id = a.id LEFT JOIN erp_documents rd ON rd.id = s.report_doc_id" : '') . "
+                             WHERE a.status <> 'cancelled' ORDER BY a.audit_month DESC, a.id DESC LIMIT 12") as $a) {
+        $signed = $sign && !empty($a['signed_at']);
+        $rows[] = ['aud' => $a['audit_number'] . ' · ' . $a['audit_month'], 'loc' => $a['warehouse'],
+                   'who' => $signed ? $a['auditor_name'] . ($a['auditor_org'] ? ' (' . $a['auditor_org'] . ')' : '') . ($a['auditor_type'] === 'internal' ? ' · internal' : '') : '—',
+                   'res' => $signed ? ucfirst(str_replace('_', ' ', $a['qc_result'])) : 'Not signed', 'what' => $signed ? mb_substr((string)$a['qc_findings'], 0, 120) : ucwords(str_replace('_', ' ', $a['status'])),
+                   'date' => $signed ? substr($a['signed_at'], 0, 10) : null,
+                   'proof' => $signed && $a['report_doc_id'] ? ['href' => '../assets/db_query/admin/erp_docs.php?action=download&id=' . (int)$a['report_doc_id'], 'text' => $a['report_name']] : null,
+                   'link' => 'stock_audit.php?id=' . (int)$a['id']];
+    }
+    return ['key' => 'audits', 'title' => $title, 'empty' => 'No monthly audit yet.', 'more' => 'stock_audit.php',
+            'cols' => [['k' => 'aud', 'l' => 'Audit / month'], ['k' => 'loc', 'l' => 'Location'], ['k' => 'who', 'l' => 'Auditor (signed)'], ['k' => 'res', 'l' => 'Quality result', 'f' => 'status'],
+                       ['k' => 'what', 'l' => 'Findings'], ['k' => 'date', 'l' => 'Signed on', 'f' => 'date'], ['k' => 'proof', 'l' => 'Report file', 'f' => 'file']], 'rows' => $rows];
+}
 function rd_task(array $f, string $title, string $sub, array $actions = [], string $link = ''): array {
     return ['id' => (int)$f['id'], 'ref' => $f['pr_number'], 'title' => $title, 'sub' => $sub, 'date' => $f['request_date'], 'amount' => $f['grand_total'] ?? null,
             'stage' => $f['stage'][1], 'actions' => $actions, 'link' => $link ?: 'purchase_flow.php?pr_id=' . (int)$f['id']];
@@ -141,7 +161,7 @@ try {
     $key = role_access_key($roleName);
     if ((int)($_SESSION['admin_role_id'] ?? 0) === 1) $key = 'super';
     $userDash = user_dash_keys($pdo, (int)($_SESSION['admin_user_id'] ?? 0));   // dashboards given by the Super Admin
-    $want = $key === 'super' ? ['executive', 'manager', 'l1', 'admin', 'ceo', 'accounts'] : ($userDash ?: ($key && $key !== 'super' ? [$key] : []));
+    $want = $key === 'super' ? ['executive', 'manager', 'l1', 'admin', 'ceo', 'accounts', 'auditor'] : ($userDash ?: ($key && $key !== 'super' ? [$key] : []));
     $m1 = date('Y-m-01'); $today = date('Y-m-d'); $me = erp_user();
     $flows = rd_flows($pdo, "pr.status <> 'cancelled'");
     $sections = [];
@@ -236,6 +256,22 @@ try {
                      rd_kpi('PO value approved this month', $poVal, 'money'),
                      rd_kpi('Waiting for the CEO', (int)erp_val($pdo, "SELECT COUNT(*) FROM approval_requests WHERE module = 'po_ceo' AND status IN ('submitted','under_review')"), 'n', 'POs above ₹' . number_format((float)erp_setting($pdo, 'ceo_po_limit', 0)))];
             $sections[] = ['key' => $k, 'title' => 'Approvals (Admin)', 'role' => 'Admin', 'tasks' => $tasks, 'kpis' => $kpis];
+        }
+        // FIX (2 Oct 2026): External Auditor — monthly stock audits waiting for the auditor's QC check, report and signature
+        if ($k === 'auditor') {
+            try {
+                $signedOk = rd_signoffs_installed($pdo);
+                foreach (erp_rows($pdo, "SELECT a.id, a.audit_number, a.audit_month, a.audit_date, a.status, w.name AS warehouse FROM sf_audits a JOIN warehouses w ON w.id = a.warehouse_id
+                                         WHERE a.status IN ('count_completed','verification_pending','approved')" . ($signedOk ? " AND NOT EXISTS (SELECT 1 FROM sf_audit_signoffs s WHERE s.audit_id = a.id)" : '') . " ORDER BY a.audit_date, a.id LIMIT 50") as $a)
+                    $tasks[] = ['id' => (int)$a['id'], 'ref' => $a['audit_number'], 'title' => 'Audit & quality check — ' . $a['audit_number'] . ' · ' . $a['warehouse'] . ' · ' . $a['audit_month'],
+                                'sub' => 'Check the stock and the quality, write the report and sign', 'date' => $a['audit_date'], 'amount' => null, 'stage' => 'Waiting for your signature', 'actions' => [], 'link' => 'stock_audit.php?id=' . (int)$a['id']];
+                $signedMonth = $signedOk ? (int)erp_val($pdo, "SELECT COUNT(*) FROM sf_audit_signoffs WHERE signed_at >= ?", [$m1]) : 0;
+                $issues = $signedOk ? (int)erp_val($pdo, "SELECT COUNT(*) FROM sf_audit_signoffs WHERE qc_result <> 'satisfactory' AND signed_at >= ?", [$m1]) : 0;
+                $kpis = [rd_kpi('Audits waiting for me', count($tasks), 'n', '', count($tasks) ? 'amber' : 'green'), rd_kpi('Signed this month', $signedMonth),
+                         rd_kpi('Quality issues found this month', $issues, 'n', 'needs improvement / unsatisfactory', $issues ? 'red' : 'green')];
+                $lists = [rd_audit_list($pdo, 'My signed audit reports')];
+                $sections[] = ['key' => $k, 'title' => 'Monthly stock audit & quality check (External Auditor)', 'role' => 'External Auditor', 'tasks' => $tasks, 'kpis' => $kpis, 'lists' => $lists];
+            } catch (PDOException $e) { error_log('[role dash auditor] ' . $e->getMessage()); }
         }
         if ($k === 'ceo') {
             foreach (erp_rows($pdo, "SELECT r.id, r.request_number, r.summary, r.amount, r.entity_id, r.submitted_by, r.submitted_at FROM approval_requests r
@@ -374,6 +410,8 @@ try {
                                              'cols' => [['k' => 'po', 'l' => 'PO / request'], ['k' => 'sup', 'l' => 'Shop'], ['k' => 'how', 'l' => 'Transport'], ['k' => 'track', 'l' => 'Tracking no. / driver'],
                                                         ['k' => 'date', 'l' => 'Dispatched', 'f' => 'date'], ['k' => 'by', 'l' => 'Bought by (L1)'], ['k' => 'st', 'l' => 'Status', 'f' => 'status']], 'rows' => $rows];
             } catch (PDOException $e) { error_log('[role dash transit] ' . $e->getMessage()); }
+            // FIX (2 Oct 2026): external auditor reports (monthly stock audit + quality check) — Manager, Admin, CEO
+            if ($lk !== 'executive' || $key === 'super') { try { $sections[$ix]['lists'][] = rd_audit_list($pdo, 'External audit & quality reports (monthly)'); } catch (PDOException $e) { error_log('[role dash audits] ' . $e->getMessage()); } }
             // team activity from the audit trail — Manager and CEO (1 Oct 2026)
             if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
                 try {

@@ -15,6 +15,7 @@ function role_access_key(string $roleName): string {
         'CEO' => 'ceo',
         'Accounts Team' => 'accounts', 'Accounts' => 'accounts',
         'Super Admin' => 'super',
+        'External Auditor' => 'auditor',   // FIX (2 Oct 2026): monthly external QC + stock audit sign-off
     ];
     return $map[$roleName] ?? '';
 }
@@ -113,6 +114,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
                         'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php',
                         // (1 Oct 2026) money side of returns and sales: refunds / credits, customer invoices, approvals of expenses / bills / payments
                         'purchase_returns.php', 'debit_notes.php', 'invoices.php', 'print_invoice.php', 'credit_notes.php', 'approvals.php', 'transaction_trace.php', 'erp_reports_center.php', 'reports.php'],
+        'auditor'   => ['stock_audit.php', 'notifications.php'],   // FIX (2 Oct 2026): External Auditor — monthly audit + QC sign-off only
     ];
     $k = role_access_key($roleName);
     $base = isset($pages[$k]) ? array_merge($common, $pages[$k]) : null;
@@ -126,6 +128,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
                                          'gst_summary.php', 'financial_periods.php', 'bank_accounts.php', 'profit_loss.php', 'product_profitability.php', 'purchase_payments.php', 'supplier_ledger.php', 'purchase_invoices.php']);
         if ($k === 'accounts')   // Accounts Team: not the request / sourcing pages — they start once a PO exists (1 Oct 2026)
             $extra = array_diff($extra, ['purchase_requests.php', 'rfqs.php', 'shipments.php', 'goods_receipts.php', 'quality_checks.php', 'warehouses.php']);
+        if ($k === 'auditor') $extra = array_intersect($extra, $pages['auditor']);   // FIX (2 Oct 2026): External Auditor sees only the audit page
         if ($k === 'accounts')   // FIX (2 Oct 2026): Accounts Team sees only accounts / payment pages — no stock, inventory, audits or purchase reports
             $extra = array_intersect($extra, $pages['accounts']);
         if ($k === 'l1')   // FIX (2 Oct 2026): L1 (Sourcing) sees only its own work — quotations, transport, loading / unloading, GRN, QC — not inventory, audits or purchase reports

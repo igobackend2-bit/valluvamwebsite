@@ -80,7 +80,7 @@ function openView(id) {
 // FIX (2 Oct 2026): monthly audit — (external) auditor quality check, report, name and digital signature
 const QCR = { satisfactory: 'Satisfactory', needs_improvement: 'Needs improvement', unsatisfactory: 'Unsatisfactory' };
 function signoffHtml(a) {
-    const s = a.signoff, canSign = a.signoff_installed && (SF.can('stockflow.audit') || SF.can('stockflow.audit_approve')) && ['count_completed', 'verification_pending', 'approved'].includes(a.status);
+    const s = a.signoff, canSign = a.signoff_installed && (SF.can('stockflow.audit') || SF.can('stockflow.audit_approve') || SF.can('stockflow.audit_sign')) && ['count_completed', 'verification_pending', 'approved'].includes(a.status);
     const dl = id => `${E.BASE}erp_docs.php?action=download&id=${id}`;
     let h = '<div class="sf-sec"><h3><i class="fas fa-user-check"></i> Auditor quality check, report & signature</h3>';
     if (!a.signoff_installed) return h + '<p class="sf-note">Run sf_audit_signoff_migration.sql once in HeidiSQL to switch on the auditor sign-off.</p></div>';
