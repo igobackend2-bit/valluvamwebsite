@@ -27,6 +27,9 @@ php_value session.cookie_lifetime 28800
 	AddOutputFilterByType DEFLATE application/javascript application/x-javascript
 	AddOutputFilterByType DEFLATE application/json application/xml
 	AddOutputFilterByType DEFLATE font/ttf font/otf application/font-woff application/font-woff2 font/woff2 image/svg+xml
+	# FIX (2 Oct 2026): this server sends .js files as "text/javascript", which
+	# was missing above - so jquery.min.js etc. went out uncompressed (268 KB).
+	AddOutputFilterByType DEFLATE text/javascript application/manifest+json
 </IfModule>
 
 # Let the browser cache static assets instead of re-fetching them every visit
@@ -45,6 +48,27 @@ php_value session.cookie_lifetime 28800
 	ExpiresByType font/otf "access plus 1 year"
 	ExpiresByType application/font-woff "access plus 1 year"
 	ExpiresByType font/woff2 "access plus 1 year"
+	# FIX (2 Oct 2026): .js is served as text/javascript on this server
+	ExpiresByType text/javascript "access plus 1 month"
+</IfModule>
+
+# ---- SPEED FIX (2 Oct 2026): Cache-Control headers ----
+# Images and fonts are cached by the browser (30 days / 1 year). CSS and JS
+# are cached for 1 hour only, so a code change you push still reaches
+# visitors quickly (after that the browser checks for a newer copy).
+# "Vary: Accept" on images tells caches that WebP-capable browsers get the
+# .webp copy (see the WebP rule further below) and older browsers the original.
+<IfModule mod_headers.c>
+	<FilesMatch "\.(jpe?g|png|gif|webp|jfif|svg|ico)$">
+		Header set Cache-Control "public, max-age=2592000"
+		Header append Vary Accept
+	</FilesMatch>
+	<FilesMatch "\.(woff2?|ttf|otf|eot)$">
+		Header set Cache-Control "public, max-age=31536000"
+	</FilesMatch>
+	<FilesMatch "\.(css|js)$">
+		Header set Cache-Control "public, max-age=3600"
+	</FilesMatch>
 </IfModule>
 
 RewriteEngine On
@@ -86,6 +110,18 @@ RewriteRule ^assets/uploads/.*\.(php\d?|phtml|phar|pl|py|cgi)$ - [R=404,L,NC]
 # Unprotected dev / one-time / test scripts and unused leftover pages
 RewriteRule ^(save|fetch|add_db|add_product|add_dashboard|fix_rice_category|milets|product)(\.php)?$ - [R=404,L,NC]
 RewriteRule ^assets/db_query/cleanup_invalid_users\.php$ - [R=404,L,NC]
+
+# ---- SPEED FIX (2 Oct 2026): serve WebP images automatically ----
+# Every big .jpg/.jpeg/.png/.jfif has a smaller, resized copy next to it named
+# "<same name>.webp" (e.g. images/hero-premium.jpg.webp). When the visitor's
+# browser supports WebP (all modern browsers) and that copy exists, Apache
+# quietly sends the .webp instead - the page code and the image links stay
+# exactly the same. Browsers without WebP, and any image that has no .webp
+# copy yet (e.g. a product photo uploaded later), get the original as before.
+RewriteCond %{HTTP_ACCEPT} image/webp
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME}.webp -f
+RewriteRule ^(.+\.(?:jpe?g|png|jfif))$ $1.webp [T=image/webp,L,NC]
 
 # ---- Clean URLs: hide the .php extension (top-level pages only) ----
 # Only single-segment pages like shop.php / rice.php / about.php get the

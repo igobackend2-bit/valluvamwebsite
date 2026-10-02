@@ -15,6 +15,12 @@ RUN mkdir -p /app/assets/b2b_enquiries \
 
 RUN a2enmod rewrite
 
+# FIX (2 Oct 2026) - SPEED: the browser-cache (mod_expires / mod_headers) and
+# gzip (mod_deflate) blocks in .htaccess are wrapped in <IfModule>, so they
+# were silently skipped because these modules were never switched on. This
+# only turns them on - nothing else changes.
+RUN a2enmod expires headers deflate
+
 # Without this, Apache silently ignores everything in .htaccess (the upload
 # size limits at the top of the file, and the clean-URL rewrite rules) - this
 # is the actual root cause of both the "Failed to upload image" errors and
