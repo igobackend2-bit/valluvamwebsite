@@ -17,6 +17,43 @@ erp_page_start('RFQ & Quotations', 'Ask suppliers for prices, record their quota
     <div class="adm-card-head"><h2>Shop quotations compared</h2><span class="erp-muted">From the purchase flow — click a request to see its 3 shops side by side</span></div>
     <div class="adm-card-body" id="cmpList"></div>
 </section>
+<style>/* FIX (2 Oct 2026): professional, aligned layout for "Shop quotations compared" (view only) */
+#cmpCard .pq-grp{border-radius:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+#cmpCard .pq-grp-h{padding:14px 18px;font-size:14.5px}
+#cmpCard .pq-grp-h > span:first-child strong{font-size:15.5px;color:var(--adm-green-dark)}
+#cmpCard .pq-grp-m{font-size:13px;gap:8px}
+#cmpCard .pq-grp-m .fa-chevron-down{margin-left:4px;transition:transform .2s}
+#cmpCard .pq-grp-b{padding:4px 18px 18px;border-top:1px solid var(--adm-line)}
+#cmpCard .pq-grp-b > .erp-note{margin:10px 0 0}
+#cmpCard .erp-section-title{margin:14px 0 10px}
+#cmpCard .pq-wrap{padding:16px;border-radius:12px}
+#cmpCard .pq-sum{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:14px}
+#cmpCard .pq-sum-card{padding:12px 16px;border-radius:10px}
+#cmpCard .pq-sum-v{font-size:16px;margin:2px 0}
+#cmpCard .pq-scroll{border:1px solid var(--adm-line);border-radius:10px;background:var(--adm-surface)}
+#cmpCard .pq-tbl{border:0;border-radius:0;font-size:13.5px;min-width:720px}
+#cmpCard .pq-tbl col.pq-c0{width:230px}
+#cmpCard .pq-tbl th,#cmpCard .pq-tbl td{padding:10px 14px;line-height:1.4;text-align:center}
+#cmpCard .pq-tbl th:first-child,#cmpCard .pq-tbl td.pq-lbl,#cmpCard .pq-tbl .pq-sec td{text-align:left}
+#cmpCard .pq-tbl td + td,#cmpCard .pq-tbl th + th{border-left:1px solid var(--adm-line)}
+#cmpCard .pq-tbl thead th{padding:13px 14px;font-size:14px;font-weight:700;vertical-align:middle}
+#cmpCard .pq-tbl thead th .adm-badge{margin-left:6px;vertical-align:middle}
+#cmpCard .pq-tbl tbody tr:not(.pq-sec):nth-child(even) td{background:#fcfbf8}
+#cmpCard .pq-tbl tbody tr:not(.pq-sec):hover td{background:#f6f3ec}
+#cmpCard .pq-tbl td.pq-lbl{font-size:13px;color:var(--adm-ink-soft);font-weight:500}
+#cmpCard .pq-tbl td.pq-lbl strong{color:var(--adm-ink);font-weight:600}
+#cmpCard .pq-tbl .pq-sec td{padding:9px 14px;font-size:12px;letter-spacing:.06em;border-left:0;border-top:1px solid var(--adm-line);box-shadow:inset 4px 0 0 var(--adm-green)}
+#cmpCard .pq-tbl td.pq-best{background:#e3f1e6 !important;box-shadow:inset 0 0 0 2px #9fd0ab;font-weight:600;color:var(--adm-green-dark)}
+#cmpCard .pq-tbl td .pq-unm{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+#cmpCard .pq-tbl td .erp-muted{font-size:12px}
+#cmpCard .pq-tbl .pq-flags{justify-content:center}
+#cmpCard .pq-tbl td.pq-lbl,#cmpCard .pq-tbl thead th:first-child{position:sticky;left:0;z-index:1;background:var(--adm-surface)}
+#cmpCard .pq-tbl tbody tr:not(.pq-sec):nth-child(even) td.pq-lbl{background:#fcfbf8}
+#cmpCard .pq-tbl thead th:first-child{background:var(--adm-green-soft)}
+#cmpCard .pq-wrap > .erp-note{margin-top:10px;text-align:right}
+#cmpCard .adm-card-head{flex-wrap:wrap;gap:6px 16px}
+@media (max-width:760px){#cmpCard .pq-tbl col.pq-c0{width:150px}#cmpCard .pq-grp-h{padding:12px}#cmpCard .pq-grp-b{padding:4px 12px 12px}#cmpCard .pq-wrap{padding:10px}}
+</style>
 <script>window.addEventListener('load', function () { if (!window.ERP || !window.jQuery) return; jQuery.ajax({ url: 'assets/po_quotes.js?v=<?= @filemtime(__DIR__ . '/assets/po_quotes.js') ?: 1 ?>', dataType: 'script', cache: true }).then(function () { if (window.POQ && POQ.compareAll) POQ.compareAll(jQuery('#cmpList')); }); });</script>
 <?php erp_page_end(<<<'JS'
 const E = ERP;
