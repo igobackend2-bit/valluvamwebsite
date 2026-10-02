@@ -3,6 +3,11 @@ require_once __DIR__ . '/includes/erp_page.php';
 erp_page_start('Quality Check', 'Inspect goods on a draft goods receipt — only accepted quantity becomes stock when the GRN is posted',
     '<button class="adm-btn adm-btn-primary" id="newBtn"><i class="fas fa-plus"></i> New quality check</button>');
 ?>
+<!-- FIX (2 Oct 2026): unloaded purchases waiting for the quality check (no QC yet) -->
+<section class="adm-card" id="qcWaitCard">
+    <div class="adm-card-head"><h2>Waiting for quality check <span class="adm-badge is-neutral" id="qcWaitN" style="margin-left:8px">0</span></h2><span class="erp-muted">Unloaded goods (draft goods receipts) — start the quality check here</span></div>
+    <div class="adm-card-body" id="qcWait"></div>
+</section>
 <section class="adm-card">
     <div class="adm-card-head"><h2>Quality checks</h2>
         <div class="erp-filters">
@@ -64,5 +69,35 @@ function openView(id) {
 }
 load();
 if (E.param('id')) openView(E.param('id'));
+// FIX (2 Oct 2026): draft goods receipts without a quality check → start it here (linked to the purchase flow)
+function loadWait() {
+    const $w = $('#qcWait'); E.loading($w);
+    Promise.all([E.api('purchase_api.php', { action: 'grn_list', status: 'draft' }, { silent: true }), E.api('procurement_api.php', { action: 'qc_list' }, { silent: true }),
+                 E.api('purchase_flow_api.php', { action: 'list', all: 1 }, { silent: true }).catch(() => ({ rows: [] }))]).then(([g, q, f]) => {
+        const has = new Set(q.rows.filter(x => x.status !== 'cancelled').map(x => String(x.grn_id))), flow = {};
+        (f.rows || []).forEach(x => { if (x.grn_id) flow[String(x.grn_id)] = x; });
+        const rows = g.rows.filter(x => !has.has(String(x.id)));
+        $('#qcWaitN').text(rows.length).toggleClass('is-amber', rows.length > 0).toggleClass('is-neutral', !rows.length);
+        q.rows.filter(x => x.status === 'pending').forEach(x => rows.push(Object.assign({}, x, { _pending: true, id: x.grn_id, _qc: x.id, received_date: x.created_at })));
+        if (!rows.length) { $w.html('<div class="adm-empty"><i class="fas fa-circle-check"></i><p><strong>Nothing is waiting for a quality check</strong></p></div>'); return; }
+        E.table($w, [
+            { label: 'Goods receipt', render: x => `<a class="erp-link" href="goods_receipts.php?id=${x.id}">${E.esc(x.grn_number)}</a>` },
+            { label: 'Purchase', render: x => flow[String(x.id)] ? `<a class="erp-link" href="purchase_flow.php?pr_id=${flow[String(x.id)].id}#card-qc">${E.esc(flow[String(x.id)].pr_number)}</a>` : E.esc(x.po_number || '—') },
+            { label: 'Supplier', render: x => E.esc(x.supplier_name || '') },
+            { label: 'Received', render: x => E.date(x.received_date) },
+            { label: 'Accepted qty', num: true, render: x => x._pending ? E.qty(x.received_qty) : E.qty(x.accepted_qty) },
+            { label: 'Status', render: x => x._pending ? '<span class="adm-badge is-amber">QC started — complete it</span>' : '<span class="adm-badge is-info">Waiting for quality check</span>' },
+            { label: '', render: x => x._pending ? `<button class="adm-btn adm-btn-primary" data-view="${x._qc}"><i class="fas fa-microscope"></i> Do the quality check</button>`
+                                                 : `<button class="adm-btn adm-btn-primary" data-qcs="${x.id}"><i class="fas fa-play"></i> Start quality check</button>` },
+        ], rows, { empty: '', icon: 'fa-microscope' });
+        $w.off('click.qw').on('click.qw', '[data-qcs]', function () {
+            const gid = $(this).data('qcs'), fl = flow[String(gid)], $b = $(this).prop('disabled', true);
+            E.post('procurement_api.php', { action: 'qc_create', grn_id: gid }, { silent: true })
+                .then(x => (fl ? E.post('purchase_flow_api.php', { action: 'qc_link', pr_id: fl.id, qc_id: x.id }, { silent: true }).catch(() => null) : Promise.resolve()).then(() => x))
+                .then(x => { E.toast(x.message); load(); loadWait(); setTimeout(() => openView(x.id), 300); }).catch(m => { $b.prop('disabled', false); E.alertError(m); });
+        }).on('click.qw', '[data-view]', function () { openView($(this).data('view')); });
+    }).catch(m => E.errorBox($w, m, loadWait));
+}
+loadWait();
 JS
 );
