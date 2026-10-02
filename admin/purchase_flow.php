@@ -19,6 +19,11 @@ erp_page_start('Purchase Flow', 'Request → 3 shop quotations → approval → 
 .pf-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .pf-hide{display:none}
 </style>
+<?php if (function_exists('role_access_key') && role_access_key((string)($_SESSION['admin_role_name'] ?? '')) === 'accounts'): ?>
+<style>/* FIX (2 Oct 2026): Accounts Team sees only the money steps — request, purchase order (bank details) and payment + proof */
+#card-quotes,#card-transport,#card-docs,#card-unload,#card-qc,#card-proofs,[data-px],
+.pf-step[data-go="quotes"],.pf-step[data-go="transport"],.pf-step[data-go="docs"],.pf-step[data-go="unload"],.pf-step[data-go="qc"]{display:none!important}</style>
+<?php endif; ?>
 <div id="listView">
     <section class="adm-card">
         <div class="adm-card-head"><h2>Purchases in progress</h2>

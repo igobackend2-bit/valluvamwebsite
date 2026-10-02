@@ -15,6 +15,7 @@ $isWrite = $_SERVER['REQUEST_METHOD'] === 'POST';
 
 $perms = [
     'pr_save' => 'purchase.create', 'pr_submit' => 'purchase.create', 'pr_cancel' => 'purchase.create',
+    'pr_add_location' => 'purchase.create',   // FIX (2 Oct 2026): "Other" location typed on a purchase request
     'pr_manager_approve' => 'purchase.manager_approve', 'pr_manager_reject' => 'purchase.manager_approve',
     'pr_backend_approve' => 'purchase.backend_approve', 'pr_backend_reject' => 'purchase.backend_approve', 'pr_to_po' => 'purchase.backend_approve',
     'po_save' => 'purchase.backend_approve', 'po_submit' => 'purchase.backend_approve', 'po_approve' => 'purchase.backend_approve',
@@ -42,6 +43,8 @@ try {
                                            (SELECT COUNT(*) FROM purchase_request_items i WHERE i.pr_id = pr.id) AS item_count
                                     FROM purchase_requests pr LEFT JOIN warehouses w ON w.id = pr.warehouse_id" .
                                    ($w ? ' WHERE ' . implode(' AND ', $w) : '') . " ORDER BY pr.id DESC LIMIT 500", $p);
+            // FIX (2 Oct 2026): exact live stage of each request (manager → admin → quotation → PO → payment → loaded → unloaded → QC → inventory)
+            if (is_file(__DIR__ . '/pr_stage_lib.php')) { require_once __DIR__ . '/pr_stage_lib.php'; foreach ($rows as &$r) $r['stage'] = pr_stage($pdo, $r); unset($r); }
             erp_out(['status' => 'success', 'rows' => $rows]);
 
         case 'pr_get':
@@ -52,7 +55,30 @@ try {
             $pr['items'] = erp_attach_item_names($pdo, erp_rows($pdo, "SELECT * FROM purchase_request_items WHERE pr_id = ? ORDER BY id", [$id]));
             if (is_file(__DIR__ . '/pf_lib.php')) { require_once __DIR__ . '/pf_lib.php'; $pr['items'] = pf_attach_units($pdo, $pr['items']); }   // typed unit, e.g. 50 kg (1 Oct 2026)
             $pr['purchase_orders'] = erp_rows($pdo, "SELECT id, po_number, status, grand_total FROM purchase_orders WHERE pr_id = ?", [$id]);
+            if (is_file(__DIR__ . '/pr_stage_lib.php')) { require_once __DIR__ . '/pr_stage_lib.php'; $pr['stage'] = pr_stage($pdo, $pr); }   // FIX (2 Oct 2026)
             erp_out(['status' => 'success', 'record' => $pr]);
+
+        // FIX (2 Oct 2026): locations for the request form (active ones) and "Other" — a typed new location is saved as a warehouse
+        case 'pr_warehouses':
+            erp_out(['status' => 'success', 'warehouses' => erp_rows($pdo, "SELECT id, name, code, location, status FROM warehouses WHERE status = 'active' OR id = ? ORDER BY name", [(int)erp_input('keep', 0)])]);
+
+        case 'pr_add_location':
+            $name = trim(preg_replace('/\s+/', ' ', (string)erp_input('name', '')));
+            if (mb_strlen($name) < 2) erp_invalid('Type the location name.');
+            $name = mb_substr($name, 0, 100);
+            $loc = mb_substr(trim((string)erp_input('location', '')), 0, 150);
+            $ex = erp_row($pdo, "SELECT id, name, status FROM warehouses WHERE LOWER(TRIM(name)) = LOWER(?) LIMIT 1", [$name]);
+            if ($ex) {
+                if ($ex['status'] !== 'active') erp_invalid("Location \"{$ex['name']}\" already exists but is inactive. Ask Admin to activate it in Warehouses.");
+                erp_out(['status' => 'success', 'id' => (int)$ex['id'], 'name' => $ex['name'], 'message' => "Location \"{$ex['name']}\" already exists — selected it."]);
+            }
+            $base = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $name), 0, 6)) ?: 'LOC';
+            $code = $base; $n = 1;
+            while (erp_val($pdo, "SELECT id FROM warehouses WHERE code = ?", [$code])) $code = $base . '-' . (++$n);
+            $pdo->prepare("INSERT INTO warehouses (name, code, location, status) VALUES (?, ?, ?, 'active')")->execute([$name, $code, $loc ?: null]);
+            $wid = (int)$pdo->lastInsertId();
+            log_audit($pdo, 'create', 'warehouses', $wid, null, ['name' => $name, 'code' => $code, 'location' => $loc, 'from' => 'purchase request (Other location)']);
+            erp_out(['status' => 'success', 'id' => $wid, 'name' => $name, 'message' => "Location \"{$name}\" saved."]);
 
         case 'pr_save':
         case 'pr_submit':
