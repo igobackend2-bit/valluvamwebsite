@@ -411,7 +411,27 @@ try {
             $internal = $f['delivery_mode'] === 'internal';
             if (!$internal && $type === 'transport') $type = 'courier';
             $from = mb_substr(trim((string)erp_input('from_location', '')), 0, 150); $to = mb_substr(trim((string)erp_input('to_location', '')), 0, 150);
-            if ($internal && ($from === '' || $to === '')) erp_invalid('Enter where the vehicle went: from location and to location.');
+            if ($type === 'transport' && ($from === '' || $to === '')) erp_invalid('Enter where the vehicle went: from location and to location.');
+            // FIX (2 Oct 2026): details by charge — labour (persons × rate), diesel (litres × rate), courier (packages / weight), other (what for)
+            $dn = fn($k) => trim((string)erp_input($k, '')) === '' ? null : erp_num(erp_input($k), $k);
+            $detail = '';
+            if (in_array($type, ['loading', 'unloading'], true)) {
+                $pers = (int)$dn('persons'); $rate = (float)$dn('rate_per_person');
+                if ($pers < 1 || $rate <= 0) erp_invalid('Enter the number of persons and the rate per person.');
+                if (($type === 'loading' ? $from : $to) === '') erp_invalid('Enter the loading / unloading place.');
+                $amount = erp_m($pers * $rate);
+                $detail = "{$pers} person(s) × ₹" . number_format($rate, 2) . ($dn('bags') ? ' · ' . (int)$dn('bags') . ' bags' : '');
+            } elseif ($type === 'transport') {
+                $lit = $dn('litres'); $lr = $dn('rate_per_litre');
+                if ($lit && $lr) { $amount = erp_m($lit * $lr); $detail = rtrim(rtrim(number_format($lit, 2), '0'), '.') . " L × ₹" . number_format($lr, 2); }
+            } elseif ($type === 'courier') {
+                $detail = trim(($dn('packages') ? (int)$dn('packages') . ' package(s)' : '') . ($dn('weight_kg') ? ' · ' . $dn('weight_kg') . ' kg' : ''), ' ·');
+            } else {
+                $what = mb_substr(trim((string)erp_input('charge_for', '')), 0, 150);
+                if ($what === '') erp_invalid('Enter what this charge is for.');
+                $detail = $what;
+            }
+            if ($detail !== '') $_POST['notes'] = mb_substr($detail . (trim((string)erp_input('notes', '')) !== '' ? ' · ' . trim((string)erp_input('notes', '')) : ''), 0, 500);
             $km = trim((string)erp_input('distance_km', '')); $km = $km === '' ? null : round(erp_num($km, 'Distance (km)'), 1);
             $veh = strtoupper(mb_substr(trim((string)erp_input('vehicle_number', $f['vehicle_number'] ?? '')), 0, 30));
             $num = next_document_number($pdo, 'transport_charge', 'TCH');
@@ -426,7 +446,8 @@ try {
                 if ($cols) { $pdo->prepare("UPDATE pf_transport_charges SET from_location = ?, to_location = ?, vehicle_number = ?, distance_km = ? WHERE id = ?")->execute([$from ?: null, $to ?: null, $veh ?: null, $km, $tid]); }
                 elseif ($internal) $pdo->prepare("UPDATE pf_transport_charges SET notes = ? WHERE id = ?")->execute([mb_substr(trim("{$from} → {$to}" . ($veh ? " · {$veh}" : '') . ($km ? " · {$km} km" : '') . ' · ' . (string)erp_input('notes', '')), 0, 500), $tid]);
             } catch (PDOException $e) { error_log('[tc route] ' . $e->getMessage()); }
-            if ($from !== '' && $to !== '') $route = " · {$from} → {$to}";
+            if ($from !== '' && $to !== '') $route = " · {$from} → {$to}"; elseif ($from !== '' || $to !== '') $route = ' at ' . ($from ?: $to);
+            if ($detail !== '') $route .= " · {$detail}";
             $label = $internal && $type === 'transport' ? 'diesel' : $type;
             $apr = apr_open($pdo, 'transport_charge_mgr', 'tc' . $tid, $tid, $num, "{$pr['pr_number']} · {$po['po_number']}: {$label} ₹" . number_format($amount, 2) . " to {$payee}{$route}", $amount, 'purchase_flow_api.php',
                             ['action' => 'tc_mgr_approve', 'id' => $tid], ['action' => 'tc_mgr_reject', 'id' => $tid]);
