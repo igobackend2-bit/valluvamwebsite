@@ -90,6 +90,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <td>${escapeHtml(s.payment_terms || '—')}</td>
                     <td>${s.status === 'active' ? '<span class="adm-badge is-green">Active</span>' : '<span class="adm-badge is-neutral">Inactive</span>'}</td>
                     <td>
+                        <a class="adm-icon-btn" href="supplier_360.php?id=${encodeURIComponent(s.id)}" title="Supplier 360 — purchases, bills, payments, outstanding, returns, documents"><i class="fas fa-id-card"></i></a><!-- FIX (3 Oct 2026): open this supplier's 360 view -->
                         <button class="adm-icon-btn edit-supplier" data-supplier='${JSON.stringify(s).replace(/'/g, "&#39;")}' title="Edit"><i class="fas fa-pen"></i></button>
                         <button class="adm-icon-btn is-danger delete-supplier" data-id="${s.id}" data-name="${escapeHtml(s.supplier_name)}" title="Delete"><i class="fas fa-trash"></i></button>
                     </td>

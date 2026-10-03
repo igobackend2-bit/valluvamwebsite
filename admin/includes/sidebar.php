@@ -120,9 +120,15 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="coupons.php" class="<?= nav_active('coupons.php', $current_page) ?>"><i class="fas fa-tags"></i> Coupons</a></li>
 
         <li class="adm-nav-section">Suppliers</li>
-        <li><a href="suppliers.php" class="<?= nav_active('suppliers.php', $current_page) ?>"><i class="fas fa-truck-field"></i> Suppliers</a></li>
+        <li><a href="suppliers.php" class="<?= nav_active('suppliers.php', $current_page) ?: nav_active('supplier_360.php', $current_page) ?>"><i class="fas fa-truck-field"></i> Suppliers</a></li>
         <?php /* FIX (3 Oct 2026): menu link removed — repeated option; the supplier ledger is in Supplier 360 (the page still opens from links) */ ?>
-        <li><a href="supplier_360.php" class="<?= nav_active('supplier_360.php', $current_page) ?>"><i class="fas fa-id-card"></i> Supplier 360</a></li>
+        <?php /* FIX (3 Oct 2026): one "Suppliers" menu option. Supplier 360 opens from each supplier on the Suppliers page (id-card button);
+                 teams that cannot open the Suppliers page (e.g. Accounts) get this same "Suppliers" link straight to Supplier 360. */
+        require_once __DIR__ . '/role_access.php';
+        $vp_sup_pages = array_key_exists('role_allowed_pages', $GLOBALS) ? $GLOBALS['role_allowed_pages'] : role_access_pages((string)($_SESSION['admin_role_name'] ?? ''));
+        if (is_array($vp_sup_pages) && !in_array('suppliers.php', $vp_sup_pages, true)): ?>
+        <li><a href="supplier_360.php" class="<?= nav_active('supplier_360.php', $current_page) ?>"><i class="fas fa-truck-field"></i> Suppliers</a></li>
+        <?php endif; ?>
 
         <li class="adm-nav-section">Reports &amp; admin</li>
         <?php /* FIX (3 Oct 2026): menu link removed — repeated option; reports are in ERP Reports (the page still opens from links) */ ?>
