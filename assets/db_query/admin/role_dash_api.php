@@ -216,7 +216,9 @@ try {
             // waste records reported by the team wait for the Manager's approval (1 Oct 2026)
             try {
                 foreach (erp_rows($pdo, "SELECT w.id, w.waste_id, w.date, w.waste_type, w.quantity, w.unit, w.reason, w.estimated_value, w.created_by, p.product_name
-                                         FROM waste_records w LEFT JOIN product_details p ON p.id = w.product_id WHERE w.status = 'reported' ORDER BY w.date, w.id LIMIT 50") as $w)
+                                         FROM waste_records w LEFT JOIN product_details p ON p.id = w.product_id WHERE w.status = 'reported'
+                                           AND NOT EXISTS (SELECT 1 FROM approval_requests ar WHERE ar.module = 'waste_admin' AND ar.request_key = CONCAT('w', w.id) AND ar.status IN ('submitted','under_review'))   -- FIX (3 Oct 2026): already sent to the Admin
+                                         ORDER BY w.date, w.id LIMIT 50") as $w)
                     $tasks[] = ['id' => (int)$w['id'], 'ref' => $w['waste_id'], 'title' => 'Waste ' . $w['waste_id'] . ' · ' . ($w['product_name'] ?: ucwords(str_replace('_', ' ', $w['waste_type']))),
                                 'sub' => trim(($w['quantity'] ? $w['quantity'] . ' ' . $w['unit'] . ' · ' : '') . $w['reason'] . ' · reported by ' . $w['created_by']), 'date' => $w['date'],
                                 'amount' => $w['estimated_value'], 'stage' => 'Waste waiting for approval', 'waste_id' => (int)$w['id'],

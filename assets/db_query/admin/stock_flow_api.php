@@ -32,7 +32,8 @@ $PERMS = [
     'iss_list' => 'stockflow.view', 'iss_get' => 'stockflow.view', 'iss_create' => 'stockflow.issue', 'iss_approve' => 'stockflow.approve', 'iss_reject' => 'stockflow.approve',
     'iss_issue' => 'stockflow.issue', 'iss_cancel' => 'stockflow.issue',
     'dmg_list' => 'stockflow.view', 'dmg_get' => 'stockflow.view', 'dmg_create' => 'stockflow.issue', 'dmg_verify' => 'stockflow.approve|stockflow.qc',
-    'dmg_approve' => 'stockflow.approve', 'dmg_reject' => 'stockflow.approve', 'dmg_dispose' => 'stockflow.approve',
+    'dmg_approve' => 'stockflow.approve', 'dmg_reject' => 'stockflow.approve|purchase.manager_approve', 'dmg_dispose' => 'stockflow.approve',
+    'dmg_mgr_ok' => 'purchase.manager_approve',   // FIX (3 Oct 2026): damage → Manager approval, then Admin
     'rr_list' => 'stockflow.view', 'rr_get' => 'stockflow.view', 'rr_create' => 'stockflow.returns', 'rr_qc' => 'stockflow.qc', 'rr_link' => 'stockflow.returns', 'rr_cancel' => 'stockflow.returns',
     'ops_list' => 'stockflow.view', 'ops_create' => 'stockflow.receive', 'ops_verify' => 'stockflow.approve', 'ops_reject' => 'stockflow.approve',
     'rd_list' => 'stockflow.view', 'rd_get' => 'stockflow.view', 'rd_rejected_stock' => 'stockflow.view', 'rd_create' => 'stockflow.issue', 'rd_approve' => 'stockflow.approve',
@@ -731,6 +732,11 @@ try {
             if (!$d) erp_fail('Not found.');
             $d = erp_attach_item_names($pdo, [$d])[0];
             $d['history'] = erp_rows($pdo, "SELECT action, username, created_at, new_value FROM audit_logs WHERE module = 'sf_damage_reports' AND record_id = ? ORDER BY id", [(string)$d['id']]);
+            // FIX (3 Oct 2026): which approval it waits for (Manager, then Admin) and whether this user can give it; photos attached
+            $d['stage'] = $d['status'] !== 'verified' ? null : (erp_val($pdo, "SELECT module FROM approval_requests WHERE module IN ('stock_damage_mgr','stock_damage_admin','stock_damage') AND request_key = ? AND status IN ('submitted','under_review') ORDER BY id DESC LIMIT 1", [(string)$d['id']]) ?: 'stock_damage');
+            $d['can_mgr'] = $d['stage'] === 'stock_damage_mgr' && erp_can($pdo, 'purchase.manager_approve');
+            $d['can_admin'] = in_array($d['stage'], ['stock_damage_admin', 'stock_damage'], true) && ($d['stage'] === 'stock_damage' ? erp_can($pdo, 'stockflow.approve') : erp_can($pdo, 'purchase.backend_approve'));
+            $d['photos'] = (int)erp_val($pdo, "SELECT COUNT(*) FROM erp_documents WHERE entity_type = 'stock_damage' AND entity_id = ?", [(int)$d['id']]);
             erp_out(['status' => 'success', 'record' => $d]);
         case 'dmg_create':
             $wh = erp_warehouse_ok($pdo, (int)erp_input('warehouse_id'));
@@ -753,12 +759,28 @@ try {
             if (!$d || $d['status'] !== 'identified') erp_invalid('Only identified damage can be verified.');
             $by = sf_txt(erp_input('verified_by'), 150) ?: ($_SESSION['admin_full_name'] ?? erp_user());
             if ($d['created_by'] === erp_user()) erp_invalid('The person who reported the damage cannot verify it.');
+            // FIX (3 Oct 2026): a damage photo is required, then Manager → Admin approval (when dmg_approval_migration.sql is installed)
+            if (!(int)erp_val($pdo, "SELECT COUNT(*) FROM erp_documents WHERE entity_type = 'stock_damage' AND entity_id = ?", [$id])) erp_invalid('Attach a damage photo first (Documents on this report), then verify.');
+            $dmgChain = (bool)apr_policy($pdo, 'stock_damage_mgr') && (bool)apr_policy($pdo, 'stock_damage_admin');
             $pdo->beginTransaction();
             $pdo->prepare("UPDATE sf_damage_reports SET status = 'verified', verified_by = ?, verified_at = NOW(), verify_remarks = ? WHERE id = ?")->execute([$by, sf_txt(erp_input('remarks'), 255), $id]);
-            apr_open($pdo, 'stock_damage', (string)$id, $id, $d['damage_number'], "Damage {$d['damage_number']}: " . erp_q($d['quantity']) . " — {$d['reason']}", null, 'stock_flow_api.php', ['action' => 'dmg_approve', 'id' => $id], ['action' => 'dmg_reject', 'id' => $id]);
+            if ($dmgChain) apr_open($pdo, 'stock_damage_mgr', (string)$id, $id, $d['damage_number'], "Damage {$d['damage_number']}: " . erp_q($d['quantity']) . " — {$d['reason']}", null, 'stock_flow_api.php', ['action' => 'dmg_mgr_ok', 'id' => $id], ['action' => 'dmg_reject', 'id' => $id]);
+            else apr_open($pdo, 'stock_damage', (string)$id, $id, $d['damage_number'], "Damage {$d['damage_number']}: " . erp_q($d['quantity']) . " — {$d['reason']}", null, 'stock_flow_api.php', ['action' => 'dmg_approve', 'id' => $id], ['action' => 'dmg_reject', 'id' => $id]);
             $pdo->commit();
             log_audit($pdo, 'verify', 'sf_damage_reports', $id, ['status' => 'identified'], ['status' => 'verified', 'verified_by' => $by]);
-            erp_out(['status' => 'success', 'message' => "{$d['damage_number']} verified — sent for approval."]);
+            erp_out(['status' => 'success', 'message' => "{$d['damage_number']} verified — sent to the " . ($dmgChain ? 'Manager' : 'approver') . " for approval."]);
+        case 'dmg_mgr_ok':   // FIX (3 Oct 2026): Manager approved → goes to the Admin (stock moves to DAMAGED only after the Admin)
+            $id = (int)erp_input('id');
+            $d = erp_row($pdo, "SELECT * FROM sf_damage_reports WHERE id = ?", [$id]);
+            if (!$d || $d['status'] !== 'verified') erp_invalid('Only verified damage can be approved.');
+            if (!erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'stock_damage_mgr' AND request_key = ? AND status IN ('submitted','under_review')", [(string)$id])) erp_invalid("{$d['damage_number']} is not waiting for the Manager.");
+            $rem = sf_txt(erp_input('_approval_remarks') ?: erp_input('reason'), 255);
+            $pdo->beginTransaction();
+            apr_close($pdo, 'stock_damage_mgr', (string)$id, 'approved', $rem);
+            $n = apr_open($pdo, 'stock_damage_admin', (string)$id, $id, $d['damage_number'], "Damage {$d['damage_number']}: " . erp_q($d['quantity']) . " — {$d['reason']} · Manager approved: " . erp_user(), null, 'stock_flow_api.php', ['action' => 'dmg_approve', 'id' => $id], ['action' => 'dmg_reject', 'id' => $id]);
+            $pdo->commit();
+            log_audit($pdo, 'approve', 'sf_damage_reports', $id, ['stage' => 'manager'], ['manager' => erp_user(), 'sent_to_admin' => $n]);
+            erp_out(['status' => 'success', 'message' => "{$d['damage_number']} approved by the Manager — sent to the Admin ({$n})."]);
         case 'dmg_approve':
         case 'dmg_reject':
             $id = (int)erp_input('id');
@@ -766,6 +788,12 @@ try {
             $pdo->beginTransaction();
             $d = erp_row($pdo, "SELECT * FROM sf_damage_reports WHERE id = ? FOR UPDATE", [$id]);
             if (!$d || $d['status'] !== 'verified') erp_invalid('Only verified damage can be approved or rejected.');
+            // FIX (3 Oct 2026): Manager first, then the Admin
+            $dmgStage = erp_val($pdo, "SELECT module FROM approval_requests WHERE module IN ('stock_damage_mgr','stock_damage_admin') AND request_key = ? AND status IN ('submitted','under_review') ORDER BY id DESC LIMIT 1", [(string)$id]);
+            if ($action === 'dmg_approve' && $dmgStage === 'stock_damage_mgr') erp_invalid("{$d['damage_number']} is waiting for the Manager first.");
+            if ($action === 'dmg_approve' && $dmgStage === 'stock_damage_admin' && !erp_can($pdo, 'purchase.backend_approve')) erp_invalid('The Admin gives the final approval.');
+            if ($action === 'dmg_reject' && !erp_can($pdo, $dmgStage === 'stock_damage_admin' ? 'purchase.backend_approve' : ($dmgStage === 'stock_damage_mgr' ? 'purchase.manager_approve' : 'stockflow.approve'))) erp_invalid('You cannot reject at this step.');
+            foreach (['stock_damage_mgr', 'stock_damage_admin'] as $dm) apr_close($pdo, $dm, (string)$id, $action === 'dmg_reject' ? 'rejected' : 'approved', $rem);
             if ($action === 'dmg_reject') {
                 if (!$rem) erp_invalid('Give a reason.');
                 $pdo->prepare("UPDATE sf_damage_reports SET status = 'rejected', approved_by = ?, approved_at = NOW(), decision_remarks = ? WHERE id = ?")->execute([erp_user(), $rem, $id]);

@@ -21,6 +21,8 @@ $perms = [
     'cnt_post' => 'stock_count.approve', 'cnt_reject' => 'stock_count.approve',
     'loc_save' => 'warehouse.locations', 'loc_status' => 'warehouse.locations', 'item_loc_assign' => 'warehouse.locations',
     'settings_save' => 'warehouse.locations',
+    // FIX (3 Oct 2026): expired stock disposal steps run only from Approvals, as the approver of that step (Manager → Admin → CEO)
+    'bucket_out_step' => (string)($GLOBALS['erp_replay_request']['approver_perm'] ?? 'approvals.manage'),
 ];
 erpx_guard($pdo, $perms[$action] ?? 'warehouse.view');
 if (isset($perms[$action]) && $action !== 'sync' && !$isWrite) erp_fail('Invalid request method.');
@@ -156,6 +158,24 @@ try {
             log_audit($pdo, 'stock_movement', 'warehouse_stock', $iid, null, ['number' => $num, 'item' => $item['name'], 'to' => $to, 'qty' => $qty, 'warehouse' => $wh, 'batch' => $batchId, 'reason' => $reason]);
             erp_out(['status' => 'success', 'message' => "{$num}: " . erp_q($qty) . " {$item['unit']} of {$item['name']} moved to {$to} stock (not sellable)."]);
 
+        case 'bucket_out_step':
+            // FIX (3 Oct 2026): expired stock disposal — Manager approves → Admin → CEO; the CEO's approval removes the stock
+            $exStep = (string)erp_input('step');
+            $exKey = (string)erp_input('chain_key');
+            $exMod = ['mgr' => 'expiry_dispose_mgr', 'admin' => 'expiry_dispose_admin', 'ceo' => 'expiry_dispose_ceo'][$exStep] ?? null;
+            if (!$exMod || $exKey === '') erp_invalid('Unknown approval step.');
+            if (($GLOBALS['erp_replay_request']['module'] ?? '') !== $exMod) erp_invalid('Approve expired-stock disposal from Approvals.');
+            $exRem = trim((string)erp_input('_approval_remarks', ''));
+            if ($exStep !== 'ceo') {
+                $exNext = $exStep === 'mgr' ? 'admin' : 'ceo';
+                $exPayload = array_intersect_key($_POST, array_flip(['item_type', 'item_id', 'warehouse_id', 'bucket', 'quantity', 'disposal', 'reason', 'proof_doc_id', 'chain_key', 'item_name']));
+                apr_close($pdo, $exMod, $exKey, 'approved', $exRem ?: null);
+                $exN = apr_open($pdo, 'expiry_dispose_' . $exNext, $exKey, (int)erp_input('item_id'), $exKey, mb_substr((string)($GLOBALS['erp_replay_request']['summary'] ?? 'Expired stock disposal'), 0, 200) . ' · ' . ($exStep === 'mgr' ? 'Manager' : 'Admin') . ' approved: ' . erp_user(),
+                                null, 'warehouse_api.php', array_merge($exPayload, ['action' => 'bucket_out_step', 'step' => $exNext]), null);
+                erp_out(['status' => 'success', 'message' => "Approved — sent to the " . ($exNext === 'admin' ? 'Admin' : 'CEO') . " ({$exN})."]);
+            }
+            $GLOBALS['wh_chain_exec'] = $exKey;   // CEO approved → remove the stock now (falls through to bucket_out below)
+            // no break: falls through
         case 'bucket_out':
             // dispose / return to supplier / destroy from damaged, expired or rejected stock (already out of sellable stock)
             $type = erp_item_type(erp_input('item_type', 'product'));
@@ -168,11 +188,26 @@ try {
             if (!in_array($how, ['disposed', 'destroyed', 'returned_to_supplier', 'donated', 'sold_as_scrap', 'other'], true)) erp_invalid('Choose what happened to the goods.');
             $have = wh_qty($pdo, $type, $iid, $wh, $from);
             if ($qty > $have + 0.0005) erp_invalid("Only " . erp_q($have) . " are in {$from} stock at this warehouse.");
+            // FIX (3 Oct 2026): expired stock is disposed only after Manager → Admin → CEO approve, with a proof photo / document
+            if ($from === 'expired' && empty($GLOBALS['wh_chain_exec'])) {
+                if (!apr_policy($pdo, 'expiry_dispose_mgr') || !apr_policy($pdo, 'expiry_dispose_admin') || !apr_policy($pdo, 'expiry_dispose_ceo'))
+                    erp_invalid('Run wastage_approval_migration.sql once in HeidiSQL to switch on Manager → Admin → CEO approval of expired stock disposal.');
+                $proof = (int)erp_input('proof_doc_id', 0);
+                if (!$proof || !erp_val($pdo, "SELECT id FROM erp_documents WHERE id = ? AND entity_type = ? AND entity_id = ?", [$proof, $type, $iid])) erp_invalid('Attach a photo / proof of the expired stock.');
+                $itemName = (erp_item($pdo, $type, $iid)['name'] ?? ('#' . $iid));
+                $key = next_document_number($pdo, 'expiry_dispose', 'EXD');
+                $payload = ['action' => 'bucket_out_step', 'step' => 'mgr', 'chain_key' => $key, 'item_type' => $type, 'item_id' => $iid, 'warehouse_id' => $wh, 'bucket' => 'expired', 'quantity' => $qty,
+                            'disposal' => $how, 'reason' => trim((string)erp_input('reason', '')), 'proof_doc_id' => $proof, 'item_name' => $itemName];
+                $n = apr_open($pdo, 'expiry_dispose_mgr', $key, $iid, $key, "Expired stock {$key}: " . erp_q($qty) . " × {$itemName} — " . str_replace('_', ' ', $how) . ($payload['reason'] !== '' ? ' · ' . $payload['reason'] : ''), null, 'warehouse_api.php', $payload, null);
+                log_audit($pdo, 'create', 'warehouse_stock', $iid, null, ['expiry_dispose' => $key, 'qty' => $qty, 'approval' => $n]);
+                erp_out(['status' => 'success', 'message' => "{$key}: sent for approval (Manager → Admin → CEO, {$n}). The stock stays in EXPIRED until the CEO approves."]);
+            }
             $pdo->beginTransaction();
             $num = next_document_number($pdo, 'wh_bucket', 'WHB');
             wh_apply($pdo, $type, $iid, $wh, $from, -$qty, 'bucket', null, 'bucket_out', $num, str_replace('_', ' ', $how) . ': ' . trim((string)erp_input('reason', '')));
             $pdo->commit();
             log_audit($pdo, 'stock_movement', 'warehouse_stock', $iid, null, ['number' => $num, 'from' => $from, 'qty' => $qty, 'disposal' => $how, 'reason' => erp_input('reason')]);
+            if (!empty($GLOBALS['wh_chain_exec'])) apr_close($pdo, 'expiry_dispose_ceo', (string)$GLOBALS['wh_chain_exec'], 'approved', trim((string)erp_input('_approval_remarks', '')) ?: null);   // FIX (3 Oct 2026)
             erp_out(['status' => 'success', 'message' => "{$num}: " . erp_q($qty) . " removed from {$from} stock (" . str_replace('_', ' ', $how) . ').']);
 
         case 'bucket_restore':

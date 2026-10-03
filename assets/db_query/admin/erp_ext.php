@@ -454,6 +454,7 @@ function doc_entities(): array {
         'return_dispatch' => ['Purchase return dispatch', 'stock_operations.php?tab=dispatch&id=', 'stockflow.view'],
         'stock_audit' => ['Monthly stock audit', 'stock_audit.php?id=', 'stockflow.view'],
         'stock_handover' => ['Executive stock handover', 'stock_handover.php?id=', 'stockflow.view'],
+        'waste_record' => ['Waste record', 'waste.php?id=', 'inventory.view'],   // FIX (3 Oct 2026): proof photo of wastage (Manager → Admin approval)
     ];
 }
 function doc_categories(): array {
@@ -575,6 +576,7 @@ function doc_entity_label(PDO $pdo, string $type, int $id): string {
         'stock_damage' => "SELECT damage_number FROM sf_damage_reports WHERE id = ?", 'return_receipt' => "SELECT receipt_number FROM sf_return_receipts WHERE id = ?",
         'opening_stock' => "SELECT opening_number FROM sf_opening_stock WHERE id = ?", 'return_dispatch' => "SELECT dispatch_number FROM sf_return_dispatches WHERE id = ?",
         'stock_audit' => "SELECT audit_number FROM sf_audits WHERE id = ?", 'stock_handover' => "SELECT handover_number FROM sf_handovers WHERE id = ?",
+        'waste_record' => "SELECT waste_id FROM waste_records WHERE id = ?",   // FIX (3 Oct 2026)
     ];
     if ($type === 'company') return 'Company';
     if (!isset($q[$type])) return $type . ' #' . $id;
@@ -603,6 +605,7 @@ function doc_entity_find(PDO $pdo, string $type, string $number): ?int {
         'stock_damage' => "SELECT id FROM sf_damage_reports WHERE damage_number = ?", 'return_receipt' => "SELECT id FROM sf_return_receipts WHERE receipt_number = ?",
         'opening_stock' => "SELECT id FROM sf_opening_stock WHERE opening_number = ?", 'return_dispatch' => "SELECT id FROM sf_return_dispatches WHERE dispatch_number = ?",
         'stock_audit' => "SELECT id FROM sf_audits WHERE audit_number = ?", 'stock_handover' => "SELECT id FROM sf_handovers WHERE handover_number = ?",
+        'waste_record' => "SELECT id FROM waste_records WHERE waste_id = ?",   // FIX (3 Oct 2026)
     ];
     if ($type === 'company') return 0;
     if (!isset($q[$type])) return null;

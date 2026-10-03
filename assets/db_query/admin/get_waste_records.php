@@ -13,7 +13,12 @@ $date_to    = trim($_GET['date_to'] ?? '');
 $q          = trim($_GET['q'] ?? '');
 
 try {
-    $sql = "SELECT w.*, pd.product_name FROM waste_records w
+    // FIX (3 Oct 2026): + latest proof photo and whether it is waiting for the Admin (after the Manager approved)
+    $sql = "SELECT w.*, pd.product_name,
+                   (SELECT MAX(d.id) FROM erp_documents d WHERE d.entity_type = 'waste_record' AND d.entity_id = w.id) AS proof_doc_id,
+                   (SELECT COUNT(*) FROM erp_documents d WHERE d.entity_type = 'waste_record' AND d.entity_id = w.id) AS proof_count,
+                   (SELECT ar.request_number FROM approval_requests ar WHERE ar.module = 'waste_admin' AND ar.request_key = CONCAT('w', w.id) AND ar.status IN ('submitted','under_review') LIMIT 1) AS awaiting_admin
+            FROM waste_records w
             LEFT JOIN product_details pd ON pd.id = w.product_id WHERE 1=1";
     $params = [];
 

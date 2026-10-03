@@ -52,15 +52,16 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="homepage.php" class="<?= nav_active('homepage.php', $current_page) ?>"><i class="fas fa-house"></i> Homepage</a></li>
         <li><a href="inventory_overview.php" class="<?= nav_active('inventory_overview.php', $current_page) ?>"><i class="fas fa-warehouse"></i> Inventory</a></li>
         <li><a href="stock_in.php" class="<?= nav_active('stock_in.php', $current_page) ?>"><i class="fas fa-dolly"></i> Stock In</a></li>
-        <li><a href="stock_out.php" class="<?= nav_active('stock_out.php', $current_page) ?>"><i class="fas fa-hand-holding-box"></i> Stock Out</a></li>
-        <li><a href="stock_movements.php" class="<?= nav_active('stock_movements.php', $current_page) ?>"><i class="fas fa-arrow-right-arrow-left"></i> Stock Movement</a></li>
+        <?php /* FIX (3 Oct 2026): icons — Stock Out / Raw Materials had Pro-only icons (showed blank); Stock Movement had the same icon as Stock Transfers */ ?>
+        <li><a href="stock_out.php" class="<?= nav_active('stock_out.php', $current_page) ?>"><i class="fas fa-truck-arrow-right"></i> Stock Out</a></li>
+        <li><a href="stock_movements.php" class="<?= nav_active('stock_movements.php', $current_page) ?>"><i class="fas fa-clock-rotate-left"></i> Stock Movement</a></li>
         <li><a href="warehouse_stock.php" class="<?= nav_active('warehouse_stock.php', $current_page) ?>"><i class="fas fa-cubes"></i> Stock by Warehouse</a></li>
         <li><a href="stock_transfers.php" class="<?= nav_active('stock_transfers.php', $current_page) ?>"><i class="fas fa-right-left"></i> Stock Transfers</a></li>
         <?php /* FIX (3 Oct 2026): menu link removed — repeated option; counting is done in Monthly Stock Audit (the page still opens from links) */ ?>
         <li><a href="batches.php" class="<?= nav_active('batches.php', $current_page) ?>"><i class="fas fa-barcode"></i> Batches &amp; Expiry</a></li>
         <li><a href="warehouses.php" class="<?= nav_active('warehouses.php', $current_page) ?>"><i class="fas fa-building"></i> Warehouses</a></li>
         <?php /* FIX (3 Oct 2026): Warehouse Locations (rack / shelf codes) not used — menu link removed; the page still opens by link and can be re-added here */ ?>
-        <li><a href="raw_materials.php" class="<?= nav_active('raw_materials.php', $current_page) ?>"><i class="fas fa-sack"></i> Raw Materials</a></li>
+        <li><a href="raw_materials.php" class="<?= nav_active('raw_materials.php', $current_page) ?>"><i class="fas fa-wheat-awn"></i> Raw Materials</a></li>
         <li><a href="repacking.php" class="<?= nav_active('repacking.php', $current_page) ?>"><i class="fas fa-box"></i> Repacking</a></li>
         <li><a href="stock_adjustments.php" class="<?= nav_active('stock_adjustments.php', $current_page) ?>"><i class="fas fa-scale-balanced"></i> Stock Adjustments</a></li>
         <li><a href="stock_valuation.php" class="<?= nav_active('stock_valuation.php', $current_page) ?>"><i class="fas fa-coins"></i> Stock Valuation</a></li>

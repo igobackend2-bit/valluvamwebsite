@@ -177,6 +177,21 @@
         var TYPES = { product_waste: 'Product waste', damaged_stock: 'Damaged stock', expired_stock: 'Expired stock', production_waste: 'Production waste', packaging_waste: 'Packaging waste', other: 'Other' };
         var TONE = { reported: 'amber', approved: 'info', processed: 'info', disposed: 'green', cancelled: 'red' };
         var LBL = { reported: 'Waiting for approval', approved: 'Approved', processed: 'Processed', disposed: 'Disposed', cancelled: 'Rejected' };
+        // FIX (3 Oct 2026): proof photo for every wastage + Manager → Admin approval
+        var DOCS = '../assets/db_query/admin/erp_docs.php';
+        function uploadProof(id, file) {
+            var fd = new FormData(); fd.append('action', 'upload'); fd.append('entity_type', 'waste_record'); fd.append('entity_id', id); fd.append('category', 'DAMAGE_PHOTO'); fd.append('description', 'Wastage proof'); fd.append('file', file);
+            return $.ajax({ url: DOCS, type: 'POST', data: fd, processData: false, contentType: false, dataType: 'json' }).then(function (r) { if (r.status !== 'success') return $.Deferred().reject(r.message || 'Upload failed').promise(); return r; });
+        }
+        function proofCell(w) {
+            return (+w.proof_count ? '<a class="pp-link" href="' + DOCS + '?action=download&id=' + w.proof_doc_id + '" target="_blank" rel="noopener"><i class="fas fa-paperclip"></i> Proof' + (+w.proof_count > 1 ? ' (' + w.proof_count + ')' : '') + '</a>' : '<span class="pp-chip is-red">No proof</span>') +
+                   (w.status === 'reported' ? ' <button class="adm-btn adm-btn-ghost pp-wp" data-id="' + w.id + '" style="padding:2px 8px;font-size:12px"><i class="fas fa-upload"></i> ' + (+w.proof_count ? 'Add' : 'Attach') + '</button>' : '');
+        }
+        $(document).on('click', '.pp-wp', function () {
+            var id = $(this).data('id'), inp = $('<input type="file" accept="image/*,application/pdf" style="display:none">').appendTo('body');
+            inp.on('change', function () { var f = this.files[0]; inp.remove(); if (!f) return; uploadProof(id, f).then(function () { Swal.fire({ icon: 'success', title: 'Proof attached', timer: 1100, showConfirmButton: false }); window.loadWaste(); }, function (m) { Swal.fire({ icon: 'error', title: 'Could not attach', text: String(m), confirmButtonColor: '#1c5034' }); }); });
+            inp.trigger('click');
+        });
         function meta() {
             return get('waste_meta').then(function (r) {
                 M = r; var s = r.stats || {};
@@ -189,13 +204,14 @@
             var can = (M && M.can) || {};
             var rows = records.map(function (w) {
                 var acts = '';
-                if (can.approve && w.status === 'reported') acts = '<button class="adm-btn adm-btn-primary pp-w" data-id="' + w.id + '" data-s="approved" data-c="' + esc(w.waste_id) + '"><i class="fas fa-check"></i> Approve</button><button class="adm-btn adm-btn-ghost pp-w" data-id="' + w.id + '" data-s="cancelled" data-c="' + esc(w.waste_id) + '">Reject</button>';
+                if (w.status === 'reported' && w.awaiting_admin) acts = '<span class="pp-chip is-amber">Manager approved — waiting for the Admin (' + esc(w.awaiting_admin) + ')</span>';   // FIX (3 Oct 2026)
+                else if (can.approve && w.status === 'reported') acts = '<button class="adm-btn adm-btn-primary pp-w" data-id="' + w.id + '" data-s="approved" data-c="' + esc(w.waste_id) + '"><i class="fas fa-check"></i> Approve</button><button class="adm-btn adm-btn-ghost pp-w" data-id="' + w.id + '" data-s="cancelled" data-c="' + esc(w.waste_id) + '">Reject</button>';
                 else if (can.approve && w.status === 'approved') acts = '<button class="adm-btn adm-btn-ghost pp-w" data-id="' + w.id + '" data-s="processed" data-c="' + esc(w.waste_id) + '">Mark processed</button>';
                 else if (can.approve && w.status === 'processed') acts = '<button class="adm-btn adm-btn-ghost pp-w" data-id="' + w.id + '" data-s="disposed" data-c="' + esc(w.waste_id) + '">Mark disposed</button>';
                 else if (w.status === 'reported') acts = '<span class="pp-muted">Waiting for the Manager</span>';
                 return '<tr><td class="adm-cell-title">' + esc(w.waste_id) + '<div class="adm-cell-sub">' + day(w.date) + '</div></td><td>' + esc(TYPES[w.waste_type] || w.waste_type) + '</td>' +
                     '<td>' + (w.product_name ? esc(w.product_name) : (w.sku ? esc(w.sku) : '<span class="adm-cell-sub">—</span>')) + '</td><td>' + (w.quantity !== null ? esc(w.quantity) + ' ' + esc(w.unit) : '—') + '</td>' +
-                    '<td>' + esc(w.reason) + (w.disposal_method ? '<div class="adm-cell-sub">Disposal: ' + esc(w.disposal_method) + '</div>' : '') + '</td><td class="adm-money">' + (w.estimated_value ? money(w.estimated_value) : '—') + '</td>' +
+                    '<td>' + esc(w.reason) + (w.disposal_method ? '<div class="adm-cell-sub">Disposal: ' + esc(w.disposal_method) + '</div>' : '') + '<div style="margin-top:4px">' + proofCell(w) + '</div></td><td class="adm-money">' + (w.estimated_value ? money(w.estimated_value) : '—') + '</td>' +
                     '<td><span class="pp-chip is-' + (TONE[w.status] || '') + '">' + esc(LBL[w.status] || w.status) + '</span></td>' +
                     '<td class="adm-cell-sub">Reported by ' + esc(w.created_by || '—') + (w.approved_by ? '<br>' + (w.status === 'cancelled' ? 'Rejected' : 'Approved') + ' by ' + esc(w.approved_by) : '') + '</td><td><div class="pp-acts">' + acts + '</div></td></tr>';
             }).join('');
@@ -203,10 +219,11 @@
         };
         $(document).on('click', '.pp-w', function () {
             var id = $(this).data('id'), st = $(this).data('s'), code = $(this).data('c');
-            var t = { approved: ['Approve ' + code + '?', 'Stock of the product goes down now. This cannot be undone.'], cancelled: ['Reject ' + code + '?', 'Stock is not changed.'], processed: ['Mark ' + code + ' as processed?', ''], disposed: ['Mark ' + code + ' as disposed?', ''] }[st];
+            // FIX (3 Oct 2026): the Manager's approval goes to the Admin; stock goes down after the Admin approves
+            var t = { approved: ['Approve ' + code + '?', 'It goes to the Admin for the final approval — stock goes down only after the Admin approves.'], cancelled: ['Reject ' + code + '?', 'Stock is not changed.'], processed: ['Mark ' + code + ' as processed?', ''], disposed: ['Mark ' + code + ' as disposed?', ''] }[st];
             Swal.fire({ title: t[0], text: t[1], icon: st === 'cancelled' ? 'warning' : 'question', showCancelButton: true, confirmButtonText: 'Confirm', confirmButtonColor: st === 'cancelled' ? '#a8442f' : '#1c5034',
                 preConfirm: function () { return post('approve_waste.php', { id: id, status: st }).catch(function (m) { Swal.showValidationMessage(esc(m)); return false; }); } })
-                .then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: 'Updated', timer: 1100, showConfirmButton: false }); meta(); window.loadWaste(); } });
+                .then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: r.value.message || 'Updated', timer: 1800, showConfirmButton: false }); meta(); window.loadWaste(); } });   // FIX (3 Oct 2026): shows "sent to the Admin"
         });
         // own form replaces the page's one: capture the click before the page's handler (bound in any order)
         var wbtn = document.getElementById('addWasteBtn');
@@ -215,23 +232,27 @@
             if (!M) return;
             if (!M.can.report) return Swal.fire({ icon: 'info', title: 'You cannot report waste', text: 'Ask the Manager to give you waste reporting.', confirmButtonColor: '#1c5034' });
             Swal.fire($.extend({}, POP, { title: 'Report waste', width: 680, confirmButtonText: 'Send for approval',
-                html: '<div class="pp-sub">The Manager approves it — only then the stock goes down.</div><div class="pp-form">' +
+                html: '<div class="pp-sub">The Manager approves, then the Admin — only then the stock goes down. A photo / proof is required.</div><div class="pp-form">' +   // FIX (3 Oct 2026)
                     F('Product', I('wP', '', 'list="wPl" placeholder="Type to search the product"') + '<datalist id="wPl">' + M.products.map(function (p) { return '<option value="' + esc(p.name) + ' · #' + p.id + '">'; }).join('') + '</datalist>', { full: true, hint: '(leave empty for non-product waste)' }) +
                     F('Type', SEL('wT', Object.keys(TYPES).map(function (k) { return [k, TYPES[k]]; }))) + F('Date', I('wD', today(), 'type="date"')) +
                     F('Quantity', I('wQ', '', 'type="number" min="1" step="1" placeholder="e.g. 2"')) + F('Unit', I('wU', 'pcs')) +
                     F('Warehouse', SEL('wW', M.warehouses.length ? M.warehouses.map(function (w) { return [w.id, w.name]; }) : [[1, 'Main']])) + F('Estimated value ₹', I('wV', '', 'type="number" min="0" step="0.01" placeholder="auto from price"')) +
                     F('Reason', I('wR', '', 'placeholder="e.g. Pack torn while unloading, rats, expired on shelf"'), { full: true, req: true }) +
-                    F('Disposal method', I('wM', '', 'placeholder="e.g. Given to cattle feed, destroyed"'), { full: true, hint: 'optional' }) + '</div>',
+                    F('Disposal method', I('wM', '', 'placeholder="e.g. Given to cattle feed, destroyed"'), { full: true, hint: 'optional' }) +
+                    F('Proof photo / document', '<input type="file" id="wF" class="adm-input" accept="image/*,application/pdf">', { full: true, req: true }) + '</div>',   // FIX (3 Oct 2026)
                 didOpen: function () { $('#wP,#wQ').on('change', function () { var $p = $('#wP'); var m = String($p.val()).match(/#(\d+)$/), p = m && M.products.find(function (x) { return String(x.id) === m[1]; }); if (p && !$('#wV').val() && $('#wQ').val()) $('#wV').val((E2(p.price) * E2($('#wQ').val())).toFixed(2)); }); },
                 preConfirm: function () {
                     var m = String($('#wP').val()).match(/#(\d+)$/), reason = $('#wR').val().trim();
                     if ($('#wP').val() && !m) { Swal.showValidationMessage('Choose the product from the list'); return false; }
                     if (m && !(+$('#wQ').val() > 0)) { Swal.showValidationMessage('Enter the quantity (whole packs)'); return false; }
                     if (!reason) { Swal.showValidationMessage('Write the reason'); return false; }
+                    var proofFile = ($('#wF')[0] || {}).files && $('#wF')[0].files[0];   // FIX (3 Oct 2026): proof is required
+                    if (!proofFile) { Swal.showValidationMessage('Attach a photo / proof of the wastage'); return false; }
                     return post('save_waste_record.php', { date: $('#wD').val(), waste_type: $('#wT').val(), product_id: m ? m[1] : '', sku: m ? 'PRD-' + m[1] : '', quantity: $('#wQ').val(), unit: $('#wU').val() || 'pcs',
                                                           warehouse_id: $('#wW').val(), reason: reason, estimated_value: $('#wV').val(), disposal_method: $('#wM').val() })
+                        .then(function (res) { return uploadProof(res.id, proofFile).then(function () { return res; }, function (m) { return $.extend(res, { proofError: m }); }); })
                         .catch(function (e) { Swal.showValidationMessage(esc(e)); return false; });
-                } })).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire({ icon: 'success', title: (r.value.waste_id || 'Waste') + ' sent for approval', timer: 1500, showConfirmButton: false }); meta(); window.loadWaste(); } });
+                } })).then(function (r) { if (r.isConfirmed && r.value) { Swal.fire(r.value.proofError ? { icon: 'warning', title: (r.value.waste_id || 'Waste') + ' saved', text: 'The proof was not attached (' + r.value.proofError + ') — use the Attach button on the row.', confirmButtonColor: '#1c5034' } : { icon: 'success', title: (r.value.waste_id || 'Waste') + ' sent for approval', timer: 1500, showConfirmButton: false }); meta(); window.loadWaste(); } });
         }
         var E2 = function (v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; };
         meta().then(function () { window.loadWaste(); }).catch(function () {});

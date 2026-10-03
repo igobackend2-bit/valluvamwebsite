@@ -70,8 +70,9 @@ function reqTable(req) {
         let v = req[k];
         if (Array.isArray(v)) v = '<table class="erp-lines"><thead><tr>' + Object.keys(v[0] || {}).map(h => `<th>${E.esc(h.replace(/_/g, ' '))}</th>`).join('') + '</tr></thead><tbody>' +
             v.map(o => '<tr>' + Object.keys(v[0] || {}).map(h => `<td>${E.esc(typeof o[h] === 'object' ? JSON.stringify(o[h]) : o[h])}</td>`).join('') + '</tr>').join('') + '</tbody></table>';
+        else if (k === 'proof_doc_id' && +v) v = `<a class="erp-link" href="../assets/db_query/admin/erp_docs.php?action=download&id=${+v}" target="_blank" rel="noopener"><i class="fas fa-paperclip"></i> View proof</a>`;   // FIX (3 Oct 2026): see the proof before approving
         else v = E.esc(v);
-        return `<tr><td class="erp-muted" style="width:170px">${E.esc(k.replace(/_/g, ' '))}</td><td>${v}</td></tr>`;
+        return `<tr><td class="erp-muted" style="width:170px">${E.esc(k === 'proof_doc_id' ? 'proof' : k.replace(/_/g, ' '))}</td><td>${v}</td></tr>`;
     }).join('') + '</tbody></table>';
 }
 function view(id) {

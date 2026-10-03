@@ -607,6 +607,10 @@ try {
             $po = $f ? pf_po_for($pdo, $f) : null;
             if (!$po) erp_invalid('Create the purchase order first.');
             if (!in_array($po['status'], ['approved', 'partially_received', 'fully_received'], true)) erp_invalid('The purchase order must be approved before goods are received.');
+            // FIX (3 Oct 2026): every purchase needs its proofs — loading DC, shop bill and unloading DC — before the unloading check
+            if (empty($f['loading_dc_doc_id'])) erp_invalid('Attach the loading DC (proof of loading) first.');
+            if (empty($f['shop_bill_doc_id'])) erp_invalid('Attach the shop bill first.');
+            if (empty($f['unloading_dc_doc_id'])) erp_invalid('Attach the unloading DC first.');
             $poItems = []; foreach (erp_rows($pdo, "SELECT * FROM purchase_order_items WHERE po_id = ?", [$po['id']]) as $pi) $poItems[(int)$pi['id']] = $pi;
             $lines = []; $ok = true;
             foreach (erp_json_input('lines') as $l) {

@@ -8,7 +8,11 @@
 require_once __DIR__ . '/auth_helper.php';
 require_once __DIR__ . '/../config.php';
 
-require_permission($pdo, 'waste.approve');
+// FIX (3 Oct 2026): wastage needs a proof photo and two approvals — Manager, then Admin — before stock goes down.
+// The Manager's "Approve" sends it to the Admin (approval WST-… in Approvals); the Admin's approval replays this file.
+require_once __DIR__ . '/erp_ext.php';
+$wasteAdminStep = (($GLOBALS['erp_replay_request']['module'] ?? '') === 'waste_admin');
+if (!$wasteAdminStep) require_permission($pdo, 'waste.approve');
 
 $id = (int)($_POST['id'] ?? 0);
 $newStatus = trim($_POST['status'] ?? 'approved');
@@ -17,6 +21,25 @@ $adminUsername = $_SESSION['admin_username'] ?? 'Admin';
 $validStatuses = ['approved','processed','disposed','cancelled'];
 if (!$id || !in_array($newStatus, $validStatuses, true)) {
     echo json_encode(['status' => 'error', 'message' => 'id and a valid target status are required']);
+    exit;
+}
+
+$wPre = $id ? erp_row($pdo, "SELECT * FROM waste_records WHERE id = ?", [$id]) : null;
+if ($wPre && $newStatus === 'approved' && $wPre['status'] === 'reported' && !$wasteAdminStep && (int)($_SESSION['admin_role_id'] ?? 0) !== 1) {
+    // Manager step → send to the Admin
+    if (!apr_policy($pdo, 'waste_admin')) { echo json_encode(['status' => 'error', 'message' => 'Run wastage_approval_migration.sql once in HeidiSQL to switch on Manager → Admin approval of wastage.']); exit; }
+    if (!(int)erp_val($pdo, "SELECT COUNT(*) FROM erp_documents WHERE entity_type = 'waste_record' AND entity_id = ?", [$id])) {
+        echo json_encode(['status' => 'error', 'message' => 'Attach a photo / proof of the wastage first (Proof button), then approve.']); exit;
+    }
+    if (erp_val($pdo, "SELECT id FROM approval_requests WHERE module = 'waste_admin' AND request_key = ? AND status IN ('submitted','under_review')", ['w' . $id])) {
+        echo json_encode(['status' => 'error', 'message' => "{$wPre['waste_id']} is already waiting for the Admin."]); exit;
+    }
+    $apr = apr_open($pdo, 'waste_admin', 'w' . $id, $id, $wPre['waste_id'], "Wastage {$wPre['waste_id']}: " . ($wPre['quantity'] !== null ? $wPre['quantity'] . ' ' . $wPre['unit'] . ' · ' : '') . $wPre['reason'] . ' · Manager approved: ' . $adminUsername,
+                    $wPre['estimated_value'] !== null ? (float)$wPre['estimated_value'] : null, 'approve_waste.php',
+                    ['id' => $id, 'status' => 'approved', 'manager_approved_by' => $adminUsername, 'proof_doc_id' => (int)erp_val($pdo, "SELECT MAX(id) FROM erp_documents WHERE entity_type = 'waste_record' AND entity_id = ?", [$id])],
+                    ['id' => $id, 'status' => 'cancelled']);
+    log_audit($pdo, 'approve', 'waste', $id, ['status' => 'reported'], ['manager_approved_by' => $adminUsername, 'sent_to_admin' => $apr]);
+    echo json_encode(['status' => 'success', 'message' => "{$wPre['waste_id']} approved by the Manager — sent to the Admin ({$apr}). Stock goes down after the Admin approves."]);
     exit;
 }
 
@@ -67,8 +90,9 @@ try {
     $pdo->commit();
 
     log_audit($pdo, 'approve', 'waste', $id, ['status' => $oldStatus], ['status' => $newStatus, 'stock_deducted' => $shouldDeductStock]);
+    if (in_array($newStatus, ['approved', 'cancelled'], true)) apr_close($pdo, 'waste_admin', 'w' . $id, $newStatus === 'cancelled' ? 'rejected' : 'approved', $_POST['_approval_remarks'] ?? null);   // FIX (3 Oct 2026)
 
-    echo json_encode(['status' => 'success']);
+    echo json_encode(['status' => 'success', 'message' => $newStatus === 'cancelled' ? "{$waste['waste_id']} rejected — stock unchanged." : ($wasteAdminStep ? "{$waste['waste_id']} approved by the Admin — stock reduced." : 'Updated.')]);
 } catch (PDOException $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log("Error approving waste record: " . $e->getMessage());

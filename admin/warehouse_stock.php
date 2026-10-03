@@ -109,8 +109,19 @@ function moveOut(x) {
 function bucketOut(x, B) {
     E.form('Dispose / return', `<div class="erp-grid">${E.field('From', E.select('oB', B.map(b => `<option value="${b[0]}">${b[1]} (${E.qty(x[b[0]])})</option>`).join('')))}${E.field('Quantity *', E.input('oQ', '', 'type="number" min="0" step="any"'))}
         ${E.field('What happened', E.select('oH', [['disposed', 'Disposed'], ['destroyed', 'Destroyed'], ['returned_to_supplier', 'Returned to supplier'], ['donated', 'Donated'], ['sold_as_scrap', 'Sold as scrap'], ['other', 'Other']].map(h => `<option value="${h[0]}">${h[1]}</option>`).join('')))}
-        ${E.field('Note', E.input('oR', ''), 'span-all')}</div>`,
-        () => E.post('warehouse_api.php', { action: 'bucket_out', item_type: x.item_type, item_id: x.item_id, warehouse_id: x.warehouse_id, bucket: $('#oB').val(), quantity: $('#oQ').val(), disposal: $('#oH').val(), reason: $('#oR').val() }, { silent: true }).then(r => { E.toast(r.message); load(); }), { width: 640 });
+        ${E.field('Note', E.input('oR', ''), 'span-all')}
+        ${E.field('Proof photo / document (required for expired stock)', '<input type="file" id="oF" class="adm-input" accept="image/*,application/pdf">', 'span-all')}</div>
+        <p class="erp-note">Expired stock is disposed only after the Manager, then the Admin, then the CEO approve (in Approvals). Until then it stays in EXPIRED.</p>`,
+        () => {   // FIX (3 Oct 2026): proof + Manager → Admin → CEO approval for expired stock
+            const f = ($('#oF')[0] || {}).files && $('#oF')[0].files[0];
+            const go = doc => E.post('warehouse_api.php', { action: 'bucket_out', item_type: x.item_type, item_id: x.item_id, warehouse_id: x.warehouse_id, bucket: $('#oB').val(), quantity: $('#oQ').val(), disposal: $('#oH').val(), reason: $('#oR').val(), proof_doc_id: doc || '' }, { silent: true });
+            if ($('#oB').val() !== 'expired') return go('').then(r => { E.toast(r.message); load(); });
+            if (!f) return Promise.reject('Attach a photo / proof of the expired stock.');
+            const fd = new FormData(); fd.append('action', 'upload'); fd.append('entity_type', x.item_type); fd.append('entity_id', x.item_id); fd.append('category', 'DAMAGE_PHOTO'); fd.append('description', 'Expired stock — disposal proof'); fd.append('file', f);
+            return fetch('../assets/db_query/admin/erp_docs.php', { method: 'POST', body: fd, credentials: 'same-origin' }).then(r => r.json())
+                .then(u => { if (u.status !== 'success') throw (u.message || 'Upload failed'); return go(u.id || u.doc_id || (u.record && u.record.id)); })
+                .then(r => { Swal.fire({ icon: 'success', title: 'Sent for approval', text: r.message, confirmButtonColor: '#1c5034' }); load(); });
+        }, { width: 640 });
 }
 function restore(x, B) {
     E.form('Back to sellable stock', `<div class="erp-grid">${E.field('From', E.select('rB', B.map(b => `<option value="${b[0]}">${b[1]} (${E.qty(x[b[0]])})</option>`).join('')))}${E.field('Quantity *', E.input('rQ', '', 'type="number" min="0" step="any"'))}
