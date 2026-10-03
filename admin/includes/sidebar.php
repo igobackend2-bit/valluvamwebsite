@@ -59,7 +59,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <?php /* FIX (3 Oct 2026): menu link removed — repeated option; counting is done in Monthly Stock Audit (the page still opens from links) */ ?>
         <li><a href="batches.php" class="<?= nav_active('batches.php', $current_page) ?>"><i class="fas fa-barcode"></i> Batches &amp; Expiry</a></li>
         <li><a href="warehouses.php" class="<?= nav_active('warehouses.php', $current_page) ?>"><i class="fas fa-building"></i> Warehouses</a></li>
-        <li><a href="warehouse_locations.php" class="<?= nav_active('warehouse_locations.php', $current_page) ?>"><i class="fas fa-location-dot"></i> Warehouse Locations</a></li>
+        <?php /* FIX (3 Oct 2026): Warehouse Locations (rack / shelf codes) not used — menu link removed; the page still opens by link and can be re-added here */ ?>
         <li><a href="raw_materials.php" class="<?= nav_active('raw_materials.php', $current_page) ?>"><i class="fas fa-sack"></i> Raw Materials</a></li>
         <li><a href="repacking.php" class="<?= nav_active('repacking.php', $current_page) ?>"><i class="fas fa-box"></i> Repacking</a></li>
         <li><a href="stock_adjustments.php" class="<?= nav_active('stock_adjustments.php', $current_page) ?>"><i class="fas fa-scale-balanced"></i> Stock Adjustments</a></li>

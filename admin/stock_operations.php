@@ -10,7 +10,7 @@ erp_page_start('Damage & Returns', 'Damage (identify → verify → approve), sa
     <!-- FIX (3 Oct 2026): "Stock out" and "Stock out register" removed here — stock out is only on the Stock Out page (one place, with CSV / Excel download) -->
     <button class="erp-tab active" data-tab="damage">Damage</button><button class="erp-tab" data-tab="returns">Sales return QC</button>
     <button class="erp-tab" data-tab="opening">Opening stock</button><button class="erp-tab" data-tab="dispatch">Return dispatch</button>
-    <button class="erp-tab" data-tab="location">Location stock</button>
+    <!-- FIX (3 Oct 2026): "Location stock" (rack / shelf codes) removed — warehouse locations are not used -->
 </div>
 <section class="adm-card"><div class="adm-card-head"><h2 id="secTitle">Damage reports</h2><div class="erp-filters" id="filters"></div></div><div class="adm-card-body" id="list"></div></section>
 <?php erp_page_end(sf_common_js() . <<<'JS'
