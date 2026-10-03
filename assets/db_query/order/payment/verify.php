@@ -137,6 +137,13 @@ try {
       }
     }
 
+    // FIX (3 Oct 2026): keep the coupon on the paid order and count its use
+    if (!empty($orderData['coupon_code'])) {
+      require_once __DIR__ . '/../../coupon_helper.php';
+      vp_coupon_save_on_order($pdo, (int)$order_id, $orderData['coupon_code'], (float)$orderData['coupon_discount']);
+      vp_coupon_used($pdo, $orderData['coupon_code']);
+    }
+
     // Clear pending order from session
     unset($_SESSION['pending_order']);
 
@@ -202,6 +209,11 @@ try {
     // webhook), and stock must not be deducted twice for one payment.
     if (!$wasAlreadyPaid) {
       deduct_stock_for_paid_order($pdo, $items, $order['receipt']);
+      // FIX (3 Oct 2026): an online order placed with a coupon counts the coupon once it is paid
+      try {
+        $cpn = $pdo->prepare("SELECT coupon_code FROM orders WHERE id = ?"); $cpn->execute([$order['id']]); $cpnCode = $cpn->fetchColumn();
+        if ($cpnCode) { require_once __DIR__ . '/../../coupon_helper.php'; vp_coupon_used($pdo, $cpnCode); }
+      } catch (PDOException $e) { /* coupon columns not installed */ }
     }
   }
 

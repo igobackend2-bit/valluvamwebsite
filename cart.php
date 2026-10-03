@@ -161,6 +161,8 @@ include 'header.php' ?>
 	<script src="js/google-map.js"></script> -->
 	<script src="js/main.js"></script>
 	<script src="assets/js/cart/cart.js"></script>
+	<!-- FIX (3 Oct 2026): coupon box works (cart → checkout → order) -->
+	<script src="assets/js/cart/coupon.js"></script>
 
 	<script>
 		$(document).ready(function() {

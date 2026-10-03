@@ -317,6 +317,9 @@ include 'header.php';
                         <i class="fa-solid fa-bell"></i> Inbox
                         <span class="vp-nav-badge d-none" id="inboxBadge">0</span>
                     </a>
+                    <a class="vp-nav-item" data-tab="requests" href="#"><!-- FIX (3 Oct 2026) -->
+                        <i class="fa-solid fa-user-gear"></i> Account Requests
+                    </a>
                     <div class="vp-nav-divider"></div>
                     <a class="vp-nav-item" data-tab="security" href="#">
                         <i class="fa-solid fa-lock"></i> Security
@@ -457,6 +460,37 @@ include 'header.php';
                     <div id="notifList"><div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div></div>
                 </div>
 
+                <!-- ACCOUNT REQUESTS TAB — FIX (3 Oct 2026): reviewed by the team in Admin → Account Requests; the reply comes to the Inbox -->
+                <div class="vp-panel" id="tab-requests">
+                    <h2 class="vp-panel-title">Account Requests</h2>
+                    <p class="vp-panel-sub">Ask us to delete your account, send a copy of your data, change your email or upgrade to a wholesale account.</p>
+                    <div id="reqAlert"></div>
+                    <form id="reqForm">
+                        <div class="vp-form-grid">
+                            <div class="vp-field">
+                                <label>What do you need?</label>
+                                <select class="vp-input" name="request_type" id="reqType" required>
+                                    <option value="">Choose…</option>
+                                    <option value="account_deletion">Delete my account</option>
+                                    <option value="data_export">Send me a copy of my data</option>
+                                    <option value="email_change">Change my email</option>
+                                    <option value="wholesale_upgrade">Wholesale / B2B account</option>
+                                    <option value="reactivation">Reactivate my account</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="vp-field full">
+                                <label>Details</label>
+                                <textarea class="vp-input" name="details" id="reqDetails" rows="3" maxlength="2000" placeholder="e.g. the new email address, your business name and GST number, or anything we should know"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-3"><button type="submit" class="vp-btn vp-btn-primary"><i class="fa-solid fa-paper-plane"></i> Send request</button></div>
+                    </form>
+                    <hr style="border-color:#eef0ec;margin:28px 0;">
+                    <h5 style="color:#1a3d2b;font-weight:700;margin-bottom:12px;">My requests</h5>
+                    <div id="reqList"><p style="font-size:.85rem;color:#5a7060;">Loading…</p></div>
+                </div>
+
                 <!-- SECURITY TAB -->
                 <div class="vp-panel" id="tab-security">
                     <h2 class="vp-panel-title">Security</h2>
@@ -569,7 +603,33 @@ function switchTab(tabName) {
     if (tabName === 'addresses') loadAddresses();
     if (tabName === 'inbox')     loadNotifications();
     if (tabName === 'wishlist')  loadWishlist();
+    if (tabName === 'requests')  loadRequests();   // FIX (3 Oct 2026)
 }
+
+// ── Account requests (FIX 3 Oct 2026) ─────────────────────────
+function reqEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+function loadRequests() {
+    fetch('assets/db_query/profile/account_request_query.php?action=list').then(r => r.json()).then(d => {
+        const box = document.getElementById('reqList');
+        if (d.status !== 'success') { box.innerHTML = '<p style="color:#c0392b;font-size:.85rem;">' + reqEsc(d.message || 'Could not load.') + '</p>'; return; }
+        if (!d.requests.length) { box.innerHTML = '<p style="font-size:.85rem;color:#5a7060;">No requests yet.</p>'; return; }
+        const tone = { pending: '#b8722e', approved: '#2d6a4f', completed: '#2d6a4f', rejected: '#c0392b' };
+        box.innerHTML = d.requests.map(r => `<div style="border:1px solid #eef0ec;border-radius:12px;padding:12px 14px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;"><strong style="color:#1a3d2b;">${reqEsc(r.type_label)}</strong>
+            <span style="font-size:.78rem;font-weight:700;color:${tone[r.status] || '#5a7060'};text-transform:capitalize;">${reqEsc(r.status)}</span></div>
+            ${r.details ? `<div style="font-size:.83rem;color:#5a7060;margin-top:4px;">${reqEsc(r.details)}</div>` : ''}
+            ${r.admin_notes ? `<div style="font-size:.83rem;margin-top:6px;"><strong>Reply:</strong> ${reqEsc(r.admin_notes)}</div>` : ''}
+            <div style="font-size:.75rem;color:#8a9a8e;margin-top:6px;">Sent ${reqEsc(String(r.created_at).slice(0, 10))}${r.resolved_at ? ' · answered ' + reqEsc(String(r.resolved_at).slice(0, 10)) : ''}</div></div>`).join('');
+    }).catch(() => { document.getElementById('reqList').innerHTML = '<p style="color:#c0392b;font-size:.85rem;">Could not load your requests.</p>'; });
+}
+document.getElementById('reqForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const fd = new FormData(e.target); fd.append('action', 'create');
+    fetch('assets/db_query/profile/account_request_query.php', { method: 'POST', body: fd }).then(r => r.json()).then(d => {
+        document.getElementById('reqAlert').innerHTML = `<div class="alert ${d.status === 'success' ? 'alert-success' : 'alert-danger'}" style="font-size:.85rem;">${reqEsc(d.message)}</div>`;
+        if (d.status === 'success') { e.target.reset(); loadRequests(); }
+    }).catch(() => { document.getElementById('reqAlert').innerHTML = '<div class="alert alert-danger" style="font-size:.85rem;">Could not send. Please try again.</div>'; });
+});
 
 tabs.forEach(t => t.addEventListener('click', e => {
     if (t.tagName === 'A' && !t.href.endsWith('#')) return; // let logout link go

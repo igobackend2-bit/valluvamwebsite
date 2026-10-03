@@ -93,7 +93,10 @@ foreach ($cart as $item) {
 }
 $delivery = 0.00;
 $discount = 3.00;
-$amount = max(0, $subtotal + $delivery - $discount);
+// FIX (3 Oct 2026): coupon applied in the cart (checked again here) comes off the amount charged
+require_once __DIR__ . '/../coupon_helper.php';
+[$couponCode, $couponDiscount] = vp_coupon_session($pdo, (float)$subtotal);
+$amount = max(0, $subtotal + $delivery - $discount - $couponDiscount);
 $amount_paise = (int)round($amount * 100);
 
 // ✅ Generate unique receipt ID
@@ -213,6 +216,10 @@ try {
   }
 
   $pdo->commit();
+
+  // FIX (3 Oct 2026): keep the coupon on the order; a COD order uses the coupon now (online orders count it when paid)
+  vp_coupon_save_on_order($pdo, (int)$order_id, $couponCode, $couponDiscount);
+  if ($paymentMethod === 'COD') vp_coupon_used($pdo, $couponCode);
 
   // ✅ Build order items table (for email)
   $itemsHtml = "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>

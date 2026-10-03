@@ -55,7 +55,10 @@ foreach ($cart as $item) {
 }
 $delivery = 0.00;
 $discount = 3.00;
-$amount = max(0, $subtotal + $delivery - $discount);
+// FIX (3 Oct 2026): coupon applied in the cart (checked again here) comes off the online payment
+require_once __DIR__ . '/../coupon_helper.php';
+[$couponCode, $couponDiscount] = vp_coupon_session($pdo, (float)$subtotal);
+$amount = max(0, $subtotal + $delivery - $discount - $couponDiscount);
 $amount_paise = (int)round($amount * 100);
 
 // Generate unique receipt ID
@@ -89,7 +92,8 @@ try {
     'amount_paise' => $amount_paise,
     'payment_method' => $paymentMethod,
     'razorpay_order_id' => $razorpayOrderId,
-    'cart_items' => $cart
+    'cart_items' => $cart,
+    'coupon_code' => $couponCode, 'coupon_discount' => $couponDiscount   // FIX (3 Oct 2026)
   ];
   
   echo json_encode([

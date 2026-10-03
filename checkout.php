@@ -34,8 +34,13 @@ if ($subtotal == 0) {
     $subtotal = (float)($result['subtotal'] ?? 0);
 }
 
+// FIX (3 Oct 2026): coupon applied in the cart (checked again here) comes off the total
+require_once __DIR__ . '/assets/db_query/config.php';
+require_once __DIR__ . '/assets/db_query/coupon_helper.php';
+[$couponCode, $couponDiscount, $couponMsg] = vp_coupon_session($pdo, (float)$subtotal);
+
 // ✅ Calculate final total here (don't trust stored total)
-$total = max(0, $subtotal + $delivery - $discount);
+$total = max(0, $subtotal + $delivery - $discount - $couponDiscount);
 
 // If cart is empty, redirect to cart page
 if ($subtotal == 0) {
@@ -205,6 +210,14 @@ if ($subtotal == 0) {
 									<span>Discount</span>
 									<span style="color: green;">-&#8377;<?= number_format($discount, 2) ?></span>
 								</p>
+<?php if ($couponCode): /* FIX (3 Oct 2026) */ ?>
+								<p class="d-flex">
+									<span>Coupon <strong><?= htmlspecialchars($couponCode) ?></strong></span>
+									<span style="color: green;">-&#8377;<?= number_format($couponDiscount, 2) ?></span>
+								</p>
+<?php elseif (!empty($couponMsg)): ?>
+								<p class="d-flex" style="font-size:.85rem;color:#c0392b;"><span><?= htmlspecialchars($couponMsg) ?> (coupon removed)</span></p>
+<?php endif; ?>
 
 								<hr>
 

@@ -8,6 +8,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
+// FIX (3 Oct 2026): only the teams that have the Customers page (Executive, Manager, Super Admin) — it only checked "logged in" before
+require_once __DIR__ . '/page_guard.php';
+if (!(vp_page_allowed('customers.php') || vp_page_allowed('sales_orders.php') || vp_page_allowed('invoices.php'))) require_page_access('customers.php');
 
 try {
     $search = $_GET['search'] ?? '';
