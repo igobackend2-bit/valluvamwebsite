@@ -284,8 +284,9 @@ function acc_sync(PDO $pdo, bool $force = false): array {
 
         // ---------------------------------------------------------------- credit sales
         $c = 0;
+        // FIX (3 Oct 2026): credit sales are posted once confirmed (goods given, stock deducted)
         if ($has("SELECT 1 FROM credit_sales LIMIT 1")) {
-            foreach (erp_rows($pdo, "SELECT * FROM credit_sales cs WHERE cs.sale_date >= ? AND NOT EXISTS (SELECT 1 FROM journal_entries j WHERE j.source_type = 'credit_sale' AND j.source_id = cs.id AND j.event = 'post')", [$S]) as $s) {
+            foreach (erp_rows($pdo, "SELECT * FROM credit_sales cs WHERE cs.sale_date >= ? AND cs.stock_deducted = 1 AND NOT EXISTS (SELECT 1 FROM journal_entries j WHERE j.source_type = 'credit_sale' AND j.source_id = cs.id AND j.event = 'post')", [$S]) as $s) {
                 $ch = acc_channel($pdo, 'credit_sale', (int)$s['id']);
                 $tax = (float)$s['total_tax'];
                 if (jr_post($pdo, 'sales', 'credit_sale', (string)$s['id'], 'post', $s['sale_date'], $s['credit_number'], 'Credit sale ' . $s['credit_number'] . ' — ' . $s['customer_name'],

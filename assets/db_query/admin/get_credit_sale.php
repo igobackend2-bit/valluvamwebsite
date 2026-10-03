@@ -5,6 +5,7 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/credit_sale_helper.php';
 
 require_admin_session();
+require_permission($pdo, 'credit_sales.view');   // FIX (3 Oct 2026): Executive, Manager, Accounts, CEO only (not Admin / L1 / Auditor)
 ensure_credit_sale_tables($pdo);
 
 $id = (int)($_GET['id'] ?? 0);

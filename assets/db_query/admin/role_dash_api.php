@@ -480,6 +480,21 @@ try {
                                                             ['k' => 'stock', 'l' => 'Stock', 'f' => 'status'], ['k' => 'pay', 'l' => 'Payment'], ['k' => 'due', 'l' => 'Due', 'f' => 'money'], ['k' => 'by', 'l' => 'Entered by']], 'rows' => $rows];
                 } catch (PDOException $e) { error_log('[role dash manual] ' . $e->getMessage()); }
             }
+            // FIX (3 Oct 2026): credit sales (goods now, pay later) — Executive (own), Manager and CEO (all): given?, paid, balance due
+            if (in_array($lk, ['ceo', 'manager', 'executive'], true) && ($key === 'super' || erp_can($pdo, 'credit_sales.view'))) {
+                try {
+                    $ownCs = $lk === 'executive' && $key !== 'super';
+                    $rows = [];
+                    foreach (erp_rows($pdo, "SELECT id, credit_number, sale_date, customer_name, customer_mobile, grand_total, amount_paid, status, stock_deducted, created_by FROM credit_sales"
+                                             . ($ownCs ? " WHERE created_by = ?" : '') . " ORDER BY (status = 'paid'), id DESC LIMIT 15", $ownCs ? [$me] : []) as $x)
+                        $rows[] = ['cr' => $x['credit_number'], 'date' => $x['sale_date'], 'cust' => trim($x['customer_name'] . ' ' . ($x['customer_mobile'] ?: '')), 'amount' => $x['grand_total'],
+                                   'paid' => $x['amount_paid'], 'due' => max(0, (float)$x['grand_total'] - (float)$x['amount_paid']),
+                                   'st' => (int)$x['stock_deducted'] === 1 ? ucfirst(str_replace('_', ' ', $x['status'])) : 'Pending confirmation', 'by' => $x['created_by'], 'link' => 'credit_sale.php?id=' . (int)$x['id']];
+                    $sections[$ix]['lists'][] = ['key' => 'credit', 'title' => $ownCs ? 'My credit sales — paid & balance due' : 'Credit sales — paid & balance due', 'empty' => 'No credit sales yet.', 'more' => 'credit_sale.php',
+                                                 'cols' => [['k' => 'cr', 'l' => 'Credit #'], ['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'cust', 'l' => 'Customer'], ['k' => 'amount', 'l' => 'Total', 'f' => 'money'],
+                                                            ['k' => 'paid', 'l' => 'Paid', 'f' => 'money'], ['k' => 'due', 'l' => 'Balance due', 'f' => 'money'], ['k' => 'st', 'l' => 'Status', 'f' => 'status'], ['k' => 'by', 'l' => 'Entered by']], 'rows' => $rows];
+                } catch (PDOException $e) { error_log('[role dash credit] ' . $e->getMessage()); }
+            }
             // team activity from the audit trail — Manager and CEO (1 Oct 2026)
             if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
                 try {

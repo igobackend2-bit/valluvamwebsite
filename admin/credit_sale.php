@@ -1,5 +1,17 @@
 <?php
 require_once __DIR__ . '/includes/check_admin.php';
+// FIX (3 Oct 2026): Executive / Manager enter + confirm credit sales and record repayments; Accounts records repayments; CEO views only
+$csCan = ['create' => true, 'pay' => true];
+if ((int)($admin_role_id ?? 0) !== 1) {
+    try {
+        require_once __DIR__ . '/../assets/db_query/config.php';
+        $st = $pdo->prepare("SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = 'credit_sales.create'");
+        $st->execute([(int)($_SESSION['admin_role_id'] ?? 0)]);
+        $csCreate = (bool)$st->fetchColumn() || user_dash_has_perm($pdo, 'credit_sales.create');
+        $csAcc = role_access_key((string)$admin_role_name) === 'accounts' || in_array('accounts', $role_user_dash, true);
+        $csCan = ['create' => $csCreate, 'pay' => $csCreate || $csAcc];
+    } catch (Throwable $e) { error_log('[credit_sale perms] ' . $e->getMessage()); }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +41,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <h1>Credit Sale</h1>
                     <div class="adm-sub">Goods given to a customer now, paid for later — tracks what's owed and lets you record repayments as they come in.</div>
                 </div>
-                <button class="adm-btn adm-btn-primary" id="addCsBtn"><i class="fas fa-plus"></i> New Credit Sale</button>
+                <?php if ($csCan['create']): /* FIX (3 Oct 2026) */ ?><button class="adm-btn adm-btn-primary" id="addCsBtn"><i class="fas fa-plus"></i> New Credit Sale</button><?php endif; ?>
             </div>
 
             <section class="adm-card">
@@ -58,6 +70,7 @@ require_once __DIR__ . '/includes/check_admin.php';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const CS_CAN = <?= json_encode($csCan) ?>;   // FIX (3 Oct 2026)
         let PRODUCTS = [];
         const CS_STATUS_BADGE = { paid:'is-green', partially_paid:'is-amber', outstanding:'is-danger' };
 
@@ -67,6 +80,9 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#csFilterBtn').on('click', loadCreditSales);
             $('#csStatusFilter').on('change', loadCreditSales);
             $('#csSearch').on('keyup', function(e) { if (e.key === 'Enter') loadCreditSales(); });
+            // FIX (3 Oct 2026): links from Receivables / trace / dashboards (credit_sale.php?id=…) open that sale
+            const csOpen = new URLSearchParams(location.search).get('id');
+            if (csOpen) viewCs(csOpen);
         });
 
         function loadProducts() {
@@ -105,8 +121,8 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <td>${Number(s.stock_deducted) === 1 ? '<span class="adm-badge is-green">Stock deducted</span>' : '<span class="adm-badge is-amber">Pending confirmation</span>'}</td>
                     <td style="white-space:nowrap;">
                         <button class="adm-icon-btn view-cs" data-id="${s.id}" title="View"><i class="fas fa-eye"></i></button>
-                        ${Number(s.stock_deducted) === 0 ? `<button class="adm-icon-btn confirm-cs" data-id="${s.id}" data-number="${escapeHtml(s.credit_number)}" title="Confirm & deduct stock"><i class="fas fa-check-circle"></i></button>` : ''}
-                        ${s.status !== 'paid' ? `<button class="adm-btn adm-btn-ghost record-pay" data-id="${s.id}" data-due="${s.balance_due}" data-number="${escapeHtml(s.credit_number)}" title="Record payment"><i class="fas fa-indian-rupee-sign"></i> Payment</button>` : ''}
+                        ${Number(s.stock_deducted) === 0 && CS_CAN.create ? `<button class="adm-icon-btn confirm-cs" data-id="${s.id}" data-number="${escapeHtml(s.credit_number)}" title="Confirm & deduct stock"><i class="fas fa-check-circle"></i></button>` : ''}
+                        ${s.status !== 'paid' && Number(s.stock_deducted) === 1 && CS_CAN.pay ? `<button class="adm-btn adm-btn-ghost record-pay" data-id="${s.id}" data-due="${s.balance_due}" data-number="${escapeHtml(s.credit_number)}" title="Record payment"><i class="fas fa-indian-rupee-sign"></i> Payment</button>` : ''}
                     </td>
                 </tr>`;
             });
@@ -321,7 +337,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                 html: `
                     <div style="text-align:left; font-size:13px;">
                         <div class="adm-sub" style="margin-bottom:6px;">Balance due: ₹${parseFloat(due).toFixed(2)}</div>
-                        <input id="rp-amount" type="number" min="0.01" step="0.01" class="swal2-input" style="margin:2px 0;" placeholder="Amount received">
+                        <input id="rp-amount" type="number" min="0.01" step="0.01" max="${parseFloat(due).toFixed(2)}" class="swal2-input" style="margin:2px 0;" placeholder="Amount received">
                         <select id="rp-mode" class="swal2-input" style="margin:2px 0;">
                             <option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank transfer</option>
                             <option value="card">Card</option><option value="other">Other</option>
@@ -333,6 +349,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                 preConfirm: () => {
                     const amount = parseFloat($('#rp-amount').val());
                     if (!amount || amount <= 0) { Swal.showValidationMessage('Enter a valid amount'); return false; }
+                    if (amount > parseFloat(due) + 0.005) { Swal.showValidationMessage('Only ₹' + parseFloat(due).toFixed(2) + ' is due.'); return false; }   // FIX (3 Oct 2026)
                     return { id: id, amount: amount, payment_mode: $('#rp-mode').val(), notes: $('#rp-notes').val().trim() };
                 }
             }).then((result) => {

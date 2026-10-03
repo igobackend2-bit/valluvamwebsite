@@ -44,6 +44,20 @@ try {
         exit;
     }
 
+    // FIX (3 Oct 2026): goods must be given (sale confirmed) before repayments, and never more than the balance (the extra used to go into Transactions)
+    if ((int)$sale['stock_deducted'] !== 1) {
+        $pdo->rollBack();
+        echo json_encode(['status' => 'error', 'message' => 'Confirm the sale (deduct stock) first.']);
+        exit;
+    }
+    $balanceDue = round((float)$sale['grand_total'] - (float)$sale['amount_paid'], 2);
+    if ($amount > $balanceDue + 0.005) {
+        $pdo->rollBack();
+        echo json_encode(['status' => 'error', 'message' => 'Only ₹' . number_format($balanceDue, 2) . ' is due on ' . $sale['credit_number'] . '.']);
+        exit;
+    }
+    if (!in_array($payment_mode, ['cash', 'upi', 'bank_transfer', 'card', 'cheque', 'other'], true)) $payment_mode = 'other';
+
     $newPaid = (float)$sale['amount_paid'] + $amount;
     $newStatus = $newPaid >= (float)$sale['grand_total'] ? 'paid' : 'partially_paid';
     if ($newPaid > (float)$sale['grand_total']) {

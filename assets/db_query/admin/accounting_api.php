@@ -352,7 +352,7 @@ try {
             };
             foreach (erp_rows($pdo, "SELECT id, invoice_number, invoice_date, due_date, customer_name, customer_mobile, grand_total, amount_paid FROM invoices WHERE status NOT IN ('draft','cancelled') AND invoice_date <= ?", [$asOf]) as $i)
                 $push($i['customer_name'], $i['customer_mobile'], $i['invoice_number'], 'invoices.php?id=' . $i['id'], $i['invoice_date'], $i['due_date'], (float)$i['grand_total'] - (float)$i['amount_paid']);
-            foreach (erp_rows($pdo, "SELECT id, credit_number, sale_date, customer_name, customer_mobile, grand_total, amount_paid FROM credit_sales WHERE sale_date <= ?", [$asOf]) as $c)
+            foreach (erp_rows($pdo, "SELECT id, credit_number, sale_date, customer_name, customer_mobile, grand_total, amount_paid FROM credit_sales WHERE stock_deducted = 1 AND sale_date <= ?", [$asOf]) as $c)   // FIX (3 Oct 2026): confirmed credit sales only
                 $push($c['customer_name'], $c['customer_mobile'], $c['credit_number'], 'credit_sale.php?id=' . $c['id'], $c['sale_date'], null, (float)$c['grand_total'] - (float)$c['amount_paid']);
             // FIX (3 Oct 2026): confirmed manual sales only, partly paid ones too, less the money received later
             foreach (erp_rows($pdo, "SELECT m.id, m.sale_number, m.sales_date, m.customer_name, m.customer_mobile, m.grand_total,
