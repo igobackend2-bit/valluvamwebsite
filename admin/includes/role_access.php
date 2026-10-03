@@ -140,3 +140,19 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
     return $base === null ? null : array_values(array_unique($base));
 }
 }
+// FIX (3 Oct 2026): does the logged-in admin hold this permission? (same rule as erp_can: Super Admin, the role's
+// ticked permissions, or a dashboard the Super Admin gave the user). Used to hide menu links / options that would only
+// answer "You do not have permission".
+if (!function_exists('vp_admin_can')) {
+function vp_admin_can(string $perm): bool {
+    if ((int)($_SESSION['admin_role_id'] ?? 0) === 1) return true;
+    try {
+        if (!(($GLOBALS['pdo'] ?? null) instanceof PDO)) { require_once __DIR__ . '/../../assets/db_query/config.php'; if (isset($pdo) && $pdo instanceof PDO) $GLOBALS['pdo'] = $pdo; }
+        $pdo = $GLOBALS['pdo'] ?? null;
+        if (!$pdo instanceof PDO) return false;
+        $s = $pdo->prepare('SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = ?');
+        $s->execute([(int)($_SESSION['admin_role_id'] ?? 0), $perm]);
+        return (bool)$s->fetchColumn() || user_dash_has_perm($pdo, $perm);
+    } catch (Throwable $e) { return false; }
+}
+}

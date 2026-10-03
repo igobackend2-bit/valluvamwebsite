@@ -45,5 +45,5 @@ try {
     echo json_encode(['status' => 'success']);
 } catch (PDOException $e) {
     error_log("Error changing own password: " . $e->getMessage());
-    echo json_encode(['status' => 'error', 'message' => 'Failed to change password: ' . $e->getMessage()]);
+    echo json_encode(['status' => 'error', 'message' => 'Could not change the password. Please try again.']);   // FIX (3 Oct 2026): no database error text on screen
 }

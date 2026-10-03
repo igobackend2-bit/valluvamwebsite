@@ -134,7 +134,11 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <?php /* FIX (3 Oct 2026): menu link removed — repeated option; reports are in ERP Reports (the page still opens from links) */ ?>
         <?php /* FIX (3 Oct 2026): menu link removed — repeated option; profit & loss is in Financial Statements (the page still opens from links) */ ?>
         <li><a href="product_profitability.php" class="<?= nav_active('product_profitability.php', $current_page) ?>"><i class="fas fa-chart-pie"></i> Product Profitability</a></li>
+        <?php /* FIX (3 Oct 2026): ERP Reports only for teams that can run at least one of its reports (reports.erp / audit_logs.view) */
+        require_once __DIR__ . '/role_access.php';
+        if (vp_admin_can('reports.erp') || vp_admin_can('audit_logs.view')): ?>
         <li><a href="erp_reports_center.php" class="<?= nav_active('erp_reports_center.php', $current_page) ?>"><i class="fas fa-chart-column"></i> ERP Reports</a></li>
+        <?php endif; ?>
         <li><a href="transaction_trace.php" class="<?= nav_active('transaction_trace.php', $current_page) ?>"><i class="fas fa-route"></i> Transaction Trace</a></li>
         <li><a href="approvals.php" class="<?= nav_active('approvals.php', $current_page) ?>"><i class="fas fa-stamp"></i> Approvals <span class="adm-badge is-amber" id="navAprBadge" style="display:none;margin-left:auto;"></span></a></li>
         <li><a href="notifications.php" class="<?= nav_active('notifications.php', $current_page) ?>"><i class="fas fa-bell"></i> Notifications <span class="adm-badge is-red" id="navNtfBadge" style="display:none;margin-left:auto;"></span></a></li>

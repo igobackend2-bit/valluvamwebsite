@@ -1,9 +1,14 @@
 <?php
 require_once __DIR__ . '/includes/erp_page.php';
+// FIX (3 Oct 2026): show only the reports this user can run — the Audit report needs audit_logs.view, the others reports.erp.
+// A team with neither goes back to the dashboard instead of a page where every report says "You do not have permission".
+$vp_rep_erp = vp_admin_can('reports.erp'); $vp_rep_audit = vp_admin_can('audit_logs.view');
+if (!$vp_rep_erp && !$vp_rep_audit) { header('Location: index.php'); exit; }
 erp_page_start('ERP Reports', 'Sales, COGS, category profitability, customer payments, GRN, QC, purchase returns and audit — with filters and CSV export',
     '<button class="adm-btn adm-btn-ghost" id="csvBtn"><i class="fas fa-file-csv"></i> Export CSV</button>');
 ?>
 <div class="erp-filters" style="margin-bottom:12px">
+    <span id="vpRepPerm" hidden data-erp="<?= $vp_rep_erp ? 1 : 0 ?>" data-audit="<?= $vp_rep_audit ? 1 : 0 ?>"></span><?php /* FIX (3 Oct 2026) */ ?>
     <select class="adm-select" id="rep" style="min-width:240px">
         <option value="sales_report">Sales report</option><option value="cogs_report">COGS report</option><option value="category_profitability">Category profitability</option>
         <option value="customer_payments">Customer payment report</option><option value="grn_report">GRN report</option><option value="qc_report">QC report</option>
@@ -26,9 +31,12 @@ erp_page_start('ERP Reports', 'Sales, COGS, category profitability, customer pay
 <?php erp_page_end(<<<'JS'
 const E = ERP;
 let ROWS = [], PAGE = 1, COLS = [];
+// FIX (3 Oct 2026): remove the reports this user cannot run (see the PHP check at the top)
+(function () { const f = $('#vpRepPerm'); if (String(f.data('audit')) !== '1') $('#rep option[value="erp_audit"]').remove(); if (String(f.data('erp')) !== '1') $('#rep option').not('[value="erp_audit"]').remove(); })();
 $('#fFrom').val(E.monthStart()); $('#fTo').val(E.today());
 E.suppliers().then(s => $('#fSup').append(s.map(x => `<option value="${x.id}">${E.esc(x.supplier_name)}</option>`).join('')));
 if (E.param('r')) $('#rep').val(E.param('r'));
+if (!$('#rep').val()) $('#rep').prop('selectedIndex', 0);   // FIX (3 Oct 2026): a link to a report this user cannot run opens the first one they can
 $('#rep,#fFrom,#fTo,#fCh,#fType,#fSup,#fMod,#fAct').on('change', () => { PAGE = 1; load(); });
 let tq; $('#fCat,#fUser').on('input', () => { clearTimeout(tq); tq = setTimeout(() => { PAGE = 1; load(); }, 400); });
 $('#fQ').on('input', render);
