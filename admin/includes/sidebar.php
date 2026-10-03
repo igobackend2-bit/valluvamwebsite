@@ -56,7 +56,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="stock_movements.php" class="<?= nav_active('stock_movements.php', $current_page) ?>"><i class="fas fa-arrow-right-arrow-left"></i> Stock Movement</a></li>
         <li><a href="warehouse_stock.php" class="<?= nav_active('warehouse_stock.php', $current_page) ?>"><i class="fas fa-cubes"></i> Stock by Warehouse</a></li>
         <li><a href="stock_transfers.php" class="<?= nav_active('stock_transfers.php', $current_page) ?>"><i class="fas fa-right-left"></i> Stock Transfers</a></li>
-        <li><a href="stock_counts.php" class="<?= nav_active('stock_counts.php', $current_page) ?>"><i class="fas fa-list-check"></i> Stock Counts</a></li>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; counting is done in Monthly Stock Audit (the page still opens from links) */ ?>
         <li><a href="batches.php" class="<?= nav_active('batches.php', $current_page) ?>"><i class="fas fa-barcode"></i> Batches &amp; Expiry</a></li>
         <li><a href="warehouses.php" class="<?= nav_active('warehouses.php', $current_page) ?>"><i class="fas fa-building"></i> Warehouses</a></li>
         <li><a href="warehouse_locations.php" class="<?= nav_active('warehouse_locations.php', $current_page) ?>"><i class="fas fa-location-dot"></i> Warehouse Locations</a></li>
@@ -67,8 +67,8 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
 
         <!-- Stock lifecycle (added 2 Oct 2026) -->
         <li class="adm-nav-section">Stock Lifecycle</li>
-        <li><a href="stock_flow.php" class="<?= nav_active('stock_flow.php', $current_page) ?>"><i class="fas fa-truck-ramp-box"></i> Loading → QC → Stock In</a></li>
-        <li><a href="stock_operations.php" class="<?= nav_active('stock_operations.php', $current_page) ?>"><i class="fas fa-boxes-stacked"></i> Stock Out, Damage &amp; Returns</a></li>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; loading, unloading and QC are done in the purchase flow (Loading & Unloading → Quality Check → Stock In) (the page still opens from links) */ ?>
+        <li><a href="stock_operations.php" class="<?= nav_active('stock_operations.php', $current_page) ?>"><i class="fas fa-boxes-stacked"></i> Damage &amp; Returns</a></li><?php /* FIX (3 Oct 2026): stock out is only on the Stock Out page */ ?>
         <li><a href="daily_stock.php" class="<?= nav_active('daily_stock.php', $current_page) ?>"><i class="fas fa-calendar-day"></i> Daily Stock</a></li>
         <li><a href="stock_audit.php" class="<?= nav_active('stock_audit.php', $current_page) ?>"><i class="fas fa-clipboard-check"></i> Monthly Stock Audit</a></li>
         <li><a href="stock_handover.php" class="<?= nav_active('stock_handover.php', $current_page) ?>"><i class="fas fa-handshake"></i> Executive Handover</a></li>
@@ -83,7 +83,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li><a href="purchase_flow.php?mine=1" class="<?= nav_active('purchase_flow.php', $current_page) ?>"><i class="fas fa-truck-ramp-box"></i> Loading &amp; Unloading</a></li>
         <?php endif; ?>
         <li><a href="shipments.php" class="<?= nav_active('shipments.php', $current_page) ?>"><i class="fas fa-truck"></i> Transport / Logistics</a></li>
-        <li><a href="goods_receipts.php" class="<?= nav_active('goods_receipts.php', $current_page) ?>"><i class="fas fa-dolly"></i> Goods Receipts</a></li>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; goods receipts are made automatically in the purchase flow (the page still opens from links) */ ?>
         <li><a href="quality_checks.php" class="<?= nav_active('quality_checks.php', $current_page) ?>"><i class="fas fa-microscope"></i> Quality Check</a></li>
         <li><a href="purchase_invoices.php" class="<?= nav_active('purchase_invoices.php', $current_page) ?>"><i class="fas fa-file-invoice-dollar"></i> Purchase Invoices</a></li>
         <li><a href="purchase_returns.php" class="<?= nav_active('purchase_returns.php', $current_page) ?>"><i class="fas fa-arrow-rotate-left"></i> Purchase Returns</a></li>
@@ -94,7 +94,7 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
         <li class="adm-nav-section">Accounts</li>
         <li><a href="accounts.php" class="<?= nav_active('accounts.php', $current_page) ?>"><i class="fas fa-wallet"></i> Transactions</a></li>
         <li><a href="expenses.php" class="<?= nav_active('expenses.php', $current_page) ?>"><i class="fas fa-receipt"></i> Expenses</a></li>
-        <li><a href="receivables.php" class="<?= nav_active('receivables.php', $current_page) ?>"><i class="fas fa-hand-holding-dollar"></i> Receivables</a></li>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; customer dues are in Payables & Receivables (the page still opens from links) */ ?>
         <li><a href="chart_of_accounts.php" class="<?= nav_active('chart_of_accounts.php', $current_page) ?>"><i class="fas fa-sitemap"></i> Chart of Accounts</a></li>
         <li><a href="journals.php" class="<?= nav_active('journals.php', $current_page) ?>"><i class="fas fa-book"></i> Journal Entries</a></li>
         <li><a href="general_ledger.php" class="<?= nav_active('general_ledger.php', $current_page) ?>"><i class="fas fa-book-open"></i> General Ledger</a></li>
@@ -120,12 +120,12 @@ function nav_active($page, $current) { return $page === $current ? ' active' : '
 
         <li class="adm-nav-section">Suppliers</li>
         <li><a href="suppliers.php" class="<?= nav_active('suppliers.php', $current_page) ?>"><i class="fas fa-truck-field"></i> Suppliers</a></li>
-        <li><a href="supplier_ledger.php" class="<?= nav_active('supplier_ledger.php', $current_page) ?>"><i class="fas fa-book"></i> Supplier Ledger</a></li>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; the supplier ledger is in Supplier 360 (the page still opens from links) */ ?>
         <li><a href="supplier_360.php" class="<?= nav_active('supplier_360.php', $current_page) ?>"><i class="fas fa-id-card"></i> Supplier 360</a></li>
 
         <li class="adm-nav-section">Reports &amp; admin</li>
-        <li><a href="reports.php" class="<?= nav_active('reports.php', $current_page) ?>"><i class="fas fa-chart-line"></i> Reports</a></li>
-        <li><a href="profit_loss.php" class="<?= nav_active('profit_loss.php', $current_page) ?>"><i class="fas fa-scale-unbalanced"></i> Profit &amp; Loss</a></li>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; reports are in ERP Reports (the page still opens from links) */ ?>
+        <?php /* FIX (3 Oct 2026): menu link removed — repeated option; profit & loss is in Financial Statements (the page still opens from links) */ ?>
         <li><a href="product_profitability.php" class="<?= nav_active('product_profitability.php', $current_page) ?>"><i class="fas fa-chart-pie"></i> Product Profitability</a></li>
         <li><a href="erp_reports_center.php" class="<?= nav_active('erp_reports_center.php', $current_page) ?>"><i class="fas fa-chart-column"></i> ERP Reports</a></li>
         <li><a href="transaction_trace.php" class="<?= nav_active('transaction_trace.php', $current_page) ?>"><i class="fas fa-route"></i> Transaction Trace</a></li>

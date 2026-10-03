@@ -2,18 +2,20 @@
 // Stock lifecycle — controlled stock out, damage, sales-return receiving + QC, opening stock, purchase-return dispatch, registers (added 2 Oct 2026)
 require_once __DIR__ . '/includes/erp_page.php';
 require_once __DIR__ . '/includes/stock_flow_common.php';
-erp_page_start('Stock Out, Damage & Returns', 'Controlled stock out with approval, damage (identify → verify → approve), sales-return receiving + QC, opening stock, return dispatch to suppliers',
+// FIX (3 Oct 2026): renamed from 'Stock Out, Damage & Returns' — stock out is only on the Stock Out page
+erp_page_start('Damage & Returns', 'Damage (identify → verify → approve), sales-return receiving + QC, opening stock, return dispatch to suppliers',
     '<button class="adm-btn adm-btn-primary" id="newBtn" style="display:none"><i class="fas fa-plus"></i> <span id="newLbl">New</span></button>');
 ?>
 <div class="erp-tabs" id="tabs">
-    <button class="erp-tab active" data-tab="issue">Stock out</button><button class="erp-tab" data-tab="damage">Damage</button><button class="erp-tab" data-tab="returns">Sales return QC</button>
+    <!-- FIX (3 Oct 2026): "Stock out" and "Stock out register" removed here — stock out is only on the Stock Out page (one place, with CSV / Excel download) -->
+    <button class="erp-tab active" data-tab="damage">Damage</button><button class="erp-tab" data-tab="returns">Sales return QC</button>
     <button class="erp-tab" data-tab="opening">Opening stock</button><button class="erp-tab" data-tab="dispatch">Return dispatch</button>
-    <button class="erp-tab" data-tab="register">Stock out register</button><button class="erp-tab" data-tab="location">Location stock</button>
+    <button class="erp-tab" data-tab="location">Location stock</button>
 </div>
-<section class="adm-card"><div class="adm-card-head"><h2 id="secTitle">Stock out</h2><div class="erp-filters" id="filters"></div></div><div class="adm-card-body" id="list"></div></section>
+<section class="adm-card"><div class="adm-card-head"><h2 id="secTitle">Damage reports</h2><div class="erp-filters" id="filters"></div></div><div class="adm-card-body" id="list"></div></section>
 <?php erp_page_end(sf_common_js() . <<<'JS'
 const E = ERP;
-let TAB = E.param('tab') || 'issue', ITEMS = [];
+let TAB = E.param('tab') || 'damage', ITEMS = [];   // FIX (3 Oct 2026): opens on Damage (stock out is on the Stock Out page)
 const NEW = { issue: ['New stock out', 'stockflow.issue'], damage: ['Report damage', 'stockflow.issue'], returns: ['Receive returned goods', 'stockflow.returns'], opening: ['Enter opening stock', 'stockflow.receive'], dispatch: ['New return dispatch', 'stockflow.issue'] };
 const TITLE = { issue: 'Stock out (production, sample, executive issue, office use)', damage: 'Damage reports', returns: 'Sales return — receiving and QC', opening: 'Opening stock', dispatch: 'Purchase return dispatch', register: 'Stock out register (every outflow from the ledger)', location: 'Stock by location' };
 const PURPOSE = { production: 'Production', sample: 'Sample', executive_issue: 'Executive issue', office_consumption: 'Office consumption', other: 'Other approved reason' };
