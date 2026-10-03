@@ -267,9 +267,10 @@ function acc_sync(PDO $pdo, bool $force = false): array {
         $n['sales_invoices'] = $c;
 
         // ---------------------------------------------------------------- manual sales
+        // FIX (3 Oct 2026): posted only once the sale is confirmed (stock deducted) — a saved-but-unconfirmed entry is not a sale yet
         $c = 0;
         if ($has("SELECT 1 FROM manual_sales LIMIT 1")) {
-            foreach (erp_rows($pdo, "SELECT * FROM manual_sales m WHERE m.sales_date >= ? AND NOT EXISTS (SELECT 1 FROM journal_entries j WHERE j.source_type = 'manual_sale' AND j.source_id = m.id AND j.event = 'post')", [$S]) as $m) {
+            foreach (erp_rows($pdo, "SELECT * FROM manual_sales m WHERE m.sales_date >= ? AND m.stock_deducted = 1 AND NOT EXISTS (SELECT 1 FROM journal_entries j WHERE j.source_type = 'manual_sale' AND j.source_id = m.id AND j.event = 'post')", [$S]) as $m) {
                 $ch = acc_channel($pdo, 'manual_sale', (int)$m['id']);
                 $paid = $m['payment_status'] === 'paid' && $m['payment_mode'] !== 'credit';
                 $tax = (float)$m['total_tax'];

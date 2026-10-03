@@ -446,6 +446,40 @@ try {
             } catch (PDOException $e) { error_log('[role dash transit] ' . $e->getMessage()); }
             // FIX (2 Oct 2026): external auditor reports (monthly stock audit + quality check) — Manager, Admin, CEO
             if ($lk !== 'executive' || $key === 'super') { try { $sections[$ix]['lists'][] = rd_audit_list($pdo, 'External audit & quality reports (monthly)'); } catch (PDOException $e) { error_log('[role dash audits] ' . $e->getMessage()); } }
+            // FIX (3 Oct 2026): sales orders — Executive (own), Manager and CEO (all): status, delivery (DC), invoice / payment
+            if (in_array($lk, ['ceo', 'manager', 'executive'], true) && ($key === 'super' || erp_can($pdo, 'sales_orders.view'))) {
+                try {
+                    $ownSo = $lk === 'executive' && $key !== 'super';
+                    $rows = [];
+                    foreach (erp_rows($pdo, "SELECT so.id, so.so_number, so.order_date, so.customer_name, so.grand_total, so.status, so.created_by,
+                                                    (SELECT GROUP_CONCAT(dc.dc_number SEPARATOR ', ') FROM delivery_challans dc WHERE dc.sales_order_id = so.id AND dc.delivery_status IN ('dispatched','in_transit','delivered')) AS dcs,
+                                                    (SELECT CONCAT(inv.invoice_number, ' · ', inv.status) FROM invoices inv WHERE inv.sales_order_id = so.id AND inv.status != 'cancelled' ORDER BY inv.id LIMIT 1) AS inv
+                                             FROM sales_orders so" . ($ownSo ? " WHERE so.created_by = ?" : '') . " ORDER BY so.id DESC LIMIT 15", $ownSo ? [$me] : []) as $x)
+                        $rows[] = ['so' => $x['so_number'], 'date' => $x['order_date'], 'cust' => $x['customer_name'] ?: '—', 'amount' => $x['grand_total'],
+                                   'st' => $x['status'] === 'confirmed' && !$x['dcs'] ? 'Confirmed — waiting for dispatch (DC)' : ucfirst(str_replace('_', ' ', $x['status'])),
+                                   'dc' => $x['dcs'] ?: '—', 'inv' => str_replace('_', ' ', (string)($x['inv'] ?: '—')), 'by' => $x['created_by'], 'link' => 'sales_orders.php?id=' . (int)$x['id']];
+                    $sections[$ix]['lists'][] = ['key' => 'sales', 'title' => $ownSo ? 'My sales orders — dispatch & invoice' : 'Sales orders — dispatch & invoice', 'empty' => 'No sales orders yet.', 'more' => 'sales_orders.php',
+                                                 'cols' => [['k' => 'so', 'l' => 'SO #'], ['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'cust', 'l' => 'Customer'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'],
+                                                            ['k' => 'st', 'l' => 'Status', 'f' => 'status'], ['k' => 'dc', 'l' => 'Delivery challan'], ['k' => 'inv', 'l' => 'Invoice'], ['k' => 'by', 'l' => 'Entered by']], 'rows' => $rows];
+                } catch (PDOException $e) { error_log('[role dash sales] ' . $e->getMessage()); }
+            }
+            // FIX (3 Oct 2026): manual (counter) sales — Executive (own), Manager and CEO (all): stock confirmed?, payment and what is still due
+            if (in_array($lk, ['ceo', 'manager', 'executive'], true) && ($key === 'super' || $lk === 'ceo' || erp_can($pdo, 'manual_sales.create'))) {
+                try {
+                    $ownMs = $lk === 'executive' && $key !== 'super';
+                    $rows = [];
+                    foreach (erp_rows($pdo, "SELECT m.id, m.sale_number, m.sales_date, m.customer_name, m.grand_total, m.payment_status, m.payment_mode, m.stock_deducted, m.created_by,
+                                                    (SELECT COALESCE(SUM(t.amount),0) FROM accounts_transactions t WHERE t.type = 'payment_received' AND t.status = 'completed' AND t.reference_type = 'manual_sale' AND t.reference_number = m.sale_number) AS rcv
+                                             FROM manual_sales m" . ($ownMs ? " WHERE m.created_by = ?" : '') . " ORDER BY m.id DESC LIMIT 15", $ownMs ? [$me] : []) as $x)
+                        $rows[] = ['ms' => $x['sale_number'], 'date' => $x['sales_date'], 'cust' => $x['customer_name'] ?: 'Walk-in', 'amount' => $x['grand_total'],
+                                   'stock' => (int)$x['stock_deducted'] === 1 ? 'Stock deducted' : 'Pending confirmation',
+                                   'pay' => ucwords(str_replace('_', ' ', $x['payment_status'])) . ' · ' . ucwords(str_replace('_', ' ', $x['payment_mode'])),
+                                   'due' => $x['payment_status'] === 'paid' ? 0 : max(0, (float)$x['grand_total'] - (float)$x['rcv']), 'by' => $x['created_by'], 'link' => 'manual_sales.php?id=' . (int)$x['id']];
+                    $sections[$ix]['lists'][] = ['key' => 'manual', 'title' => $ownMs ? 'My manual sales — stock & payment' : 'Manual sales — stock & payment', 'empty' => 'No manual sales yet.', 'more' => 'manual_sales.php',
+                                                 'cols' => [['k' => 'ms', 'l' => 'Sale #'], ['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'cust', 'l' => 'Customer'], ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'],
+                                                            ['k' => 'stock', 'l' => 'Stock', 'f' => 'status'], ['k' => 'pay', 'l' => 'Payment'], ['k' => 'due', 'l' => 'Due', 'f' => 'money'], ['k' => 'by', 'l' => 'Entered by']], 'rows' => $rows];
+                } catch (PDOException $e) { error_log('[role dash manual] ' . $e->getMessage()); }
+            }
             // team activity from the audit trail — Manager and CEO (1 Oct 2026)
             if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
                 try {

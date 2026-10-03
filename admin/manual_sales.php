@@ -1,5 +1,17 @@
 <?php
 require_once __DIR__ . '/includes/check_admin.php';
+// FIX (3 Oct 2026): Executive / Manager enter + confirm sales; Accounts records money received later; CEO views only
+$msCan = ['create' => true, 'pay' => true];
+if ((int)($admin_role_id ?? 0) !== 1) {
+    try {
+        require_once __DIR__ . '/../assets/db_query/config.php';
+        $st = $pdo->prepare("SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = 'manual_sales.create'");
+        $st->execute([(int)($_SESSION['admin_role_id'] ?? 0)]);
+        $msCreate = (bool)$st->fetchColumn() || user_dash_has_perm($pdo, 'manual_sales.create');
+        $msAcc = role_access_key((string)$admin_role_name) === 'accounts' || in_array('accounts', $role_user_dash, true);
+        $msCan = ['create' => $msCreate, 'pay' => $msCreate || $msAcc];
+    } catch (Throwable $e) { error_log('[manual_sales perms] ' . $e->getMessage()); }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,7 +41,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <h1>Manual Sales</h1>
                     <div class="adm-sub">Quick over-the-counter sale entry</div>
                 </div>
-                <button class="adm-btn adm-btn-primary" id="addMsBtn"><i class="fas fa-plus"></i> New Manual Sale</button>
+                <?php if ($msCan['create']): /* FIX (3 Oct 2026) */ ?><button class="adm-btn adm-btn-primary" id="addMsBtn"><i class="fas fa-plus"></i> New Manual Sale</button><?php endif; ?>
             </div>
 
             <section class="adm-card">
@@ -52,6 +64,7 @@ require_once __DIR__ . '/includes/check_admin.php';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const MS_CAN = <?= json_encode($msCan) ?>;   // FIX (3 Oct 2026)
         let PRODUCTS = [];
         const PAY_STATUS_BADGE = { paid:'is-green', partially_paid:'is-amber', pending:'is-danger', credit:'is-info' };
 
@@ -60,6 +73,9 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#addMsBtn').on('click', function() { openMsModal(); });
             $('#msFilterBtn').on('click', loadManualSales);
             $('#msSearch').on('keyup', function(e) { if (e.key === 'Enter') loadManualSales(); });
+            // FIX (3 Oct 2026): links from Receivables / trace (manual_sales.php?id=…) open that sale
+            const msOpen = new URLSearchParams(location.search).get('id');
+            if (msOpen) viewMs(msOpen);
         });
 
         function loadProducts() {
@@ -87,15 +103,19 @@ require_once __DIR__ . '/includes/check_admin.php';
             let html = '';
             rows.forEach(s => {
                 const badge = PAY_STATUS_BADGE[s.payment_status] || 'is-neutral';
+                // FIX (3 Oct 2026): money received later and what is still due
+                const msRcv = parseFloat(s.received_later || 0), msDue = s.payment_status === 'paid' ? 0 : parseFloat(s.grand_total) - msRcv;
+                const msPay = s.payment_status !== 'paid' && Number(s.stock_deducted) === 1 && MS_CAN.pay && msDue > 0.005;
                 html += `<tr>
                     <td class="adm-cell-title">${escapeHtml(s.sale_number)}<div class="adm-cell-sub">${formatDate(s.sales_date)}</div></td>
                     <td>${escapeHtml(s.customer_name || '—')}<div class="adm-cell-sub">${escapeHtml(s.customer_mobile || '')}</div></td>
-                    <td><span class="adm-badge ${badge}">${escapeHtml(s.payment_status.replace(/_/g,' '))}</span></td>
+                    <td><span class="adm-badge ${badge}">${escapeHtml(s.payment_status.replace(/_/g,' '))}</span>${s.payment_status !== 'paid' ? `<div class="adm-cell-sub">${msRcv > 0 ? 'received ₹' + msRcv.toFixed(2) + ' · ' : ''}due ₹${msDue.toFixed(2)}</div>` : ''}</td>
                     <td class="adm-money">₹${parseFloat(s.grand_total).toFixed(2)}</td>
                     <td>${Number(s.stock_deducted) === 1 ? '<span class="adm-badge is-green">Stock deducted</span>' : '<span class="adm-badge is-amber">Pending confirmation</span>'}</td>
                     <td style="white-space:nowrap;">
                         <button class="adm-icon-btn view-ms" data-id="${s.id}" title="View"><i class="fas fa-eye"></i></button>
-                        ${Number(s.stock_deducted) === 0 ? `<button class="adm-icon-btn confirm-ms" data-id="${s.id}" data-number="${escapeHtml(s.sale_number)}" title="Confirm & deduct stock"><i class="fas fa-check-circle"></i></button>` : ''}
+                        ${msPay ? `<button class="adm-icon-btn pay-ms" data-id="${s.id}" data-number="${escapeHtml(s.sale_number)}" data-due="${msDue.toFixed(2)}" title="Record payment received"><i class="fas fa-indian-rupee-sign"></i></button>` : ''}
+                        ${Number(s.stock_deducted) === 0 && MS_CAN.create ? `<button class="adm-icon-btn confirm-ms" data-id="${s.id}" data-number="${escapeHtml(s.sale_number)}" title="Confirm & deduct stock"><i class="fas fa-check-circle"></i></button>` : ''}
                     </td>
                 </tr>`;
             });
@@ -105,6 +125,21 @@ require_once __DIR__ . '/includes/check_admin.php';
 
             $('.view-ms').on('click', function() { viewMs($(this).data('id')); });
             $('.confirm-ms').on('click', function() { confirmMs($(this).data('id'), $(this).data('number')); });
+            $('.pay-ms').on('click', function() { payMs($(this).data('id'), $(this).data('number'), $(this).data('due')); });   // FIX (3 Oct 2026)
+        }
+
+        // FIX (3 Oct 2026): record money received later (goes to Transactions; the sale becomes partly paid / paid)
+        function payMs(id, number, due) {
+            Swal.fire({ title: 'Payment received — ' + number, confirmButtonText: 'Record payment', showCancelButton: true, confirmButtonColor: '#1c5034', focusConfirm: false,
+                html: `<div style="text-align:left;display:grid;gap:10px">
+                    <label>Amount (due ₹${escapeHtml(due)})<input id="mpAmt" class="swal2-input" type="number" min="0" step="0.01" value="${escapeHtml(due)}" style="margin:4px 0 0;width:100%"></label>
+                    <label>Mode<select id="mpMode" class="swal2-select" style="margin:4px 0 0;width:100%"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank_transfer">Bank transfer</option><option value="card">Card</option><option value="cheque">Cheque</option></select></label>
+                    <label>UTR / reference (not needed for cash)<input id="mpRef" class="swal2-input" style="margin:4px 0 0;width:100%"></label></div>`,
+                preConfirm: () => $.ajax({ url: '../assets/db_query/admin/record_manual_sale_payment.php', type: 'POST', dataType: 'json',
+                        data: { id: id, amount: $('#mpAmt').val(), payment_mode: $('#mpMode').val(), reference: $('#mpRef').val() } })
+                    .then(r => { if (r.status !== 'success') { Swal.showValidationMessage(r.message || 'Could not record'); return false; } return r; },
+                          () => { Swal.showValidationMessage('The server did not respond.'); return false; })
+            }).then(r => { if (r.isConfirmed && r.value) { Swal.fire({ title: r.value.message, icon: 'success', confirmButtonColor: '#1c5034' }); loadManualSales(); } });
         }
 
         function viewMs(id) {

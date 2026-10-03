@@ -354,8 +354,11 @@ try {
                 $push($i['customer_name'], $i['customer_mobile'], $i['invoice_number'], 'invoices.php?id=' . $i['id'], $i['invoice_date'], $i['due_date'], (float)$i['grand_total'] - (float)$i['amount_paid']);
             foreach (erp_rows($pdo, "SELECT id, credit_number, sale_date, customer_name, customer_mobile, grand_total, amount_paid FROM credit_sales WHERE sale_date <= ?", [$asOf]) as $c)
                 $push($c['customer_name'], $c['customer_mobile'], $c['credit_number'], 'credit_sale.php?id=' . $c['id'], $c['sale_date'], null, (float)$c['grand_total'] - (float)$c['amount_paid']);
-            foreach (erp_rows($pdo, "SELECT id, sale_number, sales_date, customer_name, customer_mobile, grand_total FROM manual_sales WHERE payment_status IN ('pending','credit') AND sales_date <= ?", [$asOf]) as $m)
-                $push($m['customer_name'], $m['customer_mobile'], $m['sale_number'], 'manual_sales.php?id=' . $m['id'], $m['sales_date'], null, (float)$m['grand_total']);
+            // FIX (3 Oct 2026): confirmed manual sales only, partly paid ones too, less the money received later
+            foreach (erp_rows($pdo, "SELECT m.id, m.sale_number, m.sales_date, m.customer_name, m.customer_mobile, m.grand_total,
+                                            (SELECT COALESCE(SUM(t.amount),0) FROM accounts_transactions t WHERE t.type = 'payment_received' AND t.status = 'completed' AND t.reference_type = 'manual_sale' AND t.reference_number = m.sale_number AND t.date <= ?) AS rcv
+                                     FROM manual_sales m WHERE m.payment_status IN ('pending','credit','partially_paid') AND m.stock_deducted = 1 AND m.sales_date <= ?", [$asOf, $asOf]) as $m)
+                $push($m['customer_name'], $m['customer_mobile'], $m['sale_number'], 'manual_sales.php?id=' . $m['id'], $m['sales_date'], null, (float)$m['grand_total'] - (float)$m['rcv']);
             foreach (erp_rows($pdo, "SELECT id, receipt, created_at, first_name, last_name, phone, amount FROM orders WHERE UPPER(payment_method) = 'COD' AND payment_status <> 'paid' AND COALESCE(order_status,'') <> 'cancelled' AND DATE(created_at) <= ?", [$asOf]) as $o)
                 $push(trim($o['first_name'] . ' ' . $o['last_name']), $o['phone'], $o['receipt'] . ' (COD)', 'orders.php?id=' . $o['id'], substr($o['created_at'], 0, 10), null, (float)$o['amount']);
             // credit notes given reduce what the customer owes

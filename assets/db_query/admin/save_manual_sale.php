@@ -57,6 +57,12 @@ if ($id && $confirm) {
             if (!$product) continue; // product deleted since — skip rather than fail the whole sale
 
             $qty = (float)$item['quantity'];
+            // FIX (3 Oct 2026): never sell more than is in stock (it used to set the stock to 0 and lose the difference)
+            if ((int)$product['stock'] < (int)ceil($qty)) {
+                $pdo->rollBack();
+                echo json_encode(['status' => 'error', 'message' => "Only {$product['stock']} in stock for {$product['product_name']} (sale needs " . (int)ceil($qty) . '). Add stock first or change the sale.']);
+                exit;
+            }
             $newStock = max(0, (int)$product['stock'] - (int)ceil($qty));
 
             $pdo->prepare("UPDATE product_details SET stock = ? WHERE id = ?")->execute([$newStock, $item['product_id']]);
