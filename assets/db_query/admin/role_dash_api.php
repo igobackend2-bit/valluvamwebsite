@@ -495,6 +495,21 @@ try {
                                                             ['k' => 'paid', 'l' => 'Paid', 'f' => 'money'], ['k' => 'due', 'l' => 'Balance due', 'f' => 'money'], ['k' => 'st', 'l' => 'Status', 'f' => 'status'], ['k' => 'by', 'l' => 'Entered by']], 'rows' => $rows];
                 } catch (PDOException $e) { error_log('[role dash credit] ' . $e->getMessage()); }
             }
+            // FIX (3 Oct 2026): website orders waiting to be packed / sent / delivered (stock already taken) — Executive, Manager, CEO
+            if (in_array($lk, ['ceo', 'manager', 'executive'], true) && ($key === 'super' || erp_can($pdo, 'customer.view'))) {
+                try {
+                    $rows = [];
+                    foreach (erp_rows($pdo, "SELECT id, receipt, first_name, last_name, phone, city, amount, payment_method, payment_status, COALESCE(order_status,'ordered') st, created_at FROM orders
+                                             WHERE COALESCE(order_status,'ordered') NOT IN ('delivered','cancelled') AND (UPPER(payment_method) = 'COD' OR payment_status = 'paid')
+                                             ORDER BY id LIMIT 20") as $x)
+                        $rows[] = ['ord' => $x['receipt'], 'date' => substr($x['created_at'], 0, 10), 'cust' => trim($x['first_name'] . ' ' . $x['last_name']) . ' · ' . $x['phone'], 'city' => $x['city'], 'amount' => $x['amount'],
+                                   'pay' => strtoupper($x['payment_method']) === 'COD' ? ($x['payment_status'] === 'paid' ? 'COD · collected' : 'COD · to collect') : 'Paid online',
+                                   'st' => ['ordered' => 'Ordered — pack it', 'packed' => 'Packed — send it', 'couriered' => 'Out for delivery'][$x['st']] ?? $x['st'], 'link' => 'orders.php?id=' . (int)$x['id']];
+                    $sections[$ix]['lists'][] = ['key' => 'web', 'title' => 'Website orders to pack & send (stock already taken)', 'empty' => 'No website orders waiting. ✓', 'more' => 'orders.php',
+                                                 'cols' => [['k' => 'ord', 'l' => 'Order'], ['k' => 'date', 'l' => 'Date', 'f' => 'date'], ['k' => 'cust', 'l' => 'Customer'], ['k' => 'city', 'l' => 'City'],
+                                                            ['k' => 'amount', 'l' => 'Amount', 'f' => 'money'], ['k' => 'pay', 'l' => 'Payment'], ['k' => 'st', 'l' => 'Status', 'f' => 'status']], 'rows' => $rows];
+                } catch (PDOException $e) { error_log('[role dash web] ' . $e->getMessage()); }
+            }
             // team activity from the audit trail — Manager and CEO (1 Oct 2026)
             if (in_array($lk, ['ceo', 'manager'], true) && ($key === 'super' || erp_can($pdo, 'audit_logs.view'))) {
                 try {

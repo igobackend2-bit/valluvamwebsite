@@ -40,7 +40,7 @@ function role_dash_defs(): array {
         'ceo'       => ['label' => 'CEO — approve big POs, company KPIs',
                         'perms' => ['po.ceo_approve', 'purchase.view', 'purchase.approve', 'purchase.backend_approve', 'approvals.view', 'approvals.manage', 'reports.erp', 'reports.view', 'pnl.view', 'accounting.view', 'inventory.view', 'dashboard.view', 'trace.view', 'documents.view', 'notifications.view', 'suppliers.view', 'customer.view'],
                         'pages' => ['approvals.php', 'purchase_flow.php', 'purchase_orders.php', 'purchase_dashboard.php', 'purchase_history.php', 'profit_loss.php', 'financial_statements.php', 'product_profitability.php', 'erp_reports_center.php', 'reports.php', 'transaction_trace.php', 'ap_ar_aging.php', 'stock_valuation.php', 'supplier_360.php', 'customer_360.php', 'accounts.php', 'documents.php', 'notifications.php', 'print_erp.php', 'audit_logs.php',
-                                    'sales_orders.php', 'print_sales_order.php', 'manual_sales.php', 'credit_sale.php']],   // FIX (3 Oct 2026): CEO sees sales orders + manual sales (view only)
+                                    'sales_orders.php', 'print_sales_order.php', 'manual_sales.php', 'credit_sale.php', 'orders.php']],   // + website orders (view) 3 Oct 2026   // FIX (3 Oct 2026): CEO sees sales orders + manual sales (view only)
         'accounts'  => ['label' => 'Accounts Team — supplier payments with proof, bills, accounts',
                         'perms' => ['purchase.view', 'purchase_payment.create', 'purchase_invoice.create', 'documents.view', 'documents.upload', 'notifications.view', 'suppliers.view', 'accounting.view', 'accounts.view', 'accounts.create', 'expense.manage', 'pnl.view', 'reports.view', 'dashboard.view', 'warehouses.view', 'invoices.view', 'credit_sales.view', 'customer.view'],
                         'pages' => ['purchase_flow.php', 'purchase_orders.php', 'purchase_payments.php', 'purchase_invoices.php', 'supplier_ledger.php', 'supplier_360.php', 'accounts.php', 'expenses.php', 'receivables.php', 'chart_of_accounts.php', 'journals.php', 'general_ledger.php', 'financial_statements.php', 'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php']],
@@ -115,7 +115,7 @@ function role_access_pages(string $roleName, array $userDash = []): ?array {
                         'ap_ar_aging.php', 'bank_accounts.php', 'gst_summary.php', 'financial_periods.php', 'profit_loss.php', 'documents.php', 'notifications.php', 'print_erp.php',
                         // (1 Oct 2026) money side of returns and sales: refunds / credits, customer invoices, approvals of expenses / bills / payments
                         'purchase_returns.php', 'debit_notes.php', 'invoices.php', 'print_invoice.php', 'credit_notes.php', 'approvals.php', 'transaction_trace.php', 'erp_reports_center.php', 'reports.php',
-                        'manual_sales.php', 'credit_sale.php'],   // FIX (3 Oct 2026): Accounts collects money due on manual + credit sales
+                        'manual_sales.php', 'credit_sale.php', 'orders.php'],   // FIX (3 Oct 2026): Accounts collects money due on manual + credit sales + COD website orders
         'auditor'   => ['stock_audit.php', 'notifications.php'],   // FIX (2 Oct 2026): External Auditor — monthly audit + QC sign-off only
     ];
     $k = role_access_key($roleName);

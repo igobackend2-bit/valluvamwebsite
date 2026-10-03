@@ -174,6 +174,23 @@ try {
             $pdo->prepare("INSERT INTO fulfilment_logs (source_type, source_id, stage, tracking_ref, notes, by_user) VALUES (?,?,?,?,?,?)")
                 ->execute([$type, $id, $stage, erp_input('tracking_ref') ?: null, erp_input('notes') ?: null, erp_user()]);
             log_audit($pdo, 'fulfilment', $type === 'sales_order' ? 'sales_orders' : 'orders', $id, ['stage' => $last], ['stage' => $stage, 'tracking' => erp_input('tracking_ref')]);
+            // FIX (3 Oct 2026): a sales order's own status follows the fulfilment stage (picked / packed → processing, dispatched, delivered) — forward only
+            $soNext = $type === 'sales_order' ? (['picked' => 'processing', 'packed' => 'processing', 'dispatched' => 'dispatched', 'delivered' => 'delivered'][$stage] ?? null) : null;
+            if ($soNext) {
+                $pdo->prepare("UPDATE sales_orders SET status = ?, updated_by = ? WHERE id = ?
+                                 AND FIELD(status, 'confirmed','processing','ready_for_dispatch','dispatched','delivered') BETWEEN 1 AND FIELD(?, 'confirmed','processing','ready_for_dispatch','dispatched','delivered') - 1")
+                    ->execute([$soNext, erp_user(), $id, $soNext]);
+                erp_out(['status' => 'success', 'message' => "Marked {$stage}. The sales order is now " . erp_val($pdo, "SELECT REPLACE(status, '_', ' ') FROM sales_orders WHERE id = ?", [$id]) . '.']);
+            }
+            // FIX (3 Oct 2026): a website order's own status follows too (packed, out for delivery, delivered) — forward only, not cancelled / unpaid online orders
+            $woNext = $type === 'website_order' ? (['picked' => 'packed', 'packed' => 'packed', 'dispatched' => 'couriered', 'delivered' => 'delivered'][$stage] ?? null) : null;
+            if ($woNext) {
+                $pdo->prepare("UPDATE orders SET order_status = ? WHERE id = ? AND (UPPER(payment_method) = 'COD' OR payment_status = 'paid')
+                                 AND FIELD(COALESCE(order_status,'ordered'), 'ordered','packed','couriered','delivered') BETWEEN 1 AND FIELD(?, 'ordered','packed','couriered','delivered') - 1")
+                    ->execute([$woNext, $id, $woNext]);
+                $woNow = erp_val($pdo, "SELECT COALESCE(order_status,'ordered') FROM orders WHERE id = ?", [$id]);
+                erp_out(['status' => 'success', 'message' => "Marked {$stage}. The website order is now " . (['ordered' => 'Ordered', 'packed' => 'Packed', 'couriered' => 'Out for delivery', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled'][$woNow] ?? $woNow) . '.']);
+            }
             erp_out(['status' => 'success', 'message' => "Marked {$stage}. (The order's own status is still managed on its page.)"]);
 
         case 'ful_history':

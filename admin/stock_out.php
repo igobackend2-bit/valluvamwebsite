@@ -25,6 +25,8 @@ require_once __DIR__ . '/includes/check_admin.php';
                 <div>
                     <h1>Stock Out</h1>
                     <div class="adm-sub">Record goods leaving a warehouse (Load Out) — internal transfers, damage, or other manual dispatches</div>
+                    <!-- FIX (3 Oct 2026): download CSV / Excel for a week, month or any dates -->
+                    <button class="adm-btn adm-btn-ghost" id="soDownloadBtn" style="margin-top:10px"><i class="fas fa-file-arrow-down"></i> Download stock out (CSV / Excel)</button>
                 </div>
                 <button class="adm-btn adm-btn-primary" id="newStockOutBtn"><i class="fas fa-plus"></i> New stock out</button>
             </div>
@@ -73,6 +75,10 @@ require_once __DIR__ . '/includes/check_admin.php';
                             <option value="day">Today</option>
                             <option value="week">This week (7 days)</option>
                             <option value="month">This month (30 days)</option>
+                            <option value="this_week">This week (from Monday)</option><!-- FIX (3 Oct 2026) -->
+                            <option value="last_week">Last week</option>
+                            <option value="this_month">This calendar month</option>
+                            <option value="last_month">Last month</option>
                         </select>
                         <button class="adm-btn adm-btn-ghost" id="exportStockOutCsvBtn"><i class="fas fa-file-csv"></i> Download CSV</button>
                     </div>
@@ -107,7 +113,29 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#saveStockOutBtn').on('click', function() { saveStockOut(); });
             $('#f_period').on('change', function() { loadStockOuts(); });
             $('#exportStockOutCsvBtn').on('click', exportStockOutsCsv);
+            $('#soDownloadBtn').on('click', openStockOutDownload);   // FIX (3 Oct 2026)
         });
+
+        // FIX (3 Oct 2026): item-wise stock-out file (every product that left: stock outs, DCs, website orders, sales, repacking …)
+        function openStockOutDownload() {
+            Swal.fire({
+                title: 'Download stock out', confirmButtonText: 'Download', showCancelButton: true, confirmButtonColor: '#1c5034', focusConfirm: false, width: 520,
+                html: `<div style="text-align:left;display:grid;gap:10px;font-size:14px">
+                    <label>Period<select id="dlPeriod" class="swal2-select" style="margin:4px 0 0;width:100%">
+                        <option value="this_week">This week (Monday to today)</option><option value="last_week">Last week</option><option value="last7">Last 7 days</option>
+                        <option value="this_month" selected>This month</option><option value="last_month">Last month</option><option value="last30">Last 30 days</option>
+                        <option value="today">Today</option><option value="custom">Choose dates…</option></select></label>
+                    <div id="dlCustom" style="display:none;gap:8px;grid-template-columns:1fr 1fr"><label>From<input id="dlFrom" type="date" class="swal2-input" style="margin:4px 0 0;width:100%"></label><label>To<input id="dlTo" type="date" class="swal2-input" style="margin:4px 0 0;width:100%"></label></div>
+                    <label>Type<select id="dlType" class="swal2-select" style="margin:4px 0 0;width:100%"><option value="">All stock out</option><option value="website_order">Website orders</option><option value="delivery_challan">Delivery challans (sales orders)</option>
+                        <option value="manual_sale">Manual sales</option><option value="credit_sale">Credit sales</option><option value="repack">Repacking</option><option value="internal_transfer">Internal transfer</option><option value="damage">Damage</option><option value="waste">Waste</option><option value="other">Other</option></select></label>
+                    <label>File<select id="dlFormat" class="swal2-select" style="margin:4px 0 0;width:100%"><option value="xlsx">Excel (.xlsx) — details + total by product</option><option value="csv">CSV</option></select></label></div>`,
+                didOpen: () => { $('#dlPeriod').on('change', function () { $('#dlCustom').css('display', this.value === 'custom' ? 'grid' : 'none'); }); },
+                preConfirm: () => {
+                    if ($('#dlPeriod').val() === 'custom' && (!$('#dlFrom').val() || !$('#dlTo').val())) { Swal.showValidationMessage('Choose both dates.'); return false; }
+                    return $.param({ period: $('#dlPeriod').val(), date_from: $('#dlFrom').val(), date_to: $('#dlTo').val(), reference_type: $('#dlType').val(), format: $('#dlFormat').val() });
+                }
+            }).then(r => { if (r.isConfirmed) window.location = '../assets/db_query/admin/export_stock_outs.php?' + r.value; });
+        }
 
         function resetForm() {
             $('#f_refnum, #f_vehicle, #f_customer, #f_authby, #f_reason').val('');
@@ -275,9 +303,9 @@ require_once __DIR__ . '/includes/check_admin.php';
         }
 
         function refBadge(type) {
-            const map = { sales_order: 'is-info', delivery_challan: 'is-info', manual_sales: 'is-info',
+            const map = { sales_order: 'is-info', delivery_challan: 'is-info', manual_sales: 'is-info', manual_sale: 'is-info', credit_sale: 'is-info', website_order: 'is-green',   // FIX (3 Oct 2026): + website / sales types
                           internal_transfer: 'is-amber', damage: 'is-danger', waste: 'is-danger', other: 'is-neutral' };
-            return `<span class="adm-badge ${map[type] || 'is-neutral'}">${escapeHtml(type.replace('_', ' '))}</span>`;
+            return `<span class="adm-badge ${map[type] || 'is-neutral'}">${escapeHtml(String(type || 'other').replace(/_/g, ' '))}</span>`;
         }
 
         function displayStockOuts(rows) {
@@ -288,11 +316,11 @@ require_once __DIR__ . '/includes/check_admin.php';
             let html = '';
             rows.forEach(r => {
                 html += `<tr>
-                    <td class="adm-cell-title"><a href="print_stock_out.php?id=${r.id}" target="_blank">${escapeHtml(r.stock_out_number)}</a><div class="adm-cell-sub">${formatDate(r.created_at)}</div></td>
+                    <td class="adm-cell-title">${/^\d+$/.test(String(r.id)) ? `<a href="print_stock_out.php?id=${r.id}" target="_blank">${escapeHtml(r.stock_out_number)}</a>` : escapeHtml(r.stock_out_number)}<div class="adm-cell-sub">${formatDate(r.created_at)}</div></td><!-- FIX (3 Oct 2026): print link only for Stock Out documents -->
                     <td>${formatDateOnly(r.stock_out_date)}</td>
                     <td>${refBadge(r.reference_type)}${r.reference_number ? '<div class="adm-cell-sub">' + escapeHtml(r.reference_number) + '</div>' : ''}</td>
                     <td>${escapeHtml(r.warehouse_name || '—')}</td>
-                    <td>${r.item_count} item(s) / ${r.total_quantity} qty</td>
+                    <td>${r.product_name ? escapeHtml(r.product_name) + ' · ' + r.total_quantity + ' qty' : r.item_count + ' item(s) / ' + r.total_quantity + ' qty'}</td>
                     <td>${escapeHtml(r.customer_name || '—')}</td>
                     <td>${escapeHtml(r.created_by || '—')}</td>
                 </tr>`;

@@ -1,5 +1,16 @@
 <?php
 require_once __DIR__ . '/includes/check_admin.php';
+// FIX (3 Oct 2026): Executive / Manager move orders (pack, send, deliver, cancel); Accounts / CEO view; COD cash collected: Executive / Manager / Accounts
+$ordCan = ['fulfil' => true, 'cod' => true];
+if ((int)($admin_role_id ?? 0) !== 1) {
+    try {
+        require_once __DIR__ . '/../assets/db_query/config.php';
+        $st = $pdo->prepare("SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = 'sales.fulfilment'");
+        $st->execute([(int)($_SESSION['admin_role_id'] ?? 0)]);
+        $ordFul = (bool)$st->fetchColumn() || user_dash_has_perm($pdo, 'sales.fulfilment');
+        $ordCan = ['fulfil' => $ordFul, 'cod' => $ordFul || role_access_key((string)$admin_role_name) === 'accounts' || in_array('accounts', $role_user_dash, true)];
+    } catch (Throwable $e) { error_log('[orders perms] ' . $e->getMessage()); }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,6 +39,11 @@ require_once __DIR__ . '/includes/check_admin.php';
         #ordersTable td.adm-items-cell { text-align: center; }
         .order-view-link { cursor: pointer; color: var(--adm-green); text-decoration: none; }
         .order-view-link:hover { text-decoration: underline; }
+        /* FIX (3 Oct 2026): columns were cut off (amount, date, payment) — the table keeps its width and scrolls sideways on small screens */
+        #ordersTable table.adm-table { min-width: 1040px; }
+        #ordersTable td.adm-money, #ordersTable td.ord-date { white-space: nowrap; overflow: visible; }
+        #ordersTable .ord-pay { font-size: 12px; color: var(--adm-muted, #6b6459); margin-top: 3px; white-space: normal; line-height: 1.25; }
+        #ordersTable .ord-pay.is-due { color: #a8442f; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -52,6 +68,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                         <option value="packed">Packed</option>
                         <option value="couriered">Out for delivery</option>
                         <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option><!-- FIX (3 Oct 2026) -->
                     </select>
                 </div>
                 <div class="adm-card-body" id="ordersTable">
@@ -70,6 +87,8 @@ require_once __DIR__ . '/includes/check_admin.php';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const ORD_CAN = <?= json_encode($ordCan) ?>;   // FIX (3 Oct 2026)
+        let ordOpen = new URLSearchParams(location.search).get('id');   // FIX (3 Oct 2026): links from trace / customer 360 open the order
         $(document).ready(function() {
             loadOrders();
             $('#statusFilter').on('change', loadOrders);
@@ -102,6 +121,11 @@ require_once __DIR__ . '/includes/check_admin.php';
 
             let rows = '';
             orders.forEach(order => {
+                // FIX (3 Oct 2026): payment state, unpaid online orders, cancelled orders
+                const cod = String(order.payment_method).toUpperCase() === 'COD', paid = order.payment_status === 'paid', cancelled = order.order_status === 'cancelled';
+                const payTxt = cancelled ? 'cancelled' : (paid ? (cod ? 'cash collected' : 'paid online') : (cod ? 'to collect on delivery' : 'payment not received'));
+                const statusLocked = !ORD_CAN.fulfil || cancelled || (!cod && !paid);
+                const codBtn = cod && !paid && !cancelled && ORD_CAN.cod ? `<button type="button" class="adm-icon-btn cod-paid-btn" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" data-amount="${parseFloat(order.amount).toFixed(2)}" title="COD cash collected — mark paid"><i class="fas fa-indian-rupee-sign"></i></button>` : '';
                 rows += `<tr>
                     <td class="adm-cell-title"><span class="order-view-link view-items-btn" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" title="Click to view products ordered">${escapeHtml(order.receipt)}</span></td>
                     <td>
@@ -110,20 +134,21 @@ require_once __DIR__ . '/includes/check_admin.php';
                     </td>
                     <td>${escapeHtml(order.phone)}</td>
                     <td class="adm-money">₹${parseFloat(order.amount).toFixed(2)}</td>
-                    <td><span class="adm-badge ${order.payment_method === 'COD' ? 'is-amber' : 'is-green'}">${escapeHtml(order.payment_method)}</span></td>
+                    <td><span class="adm-badge ${order.payment_method === 'COD' ? 'is-amber' : 'is-green'}">${escapeHtml(order.payment_method)}</span><div class="ord-pay ${!paid && !cancelled ? 'is-due' : ''}">${payTxt}</div></td>
                     <td>
-                        <select class="adm-select order-status-select" data-order-id="${order.id}" data-current-status="${order.order_status || 'ordered'}">
+                        <select class="adm-select order-status-select" data-order-id="${order.id}" data-current-status="${order.order_status || 'ordered'}" ${statusLocked ? 'disabled' : ''} title="${!cod && !paid && !cancelled ? 'Online payment not received — do not pack' : ''}">
                             <option value="ordered" ${(order.order_status || 'ordered') === 'ordered' ? 'selected' : ''}>Ordered</option>
                             <option value="packed" ${order.order_status === 'packed' ? 'selected' : ''}>Packed</option>
                             <option value="couriered" ${order.order_status === 'couriered' ? 'selected' : ''}>Out for delivery</option>
                             <option value="delivered" ${order.order_status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="cancelled" ${cancelled ? 'selected' : ''}>Cancelled</option>
                         </select>
                     </td>
-                    <td class="adm-cell-sub">${formatDate(order.created_at)}</td>
+                    <td class="adm-cell-sub ord-date">${formatDate(order.created_at)}</td>
                     <td class="adm-items-cell">
                         <button type="button" class="adm-icon-btn view-items-btn" data-order-id="${order.id}" data-receipt="${escapeHtml(order.receipt)}" title="View products ordered">
                             <i class="fas fa-eye"></i>
-                        </button>
+                        </button>${codBtn}
                     </td>
                 </tr>`;
             });
@@ -148,6 +173,18 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('.view-items-btn').on('click', function() {
                 viewOrderItems($(this).data('order-id'), $(this).data('receipt'));
             });
+            // FIX (3 Oct 2026): COD cash collected
+            $('.cod-paid-btn').on('click', function() {
+                const id = $(this).data('order-id'), rc = $(this).data('receipt'), amt = $(this).data('amount');
+                Swal.fire({ title: 'Cash collected for ' + rc + '?', text: '₹' + amt + ' received from the customer (cash on delivery). It is marked paid and goes to Accounts.', icon: 'question',
+                            showCancelButton: true, confirmButtonColor: '#1c5034', confirmButtonText: 'Yes, mark paid' }).then(r => {
+                    if (!r.isConfirmed) return;
+                    $.post('../assets/db_query/admin/update_order_status.php', { order_id: id, status: 'cod_paid' }, null, 'json')
+                        .done(res => { Swal.fire({ title: res.status === 'success' ? 'Marked paid' : 'Could not update', text: res.message || '', icon: res.status === 'success' ? 'success' : 'error', confirmButtonColor: '#1c5034' }); loadOrders(); })
+                        .fail(() => Swal.fire({ title: 'Could not update', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' }));
+                });
+            });
+            if (ordOpen) { const o = orders.find(x => String(x.id) === String(ordOpen)); ordOpen = null; if (o) viewOrderItems(o.id, o.receipt); }
         }
 
         function viewOrderItems(orderId, receipt) {
@@ -250,8 +287,8 @@ require_once __DIR__ . '/includes/check_admin.php';
 
         function updateOrderStatus(orderId, newStatus, selectElement) {
             Swal.fire({
-                title: 'Update order status?',
-                text: `Change status to "${newStatus}".`,
+                title: newStatus === 'cancelled' ? 'Cancel this order?' : 'Update order status?',
+                text: newStatus === 'cancelled' ? 'The items go back into stock. An online payment must be refunded in Razorpay.' : `Change status to "${({ ordered: 'Ordered', packed: 'Packed', couriered: 'Out for delivery', delivered: 'Delivered' })[newStatus] || newStatus}".`,   // FIX (3 Oct 2026)
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#1c5034',
@@ -267,7 +304,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                         dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
-                                Swal.fire({ title: 'Updated', text: 'Order status updated.', icon: 'success', confirmButtonColor: '#1c5034' });
+                                Swal.fire({ title: 'Updated', text: response.message || 'Order status updated.', icon: 'success', confirmButtonColor: '#1c5034' });   // FIX (3 Oct 2026): shows the stock put back
                                 selectElement.data('current-status', newStatus);
                                 loadOrders();
                             } else {

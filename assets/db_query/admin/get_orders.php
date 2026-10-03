@@ -8,6 +8,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
+// FIX (3 Oct 2026): website orders hold customer names, phones and addresses — only roles with customer access (Executive, Manager, Accounts, CEO)
+require_once __DIR__ . '/auth_helper.php';
+require_permission($pdo, 'customer.view');
 
 try {
     // First, check if order_status column exists and create it if it doesn't

@@ -21,6 +21,14 @@ if ($period === 'day') {
 } elseif ($period === 'month') {
     $date_from = date('Y-m-d', strtotime('-29 days'));
     $date_to = date('Y-m-d');
+} elseif ($period === 'this_week') {   // FIX (3 Oct 2026): calendar week / month choices
+    $date_from = date('Y-m-d', strtotime('monday this week')); $date_to = date('Y-m-d');
+} elseif ($period === 'last_week') {
+    $date_from = date('Y-m-d', strtotime('monday last week')); $date_to = date('Y-m-d', strtotime('sunday last week'));
+} elseif ($period === 'this_month') {
+    $date_from = date('Y-m-01'); $date_to = date('Y-m-d');
+} elseif ($period === 'last_month') {
+    $date_from = date('Y-m-01', strtotime('first day of last month')); $date_to = date('Y-m-t', strtotime('first day of last month'));
 }
 
 try {
@@ -49,11 +57,17 @@ try {
     // deduction in stock_movements instead of creating a manual stock_outs
     // document. Include those ledger rows in this history as well.
     $documentNumbers = array_flip(array_filter(array_column($stock_outs, 'stock_out_number')));
+    // FIX (3 Oct 2026): a dispatched delivery challan makes a Stock Out document whose ledger rows carry the DC number — don't list it twice
+    foreach ($stock_outs as $d) if (!empty($d['reference_number'])) $documentNumbers[$d['reference_number']] = true;
     try {
         $movementSql = "SELECT sm.id, sm.reference_type, sm.reference_number, sm.warehouse_id,
-                               w.name AS warehouse_name, sm.quantity, sm.reason, sm.created_by, sm.created_at
+                               w.name AS warehouse_name, sm.quantity, sm.reason, sm.created_by, sm.created_at,
+                               p.product_name,   -- FIX (3 Oct 2026): which product + the website customer
+                               (SELECT TRIM(CONCAT(o.first_name, ' ', o.last_name)) FROM orders o WHERE sm.reference_type = 'website_order' AND o.receipt = sm.reference_number LIMIT 1) AS web_customer,
+                       (SELECT o.order_status FROM orders o WHERE sm.reference_type = 'website_order' AND o.receipt = sm.reference_number LIMIT 1) AS web_status
                         FROM stock_movements sm
                         LEFT JOIN warehouses w ON w.id = sm.warehouse_id
+                        LEFT JOIN product_details p ON p.id = sm.product_id
                         WHERE sm.movement_type = 'stock_out'";
         $movementParams = [];
         if ($reference_type !== '') { $movementSql .= " AND sm.reference_type = ?"; $movementParams[] = $reference_type; }
@@ -78,8 +92,9 @@ try {
                 'warehouse_id' => $movement['warehouse_id'],
                 'warehouse_name' => $movement['warehouse_name'],
                 'vehicle_number' => null,
-                'customer_name' => null,
-                'reason' => $movement['reason'],
+                'customer_name' => $movement['web_customer'] ?? null,
+                'reason' => $movement['reason'] . (($movement['web_status'] ?? '') === 'cancelled' ? ' — order cancelled, put back in stock' : ''),
+                'product_name' => $movement['product_name'] ?? null,
                 'authorized_by' => null,
                 'created_by' => $movement['created_by'],
                 'created_at' => $movement['created_at'],

@@ -8,6 +8,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
+// FIX (3 Oct 2026): customer details — only roles with customer access
+require_once __DIR__ . '/auth_helper.php';
+require_permission($pdo, 'customer.view');
 
 $order_id = isset($_GET['order_id']) ? (int)$_GET['order_id'] : 0;
 if ($order_id <= 0) {
