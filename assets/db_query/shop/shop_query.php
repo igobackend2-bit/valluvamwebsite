@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 // get_categories.php
 require_once __DIR__ . '/../config.php'; // your PDO connection file
+require_once __DIR__ . '/../size_group.php';   // FIX (3 Oct 2026)
 
 // ✅ Guard against missing 'action' param so a PHP notice never corrupts the JSON output
 $action = $_GET['action'] ?? '';
@@ -12,7 +13,7 @@ if ($action === 'all_products') {
     try {
         $stmt = $pdo->prepare("SELECT * FROM product_details ORDER BY id DESC");
         $stmt->execute();
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $products = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026): one card per product, sizes picked on the product page
 
         echo json_encode([
             'status' => 'success',
@@ -41,7 +42,7 @@ if ($action === 'all_products') {
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['query' => "%$query%"]);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026): one card per product
 
             if ($results) {
                 echo json_encode(['status' => 'success', 'data' => $results]);

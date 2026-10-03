@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 // require_once 'C:/xampp/htdocs/valluvam/assets/db_query/config.php'; // your PDO connection file
 require_once __DIR__ . '/../config.php'; // your PDO connection file
+require_once __DIR__ . '/../size_group.php';   // FIX (3 Oct 2026): one card per product, sizes picked on the product page
 $action = $_GET['action'] ?? '';
 
 // Homepage CMS selections are stored in the existing admin_settings key/value
@@ -27,7 +28,7 @@ function homepage_selected_products(PDO $pdo, array $ids): array {
     $order = implode(',', array_map('intval', $ids));
     $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, category, image, quantity, rating FROM product_details WHERE id IN ($marks) AND image IS NOT NULL AND TRIM(image) <> '' ORDER BY FIELD(id, $order)");
     $stmt->execute($ids);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026)
 }
 
 
@@ -57,7 +58,7 @@ if ($action == 'category_slider') {
             ORDER BY id DESC
             LIMIT 8
         ");
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $products = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026)
 
         echo json_encode([
             'status' => 'success',
@@ -91,7 +92,7 @@ if ($action == 'category_slider') {
             ORDER BY rating DESC, id DESC
             LIMIT 10
         ");
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $products = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026)
 
         echo json_encode([
             'status' => 'success',
@@ -118,7 +119,7 @@ if ($action == 'category_slider') {
                        OR category LIKE :query";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['query' => "%$query%"]);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026)
 
             if ($results) {
                 echo json_encode(['status' => 'success','data' => $results]);
@@ -157,7 +158,7 @@ if ($action == 'category_slider') {
         $placeholders = str_repeat('?,', count($cats) - 1) . '?';
         $stmt = $pdo->prepare("SELECT id, product_name, price, dis_price, category, image, quantity, rating FROM product_details WHERE image IS NOT NULL AND TRIM(image) <> '' AND category IN ($placeholders) ORDER BY id DESC LIMIT 8");
         $stmt->execute($cats);
-        echo json_encode(['status'=>'success','data'=>$stmt->fetchAll(PDO::FETCH_ASSOC)]);
+        echo json_encode(['status'=>'success','data'=>vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC))]);   // FIX (3 Oct 2026)
     } catch (PDOException $e) {
         echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
     }

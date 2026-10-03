@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config.php'; // your PDO connection file
+require_once __DIR__ . '/../size_group.php';   // FIX (3 Oct 2026)
 
 
 $response = ['status' => 'error', 'data' => []];
@@ -20,7 +21,7 @@ if (isset($_GET['query'])) {
                 WHERE product_name LIKE :query";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['query' => "%$query%"]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026): one card per product
 
         if ($results) {
             $response['status'] = 'success';

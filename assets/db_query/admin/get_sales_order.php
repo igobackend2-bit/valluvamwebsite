@@ -4,6 +4,7 @@ require_once __DIR__ . '/auth_helper.php';
 require_once __DIR__ . '/../config.php';
 
 require_admin_session();
+require_permission($pdo, 'sales_orders.view');   // FIX (3 Oct 2026): only roles with Sales Orders access (not L1 / Auditor / Accounts) can read sales orders
 
 $id = (int)($_GET['id'] ?? 0);
 if (!$id) {

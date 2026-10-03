@@ -20,6 +20,8 @@ if (in_array($action, ['add_product', 'delete_products'], true)
     exit;
 }
 
+// FIX (3 Oct 2026): saving / deleting products only for roles with the Products page
+if (in_array($action, ['add_product', 'delete_products'], true)) { require_once __DIR__ . '/../admin/page_guard.php'; require_page_access('products.php'); }
 if ($action == 'add_product') {
 
     try {

@@ -1,5 +1,20 @@
 <?php
 require_once __DIR__ . '/includes/check_admin.php';
+// FIX (3 Oct 2026): show each button only to the roles that may use it (Executive: create / edit; Manager: + dispatch (DC), invoice, cancel; CEO: view only)
+$soCan = ['create' => true, 'edit' => true, 'cancel' => true, 'dc' => true, 'inv' => true];
+if ((int)($admin_role_id ?? 0) !== 1) {
+    try {
+        require_once __DIR__ . '/../assets/db_query/config.php';
+        $soPerm = function (string $k) use ($pdo) {
+            $st = $pdo->prepare("SELECT 1 FROM admin_role_permissions WHERE role_id = ? AND perm_key = ?");
+            $st->execute([(int)($_SESSION['admin_role_id'] ?? 0), $k]);
+            return (bool)$st->fetchColumn() || user_dash_has_perm($pdo, $k);
+        };
+        $soPage = fn(string $p) => $role_allowed_pages === null || in_array($p, $role_allowed_pages, true);
+        $soCan = ['create' => $soPerm('sales_orders.create'), 'edit' => $soPerm('sales_orders.edit'), 'cancel' => $soPerm('sales_orders.cancel'),
+                  'dc' => $soPerm('dc.create') && $soPage('delivery_challans.php'), 'inv' => $soPerm('invoices.create') && $soPage('invoices.php')];
+    } catch (Throwable $e) { error_log('[sales_orders perms] ' . $e->getMessage()); }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -31,7 +46,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <h1>Sales Orders</h1>
                     <div class="adm-sub">Offline / B2B / phone sales entered by admin staff</div>
                 </div>
-                <button class="adm-btn adm-btn-primary" id="addSoBtn"><i class="fas fa-plus"></i> New Sales Order</button>
+                <?php if ($soCan['create']): /* FIX (3 Oct 2026) */ ?><button class="adm-btn adm-btn-primary" id="addSoBtn"><i class="fas fa-plus"></i> New Sales Order</button><?php endif; ?>
             </div>
 
             <section class="adm-card">
@@ -65,6 +80,7 @@ require_once __DIR__ . '/includes/check_admin.php';
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const SO_CAN = <?= json_encode($soCan) ?>;   // FIX (3 Oct 2026)
         let PRODUCTS = [];
         let CUSTOMERS = [];
         const STATUS_BADGE = {
@@ -78,6 +94,9 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('#addSoBtn').on('click', function() { openSoModal(null); });
             $('#soFilterBtn').on('click', loadSalesOrders);
             $('#soSearch').on('keyup', function(e) { if (e.key === 'Enter') loadSalesOrders(); });
+            // FIX (3 Oct 2026): links from dashboards / trace (sales_orders.php?id=…) open that order
+            const soOpen = new URLSearchParams(location.search).get('id');
+            if (soOpen) viewSalesOrder(soOpen);
         });
 
         function loadLookups() {
@@ -111,27 +130,34 @@ require_once __DIR__ . '/includes/check_admin.php';
             let rows = '';
             orders.forEach(o => {
                 const badge = STATUS_BADGE[o.status] || 'is-neutral';
-                const canEdit = o.status === 'draft' || o.status === 'confirmed';
-                const canConvertDc = (o.status !== 'draft' && o.status !== 'cancelled') && Number(o.dc_count) === 0;
-                const canConvertInv = o.status !== 'cancelled' && Number(o.invoice_count) === 0;
+                const canEdit = (o.status === 'draft' || o.status === 'confirmed') && SO_CAN.edit;   // FIX (3 Oct 2026): + role
+                const canConvertDc = (o.status !== 'draft' && o.status !== 'cancelled') && Number(o.dc_count) === 0 && SO_CAN.dc;
+                const canConvertInv = o.status !== 'cancelled' && Number(o.invoice_count) === 0 && SO_CAN.inv;
+                // FIX (3 Oct 2026): next step of the order (after the DC is dispatched)
+                const soNext = { dispatched: ['delivered', 'Mark delivered', 'fa-box-open'], delivered: ['completed', 'Mark completed', 'fa-flag-checkered'] }[o.status];
+                const invTxt = o.invoice_number ? `${escapeHtml(o.invoice_number)}<div class="adm-cell-sub">${escapeHtml(String(o.invoice_status || '').replace(/_/g,' '))}${Number(o.invoice_paid) > 0 ? ' · paid ₹' + parseFloat(o.invoice_paid).toFixed(2) : ''}</div>` : '<span class="adm-cell-sub">—</span>';
+                const dcTxt = o.dc_info ? escapeHtml(o.dc_info) : `<span class="adm-cell-sub">${o.status === 'draft' ? 'Confirm first' : (o.status === 'cancelled' ? '—' : 'Not dispatched yet')}</span>`;
                 rows += `<tr>
                     <td class="adm-cell-title">${escapeHtml(o.so_number)}<div class="adm-cell-sub">${formatDate(o.order_date)}</div></td>
                     <td>${escapeHtml(o.customer_name || '—')}<div class="adm-cell-sub">${escapeHtml(o.customer_mobile || '')}</div></td>
                     <td><span class="adm-badge ${badge}">${escapeHtml(o.status.replace(/_/g,' '))}</span></td>
                     <td class="adm-money">₹${parseFloat(o.grand_total).toFixed(2)}</td>
+                    <td>${dcTxt}</td>
+                    <td>${invTxt}</td>
                     <td style="white-space:nowrap;">
                         <button class="adm-icon-btn view-so" data-id="${o.id}" title="View"><i class="fas fa-eye"></i></button>
                         ${canEdit ? `<button class="adm-icon-btn edit-so" data-id="${o.id}" title="Edit"><i class="fas fa-pen"></i></button>` : ''}
-                        <button class="adm-icon-btn dup-so" data-id="${o.id}" title="Duplicate"><i class="fas fa-copy"></i></button>
+                        ${SO_CAN.create ? `<button class="adm-icon-btn dup-so" data-id="${o.id}" title="Duplicate"><i class="fas fa-copy"></i></button>` : ''}
+                        ${soNext && SO_CAN.edit ? `<button class="adm-icon-btn next-so" data-id="${o.id}" data-st="${soNext[0]}" data-number="${escapeHtml(o.so_number)}" title="${soNext[1]}"><i class="fas ${soNext[2]}"></i></button>` : ''}
                         <button class="adm-icon-btn print-so" data-id="${o.id}" title="Print"><i class="fas fa-print"></i></button>
                         ${canConvertDc ? `<button class="adm-icon-btn conv-dc" data-id="${o.id}" title="Convert to DC"><i class="fas fa-truck"></i></button>` : ''}
                         ${canConvertInv ? `<button class="adm-icon-btn conv-inv" data-id="${o.id}" title="Convert to Invoice"><i class="fas fa-receipt"></i></button>` : ''}
-                        ${o.status !== 'cancelled' ? `<button class="adm-icon-btn is-danger cancel-so" data-id="${o.id}" data-number="${escapeHtml(o.so_number)}" title="Cancel"><i class="fas fa-ban"></i></button>` : ''}
+                        ${o.status !== 'cancelled' && o.status !== 'completed' && SO_CAN.cancel ? `<button class="adm-icon-btn is-danger cancel-so" data-id="${o.id}" data-number="${escapeHtml(o.so_number)}" title="Cancel"><i class="fas fa-ban"></i></button>` : ''}
                     </td>
                 </tr>`;
             });
             $('#soTable').html(`<div class="adm-table-wrap"><table class="adm-table">
-                <thead><tr><th>SO #</th><th>Customer</th><th>Status</th><th>Grand total</th><th>Actions</th></tr></thead>
+                <thead><tr><th>SO #</th><th>Customer</th><th>Status</th><th>Grand total</th><th>Delivery (DC)</th><th>Invoice</th><th>Actions</th></tr></thead>
                 <tbody>${rows}</tbody></table></div>`);
 
             $('.view-so').on('click', function() { viewSalesOrder($(this).data('id')); });
@@ -141,6 +167,20 @@ require_once __DIR__ . '/includes/check_admin.php';
             $('.conv-dc').on('click', function() { window.location = 'delivery_challans.php?from_so=' + $(this).data('id'); });
             $('.conv-inv').on('click', function() { window.location = 'invoices.php?from_so=' + $(this).data('id'); });
             $('.cancel-so').on('click', function() { cancelSalesOrder($(this).data('id'), $(this).data('number')); });
+            $('.next-so').on('click', function() { advanceSalesOrder($(this).data('id'), $(this).data('st'), $(this).data('number')); });   // FIX (3 Oct 2026)
+        }
+
+        // FIX (3 Oct 2026): dispatched → delivered → completed (status only; items are not re-entered)
+        function advanceSalesOrder(id, status, number) {
+            Swal.fire({ title: `Mark ${number} ${status}?`, icon: 'question', showCancelButton: true, confirmButtonColor: '#1c5034', confirmButtonText: 'Yes, mark ' + status }).then(r => {
+                if (!r.isConfirmed) return;
+                $.ajax({ url: '../assets/db_query/admin/save_sales_order.php', type: 'POST', data: { id: id, status: status, status_only: 1 }, dataType: 'json',
+                    success: function(res) {
+                        if (res.status === 'success') { Swal.fire({ title: res.message || 'Updated', icon: 'success', confirmButtonColor: '#1c5034', timer: 1400, showConfirmButton: false }); loadSalesOrders(); }
+                        else Swal.fire({ title: 'Could not update', text: res.message || '', icon: 'error', confirmButtonColor: '#1c5034' });
+                    },
+                    error: function() { Swal.fire({ title: 'Could not update', text: 'The server did not respond.', icon: 'error', confirmButtonColor: '#1c5034' }); } });
+            });
         }
 
         function viewSalesOrder(id) {
@@ -391,7 +431,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                         url: '../assets/db_query/admin/cancel_sales_order.php', type: 'POST', data: { id: id }, dataType: 'json',
                         success: function(response) {
                             if (response.status === 'success') {
-                                Swal.fire({ title: 'Cancelled', icon: 'success', confirmButtonColor: '#1c5034', timer: 1200, showConfirmButton: false });
+                                Swal.fire({ title: 'Cancelled', text: (response.cancelled_invoices || []).length ? 'Invoice ' + response.cancelled_invoices.join(', ') + ' cancelled with it.' : '', icon: 'success', confirmButtonColor: '#1c5034', timer: 1800, showConfirmButton: false });   // FIX (3 Oct 2026)
                                 loadSalesOrders();
                             } else {
                                 Swal.fire({ title: 'Could not cancel', text: response.message || '', icon: 'error', confirmButtonColor: '#1c5034' });

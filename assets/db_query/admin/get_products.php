@@ -17,7 +17,7 @@ try {
     $search = $_GET['search'] ?? '';
     
     // Build SELECT query based on available columns
-    $sql = "SELECT id, product_name, category, price, dis_price, image";
+    $sql = "SELECT id, product_name, category, price, dis_price, image, quantity";   // FIX (3 Oct 2026): + pack size (sizes grouped on the Products page)
     
     if ($hasStock) {
         $sql .= ", stock";

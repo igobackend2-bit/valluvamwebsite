@@ -8,6 +8,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
+require_once __DIR__ . '/page_guard.php'; require_page_access('products.php');   // FIX (3 Oct 2026): only roles with the Products page
 
 $product_id = $_POST['product_id'] ?? 0;
 

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/auth_helper.php';
 require_once __DIR__ . '/../config.php';
 require_admin_session();
+require_once __DIR__ . '/page_guard.php'; require_page_access('homepage.php');   // FIX (3 Oct 2026): only roles with the Homepage page
 header('Content-Type: application/json');
 
 $raw = $_POST['content'] ?? '';

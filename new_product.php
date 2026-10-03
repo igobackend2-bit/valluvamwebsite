@@ -5,6 +5,9 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 	header('Location: admin/login.php');
 	exit;
 }
+// FIX (3 Oct 2026): the product editor only for roles with the Products page (Executive, Manager, Super Admin)
+require_once __DIR__ . '/assets/db_query/admin/page_guard.php';
+if (!vp_page_allowed('products.php')) { header('Location: admin/index.php'); exit; }
 ?>
 <!DOCTYPE html>
 <html lang="en">

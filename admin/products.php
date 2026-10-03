@@ -194,8 +194,35 @@ require_once __DIR__ . '/includes/check_admin.php';
                 return;
             }
 
+            // FIX (3 Oct 2026): packs of one product (same category + same name without the size, e.g. "BAY LEAVES 100g" / "200g")
+            // are shown once, with each size's price, discount, stock and its own edit / delete — the website shows them the same way
+            const stripSize = n => String(n || '').replace(/\s+\d+(\.\d+)?\s*(kg|g|ml|l)$/i, '').trim();
+            const sizeAmt = q => { const m = String(q || '').match(/([\d.]+)\s*(kg|g|gm|ml|l)?/i); if (!m) return 1e9; const n = parseFloat(m[1]), u = (m[2] || 'g').toLowerCase(); return (u === 'kg' || u === 'l') ? n : n / 1000; };
+            const stockTxt = s => (s === 'N/A' || s === null || s === undefined || s === '') ? '<span class="adm-cell-sub">—</span>'
+                : (parseInt(s, 10) > 0 ? escapeHtml(String(s)) : '<span class="adm-badge is-danger">0 · Out of stock</span>');
+            const groups = [], byKey = {};
+            products.forEach(p => { const base = stripSize(p.product_name) || p.product_name; const k = (p.category || '') + '|' + base.toLowerCase();
+                                    if (!byKey[k]) { byKey[k] = { base, items: [] }; groups.push(byKey[k]); } byKey[k].items.push(p); });
             let rows = '';
+            if (!document.getElementById('prdSizeCss')) $('head').append('<style id="prdSizeCss">.prd-size-line{display:flex;gap:8px;align-items:center;min-height:40px;white-space:nowrap}.prd-size{display:inline-block;min-width:46px;font-size:12px;font-weight:600;color:#1c5034;background:#eef4ef;border-radius:6px;padding:2px 6px;text-align:center}.prd-size-act{gap:6px}</style>');
+            const groupRow = g => {
+                const items = g.items.slice().sort((a, b) => sizeAmt(a.quantity) - sizeAmt(b.quantity));
+                const first = items[0];
+                const line = (p, html) => `<div class="prd-size-line"><span class="prd-size">${escapeHtml(p.quantity || p.product_name.slice(g.base.length).trim() || '—')}</span>${html}</div>`;
+                return `<tr>
+                    <td><img src="../assets/uploads/${encodeURI(first.image || 'no-image.jpg')}" class="adm-thumb" alt="${escapeHtml(g.base)}"></td>
+                    <td class="adm-cell-title">${escapeHtml(g.base)}<div class="adm-cell-sub">${items.length} sizes · customers pick the size on the website</div></td>
+                    <td><span class="adm-badge is-info">${escapeHtml(first.category || 'Uncategorized')}</span></td>
+                    <td class="adm-money">${items.map(p => line(p, '₹' + parseFloat(p.price || 0).toFixed(2))).join('')}</td>
+                    <td class="adm-money">${items.map(p => line(p, parseFloat(p.dis_price || 0) ? '₹' + parseFloat(p.dis_price).toFixed(2) : '<span class="adm-cell-sub">—</span>')).join('')}</td>
+                    <td>${items.map(p => line(p, stockTxt(p.stock))).join('')}</td>
+                    <td>${items.map(p => `<div class="prd-size-line prd-size-act"><a href="../new_product.php?id=${p.id}" class="adm-icon-btn" title="Edit ${escapeHtml(p.product_name)}"><i class="fas fa-pen"></i></a><button class="adm-icon-btn is-danger delete-product" data-product-id="${p.id}" data-product-name="${escapeHtml(p.product_name)}" title="Delete ${escapeHtml(p.product_name)}"><i class="fas fa-trash"></i></button></div>`).join('')}</td>
+                </tr>`;
+            };
+            const shown = {};
             products.forEach(product => {
+                const g = byKey[(product.category || '') + '|' + (stripSize(product.product_name) || product.product_name).toLowerCase()];
+                if (g && g.items.length > 1) { if (!shown[g.base + product.category]) { shown[g.base + product.category] = 1; rows += groupRow(g); } return; }   // FIX (3 Oct 2026)
                 const price = parseFloat(product.price || 0);
                 const disPrice = parseFloat(product.dis_price || 0);
                 rows += `<tr>
@@ -204,7 +231,7 @@ require_once __DIR__ . '/includes/check_admin.php';
                     <td><span class="adm-badge is-info">${escapeHtml(product.category || 'Uncategorized')}</span></td>
                     <td class="adm-money">₹${price.toFixed(2)}</td>
                     <td class="adm-money">${disPrice ? '₹' + disPrice.toFixed(2) : '<span class="adm-cell-sub">—</span>'}</td>
-                    <td>${product.stock ? escapeHtml(String(product.stock)) : '<span class="adm-cell-sub">—</span>'}</td>
+                    <td>${stockTxt(product.stock)}</td>
                     <td>
                         <a href="../new_product.php?id=${product.id}" class="adm-icon-btn" title="Edit ${escapeHtml(product.product_name)}">
                             <i class="fas fa-pen"></i>

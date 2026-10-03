@@ -38,6 +38,32 @@ if (!in_array($status, $validStatuses, true)) {
     $status = 'draft';
 }
 
+// FIX (3 Oct 2026): move the order forward (processing → ready → dispatched → delivered → completed) without re-entering the items.
+// Dispatched / delivered / completed need a dispatched Delivery Challan first (the DC is what takes the stock out).
+$soNeedsDc = function (int $soId) use ($pdo): bool {
+    $c = $pdo->prepare("SELECT COUNT(*) FROM delivery_challans WHERE sales_order_id = ? AND delivery_status IN ('dispatched','in_transit','delivered')");
+    $c->execute([$soId]);
+    return (int)$c->fetchColumn() === 0;
+};
+if ($id && !empty($_POST['status_only'])) {
+    $flow = ['confirmed', 'processing', 'ready_for_dispatch', 'dispatched', 'delivered', 'completed'];
+    $curStmt = $pdo->prepare("SELECT so_number, status FROM sales_orders WHERE id = ?");
+    $curStmt->execute([$id]);
+    $cur = $curStmt->fetch(PDO::FETCH_ASSOC);
+    if (!$cur) { echo json_encode(['status' => 'error', 'message' => 'Sales order not found']); exit; }
+    $from = array_search($cur['status'], $flow, true); $to = array_search($status, $flow, true);
+    if ($from === false || $to === false || $to <= $from) { echo json_encode(['status' => 'error', 'message' => "{$cur['so_number']} is {$cur['status']} — it can only move forward."]); exit; }
+    if ($to >= 3 && $soNeedsDc($id)) { echo json_encode(['status' => 'error', 'message' => 'Dispatch it with a Delivery Challan first (that takes the stock out).']); exit; }
+    $pdo->prepare("UPDATE sales_orders SET status = ?, updated_by = ? WHERE id = ?")->execute([$status, $_SESSION['admin_username'] ?? 'Admin', $id]);
+    log_audit($pdo, 'update', 'sales_orders', $id, ['status' => $cur['status']], ['status' => $status]);
+    echo json_encode(['status' => 'success', 'id' => $id, 'so_number' => $cur['so_number'], 'message' => "{$cur['so_number']} marked " . str_replace('_', ' ', $status) . '.']);
+    exit;
+}
+if (in_array($status, ['dispatched', 'delivered', 'completed'], true) && (!$id || $soNeedsDc($id))) {
+    echo json_encode(['status' => 'error', 'message' => 'Dispatch it with a Delivery Challan first (that takes the stock out) — then mark it ' . $status . '.']);
+    exit;
+}
+
 if (!$customer_id && $customer_name === '') {
     echo json_encode(['status' => 'error', 'message' => 'Select an existing customer or enter a walk-in customer name']);
     exit;

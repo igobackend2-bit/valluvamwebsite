@@ -4,13 +4,14 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 // require_once 'C:/xampp/htdocs/valluvam/assets/db_query/config.php'; // your PDO connection file
 require_once __DIR__ . '/../config.php'; // your PDO connection file
+require_once __DIR__ . '/../size_group.php';   // FIX (3 Oct 2026)
 
 $action = $_GET['action'];
  if ($_GET['action'] === 'palmjaggery_products') {
     try {
         $stmt = $pdo->prepare("SELECT * FROM product_details WHERE category = 'Palm Jaggery' ORDER BY id DESC");
         $stmt->execute();
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $products = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026): one card per product, sizes picked on the product page
 
         echo json_encode([
             'status' => 'success',
@@ -39,7 +40,7 @@ $action = $_GET['action'];
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['query' => "%$query%"]);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = vp_group_sizes($stmt->fetchAll(PDO::FETCH_ASSOC));   // FIX (3 Oct 2026): one card per product
 
             if ($results) {
                 echo json_encode(['status' => 'success', 'data' => $results]);

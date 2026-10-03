@@ -5,6 +5,7 @@ require_once __DIR__ . '/auth_helper.php';
 require_once __DIR__ . '/../config.php';
 
 require_admin_session();
+require_permission($pdo, 'sales_orders.view');   // FIX (3 Oct 2026): only roles with Sales Orders access (not L1 / Auditor / Accounts) can read sales orders
 
 $status      = trim($_GET['status'] ?? '');
 $customer_id = trim($_GET['customer_id'] ?? '');
@@ -15,7 +16,12 @@ $date_to     = trim($_GET['date_to'] ?? '');
 try {
     $sql = "SELECT so.*,
                    (SELECT COUNT(*) FROM delivery_challans dc WHERE dc.sales_order_id = so.id AND dc.delivery_status != 'cancelled') AS dc_count,
-                   (SELECT COUNT(*) FROM invoices inv WHERE inv.sales_order_id = so.id AND inv.status != 'cancelled') AS invoice_count
+                   (SELECT COUNT(*) FROM invoices inv WHERE inv.sales_order_id = so.id AND inv.status != 'cancelled') AS invoice_count,
+                   -- FIX (3 Oct 2026): DC + invoice / payment shown in the list
+                   (SELECT GROUP_CONCAT(CONCAT(dc.dc_number, ' · ', dc.delivery_status) ORDER BY dc.id SEPARATOR ', ') FROM delivery_challans dc WHERE dc.sales_order_id = so.id AND dc.delivery_status != 'cancelled') AS dc_info,
+                   (SELECT inv.invoice_number FROM invoices inv WHERE inv.sales_order_id = so.id AND inv.status != 'cancelled' ORDER BY inv.id LIMIT 1) AS invoice_number,
+                   (SELECT inv.status FROM invoices inv WHERE inv.sales_order_id = so.id AND inv.status != 'cancelled' ORDER BY inv.id LIMIT 1) AS invoice_status,
+                   (SELECT inv.amount_paid FROM invoices inv WHERE inv.sales_order_id = so.id AND inv.status != 'cancelled' ORDER BY inv.id LIMIT 1) AS invoice_paid
             FROM sales_orders so WHERE 1=1";
     $params = [];
 

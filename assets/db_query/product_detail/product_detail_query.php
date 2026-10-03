@@ -85,6 +85,19 @@ if (ctype_digit($raw)) {
             break;
         }
     }
+    // FIX (3 Oct 2026): lists show one card per product named without the size (e.g. "/spices/bay-leaves");
+    // open its smallest pack that is in stock (the Size row then shows all packs)
+    if (!$id) {
+        $best = null;
+        foreach ($pdo->query("SELECT id, product_name, quantity, stock FROM product_details")->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            if (slugify_product_name(strip_size_suffix($row['product_name'])) !== $raw) continue;
+            $pq = parse_quantity_info($row['quantity']);
+            $amt = $pq ? ($pq['kg'] ?? $pq['litres']) : PHP_INT_MAX;
+            $rank = [(int) $row['stock'] > 0 ? 0 : 1, $amt];
+            if ($best === null || $rank < $best[0]) $best = [$rank, (int) $row['id']];
+        }
+        if ($best) $id = $best[1];
+    }
     if (!$id) {
         echo json_encode(['status' => 'error', 'message' => 'Product not found']);
         exit;

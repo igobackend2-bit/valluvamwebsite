@@ -182,6 +182,14 @@ try {
         }
     }
 
+    // FIX (3 Oct 2026): the sales order follows its DC (ready / loaded → ready for dispatch, dispatched → dispatched, delivered → delivered) — forward only
+    $soNext = ['ready' => 'ready_for_dispatch', 'loaded' => 'ready_for_dispatch', 'dispatched' => 'dispatched', 'in_transit' => 'dispatched', 'delivered' => 'delivered'][$delivery_status] ?? null;
+    if ($sales_order_id && $soNext) {
+        $pdo->prepare("UPDATE sales_orders SET status = ?, updated_by = ? WHERE id = ?
+                         AND FIELD(status, 'confirmed','processing','ready_for_dispatch','dispatched','delivered') BETWEEN 1 AND FIELD(?, 'confirmed','processing','ready_for_dispatch','dispatched','delivered') - 1")
+            ->execute([$soNext, $adminUsername, $sales_order_id, $soNext]);
+    }
+
     $pdo->commit();
 
     log_audit($pdo, $id ? 'update' : 'create', 'delivery_challans', $dcId, $oldRow, [

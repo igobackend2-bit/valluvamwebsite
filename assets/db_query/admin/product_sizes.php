@@ -46,6 +46,7 @@ function ps_money($v, $required) {
 function ps_out($arr) { echo json_encode($arr); exit; }
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
+if ($action !== 'list') { require_once __DIR__ . '/page_guard.php'; require_page_access('products.php'); }   // FIX (3 Oct 2026): only roles with the Products page change sizes
 $productId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
 if ($productId <= 0) ps_out(['status' => 'error', 'message' => 'Save the product first, then add its sizes.']);
 
